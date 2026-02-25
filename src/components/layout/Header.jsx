@@ -31,13 +31,16 @@ export function Header() {
           <Menu className="h-5 w-5" />
         </Button>
 
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-primary">
+        <Link to="/" className="flex items-center gap-2 text-primary">
           {logoUrl ? (
             <img src={logoUrl} alt={appName} className="h-7 w-auto object-contain" />
           ) : (
             <Package className="h-6 w-6" />
           )}
-          <span className="hidden sm:inline">{appName}</span>
+          <div className="hidden sm:flex flex-col leading-tight">
+            <span className="font-display text-lg font-bold">{appName}</span>
+            <span className="text-[10px] text-muted-foreground font-normal tracking-wide">Book. Borrow. Return.</span>
+          </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 ml-6">

@@ -1,11 +1,15 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { useAppSettings } from '@/hooks/use-settings'
 import { Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'
 
 export function LoginPage() {
   const { user, signInWithMicrosoft } = useAuth()
+  const { data: settings } = useAppSettings()
+  const appName = settings?.app_name || 'VO Gear Hub'
+  const logoUrl = settings?.logo_url
 
   if (user) return <Navigate to="/" replace />
 
@@ -14,17 +18,24 @@ export function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex items-center gap-2 text-primary">
-              <Package className="h-10 w-10" />
-            </div>
+            {logoUrl ? (
+              <img src={logoUrl} alt={appName} className="h-12 w-auto object-contain" />
+            ) : (
+              <div className="flex items-center gap-2 text-primary">
+                <Package className="h-10 w-10" />
+              </div>
+            )}
           </div>
-          <CardTitle className="text-2xl font-display">VO Gear Hub</CardTitle>
+          <CardTitle className="text-2xl font-display">{appName}</CardTitle>
           <CardDescription className="text-base mt-1">
             Book. Borrow. Return.
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="pt-2 pb-8">
+        <CardContent className="pt-2 pb-8 space-y-4">
+          <p className="text-center text-sm text-muted-foreground">
+            Log in to access the equipment lending platform
+          </p>
           <Button
             className="w-full gap-2 h-11 text-base"
             onClick={() => signInWithMicrosoft?.()}

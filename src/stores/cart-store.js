@@ -43,10 +43,6 @@ export const useCartStore = create(
       },
 
       clearCart: () => set({ items: [], startDate: '', endDate: '' }),
-
-      get itemCount() {
-        return get().items.length
-      },
     }),
     {
       name: 'vo-gear-hub-cart',

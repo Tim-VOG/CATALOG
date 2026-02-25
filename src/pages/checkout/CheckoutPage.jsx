@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useLocations } from '@/hooks/use-locations'
 import { useCreateLoanRequest } from '@/hooks/use-loan-requests'
 import { useActiveFormFields } from '@/hooks/use-form-fields'
 import { useUIStore } from '@/stores/ui-store'
-import { checkoutSchema } from '@/lib/validations/checkout'
+import { useAppSettings } from '@/hooks/use-settings'
+import { sendEmail } from '@/lib/api/send-email'
+import { wrapEmailHtml } from '@/lib/email-html'
+import { getNotificationRecipients } from '@/lib/api/notification-recipients'
 import { ArrowLeft, ArrowRight, Check, ClipboardList, Send } from 'lucide-react'
 import { DynamicField } from '@/components/checkout/DynamicField'
 import { Button } from '@/components/ui/button'
@@ -24,39 +25,30 @@ import { cn } from '@/lib/utils'
 
 const STEPS = ['Project Details', 'Review & Submit']
 
+// Priority options for the priority system field
+const PRIORITY_OPTIONS = [
+  { value: 'low', label: 'Low' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' },
+]
+
 export function CheckoutPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const { items, startDate, endDate, clearCart } = useCartStore()
   const { data: locations = [] } = useLocations()
   const createRequest = useCreateLoanRequest()
-  const { data: customFields = [] } = useActiveFormFields()
+  const { data: activeFields = [] } = useActiveFormFields()
   const showToast = useUIStore((s) => s.showToast)
+  const { data: settings } = useAppSettings()
   const [step, setStep] = useState(0)
-  const [customValues, setCustomValues] = useState({})
-  const [customErrors, setCustomErrors] = useState({})
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(checkoutSchema),
-    defaultValues: {
-      project_name: '',
-      project_description: '',
-      location_id: '',
-      location_other: '',
-      justification: '',
-      priority: 'normal',
-      terms_accepted: false,
-      responsibility_accepted: false,
-    },
+  const [fieldValues, setFieldValues] = useState({
+    priority: 'normal',
+    terms_accepted: false,
+    responsibility_accepted: false,
   })
-
-  const formValues = watch()
+  const [fieldErrors, setFieldErrors] = useState({})
 
   if (items.length === 0) {
     return (
@@ -82,10 +74,14 @@ export function CheckoutPage() {
     )
   }
 
-  const validateCustomFields = () => {
+  const setFieldValue = (key, val) => {
+    setFieldValues((prev) => ({ ...prev, [key]: val }))
+  }
+
+  const validateFields = () => {
     const errors = {}
-    customFields.forEach((field) => {
-      const val = customValues[field.field_key]
+    activeFields.forEach((field) => {
+      const val = fieldValues[field.field_key]
       if (field.is_required) {
         if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) {
           errors[field.field_key] = `${field.label} is required`
@@ -95,38 +91,202 @@ export function CheckoutPage() {
         errors[field.field_key] = 'Please enter a valid email'
       }
     })
-    setCustomErrors(errors)
+    // Also validate project_name min length
+    if (fieldValues.project_name && fieldValues.project_name.length < 3) {
+      errors.project_name = 'Project name must be at least 3 characters'
+    }
+    if (fieldValues.project_description && fieldValues.project_description.length < 10) {
+      errors.project_description = 'Please provide a brief description (min 10 characters)'
+    }
+    setFieldErrors(errors)
     return Object.keys(errors).length === 0
   }
 
   const handleStepNext = () => {
-    if (validateCustomFields()) {
+    if (validateFields()) {
       setStep(1)
     }
   }
 
-  const onSubmit = async (data) => {
+  // Render a system field with special UI
+  const renderSystemField = (field) => {
+    const key = field.field_key
+    const error = fieldErrors[key]
+
+    if (key === 'location_id') {
+      return (
+        <div key={field.id} className="space-y-1">
+          <Label htmlFor={key}>{field.label} {field.is_required && '*'}</Label>
+          <Select
+            id={key}
+            value={fieldValues[key] || ''}
+            onChange={(e) => setFieldValue(key, e.target.value)}
+          >
+            <option value="">Select location...</option>
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.id}>{loc.name}</option>
+            ))}
+          </Select>
+          {error && <p className="text-xs text-destructive">{error}</p>}
+          {fieldValues.location_id && locations.find((l) => l.id === fieldValues.location_id)?.name?.includes('Remote') && (
+            <div className="space-y-1 mt-2">
+              <Label htmlFor="location_other">Shipping Address</Label>
+              <Textarea
+                id="location_other"
+                value={fieldValues.location_other || ''}
+                onChange={(e) => setFieldValue('location_other', e.target.value)}
+                placeholder="Full delivery address..."
+                rows={2}
+              />
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    if (key === 'priority') {
+      return (
+        <div key={field.id} className="space-y-1">
+          <Label htmlFor={key}>{field.label}</Label>
+          <Select
+            id={key}
+            value={fieldValues[key] || 'normal'}
+            onChange={(e) => setFieldValue(key, e.target.value)}
+          >
+            {PRIORITY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </Select>
+        </div>
+      )
+    }
+
+    // project_name, project_description, justification — render as standard text/textarea
+    if (field.field_type === 'textarea') {
+      return (
+        <div key={field.id} className="space-y-1">
+          <Label htmlFor={key}>{field.label} {field.is_required && '*'}</Label>
+          <Textarea
+            id={key}
+            value={fieldValues[key] || ''}
+            onChange={(e) => setFieldValue(key, e.target.value)}
+            placeholder={field.placeholder || ''}
+            rows={3}
+          />
+          {field.help_text && <p className="text-xs text-muted-foreground">{field.help_text}</p>}
+          {error && <p className="text-xs text-destructive">{error}</p>}
+        </div>
+      )
+    }
+
+    // Default text input for system fields
+    return (
+      <div key={field.id} className="space-y-1">
+        <Label htmlFor={key}>{field.label} {field.is_required && '*'}</Label>
+        <Input
+          id={key}
+          value={fieldValues[key] || ''}
+          onChange={(e) => setFieldValue(key, e.target.value)}
+          placeholder={field.placeholder || ''}
+        />
+        {field.help_text && <p className="text-xs text-muted-foreground">{field.help_text}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
+      </div>
+    )
+  }
+
+  const renderField = (field) => {
+    if (field.is_system) {
+      return renderSystemField(field)
+    }
+    // Custom fields use DynamicField
+    return (
+      <DynamicField
+        key={field.id}
+        field={field}
+        value={fieldValues[field.field_key]}
+        onChange={(val) => setFieldValue(field.field_key, val)}
+        error={fieldErrors[field.field_key]}
+      />
+    )
+  }
+
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    if (!fieldValues.terms_accepted || !fieldValues.responsibility_accepted) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        terms_accepted: !fieldValues.terms_accepted ? 'You must accept the terms' : undefined,
+        responsibility_accepted: !fieldValues.responsibility_accepted ? 'You must accept responsibility for the equipment' : undefined,
+      }))
+      return
+    }
+
+    // Separate system field values from custom field values
+    const systemKeys = activeFields.filter((f) => f.is_system).map((f) => f.field_key)
+    const customFields = {}
+    Object.entries(fieldValues).forEach(([k, v]) => {
+      if (!systemKeys.includes(k) && !['terms_accepted', 'responsibility_accepted', 'location_other'].includes(k)) {
+        customFields[k] = v
+      }
+    })
+
     try {
-      await createRequest.mutateAsync({
+      const req = await createRequest.mutateAsync({
         request: {
           user_id: user.id,
-          project_name: data.project_name,
-          project_description: data.project_description,
-          location_id: data.location_id || null,
-          location_other: data.location_other || null,
-          justification: data.justification || null,
-          priority: data.priority,
+          project_name: fieldValues.project_name || '',
+          project_description: fieldValues.project_description || '',
+          location_id: fieldValues.location_id || null,
+          location_other: fieldValues.location_other || null,
+          justification: fieldValues.justification || null,
+          priority: fieldValues.priority || 'normal',
           pickup_date: startDate,
           return_date: endDate,
-          terms_accepted: data.terms_accepted,
-          responsibility_accepted: data.responsibility_accepted,
-          custom_fields: customValues,
+          terms_accepted: fieldValues.terms_accepted,
+          responsibility_accepted: fieldValues.responsibility_accepted,
+          custom_fields: customFields,
           status: 'pending',
         },
         items,
       })
       clearCart()
       showToast('Request submitted successfully!')
+
+      // Send notification email (fire and forget — don't block navigation)
+      const appName = settings?.app_name || 'VO Gear Hub'
+      const logoUrl = settings?.logo_url || ''
+      const requesterName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
+      const itemSummary = items.map((i) => `${i.product.name} x${i.quantity}`).join(', ')
+
+      const emailBody = wrapEmailHtml(
+        `New equipment request submitted by <strong>${requesterName}</strong>.\n\n` +
+        `<strong>Project:</strong> ${fieldValues.project_name || '—'}\n` +
+        `<strong>Priority:</strong> ${fieldValues.priority || 'normal'}\n` +
+        `<strong>Period:</strong> ${formatDate(startDate)} → ${formatDate(endDate)}\n` +
+        `<strong>Items:</strong> ${itemSummary}\n\n` +
+        (fieldValues.project_description ? `<strong>Description:</strong> ${fieldValues.project_description}\n\n` : '') +
+        `Request #${req.request_number || req.id}`,
+        { appName, logoUrl }
+      )
+
+      // Get notification recipients
+      getNotificationRecipients()
+        .then((recipients) => {
+          const adminEmails = (recipients || [])
+            .filter((r) => r.is_active && r.notify_on_new_request)
+            .map((r) => r.email)
+          if (adminEmails.length > 0) {
+            sendEmail({
+              to: adminEmails,
+              subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
+              body: emailBody,
+              isHtml: true,
+            })
+          }
+        })
+        .catch(() => {}) // silently fail — email is non-critical
+
       navigate('/requests')
     } catch (err) {
       showToast(err.message, 'error')
@@ -135,6 +295,8 @@ export function CheckoutPage() {
 
   const formatDate = (d) =>
     new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+
+  const selectedLocation = locations.find((l) => l.id === fieldValues.location_id)
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -167,83 +329,15 @@ export function CheckoutPage() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Step 1: Project Details */}
+      <form onSubmit={onSubmit}>
+        {/* Step 1: Project Details — all fields from DB */}
         {step === 0 && (
           <Card>
             <CardHeader>
               <CardTitle>Project Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-1">
-                <Label htmlFor="project_name">Project Name *</Label>
-                <Input id="project_name" {...register('project_name')} placeholder="e.g. Client Demo - Acme Corp" />
-                {errors.project_name && <p className="text-xs text-destructive">{errors.project_name.message}</p>}
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="project_description">Description *</Label>
-                <Textarea
-                  id="project_description"
-                  {...register('project_description')}
-                  placeholder="Describe why you need this equipment..."
-                  rows={3}
-                />
-                {errors.project_description && <p className="text-xs text-destructive">{errors.project_description.message}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="location_id">Pickup Location *</Label>
-                  <Select id="location_id" {...register('location_id')}>
-                    <option value="">Select location...</option>
-                    {locations.map((loc) => (
-                      <option key={loc.id} value={loc.id}>{loc.name}</option>
-                    ))}
-                  </Select>
-                  {errors.location_id && <p className="text-xs text-destructive">{errors.location_id.message}</p>}
-                </div>
-
-                <div className="space-y-1">
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select id="priority" {...register('priority')}>
-                    <option value="low">Low</option>
-                    <option value="normal">Normal</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
-                  </Select>
-                </div>
-              </div>
-
-              {formValues.location_id && locations.find((l) => l.id === formValues.location_id)?.name?.includes('Remote') && (
-                <div className="space-y-1">
-                  <Label htmlFor="location_other">Shipping Address</Label>
-                  <Textarea id="location_other" {...register('location_other')} placeholder="Full delivery address..." rows={2} />
-                </div>
-              )}
-
-              <div className="space-y-1">
-                <Label htmlFor="justification">Additional Justification (optional)</Label>
-                <Textarea id="justification" {...register('justification')} placeholder="Any additional notes for the admin..." rows={2} />
-              </div>
-
-              {/* Dynamic custom fields */}
-              {customFields.length > 0 && (
-                <>
-                  <div className="border-t pt-4 mt-4">
-                    <p className="text-sm font-medium text-muted-foreground mb-3">Additional Information</p>
-                  </div>
-                  {customFields.map((field) => (
-                    <DynamicField
-                      key={field.id}
-                      field={field}
-                      value={customValues[field.field_key]}
-                      onChange={(val) => setCustomValues((prev) => ({ ...prev, [field.field_key]: val }))}
-                      error={customErrors[field.field_key]}
-                    />
-                  ))}
-                </>
-              )}
+              {activeFields.map((field) => renderField(field))}
 
               <div className="flex justify-end">
                 <Button type="button" className="gap-2" onClick={handleStepNext}>
@@ -274,21 +368,34 @@ export function CheckoutPage() {
                   </div>
                   <div>
                     <span className="text-muted-foreground">Project</span>
-                    <p className="font-medium">{formValues.project_name || '—'}</p>
+                    <p className="font-medium">{fieldValues.project_name || '—'}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Priority</span>
-                    <Badge variant={formValues.priority === 'urgent' ? 'destructive' : formValues.priority === 'high' ? 'warning' : 'secondary'}>
-                      {formValues.priority}
+                    <Badge variant={fieldValues.priority === 'urgent' ? 'destructive' : fieldValues.priority === 'high' ? 'warning' : 'secondary'}>
+                      {fieldValues.priority || 'normal'}
                     </Badge>
                   </div>
+                  {selectedLocation && (
+                    <div>
+                      <span className="text-muted-foreground">Location</span>
+                      <p className="font-medium">{selectedLocation.name}</p>
+                    </div>
+                  )}
                 </div>
-                {formValues.project_description && (
+                {fieldValues.project_description && (
                   <div className="text-sm">
                     <span className="text-muted-foreground">Description</span>
-                    <p>{formValues.project_description}</p>
+                    <p>{fieldValues.project_description}</p>
                   </div>
                 )}
+                {/* Show custom field values */}
+                {activeFields.filter((f) => !f.is_system && fieldValues[f.field_key]).map((field) => (
+                  <div key={field.id} className="text-sm">
+                    <span className="text-muted-foreground">{field.label}</span>
+                    <p>{String(fieldValues[field.field_key])}</p>
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
@@ -317,25 +424,25 @@ export function CheckoutPage() {
                 <div className="space-y-3">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <Checkbox
-                      checked={formValues.terms_accepted}
-                      onCheckedChange={(v) => setValue('terms_accepted', v, { shouldValidate: true })}
+                      checked={fieldValues.terms_accepted}
+                      onCheckedChange={(v) => setFieldValue('terms_accepted', v)}
                     />
                     <span className="text-sm">
                       I accept the terms of use and understand that equipment must be returned in good condition by the agreed date.
                     </span>
                   </label>
-                  {errors.terms_accepted && <p className="text-xs text-destructive ml-7">{errors.terms_accepted.message}</p>}
+                  {fieldErrors.terms_accepted && <p className="text-xs text-destructive ml-7">{fieldErrors.terms_accepted}</p>}
 
                   <label className="flex items-start gap-3 cursor-pointer">
                     <Checkbox
-                      checked={formValues.responsibility_accepted}
-                      onCheckedChange={(v) => setValue('responsibility_accepted', v, { shouldValidate: true })}
+                      checked={fieldValues.responsibility_accepted}
+                      onCheckedChange={(v) => setFieldValue('responsibility_accepted', v)}
                     />
                     <span className="text-sm">
                       I accept personal responsibility for the borrowed equipment during the loan period.
                     </span>
                   </label>
-                  {errors.responsibility_accepted && <p className="text-xs text-destructive ml-7">{errors.responsibility_accepted.message}</p>}
+                  {fieldErrors.responsibility_accepted && <p className="text-xs text-destructive ml-7">{fieldErrors.responsibility_accepted}</p>}
                 </div>
 
                 <div className="flex justify-between">

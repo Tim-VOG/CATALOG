@@ -14,12 +14,14 @@ import {
 export function UserMenu() {
   const { user, profile, signOut } = useAuth()
 
+  // Build initials: prefer first+last, fallback to first letter of email
+  const emailInitial = user?.email?.[0]?.toUpperCase() || '?'
   const initials = profile
-    ? `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase() || '?'
-    : '?'
+    ? `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase() || emailInitial
+    : emailInitial
 
   const displayName = profile
-    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+    ? (`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || user?.email)
     : user?.email
 
   return (

@@ -3,6 +3,7 @@ import { Package, ShoppingCart, ClipboardList, Settings, X, LayoutDashboard, Inb
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
+import { useAppSettings } from '@/hooks/use-settings'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +27,9 @@ export function MobileNav() {
   const cartCount = useCartStore((s) => s.items.length)
   const mobileNavOpen = useUIStore((s) => s.mobileNavOpen)
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
+  const { data: settings } = useAppSettings()
+  const appName = settings?.app_name || 'VO Gear Hub'
+  const logoUrl = settings?.logo_url
 
   if (!mobileNavOpen) return null
 
@@ -39,7 +43,17 @@ export function MobileNav() {
       <div className="fixed inset-0 bg-black/60 z-40" onClick={toggleMobileNav} />
       <div className="fixed inset-y-0 left-0 w-72 bg-card border-r z-50 flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
-          <span className="font-display font-bold text-primary text-lg">VO Gear Hub</span>
+          <div className="flex items-center gap-2 text-primary">
+            {logoUrl ? (
+              <img src={logoUrl} alt={appName} className="h-6 w-auto object-contain" />
+            ) : (
+              <Package className="h-5 w-5" />
+            )}
+            <div className="flex flex-col leading-tight">
+              <span className="font-display font-bold text-lg">{appName}</span>
+              <span className="text-[10px] text-muted-foreground font-normal tracking-wide">Book. Borrow. Return.</span>
+            </div>
+          </div>
           <Button variant="ghost" size="icon" onClick={toggleMobileNav}>
             <X className="h-5 w-5" />
           </Button>

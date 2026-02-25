@@ -73,7 +73,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   let body = substituteVars(template?.body || 'Return confirmation for {{project_name}}.\n\nItems:\n{{item_list}}\n\nCondition: {{condition}}')
 
   if (isHtml) {
-    body = wrapEmailHtml(body)
+    body = wrapEmailHtml(body, { appName: 'VO Gear Hub' })
   }
 
   // Build recipients

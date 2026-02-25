@@ -1,7 +1,7 @@
 // Authentication Context
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from './supabase'
-import { getProfile } from './api/profiles'
+import { getProfile, updateProfile } from './api/profiles'
 
 const AuthContext = createContext({})
 
@@ -13,9 +13,35 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   // Load profile — extracted so we can call it from multiple places
+  // Also performs client-side name extraction if profile names are empty
   const loadProfile = useCallback(async (userId) => {
     try {
       const profileData = await getProfile(userId)
+
+      // Client-side fallback: if names are empty, try extracting from user_metadata
+      if (profileData && (!profileData.first_name && !profileData.last_name)) {
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        const meta = currentUser?.user_metadata
+        if (meta) {
+          const fullName = meta.full_name || meta.name || ''
+          if (fullName) {
+            const spaceIdx = fullName.indexOf(' ')
+            const firstName = spaceIdx > 0 ? fullName.slice(0, spaceIdx) : fullName
+            const lastName = spaceIdx > 0 ? fullName.slice(spaceIdx + 1) : ''
+            try {
+              const updated = await updateProfile(userId, {
+                first_name: firstName,
+                last_name: lastName,
+              })
+              setProfile(updated)
+              return updated
+            } catch (updateErr) {
+              console.warn('[Auth] Could not update profile names:', updateErr?.message)
+            }
+          }
+        }
+      }
+
       setProfile(profileData)
       return profileData
     } catch (err) {

@@ -7,6 +7,13 @@ export const useLoanRequests = () =>
     queryFn: api.getLoanRequests,
   })
 
+export const useMyLoanRequests = (userId) =>
+  useQuery({
+    queryKey: ['loan-requests', 'mine', userId],
+    queryFn: () => api.getMyLoanRequests(userId),
+    enabled: !!userId,
+  })
+
 export const useLoanRequest = (id) =>
   useQuery({
     queryKey: ['loan-requests', id],

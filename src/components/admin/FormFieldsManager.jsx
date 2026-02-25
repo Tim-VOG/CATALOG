@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useFormFields, useCreateFormField, useUpdateFormField, useDeleteFormField } from '@/hooks/use-form-fields'
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,6 +25,9 @@ const FIELD_TYPES = [
   { value: 'radio', label: 'Radio Buttons' },
   { value: 'date', label: 'Date' },
 ]
+
+// System field types are not editable
+const SYSTEM_FIELD_TYPES = ['location', 'priority']
 
 const HAS_OPTIONS = ['select', 'multi_select', 'radio']
 
@@ -106,8 +109,15 @@ export function FormFieldsManager() {
       return
     }
     try {
+      const isSystem = editingField?.is_system
+      const updates = isSystem
+        ? { id: editingField.id, label: form.label, placeholder: form.placeholder, help_text: form.help_text, is_required: form.is_required, is_active: form.is_active }
+        : editingField
+          ? { id: editingField.id, ...form }
+          : form
+
       if (editingField) {
-        await updateField.mutateAsync({ id: editingField.id, ...form })
+        await updateField.mutateAsync(updates)
         showToast('Field updated')
       } else {
         await createField.mutateAsync(form)
@@ -119,10 +129,14 @@ export function FormFieldsManager() {
     }
   }
 
-  const handleDeleteField = async (id) => {
+  const handleDeleteField = async (field) => {
+    if (field.is_system) {
+      showToast('System fields cannot be deleted', 'error')
+      return
+    }
     if (!confirm('Delete this custom field?')) return
     try {
-      await deleteField.mutateAsync(id)
+      await deleteField.mutateAsync(field.id)
       showToast('Field deleted')
     } catch (err) {
       showToast(err.message, 'error')
@@ -152,23 +166,29 @@ export function FormFieldsManager() {
 
   if (isLoading) return <PageLoading />
 
+  const fieldTypeLabel = (type) => {
+    if (type === 'location') return 'Location Picker'
+    if (type === 'priority') return 'Priority Selector'
+    return FIELD_TYPES.find((t) => t.value === type)?.label || type
+  }
+
   return (
     <>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Custom Checkout Fields</CardTitle>
+            <CardTitle className="text-lg">Checkout Form Fields</CardTitle>
             <Button size="sm" onClick={openCreateField} className="gap-2">
               <Plus className="h-4 w-4" /> Add Field
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            These fields appear in Step 1 of the checkout form, below the built-in fields.
+            Manage all fields in the checkout form. System fields can be toggled, reordered, and relabeled but not deleted.
           </p>
         </CardHeader>
         <CardContent>
           {fields.length === 0 ? (
-            <p className="text-center py-6 text-muted-foreground text-sm">No custom fields yet</p>
+            <p className="text-center py-6 text-muted-foreground text-sm">No fields configured</p>
           ) : (
             <div className="space-y-2">
               {fields.map((field, idx) => (
@@ -187,10 +207,15 @@ export function FormFieldsManager() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm">{field.label}</span>
+                      {field.is_system && (
+                        <Badge variant="outline" className="text-[10px] gap-1 border-blue-500/30 text-blue-400">
+                          <Lock className="h-2.5 w-2.5" /> System
+                        </Badge>
+                      )}
                       {field.is_required && <Badge variant="outline" className="text-[10px]">Required</Badge>}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <Badge className="text-[10px] bg-muted text-muted-foreground">{field.field_type}</Badge>
+                      <Badge className="text-[10px] bg-muted text-muted-foreground">{fieldTypeLabel(field.field_type)}</Badge>
                       <span className="text-[10px] text-muted-foreground font-mono">{field.field_key}</span>
                     </div>
                   </div>
@@ -203,9 +228,11 @@ export function FormFieldsManager() {
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditField(field)}>
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteField(field.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    {!field.is_system && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteField(field)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -218,30 +245,44 @@ export function FormFieldsManager() {
       <Dialog open={showFieldDialog} onOpenChange={setShowFieldDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingField ? 'Edit Field' : 'Add Custom Field'}</DialogTitle>
+            <DialogTitle>
+              {editingField
+                ? editingField.is_system ? 'Edit System Field' : 'Edit Field'
+                : 'Add Custom Field'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             <div className="space-y-1">
               <Label>Label *</Label>
               <Input value={form.label} onChange={(e) => handleLabelChange(e.target.value)} placeholder="e.g. Cost Center" />
             </div>
-            <div className="space-y-1">
-              <Label>Field Key</Label>
-              <Input
-                value={form.field_key}
-                onChange={(e) => setForm({ ...form, field_key: e.target.value })}
-                className="font-mono text-sm"
-                disabled={!!editingField}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Field Type</Label>
-              <Select value={form.field_type} onChange={(e) => setForm({ ...form, field_type: e.target.value })}>
-                {FIELD_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </Select>
-            </div>
+            {/* Hide key + type for system fields */}
+            {!(editingField?.is_system) && (
+              <>
+                <div className="space-y-1">
+                  <Label>Field Key</Label>
+                  <Input
+                    value={form.field_key}
+                    onChange={(e) => setForm({ ...form, field_key: e.target.value })}
+                    className="font-mono text-sm"
+                    disabled={!!editingField}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Field Type</Label>
+                  <Select value={form.field_type} onChange={(e) => setForm({ ...form, field_type: e.target.value })}>
+                    {FIELD_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </Select>
+                </div>
+              </>
+            )}
+            {editingField?.is_system && SYSTEM_FIELD_TYPES.includes(form.field_type) && (
+              <p className="text-xs text-muted-foreground bg-muted/50 rounded-md p-2">
+                System field — type and key cannot be changed. You can edit the label, placeholder, help text, and required status.
+              </p>
+            )}
             <div className="space-y-1">
               <Label>Placeholder</Label>
               <Input value={form.placeholder} onChange={(e) => setForm({ ...form, placeholder: e.target.value })} />
@@ -255,7 +296,7 @@ export function FormFieldsManager() {
               <span className="text-sm">Required field</span>
             </label>
 
-            {HAS_OPTIONS.includes(form.field_type) && (
+            {HAS_OPTIONS.includes(form.field_type) && !(editingField?.is_system) && (
               <div className="space-y-2">
                 <Label>Options</Label>
                 <div className="flex gap-2">

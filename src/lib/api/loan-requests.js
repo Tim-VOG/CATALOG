@@ -9,6 +9,16 @@ export const getLoanRequests = async () => {
   return data
 }
 
+export const getMyLoanRequests = async (userId) => {
+  const { data, error } = await supabase
+    .from('loan_requests_with_details')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 export const getLoanRequest = async (id) => {
   const { data, error } = await supabase
     .from('loan_requests_with_details')
