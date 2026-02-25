@@ -77,7 +77,7 @@ export function generateDetailsCard(vars) {
   if (vars.return_date_new && vars.return_date) {
     // Extension: show old date struck through + new date highlighted
     cells.push({
-      label: 'Return',
+      label: 'New Return Date',
       value: `<span style="text-decoration:line-through;color:#64748b;font-weight:400;">${escapeHtml(vars.return_date)}</span> <span style="color:#22c55e;font-weight:700;">&rarr; ${escapeHtml(vars.return_date_new)}</span>`,
       color: '#22c55e',
       rawHtml: true,
