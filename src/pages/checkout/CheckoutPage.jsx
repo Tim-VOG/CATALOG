@@ -279,7 +279,7 @@ export function CheckoutPage() {
           if (adminEmails.length > 0) {
             sendEmail({
               to: adminEmails,
-              subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
+              subject: `[${appName}] VO Gear Hub - New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
               body: emailBody,
               isHtml: true,
             })
