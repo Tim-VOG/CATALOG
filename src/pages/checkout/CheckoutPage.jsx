@@ -8,7 +8,7 @@ import { useActiveFormFields } from '@/hooks/use-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
 import { sendEmail } from '@/lib/api/send-email'
-import { wrapEmailHtml } from '@/lib/email-html'
+import { wrapEmailHtml, generateDetailsCard, generateItemsHtml, escapeHtml, styledPriority } from '@/lib/email-html'
 import { getNotificationRecipients } from '@/lib/api/notification-recipients'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { generateStatusEmailDraft } from '@/lib/email-draft'
@@ -259,8 +259,15 @@ export function CheckoutPage() {
       const appName = settings?.app_name || 'VO Gear Hub'
       const logoUrl = settings?.logo_url || ''
       const requesterName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
-      const itemSummary = items.map((i) => `${i.product.name} x${i.quantity}`).join(', ')
       const selectedLoc = locations.find((l) => l.id === fieldValues.location_id)
+
+      // Shared item data for both emails
+      const itemData = items.map((i) => ({
+        product_name: i.product.name,
+        product_image: i.product.image_url,
+        quantity: i.quantity,
+        product_includes: i.product.includes || [],
+      }))
 
       // 1) Send confirmation email to user using template
       getEmailTemplateByKey('order_confirmation')
@@ -272,31 +279,32 @@ export function CheckoutPage() {
             user_email: user?.email,
             project_name: fieldValues.project_name || '',
             project_description: fieldValues.project_description || '',
-            request_number: req.request_number || req.id,
+            request_number: String(req.request_number || req.id),
             pickup_date: startDate,
             return_date: endDate,
             location_name: selectedLoc?.name || '',
             priority: fieldValues.priority || 'normal',
             custom_fields: customFields,
           }
-          const itemData = items.map((i) => ({
-            product_name: i.product.name,
-            product_image: i.product.image_url,
-            quantity: i.quantity,
-            product_includes: i.product.includes || [],
-          }))
           const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl })
           if (draft.to) sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
         })
-        .catch(() => {})
+        .catch((err) => console.error('[order_confirmation email]', err))
 
-      // 2) Send notification email to admins
-      const emailBody = wrapEmailHtml(
-        `New equipment request submitted by <strong>${requesterName}</strong>.\n\n` +
-        `<strong>Project:</strong> ${fieldValues.project_name || '—'}\n` +
-        `<strong>Priority:</strong> ${fieldValues.priority || 'normal'}\n` +
-        `<strong>Period:</strong> ${formatDate(startDate)} → ${formatDate(endDate)}\n` +
-        `<strong>Items:</strong> ${itemSummary}`,
+      // 2) Send rich notification email to admins
+      const detailsCard = generateDetailsCard({
+        project_name: fieldValues.project_name || '',
+        pickup_date: formatDate(startDate),
+        return_date: formatDate(endDate),
+        location: selectedLoc?.name || '',
+      })
+      const adminItemsHtml = generateItemsHtml(itemData)
+      const priorityBadge = styledPriority(fieldValues.priority || 'normal')
+      const adminBody = wrapEmailHtml(
+        `New equipment request submitted by <strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong>.\n\n` +
+        detailsCard + '\n\n' +
+        `<div style="margin-bottom:4px;"><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Priority</span></div>${priorityBadge}\n\n` +
+        adminItemsHtml,
         { appName, logoUrl }
       )
 
@@ -309,12 +317,12 @@ export function CheckoutPage() {
             sendEmail({
               to: adminEmails,
               subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
-              body: emailBody,
+              body: adminBody,
               isHtml: true,
             })
           }
         })
-        .catch(() => {})
+        .catch((err) => console.error('[admin notification email]', err))
 
       navigate('/requests')
     } catch (err) {

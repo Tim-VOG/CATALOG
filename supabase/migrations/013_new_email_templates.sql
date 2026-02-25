@@ -1,4 +1,9 @@
 -- Migration 013: New email templates for status changes + extension decisions
+
+-- Allow all authenticated users to read active email templates (needed for user-facing emails)
+CREATE POLICY "Email templates readable by authenticated users" ON email_templates
+    FOR SELECT USING (auth.role() = 'authenticated');
+
 -- Deactivate old templates that are no longer needed
 
 -- Deactivate order_ready (step 2 — admin approves, no longer needed)
