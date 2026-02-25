@@ -65,6 +65,8 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
     const newDate = new Date(extension.return_date)
     newDate.setDate(newDate.getDate() + extension.granted_days)
     vars.new_return_date = format(newDate, 'dd MMM yyyy')
+    // Pass to details_card for strikethrough old date + highlighted new date
+    vars.return_date_new = vars.new_return_date
   }
 
   const isHtml = template?.format === 'html'

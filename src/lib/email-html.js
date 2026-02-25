@@ -74,7 +74,15 @@ export function generateDetailsCard(vars) {
   if (vars.pickup_date) {
     cells.push({ label: 'Pickup', value: escapeHtml(vars.pickup_date), color: '#f97316' })
   }
-  if (vars.return_date) {
+  if (vars.return_date_new && vars.return_date) {
+    // Extension: show old date struck through + new date highlighted
+    cells.push({
+      label: 'Return',
+      value: `<span style="text-decoration:line-through;color:#64748b;font-weight:400;">${escapeHtml(vars.return_date)}</span> <span style="color:#22c55e;font-weight:700;">&rarr; ${escapeHtml(vars.return_date_new)}</span>`,
+      color: '#22c55e',
+      rawHtml: true,
+    })
+  } else if (vars.return_date) {
     cells.push({ label: 'Return', value: escapeHtml(vars.return_date), color: '#f97316' })
   }
   if (vars.location) {
@@ -86,7 +94,7 @@ export function generateDetailsCard(vars) {
       .map(
         (c) => `<td style="padding:12px 16px;vertical-align:top;">
           <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${c.label}</div>
-          <div style="font-weight:600;color:${c.color};font-size:14px;">${c.value}</div>
+          <div style="font-weight:600;color:${c.color};font-size:14px;">${c.rawHtml ? c.value : c.value}</div>
         </td>`
       )
       .join('')

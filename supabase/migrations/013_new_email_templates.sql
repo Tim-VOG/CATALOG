@@ -4,6 +4,10 @@
 CREATE POLICY "Email templates readable by authenticated users" ON email_templates
     FOR SELECT USING (auth.role() = 'authenticated');
 
+-- Allow authenticated users to read notification recipients (needed for user-triggered admin emails)
+CREATE POLICY "Notification recipients readable by authenticated users" ON notification_recipients
+    FOR SELECT USING (auth.role() = 'authenticated');
+
 -- Fix: allow users to cancel their own pending requests (WITH CHECK must include 'cancelled')
 DROP POLICY "Users can update own draft/pending requests" ON loan_requests;
 CREATE POLICY "Users can update own draft/pending requests" ON loan_requests
@@ -63,28 +67,28 @@ INSERT INTO email_templates (template_key, name, subject, body, description, var
     true
 );
 
--- Extension approved
+-- Extension approved (with details_card showing strikethrough old date + new date)
 INSERT INTO email_templates (template_key, name, subject, body, description, variables, format, is_active) VALUES
 (
     'extension_approved',
     'Extension Approved',
     'Extension approved — "{{project_name}}" (+{{granted_days}} days)',
-    E'Dear {{user_name}},\n\nYour extension request for project {{project_name}} has been approved.\n\nRequested: {{requested_days}} days\nGranted: {{granted_days}} days\nNew return date: {{new_return_date}}\n\nAdmin comment:\n{{admin_comment}}\n\n{{details_card}}\n\nBest regards,\nThe VO Gear Hub Team',
+    E'Dear {{user_name}},\n\nYour extension request for project {{project_name}} has been approved.\n\n{{details_card}}\n\nGranted: {{granted_days}} extra days\nNew return date: {{new_return_date}}\n\nAdmin comment:\n{{admin_comment}}\n\nBest regards,\nThe VO Gear Hub Team',
     'Sent when admin approves a loan extension request',
-    ARRAY['user_name', 'project_name', 'request_number', 'requested_days', 'granted_days', 'new_return_date', 'admin_comment', 'details_card'],
+    ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'requested_days', 'granted_days', 'new_return_date', 'admin_comment', 'details_card', 'location', 'return_date_new'],
     'html',
     true
 );
 
--- Extension rejected
+-- Extension rejected (with details_card matching reference design)
 INSERT INTO email_templates (template_key, name, subject, body, description, variables, format, is_active) VALUES
 (
     'extension_rejected',
     'Extension Declined',
     'Extension declined — "{{project_name}}"',
-    E'Dear {{user_name}},\n\nYour extension request of {{requested_days}} days for project {{project_name}} has been declined.\n\nAdmin comment:\n{{admin_comment}}\n\n{{details_card}}\n\nIf you have questions, please contact the equipment team.\n\nBest regards,\nThe VO Gear Hub Team',
+    E'Dear {{user_name}},\n\nYour extension request of {{requested_days}} days for project {{project_name}} has been declined.\n\n{{details_card}}\n\nAdmin comment:\n{{admin_comment}}\n\nIf you have questions, please contact the equipment team.\n\nBest regards,\nThe VO Gear Hub Team',
     'Sent when admin rejects a loan extension request',
-    ARRAY['user_name', 'project_name', 'request_number', 'requested_days', 'admin_comment', 'details_card'],
+    ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'requested_days', 'admin_comment', 'details_card', 'location'],
     'html',
     true
 );

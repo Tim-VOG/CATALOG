@@ -318,20 +318,24 @@ export function CheckoutPage() {
       )
 
       getNotificationRecipients()
-        .then((recipients) => {
+        .then(async (recipients) => {
           const adminEmails = (recipients || [])
             .filter((r) => r.is_active && r.notify_on_new_request)
             .map((r) => r.email)
-          if (adminEmails.length > 0) {
-            sendEmail({
-              to: adminEmails,
-              subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
-              body: adminBody,
-              isHtml: true,
-            })
+          if (adminEmails.length === 0) {
+            console.warn('[admin notification] No active recipients with notify_on_new_request')
+            return
           }
+          const result = await sendEmail({
+            to: adminEmails,
+            subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
+            body: adminBody,
+            isHtml: true,
+          })
+          if (!result.success) console.error('[admin notification] Send failed:', result.error)
+          else console.info('[admin notification] Email sent to', adminEmails)
         })
-        .catch((err) => console.error('[admin notification email]', err))
+        .catch((err) => console.error('[admin notification] Error:', err))
 
       navigate('/requests')
     } catch (err) {

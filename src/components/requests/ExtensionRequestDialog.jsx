@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { useCreateExtension } from '@/hooks/use-extension-requests'
 import { useAuth } from '@/lib/auth'
+import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
+import { sendEmail } from '@/lib/api/send-email'
+import { getNotificationRecipients } from '@/lib/api/notification-recipients'
+import { wrapEmailHtml, generateDetailsCard, escapeHtml } from '@/lib/email-html'
 import { CalendarPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,8 +15,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 
 export function ExtensionRequestDialog({ open, onOpenChange, request }) {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const createExtension = useCreateExtension()
+  const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
   const [days, setDays] = useState(3)
@@ -39,6 +44,44 @@ export function ExtensionRequestDialog({ open, onOpenChange, request }) {
         reason,
       })
       showToast('Extension request submitted')
+
+      // Send admin notification email (fire & forget)
+      const appName = settings?.app_name || 'VO Gear Hub'
+      const logoUrl = settings?.logo_url || ''
+      const requesterName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
+      const currentReturn = request?.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '—'
+      const detailsCard = generateDetailsCard({
+        project_name: request?.project_name || '',
+        pickup_date: request?.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
+        return_date: currentReturn,
+        return_date_new: projectedDate,
+        location: request?.location_name || '',
+      })
+      const adminBody = wrapEmailHtml(
+        `<strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong> has requested a loan extension.\n\n` +
+        detailsCard + '\n\n' +
+        `<div style="margin-bottom:4px;"><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Requested</span></div>` +
+        `<span style="display:inline-block;padding:4px 12px;border-radius:6px;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.25);color:#f97316;font-weight:600;font-size:13px;">+${days} days</span>\n\n` +
+        `<div style="margin-bottom:4px;"><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Reason</span></div>` +
+        `<div style="padding:12px 16px;border-radius:8px;background:rgba(15,20,25,0.5);border:1px solid #1e293b;color:#cbd5e1;font-size:14px;font-style:italic;">${escapeHtml(reason)}</div>`,
+        { appName, logoUrl }
+      )
+      getNotificationRecipients()
+        .then(async (recipients) => {
+          const adminEmails = (recipients || [])
+            .filter((r) => r.is_active && r.notify_on_new_request)
+            .map((r) => r.email)
+          if (adminEmails.length > 0) {
+            await sendEmail({
+              to: adminEmails,
+              subject: `[${appName}] Extension request: ${request?.project_name || ''} — by ${requesterName} (+${days} days)`,
+              body: adminBody,
+              isHtml: true,
+            })
+          }
+        })
+        .catch(() => {})
+
       setDays(3)
       setReason('')
       onOpenChange(false)
