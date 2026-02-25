@@ -55,7 +55,6 @@ export function ExtensionRequestDialog({ open, onOpenChange, request }) {
         pickup_date: request?.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
         return_date: currentReturn,
         return_date_new: projectedDate,
-        location: request?.location_name || '',
       })
       const adminBody = wrapEmailHtml(
         `<strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong> has requested a loan extension.\n\n` +

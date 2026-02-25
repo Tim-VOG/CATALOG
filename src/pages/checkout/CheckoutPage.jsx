@@ -315,7 +315,6 @@ export function CheckoutPage() {
         project_name: fieldValues.project_name || '',
         pickup_date: formatDate(startDate),
         return_date: formatDate(endDate),
-        location: selectedLoc?.name || '',
       })
       const adminItemsHtml = generateItemsHtml(itemData)
       const adminBody = wrapEmailHtml(

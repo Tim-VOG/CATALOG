@@ -16,11 +16,27 @@ import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/emai
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 
+// Process order: request flow then extension decisions
+const TEMPLATE_ORDER = {
+  order_confirmation: 1,
+  equipment_picked_up: 2,
+  return_confirmation: 3,
+  request_closed: 4,
+  extension_approved: 5,
+  extension_rejected: 6,
+  order_ready: 90,
+  return_reminder: 91,
+}
+
 const TEMPLATE_ICONS = {
   order_confirmation: '📋',
+  equipment_picked_up: '📤',
+  return_confirmation: '📦',
+  request_closed: '✅',
+  extension_approved: '📅',
+  extension_rejected: '❌',
   order_ready: '✅',
   return_reminder: '⏰',
-  return_confirmation: '📦',
 }
 
 const SAMPLE_DATA = {
@@ -30,10 +46,13 @@ const SAMPLE_DATA = {
   pickup_date: '01 Mar 2026',
   return_date: '15 Mar 2026',
   item_list: 'MacBook Pro 14" (x1), LG 24" Monitor (x2)',
-  location: 'HQ Brussels - Building A',
   condition: 'Good - no damage',
   project_description: 'Demo setup for Acme Corp client visit on March 3rd. Need a full workstation with external monitors.',
   justification: 'Client meeting requires live product demo with dual screen setup.',
+  requested_days: '5',
+  granted_days: '3',
+  new_return_date: '18 Mar 2026',
+  admin_comment: 'Approved for 3 days — please return promptly after the demo.',
 }
 
 // Sample items for HTML preview
@@ -149,7 +168,7 @@ export function AdminEmailTemplatesPage() {
 
         <TabsContent value="templates" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {templates.map((t) => (
+            {[...templates].sort((a, b) => (TEMPLATE_ORDER[a.template_key] ?? 99) - (TEMPLATE_ORDER[b.template_key] ?? 99)).map((t) => (
               <Card key={t.id} className={!t.is_active ? 'opacity-50' : ''}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
