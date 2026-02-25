@@ -8,7 +8,7 @@ import { sendEmail } from '@/lib/api/send-email'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { generateStatusEmailDraft } from '@/lib/email-draft'
 import {
-  ArrowLeft, Calendar, MapPin, User, Clock, Package,
+  ArrowLeft, Calendar, MapPin, User, Clock, Package, Mail,
   Check, X, ShieldCheck, Undo2, CalendarPlus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -45,6 +45,9 @@ export function AdminRequestDetailPage() {
   const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url || ''
 
+  // CC emails stored on the request
+  const ccEmails = request.custom_fields?.cc_emails || []
+
   // Send a status change email to the user (fire & forget)
   const sendStatusEmail = async (templateKey) => {
     try {
@@ -52,7 +55,7 @@ export function AdminRequestDetailPage() {
       if (!template || !template.is_active) return
       const draft = generateStatusEmailDraft({ template, request, items, appName, logoUrl })
       if (draft.to) {
-        sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+        sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
       }
     } catch {
       // Email is non-critical — don't block the action
@@ -170,10 +173,21 @@ export function AdminRequestDetailPage() {
                 <strong>Rejection reason:</strong> {request.rejection_reason}
               </div>
             )}
-            {request.custom_fields && Object.keys(request.custom_fields).length > 0 && (
+            {ccEmails.length > 0 && (
+              <div className="flex items-start gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground">CC:</span>{' '}
+                  {ccEmails.map((email, i) => (
+                    <Badge key={i} variant="secondary" className="font-normal mr-1 mb-1">{email}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            {request.custom_fields && Object.entries(request.custom_fields).filter(([k]) => k !== 'cc_emails').length > 0 && (
               <div className="border-t pt-3 mt-3 space-y-2">
                 <p className="font-medium text-xs uppercase tracking-wide text-muted-foreground">Additional Information</p>
-                {Object.entries(request.custom_fields).map(([key, value]) => (
+                {Object.entries(request.custom_fields).filter(([k]) => k !== 'cc_emails').map(([key, value]) => (
                   <div key={key} className="flex justify-between gap-2">
                     <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
                     <span className="text-right font-medium">

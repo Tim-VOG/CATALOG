@@ -12,7 +12,7 @@ import { wrapEmailHtml, generateDetailsCard, generateItemsHtml, escapeHtml, styl
 import { getNotificationRecipients } from '@/lib/api/notification-recipients'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { generateStatusEmailDraft } from '@/lib/email-draft'
-import { ArrowLeft, ArrowRight, Check, ClipboardList, Send } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ClipboardList, Send, Plus, X as XIcon, Mail } from 'lucide-react'
 import { DynamicField } from '@/components/checkout/DynamicField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,6 +51,7 @@ export function CheckoutPage() {
     responsibility_accepted: false,
   })
   const [fieldErrors, setFieldErrors] = useState({})
+  const [ccEmails, setCcEmails] = useState([])
 
   if (items.length === 0) {
     return (
@@ -91,6 +92,12 @@ export function CheckoutPage() {
       }
       if (field.field_type === 'email' && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         errors[field.field_key] = 'Please enter a valid email'
+      }
+    })
+    // Validate CC emails
+    ccEmails.forEach((email, i) => {
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors[`cc_email_${i}`] = 'Invalid email address'
       }
     })
     // Also validate project_name min length
@@ -226,12 +233,16 @@ export function CheckoutPage() {
 
     // Separate system field values from custom field values
     const systemKeys = activeFields.filter((f) => f.is_system).map((f) => f.field_key)
+    const validCcEmails = ccEmails.map((e) => e.trim()).filter((e) => e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))
     const customFields = {}
     Object.entries(fieldValues).forEach(([k, v]) => {
       if (!systemKeys.includes(k) && !['terms_accepted', 'responsibility_accepted', 'location_other'].includes(k)) {
         customFields[k] = v
       }
     })
+    if (validCcEmails.length > 0) {
+      customFields.cc_emails = validCcEmails
+    }
 
     try {
       const req = await createRequest.mutateAsync({
@@ -294,9 +305,9 @@ export function CheckoutPage() {
             console.warn('[order_confirmation] No recipient email — user.email:', user?.email)
             return
           }
-          const result = await sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+          const result = await sendEmail({ to: draft.to, cc: validCcEmails.length > 0 ? validCcEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
           if (!result.success) console.error('[order_confirmation] Send failed:', result.error)
-          else console.info('[order_confirmation] Email sent to', draft.to)
+          else console.info('[order_confirmation] Email sent to', draft.to, validCcEmails.length > 0 ? `cc: ${validCcEmails.join(', ')}` : '')
         })
         .catch((err) => console.error('[order_confirmation] Error:', err))
 
@@ -389,6 +400,60 @@ export function CheckoutPage() {
             <CardContent className="space-y-4">
               {activeFields.map((field) => renderField(field))}
 
+              {/* CC Email Recipients */}
+              <div className="space-y-2 border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    CC Recipients
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1 h-7 text-xs"
+                    onClick={() => setCcEmails((prev) => [...prev, ''])}
+                  >
+                    <Plus className="h-3 w-3" /> Add
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Add email addresses that should also receive notifications about this request.</p>
+                {ccEmails.map((email, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        const updated = [...ccEmails]
+                        updated[i] = e.target.value
+                        setCcEmails(updated)
+                        // Clear error on edit
+                        if (fieldErrors[`cc_email_${i}`]) {
+                          setFieldErrors((prev) => { const next = { ...prev }; delete next[`cc_email_${i}`]; return next })
+                        }
+                      }}
+                      placeholder="colleague@company.com"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => {
+                        setCcEmails((prev) => prev.filter((_, j) => j !== i))
+                        setFieldErrors((prev) => { const next = { ...prev }; delete next[`cc_email_${i}`]; return next })
+                      }}
+                    >
+                      <XIcon className="h-4 w-4" />
+                    </Button>
+                    {fieldErrors[`cc_email_${i}`] && (
+                      <p className="text-xs text-destructive shrink-0">{fieldErrors[`cc_email_${i}`]}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <div className="flex justify-end">
                 <Button type="button" className="gap-2" onClick={handleStepNext}>
                   Review <ArrowRight className="h-4 w-4" />
@@ -446,6 +511,16 @@ export function CheckoutPage() {
                     <p>{String(fieldValues[field.field_key])}</p>
                   </div>
                 ))}
+                {ccEmails.filter((e) => e.trim()).length > 0 && (
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">CC Recipients</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {ccEmails.filter((e) => e.trim()).map((email, i) => (
+                        <Badge key={i} variant="secondary" className="font-normal">{email}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

@@ -73,9 +73,11 @@ export function ReturnProcessDialog({ open, onOpenChange, request, items }) {
           recipients,
         })
         if (draft.to) {
+          const requestCc = request.custom_fields?.cc_emails || []
+          const allCc = [...(draft.cc || []), ...requestCc].filter((e, i, a) => a.indexOf(e) === i)
           sendEmail({
             to: draft.to,
-            cc: draft.cc,
+            cc: allCc.length > 0 ? allCc : undefined,
             subject: draft.subject,
             body: draft.body,
             isHtml: draft.isHtml,

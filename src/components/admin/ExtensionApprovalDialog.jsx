@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { useApproveExtension, useRejectExtension } from '@/hooks/use-extension-requests'
+import { useLoanRequest } from '@/hooks/use-loan-requests'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
@@ -16,8 +17,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
   const approveExtension = useApproveExtension()
   const rejectExtension = useRejectExtension()
+  const { data: loanRequest } = useLoanRequest(extension?.request_id)
   const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
+  const ccEmails = loanRequest?.custom_fields?.cc_emails || []
 
   const [grantedDays, setGrantedDays] = useState(extension?.requested_days || 3)
   const [adminNotes, setAdminNotes] = useState('')
@@ -42,7 +45,7 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
         logoUrl,
       })
       if (draft.to) {
-        sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+        sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
       }
     } catch {
       // Email is non-critical
