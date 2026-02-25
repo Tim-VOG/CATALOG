@@ -166,61 +166,93 @@ export function AdminEmailTemplatesPage() {
         </TabsList>
 
         <TabsContent value="templates" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[...templates].sort((a, b) => (TEMPLATE_ORDER[a.template_key] ?? 99) - (TEMPLATE_ORDER[b.template_key] ?? 99)).map((t) => (
-              <Card key={t.id} className={!t.is_active ? 'opacity-50' : ''}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <span>{TEMPLATE_ICONS[t.template_key] || '📧'}</span>
-                      {t.name}
-                      {t.format === 'html' && (
-                        <Badge variant="outline" className="text-[10px] gap-1">
-                          <Code className="h-2.5 w-2.5" /> HTML
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleToggleActive(t)}
-                        title={t.is_active ? 'Disable' : 'Enable'}
-                      >
-                        {t.is_active ? (
-                          <ToggleRight className="h-4 w-4 text-green-400" />
-                        ) : (
-                          <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+          {(() => {
+            const sorted = [...templates].sort((a, b) => (TEMPLATE_ORDER[a.template_key] ?? 99) - (TEMPLATE_ORDER[b.template_key] ?? 99))
+            const active = sorted.filter((t) => t.is_active)
+            const inactive = sorted.filter((t) => !t.is_active)
+
+            const renderTemplateCard = (t, stepNumber) => (
+              <div key={t.id} className="flex gap-4 group">
+                {/* Timeline dot + line */}
+                <div className="flex flex-col items-center pt-1">
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${t.is_active ? 'border-primary bg-primary/10 text-primary' : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
+                    {stepNumber}
+                  </div>
+                  <div className="w-0.5 flex-1 bg-border mt-2 group-last:hidden" />
+                </div>
+
+                {/* Card */}
+                <Card className={`flex-1 mb-4 ${!t.is_active ? 'opacity-50' : ''}`}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <span>{TEMPLATE_ICONS[t.template_key] || '📧'}</span>
+                        {t.name}
+                        {t.format === 'html' && (
+                          <Badge variant="outline" className="text-[10px] gap-1">
+                            <Code className="h-2.5 w-2.5" /> HTML
+                          </Badge>
                         )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEdit(t)}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
+                      </CardTitle>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleToggleActive(t)}
+                          title={t.is_active ? 'Disable' : 'Enable'}
+                        >
+                          {t.is_active ? (
+                            <ToggleRight className="h-4 w-4 text-green-400" />
+                          ) : (
+                            <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => openEdit(t)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2">{t.description}</p>
-                  <div className="text-xs text-muted-foreground">
-                    <span className="font-medium">Subject:</span> {t.subject}
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {(t.variables || []).map((v) => (
-                      <Badge key={v} variant="outline" className="text-[10px]">
-                        {`{{${v}}}`}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-2">{t.description}</p>
+                    <div className="text-xs text-muted-foreground">
+                      <span className="font-medium">Subject:</span> {t.subject}
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {(t.variables || []).map((v) => (
+                        <Badge key={v} variant="outline" className="text-[10px]">
+                          {`{{${v}}}`}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )
+
+            return (
+              <div className="max-w-2xl">
+                {active.map((t, i) => renderTemplateCard(t, i + 1))}
+
+                {inactive.length > 0 && (
+                  <>
+                    <div className="flex items-center gap-3 my-4 ml-3.5">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-xs text-muted-foreground font-medium">Inactive</span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    {inactive.map((t, i) => renderTemplateCard(t, '–'))}
+                  </>
+                )}
+              </div>
+            )
+          })()}
         </TabsContent>
 
         <TabsContent value="fields" className="mt-6">
