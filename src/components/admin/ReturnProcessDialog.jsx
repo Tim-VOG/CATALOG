@@ -4,6 +4,7 @@ import { useEmailTemplates } from '@/hooks/use-email-templates'
 import { useNotificationRecipients } from '@/hooks/use-notification-recipients'
 import { generateReturnDraft } from '@/lib/email-draft'
 import { sendEmail } from '@/lib/api/send-email'
+import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { Undo2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ export function ReturnProcessDialog({ open, onOpenChange, request, items }) {
   const processReturn = useProcessReturn()
   const { data: templates = [] } = useEmailTemplates()
   const { data: recipients = [] } = useNotificationRecipients()
+  const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
   const [adminNotes, setAdminNotes] = useState('')
@@ -71,6 +73,8 @@ export function ReturnProcessDialog({ open, onOpenChange, request, items }) {
           items,
           itemReturns,
           recipients,
+          appName: settings?.app_name || 'VO Gear Hub',
+          logoUrl: settings?.logo_url || '',
         })
         if (draft.to) {
           const requestCc = request.custom_fields?.cc_emails || []

@@ -14,7 +14,6 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
     item_list: items.map((i) => `- ${i.product_name} x${i.quantity}`).join('\n'),
     items_html: generateItemsHtml(items),
     location: request.location_name || '',
-    priority: request.priority || 'normal',
     project_description: request.project_description || '',
     _items: items,
   }
@@ -56,7 +55,6 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
     new_return_date: '',
     admin_comment: extension.admin_notes || '',
     location: extension.location_name || request?.location_name || '',
-    priority: request?.priority || 'normal',
     project_description: request?.project_description || '',
   }
 
@@ -89,7 +87,7 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
 /**
  * Generate a return email draft from template + request data
  */
-export function generateReturnDraft({ template, request, items, itemReturns, recipients }) {
+export function generateReturnDraft({ template, request, items, itemReturns, recipients, appName, logoUrl }) {
   // Build item list text (plain text version)
   const itemLines = items.map((item) => {
     const ret = itemReturns.find((r) => r.id === item.id) || {}
@@ -158,7 +156,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   let body = substituteVars(template?.body || 'Return confirmation for {{project_name}}.\n\nItems:\n{{item_list}}\n\nCondition: {{condition}}')
 
   if (isHtml) {
-    body = wrapEmailHtml(body, { appName: 'VO Gear Hub' })
+    body = wrapEmailHtml(body, { appName: appName || 'VO Gear Hub', logoUrl })
   }
 
   // Build recipients

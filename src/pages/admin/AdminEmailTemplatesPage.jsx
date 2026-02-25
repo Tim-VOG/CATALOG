@@ -13,6 +13,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { FormFieldsManager } from '@/components/admin/FormFieldsManager'
 import { NotificationRecipientsManager } from '@/components/admin/NotificationRecipientsManager'
 import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/email-html'
+import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 
 const TEMPLATE_ICONS = {
@@ -31,7 +32,6 @@ const SAMPLE_DATA = {
   item_list: 'MacBook Pro 14" (x1), LG 24" Monitor (x2)',
   location: 'HQ Brussels - Building A',
   condition: 'Good - no damage',
-  priority: 'high',
   project_description: 'Demo setup for Acme Corp client visit on March 3rd. Need a full workstation with external monitors.',
   justification: 'Client meeting requires live product demo with dual screen setup.',
 }
@@ -49,6 +49,7 @@ const SAMPLE_ITEM_RETURNS = [
 export function AdminEmailTemplatesPage() {
   const { data: templates = [], isLoading } = useEmailTemplates()
   const updateTemplate = useUpdateEmailTemplate()
+  const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
   const [activeTab, setActiveTab] = useState('templates')
@@ -121,8 +122,8 @@ export function AdminEmailTemplatesPage() {
   const htmlPreview = useMemo(() => {
     if (templateFormat !== 'html') return null
     const substituted = renderPreview(body, true)
-    return wrapEmailHtml(substituted)
-  }, [body, templateFormat, sampleStyledVars])
+    return wrapEmailHtml(substituted, { appName: settings?.app_name || 'VO Gear Hub', logoUrl: settings?.logo_url || '' })
+  }, [body, templateFormat, sampleStyledVars, settings])
 
   if (isLoading) return <PageLoading />
 
