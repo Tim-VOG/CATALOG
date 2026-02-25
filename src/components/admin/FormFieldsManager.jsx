@@ -1,0 +1,291 @@
+import { useState } from 'react'
+import { useFormFields, useCreateFormField, useUpdateFormField, useDeleteFormField } from '@/hooks/use-form-fields'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Select } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { PageLoading } from '@/components/common/LoadingSpinner'
+import { useUIStore } from '@/stores/ui-store'
+
+const FIELD_TYPES = [
+  { value: 'text', label: 'Text' },
+  { value: 'textarea', label: 'Text Area' },
+  { value: 'number', label: 'Number' },
+  { value: 'email', label: 'Email' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'url', label: 'URL' },
+  { value: 'select', label: 'Dropdown' },
+  { value: 'multi_select', label: 'Multi Select' },
+  { value: 'checkbox', label: 'Checkbox' },
+  { value: 'radio', label: 'Radio Buttons' },
+  { value: 'date', label: 'Date' },
+]
+
+const HAS_OPTIONS = ['select', 'multi_select', 'radio']
+
+const emptyField = {
+  label: '',
+  field_key: '',
+  field_type: 'text',
+  placeholder: '',
+  help_text: '',
+  is_required: false,
+  options: [],
+  sort_order: 0,
+  is_active: true,
+}
+
+export function FormFieldsManager() {
+  const { data: fields = [], isLoading } = useFormFields()
+  const createField = useCreateFormField()
+  const updateField = useUpdateFormField()
+  const deleteField = useDeleteFormField()
+  const showToast = useUIStore((s) => s.showToast)
+
+  const [showFieldDialog, setShowFieldDialog] = useState(false)
+  const [editingField, setEditingField] = useState(null)
+  const [form, setForm] = useState(emptyField)
+  const [optionInput, setOptionInput] = useState('')
+
+  const openCreateField = () => {
+    setEditingField(null)
+    setForm({ ...emptyField, sort_order: fields.length })
+    setOptionInput('')
+    setShowFieldDialog(true)
+  }
+
+  const openEditField = (field) => {
+    setEditingField(field)
+    setForm({
+      label: field.label,
+      field_key: field.field_key,
+      field_type: field.field_type,
+      placeholder: field.placeholder || '',
+      help_text: field.help_text || '',
+      is_required: field.is_required,
+      options: field.options || [],
+      sort_order: field.sort_order,
+      is_active: field.is_active,
+    })
+    setOptionInput('')
+    setShowFieldDialog(true)
+  }
+
+  const handleLabelChange = (label) => {
+    const key = editingField
+      ? form.field_key
+      : label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+    setForm({ ...form, label, field_key: key })
+  }
+
+  const addOption = () => {
+    if (!optionInput.trim()) return
+    const value = optionInput.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_')
+    setForm({
+      ...form,
+      options: [...form.options, { label: optionInput.trim(), value }],
+    })
+    setOptionInput('')
+  }
+
+  const removeOption = (index) => {
+    setForm({
+      ...form,
+      options: form.options.filter((_, i) => i !== index),
+    })
+  }
+
+  const handleSaveField = async () => {
+    if (!form.label.trim() || !form.field_key.trim()) {
+      showToast('Label is required', 'error')
+      return
+    }
+    try {
+      if (editingField) {
+        await updateField.mutateAsync({ id: editingField.id, ...form })
+        showToast('Field updated')
+      } else {
+        await createField.mutateAsync(form)
+        showToast('Field created')
+      }
+      setShowFieldDialog(false)
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }
+
+  const handleDeleteField = async (id) => {
+    if (!confirm('Delete this custom field?')) return
+    try {
+      await deleteField.mutateAsync(id)
+      showToast('Field deleted')
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }
+
+  const handleToggleField = async (field) => {
+    try {
+      await updateField.mutateAsync({ id: field.id, is_active: !field.is_active })
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }
+
+  const handleMoveField = async (field, direction) => {
+    const idx = fields.findIndex((f) => f.id === field.id)
+    const newIdx = idx + direction
+    if (newIdx < 0 || newIdx >= fields.length) return
+    try {
+      const other = fields[newIdx]
+      await updateField.mutateAsync({ id: field.id, sort_order: other.sort_order })
+      await updateField.mutateAsync({ id: other.id, sort_order: field.sort_order })
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }
+
+  if (isLoading) return <PageLoading />
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Custom Checkout Fields</CardTitle>
+            <Button size="sm" onClick={openCreateField} className="gap-2">
+              <Plus className="h-4 w-4" /> Add Field
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            These fields appear in Step 1 of the checkout form, below the built-in fields.
+          </p>
+        </CardHeader>
+        <CardContent>
+          {fields.length === 0 ? (
+            <p className="text-center py-6 text-muted-foreground text-sm">No custom fields yet</p>
+          ) : (
+            <div className="space-y-2">
+              {fields.map((field, idx) => (
+                <div
+                  key={field.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border ${!field.is_active ? 'opacity-50' : ''}`}
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => handleMoveField(field, -1)} disabled={idx === 0}>
+                      <ChevronUp className="h-3 w-3" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => handleMoveField(field, 1)} disabled={idx === fields.length - 1}>
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{field.label}</span>
+                      {field.is_required && <Badge variant="outline" className="text-[10px]">Required</Badge>}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge className="text-[10px] bg-muted text-muted-foreground">{field.field_type}</Badge>
+                      <span className="text-[10px] text-muted-foreground font-mono">{field.field_key}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggleField(field)}>
+                      <Badge className={field.is_active ? 'bg-green-500/20 text-green-400 text-[10px]' : 'bg-red-500/20 text-red-400 text-[10px]'}>
+                        {field.is_active ? 'On' : 'Off'}
+                      </Badge>
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditField(field)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteField(field.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Field Dialog */}
+      <Dialog open={showFieldDialog} onOpenChange={setShowFieldDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingField ? 'Edit Field' : 'Add Custom Field'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+            <div className="space-y-1">
+              <Label>Label *</Label>
+              <Input value={form.label} onChange={(e) => handleLabelChange(e.target.value)} placeholder="e.g. Cost Center" />
+            </div>
+            <div className="space-y-1">
+              <Label>Field Key</Label>
+              <Input
+                value={form.field_key}
+                onChange={(e) => setForm({ ...form, field_key: e.target.value })}
+                className="font-mono text-sm"
+                disabled={!!editingField}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Field Type</Label>
+              <Select value={form.field_type} onChange={(e) => setForm({ ...form, field_type: e.target.value })}>
+                {FIELD_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Placeholder</Label>
+              <Input value={form.placeholder} onChange={(e) => setForm({ ...form, placeholder: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Help Text</Label>
+              <Input value={form.help_text} onChange={(e) => setForm({ ...form, help_text: e.target.value })} />
+            </div>
+            <label className="flex items-center gap-2">
+              <Checkbox checked={form.is_required} onCheckedChange={(v) => setForm({ ...form, is_required: v })} />
+              <span className="text-sm">Required field</span>
+            </label>
+
+            {HAS_OPTIONS.includes(form.field_type) && (
+              <div className="space-y-2">
+                <Label>Options</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={optionInput}
+                    onChange={(e) => setOptionInput(e.target.value)}
+                    placeholder="Add option..."
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addOption())}
+                  />
+                  <Button type="button" size="sm" onClick={addOption}>Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {form.options.map((opt, i) => (
+                    <Badge key={i} variant="outline" className="gap-1 pr-1">
+                      {opt.label}
+                      <button onClick={() => removeOption(i)} className="ml-1 text-destructive hover:text-destructive/80">
+                        &times;
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFieldDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveField}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
