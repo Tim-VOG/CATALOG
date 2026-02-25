@@ -55,14 +55,22 @@ export function styledLocation(value) {
  * Generate a styled info card with key details (table-based for email compat)
  */
 export function generateDetailsCard(vars) {
-  const cells = []
+  let html = ''
 
+  // Project name in its own prominent section
   if (vars.project_name) {
-    cells.push({ label: 'Project', value: escapeHtml(vars.project_name), color: '#f1f5f9' })
+    html += `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:rgba(15,20,25,0.5);border-radius:8px 8px 0 0;border:1px solid #1e293b;border-bottom:none;margin:20px 0 0 0;">
+      <tr>
+        <td style="padding:14px 16px;">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Project</div>
+          <div style="font-weight:700;color:#f1f5f9;font-size:16px;">${escapeHtml(vars.project_name)}</div>
+        </td>
+      </tr>
+    </table>`
   }
-  if (vars.request_number) {
-    cells.push({ label: 'Request', value: `#${escapeHtml(vars.request_number)}`, color: '#06b6d4' })
-  }
+
+  // Date & location cells row
+  const cells = []
   if (vars.pickup_date) {
     cells.push({ label: 'Pickup', value: escapeHtml(vars.pickup_date), color: '#f97316' })
   }
@@ -73,20 +81,23 @@ export function generateDetailsCard(vars) {
     cells.push({ label: 'Location', value: escapeHtml(vars.location), color: '#a78bfa' })
   }
 
-  if (cells.length === 0) return ''
+  if (cells.length > 0) {
+    const tds = cells
+      .map(
+        (c) => `<td style="padding:12px 16px;vertical-align:top;">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${c.label}</div>
+          <div style="font-weight:600;color:${c.color};font-size:14px;">${c.value}</div>
+        </td>`
+      )
+      .join('')
 
-  const tds = cells
-    .map(
-      (c) => `<td style="padding:12px 16px;vertical-align:top;">
-        <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${c.label}</div>
-        <div style="font-weight:600;color:${c.color};font-size:14px;">${c.value}</div>
-      </td>`
-    )
-    .join('')
+    const topRadius = vars.project_name ? '0' : '8px'
+    html += `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:rgba(15,20,25,0.5);border-radius:${topRadius} ${topRadius} 8px 8px;border:1px solid #1e293b;margin:${vars.project_name ? '0' : '20px'} 0 20px 0;">
+      <tr>${tds}</tr>
+    </table>`
+  }
 
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:rgba(15,20,25,0.5);border-radius:8px;border:1px solid #1e293b;margin:20px 0;">
-    <tr>${tds}</tr>
-  </table>`
+  return html
 }
 
 /**
