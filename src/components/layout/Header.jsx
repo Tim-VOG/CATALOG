@@ -16,7 +16,7 @@ export function Header() {
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
   const { data: settings } = useAppSettings()
 
-  const appName = settings?.app_name || 'EquipLend'
+  const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url
 
   const navLinks = [

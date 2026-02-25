@@ -24,7 +24,7 @@ export function AdminDesignPage() {
 
   useEffect(() => {
     if (settings) {
-      setAppName(settings.app_name || 'EquipLend')
+      setAppName(settings.app_name || 'VO Gear Hub')
       setPrimaryColor(settings.primary_color || '#f97316')
       setAccentColor(settings.accent_color || '#06b6d4')
       setLogoUrl(settings.logo_url || '')
@@ -160,7 +160,7 @@ export function AdminDesignPage() {
               <Input
                 value={appName}
                 onChange={(e) => setAppName(e.target.value)}
-                placeholder="EquipLend"
+                placeholder="VO Gear Hub"
               />
               <p className="text-xs text-muted-foreground">Displayed in the header and browser title</p>
             </div>

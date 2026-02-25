@@ -39,7 +39,7 @@ export function MobileNav() {
       <div className="fixed inset-0 bg-black/60 z-40" onClick={toggleMobileNav} />
       <div className="fixed inset-y-0 left-0 w-72 bg-card border-r z-50 flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
-          <span className="font-display font-bold text-primary text-lg">EquipLend</span>
+          <span className="font-display font-bold text-primary text-lg">VO Gear Hub</span>
           <Button variant="ghost" size="icon" onClick={toggleMobileNav}>
             <X className="h-5 w-5" />
           </Button>

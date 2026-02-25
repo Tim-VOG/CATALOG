@@ -207,7 +207,7 @@ export function generateItemsHtml(items, itemReturns = []) {
 /**
  * Wrap email body in a full HTML document with dark theme
  */
-export function wrapEmailHtml(body, { appName = 'EquipLend' } = {}) {
+export function wrapEmailHtml(body, { appName = 'VO Gear Hub' } = {}) {
   // Convert plain text newlines to HTML structure
   const htmlBody = formatTextToHtml(body)
 

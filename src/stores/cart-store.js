@@ -49,7 +49,7 @@ export const useCartStore = create(
       },
     }),
     {
-      name: 'equiplend-cart',
+      name: 'vo-gear-hub-cart',
     }
   )
 )
