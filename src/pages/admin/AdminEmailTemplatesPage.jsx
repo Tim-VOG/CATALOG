@@ -42,7 +42,6 @@ const TEMPLATE_ICONS = {
 const SAMPLE_DATA = {
   user_name: 'John Doe',
   project_name: 'Client Demo - Acme Corp',
-  request_number: '42',
   pickup_date: '01 Mar 2026',
   return_date: '15 Mar 2026',
   item_list: 'MacBook Pro 14" (x1), LG 24" Monitor (x2)',

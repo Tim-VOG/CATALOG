@@ -293,7 +293,6 @@ export function CheckoutPage() {
             user_email: user?.email,
             project_name: fieldValues.project_name || '',
             project_description: fieldValues.project_description || '',
-            request_number: String(req.request_number || req.id),
             pickup_date: startDate,
             return_date: endDate,
             location_name: selectedLoc?.name || '',

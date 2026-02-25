@@ -8,7 +8,6 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
   const vars = {
     user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
     project_name: request.project_name || '',
-    request_number: String(request.request_number || ''),
     pickup_date: request.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
     return_date: request.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '',
     item_list: items.map((i) => `- ${i.product_name} x${i.quantity}`).join('\n'),
@@ -29,8 +28,8 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
   const substituteVars = (text, useRaw = false) =>
     text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
 
-  const subject = substituteVars(template?.subject || 'Request #{{request_number}} update', true)
-  let body = substituteVars(template?.body || 'Your request #{{request_number}} has been updated.')
+  const subject = substituteVars(template?.subject || '{{project_name}} — status update', true)
+  let body = substituteVars(template?.body || 'Your request for {{project_name}} has been updated.')
 
   if (isHtml) {
     body = wrapEmailHtml(body, { appName, logoUrl })
@@ -46,7 +45,6 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
   const vars = {
     user_name: `${extension.user_first_name || request?.user_first_name || ''} ${extension.user_last_name || request?.user_last_name || ''}`.trim(),
     project_name: extension.project_name || request?.project_name || '',
-    request_number: String(extension.request_number || request?.request_number || ''),
     pickup_date: (extension.pickup_date || request?.pickup_date) ? format(new Date(extension.pickup_date || request.pickup_date), 'dd MMM yyyy') : '',
     return_date: (extension.return_date || request?.return_date) ? format(new Date(extension.return_date || request.return_date), 'dd MMM yyyy') : '',
     requested_days: String(extension.requested_days || ''),
@@ -71,7 +69,7 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
   const substituteVars = (text, useRaw = false) =>
     text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
 
-  const subject = substituteVars(template?.subject || 'Extension update — Request #{{request_number}}', true)
+  const subject = substituteVars(template?.subject || 'Extension update — {{project_name}}', true)
   let body = substituteVars(template?.body || 'Your extension request has been reviewed.')
 
   if (isHtml) {
@@ -122,7 +120,6 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   const vars = {
     user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
     project_name: request.project_name || '',
-    request_number: String(request.request_number || ''),
     pickup_date: request.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
     return_date: request.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '',
     item_list: itemList,
@@ -148,7 +145,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
     text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
 
   // Subject always uses raw (plain text) vars
-  const subject = substituteVars(template?.subject || 'Equipment return confirmed for request #{{request_number}}', true)
+  const subject = substituteVars(template?.subject || 'Equipment return confirmed — {{project_name}}', true)
   let body = substituteVars(template?.body || 'Return confirmation for {{project_name}}.\n\nItems:\n{{item_list}}\n\nCondition: {{condition}}')
 
   if (isHtml) {

@@ -28,13 +28,6 @@ export function styledDate(value) {
 }
 
 /**
- * Styled inline HTML for request numbers
- */
-export function styledRequestNumber(value) {
-  return `<span style="display:inline-block;padding:3px 10px;border-radius:6px;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.25);color:#06b6d4;font-weight:700;font-size:13px;">#${escapeHtml(value)}</span>`
-}
-
-/**
  * Styled inline HTML for condition values
  */
 export function styledCondition(value) {
@@ -105,7 +98,6 @@ export function generateStyledVars(vars) {
   const styled = { ...vars }
   if (vars.pickup_date) styled.pickup_date = styledDate(vars.pickup_date)
   if (vars.return_date) styled.return_date = styledDate(vars.return_date)
-  if (vars.request_number) styled.request_number = styledRequestNumber(vars.request_number)
   if (vars.condition) styled.condition = styledCondition(vars.condition)
   if (vars.user_name) styled.user_name = `<strong style="color:#f1f5f9;">${escapeHtml(vars.user_name)}</strong>`
   if (vars.project_name) styled.project_name = `<strong style="color:#f1f5f9;">&ldquo;${escapeHtml(vars.project_name)}&rdquo;</strong>`

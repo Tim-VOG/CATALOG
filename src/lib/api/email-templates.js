@@ -4,7 +4,7 @@ export const getEmailTemplates = async () => {
   const { data, error } = await supabase
     .from('email_templates')
     .select('*')
-    .order('created_at')
+    .order('template_key')
   if (error) throw error
   return data
 }

@@ -28,7 +28,7 @@ UPDATE email_templates SET
   subject = 'Your equipment request for "{{project_name}}" has been received',
   body = E'Dear {{user_name}},\n\nYour equipment request for project {{project_name}} has been successfully submitted.\n\n{{details_card}}\n\n{{items_html}}\n\nYou will receive a notification once your request has been reviewed.\n\nBest regards,\nThe VO Gear Hub Team',
   format = 'html',
-  variables = ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'item_list', 'details_card', 'items_html']
+  variables = ARRAY['user_name', 'project_name', 'pickup_date', 'return_date', 'item_list', 'details_card', 'items_html']
 WHERE template_key = 'order_confirmation';
 
 -- Update return_confirmation to HTML format matching equipment_picked_up design
@@ -36,7 +36,7 @@ UPDATE email_templates SET
   subject = 'Equipment return confirmed — "{{project_name}}"',
   body = E'Dear {{user_name}},\n\nThe equipment for project {{project_name}} has been returned and processed.\n\n{{details_card}}\n\n{{items_html}}\n\nCondition: {{condition}}\n\nThank you for returning the equipment.\n\nBest regards,\nThe VO Gear Hub Team',
   format = 'html',
-  variables = ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'item_list', 'details_card', 'items_html', 'condition']
+  variables = ARRAY['user_name', 'project_name', 'pickup_date', 'return_date', 'item_list', 'details_card', 'items_html', 'condition']
 WHERE template_key = 'return_confirmation';
 
 -- Insert new templates
@@ -49,7 +49,7 @@ INSERT INTO email_templates (template_key, name, subject, body, description, var
     'Equipment picked up — "{{project_name}}"',
     E'Dear {{user_name}},\n\nYour equipment for project {{project_name}} has been picked up successfully.\n\n{{details_card}}\n\n{{items_html}}\n\nPlease remember to return the equipment by the scheduled return date.\n\nBest regards,\nThe VO Gear Hub Team',
     'Sent when admin marks equipment as picked up by the user',
-    ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'item_list', 'details_card', 'items_html'],
+    ARRAY['user_name', 'project_name', 'pickup_date', 'return_date', 'item_list', 'details_card', 'items_html'],
     'html',
     true
 );
@@ -62,7 +62,7 @@ INSERT INTO email_templates (template_key, name, subject, body, description, var
     'Request closed — "{{project_name}}"',
     E'Dear {{user_name}},\n\nYour equipment request for project {{project_name}} has been fully processed and closed.\n\n{{details_card}}\n\nThank you for using VO Gear Hub.\n\nBest regards,\nThe VO Gear Hub Team',
     'Sent when admin closes a completed request',
-    ARRAY['user_name', 'project_name', 'request_number', 'details_card'],
+    ARRAY['user_name', 'project_name', 'details_card'],
     'html',
     true
 );
@@ -75,7 +75,7 @@ INSERT INTO email_templates (template_key, name, subject, body, description, var
     'Extension approved — "{{project_name}}" (+{{granted_days}} days)',
     E'Dear {{user_name}},\n\nYour extension request for project {{project_name}} has been approved.\n\n{{details_card}}\n\nGranted: {{granted_days}} extra days\nNew return date: {{new_return_date}}\n\nAdmin comment:\n{{admin_comment}}\n\nBest regards,\nThe VO Gear Hub Team',
     'Sent when admin approves a loan extension request',
-    ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'requested_days', 'granted_days', 'new_return_date', 'admin_comment', 'details_card', 'return_date_new'],
+    ARRAY['user_name', 'project_name', 'pickup_date', 'return_date', 'requested_days', 'granted_days', 'new_return_date', 'admin_comment', 'details_card', 'return_date_new'],
     'html',
     true
 );
@@ -88,7 +88,7 @@ INSERT INTO email_templates (template_key, name, subject, body, description, var
     'Extension declined — "{{project_name}}"',
     E'Dear {{user_name}},\n\nYour extension request of {{requested_days}} days for project {{project_name}} has been declined.\n\n{{details_card}}\n\nAdmin comment:\n{{admin_comment}}\n\nIf you have questions, please contact the equipment team.\n\nBest regards,\nThe VO Gear Hub Team',
     'Sent when admin rejects a loan extension request',
-    ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'requested_days', 'admin_comment', 'details_card'],
+    ARRAY['user_name', 'project_name', 'pickup_date', 'return_date', 'requested_days', 'admin_comment', 'details_card'],
     'html',
     true
 );
