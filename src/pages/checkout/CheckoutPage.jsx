@@ -8,7 +8,7 @@ import { useActiveFormFields } from '@/hooks/use-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
 import { sendEmail } from '@/lib/api/send-email'
-import { wrapEmailHtml, generateDetailsCard, generateItemsHtml, escapeHtml, styledPriority } from '@/lib/email-html'
+import { wrapEmailHtml, generateDetailsCard, generateItemsHtml, escapeHtml } from '@/lib/email-html'
 import { getNotificationRecipients } from '@/lib/api/notification-recipients'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { generateStatusEmailDraft } from '@/lib/email-draft'
@@ -297,7 +297,6 @@ export function CheckoutPage() {
             pickup_date: startDate,
             return_date: endDate,
             location_name: selectedLoc?.name || '',
-            priority: fieldValues.priority || 'normal',
             custom_fields: customFields,
           }
           const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl })
@@ -319,11 +318,9 @@ export function CheckoutPage() {
         location: selectedLoc?.name || '',
       })
       const adminItemsHtml = generateItemsHtml(itemData)
-      const priorityBadge = styledPriority(fieldValues.priority || 'normal')
       const adminBody = wrapEmailHtml(
         `New equipment request submitted by <strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong>.\n\n` +
         detailsCard + '\n\n' +
-        `<div style="margin-bottom:4px;"><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Priority</span></div>${priorityBadge}\n\n` +
         adminItemsHtml,
         { appName, logoUrl }
       )

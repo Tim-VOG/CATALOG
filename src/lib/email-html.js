@@ -118,7 +118,6 @@ export function generateStyledVars(vars) {
   if (vars.request_number) styled.request_number = styledRequestNumber(vars.request_number)
   if (vars.condition) styled.condition = styledCondition(vars.condition)
   if (vars.location) styled.location = styledLocation(vars.location)
-  if (vars.priority) styled.priority = styledPriority(vars.priority)
   if (vars.user_name) styled.user_name = `<strong style="color:#f1f5f9;">${escapeHtml(vars.user_name)}</strong>`
   if (vars.project_name) styled.project_name = `<strong style="color:#f1f5f9;">&ldquo;${escapeHtml(vars.project_name)}&rdquo;</strong>`
   // Styled item list from _items array (set by caller)
@@ -142,20 +141,6 @@ export function styledItemList(items) {
     return `<span style="display:inline-block;padding:6px 14px;border-radius:6px;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);color:#f1f5f9;font-weight:600;font-size:13px;margin:3px 4px 3px 0;">&#128230; ${escapeHtml(item.product_name || item.name || '')}${qty}${includes}</span>`
   })
   return badges.join('')
-}
-
-/**
- * Generate styled priority badge
- */
-export function styledPriority(value) {
-  const colors = {
-    low: { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.25)', text: '#94a3b8' },
-    normal: { bg: 'rgba(6,182,212,0.1)', border: 'rgba(6,182,212,0.25)', text: '#06b6d4' },
-    high: { bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.25)', text: '#f97316' },
-    urgent: { bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.25)', text: '#ef4444' },
-  }
-  const c = colors[value?.toLowerCase()] || colors.normal
-  return `<span style="display:inline-block;padding:3px 10px;border-radius:6px;background:${c.bg};border:1px solid ${c.border};color:${c.text};font-weight:600;font-size:13px;text-transform:capitalize;">${escapeHtml(value || 'normal')}</span>`
 }
 
 /**
