@@ -45,13 +45,6 @@ export function styledCondition(value) {
 }
 
 /**
- * Styled inline HTML for location values
- */
-export function styledLocation(value) {
-  return `<span style="display:inline-block;padding:4px 12px;border-radius:6px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;font-weight:600;font-size:13px;">&#128205; ${escapeHtml(value)}</span>`
-}
-
-/**
  * Generate a styled info card with key details (table-based for email compat)
  */
 export function generateDetailsCard(vars) {
@@ -69,7 +62,7 @@ export function generateDetailsCard(vars) {
     </table>`
   }
 
-  // Date & location cells row
+  // Date cells row
   const cells = []
   if (vars.pickup_date) {
     cells.push({ label: 'Pickup', value: escapeHtml(vars.pickup_date), color: '#f97316' })
@@ -84,9 +77,6 @@ export function generateDetailsCard(vars) {
     })
   } else if (vars.return_date) {
     cells.push({ label: 'Return', value: escapeHtml(vars.return_date), color: '#f97316' })
-  }
-  if (vars.location) {
-    cells.push({ label: 'Location', value: escapeHtml(vars.location), color: '#a78bfa' })
   }
 
   if (cells.length > 0) {
@@ -117,7 +107,6 @@ export function generateStyledVars(vars) {
   if (vars.return_date) styled.return_date = styledDate(vars.return_date)
   if (vars.request_number) styled.request_number = styledRequestNumber(vars.request_number)
   if (vars.condition) styled.condition = styledCondition(vars.condition)
-  if (vars.location) styled.location = styledLocation(vars.location)
   if (vars.user_name) styled.user_name = `<strong style="color:#f1f5f9;">${escapeHtml(vars.user_name)}</strong>`
   if (vars.project_name) styled.project_name = `<strong style="color:#f1f5f9;">&ldquo;${escapeHtml(vars.project_name)}&rdquo;</strong>`
   // Styled item list from _items array (set by caller)

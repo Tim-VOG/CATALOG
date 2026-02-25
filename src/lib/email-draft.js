@@ -13,7 +13,6 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
     return_date: request.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '',
     item_list: items.map((i) => `- ${i.product_name} x${i.quantity}`).join('\n'),
     items_html: generateItemsHtml(items),
-    location: request.location_name || '',
     project_description: request.project_description || '',
     _items: items,
   }
@@ -54,7 +53,6 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
     granted_days: String(extension.granted_days || ''),
     new_return_date: '',
     admin_comment: extension.admin_notes || '',
-    location: extension.location_name || request?.location_name || '',
     project_description: request?.project_description || '',
   }
 
@@ -129,9 +127,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
     return_date: request.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '',
     item_list: itemList,
     items_html: itemsHtml,
-    location: request.location_name || '',
     condition: overallCondition,
-    priority: request.priority || 'normal',
     project_description: request.project_description || '',
     justification: request.justification || '',
     _items: items, // used by generateStyledVars for styled item_list
