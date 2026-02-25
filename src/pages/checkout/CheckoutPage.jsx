@@ -10,6 +10,8 @@ import { useAppSettings } from '@/hooks/use-settings'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml } from '@/lib/email-html'
 import { getNotificationRecipients } from '@/lib/api/notification-recipients'
+import { getEmailTemplateByKey } from '@/lib/api/email-templates'
+import { generateStatusEmailDraft } from '@/lib/email-draft'
 import { ArrowLeft, ArrowRight, Check, ClipboardList, Send } from 'lucide-react'
 import { DynamicField } from '@/components/checkout/DynamicField'
 import { Button } from '@/components/ui/button'
@@ -253,24 +255,51 @@ export function CheckoutPage() {
       clearCart()
       showToast('Request submitted successfully!')
 
-      // Send notification email (fire and forget — don't block navigation)
+      // Send emails (fire and forget — don't block navigation)
       const appName = settings?.app_name || 'VO Gear Hub'
       const logoUrl = settings?.logo_url || ''
       const requesterName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
       const itemSummary = items.map((i) => `${i.product.name} x${i.quantity}`).join(', ')
+      const selectedLoc = locations.find((l) => l.id === fieldValues.location_id)
 
+      // 1) Send confirmation email to user using template
+      getEmailTemplateByKey('order_confirmation')
+        .then((template) => {
+          if (!template || !template.is_active) return
+          const requestData = {
+            user_first_name: profile?.first_name || '',
+            user_last_name: profile?.last_name || '',
+            user_email: user?.email,
+            project_name: fieldValues.project_name || '',
+            project_description: fieldValues.project_description || '',
+            request_number: req.request_number || req.id,
+            pickup_date: startDate,
+            return_date: endDate,
+            location_name: selectedLoc?.name || '',
+            priority: fieldValues.priority || 'normal',
+            custom_fields: customFields,
+          }
+          const itemData = items.map((i) => ({
+            product_name: i.product.name,
+            product_image: i.product.image_url,
+            quantity: i.quantity,
+            product_includes: i.product.includes || [],
+          }))
+          const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl })
+          if (draft.to) sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+        })
+        .catch(() => {})
+
+      // 2) Send notification email to admins
       const emailBody = wrapEmailHtml(
         `New equipment request submitted by <strong>${requesterName}</strong>.\n\n` +
         `<strong>Project:</strong> ${fieldValues.project_name || '—'}\n` +
         `<strong>Priority:</strong> ${fieldValues.priority || 'normal'}\n` +
         `<strong>Period:</strong> ${formatDate(startDate)} → ${formatDate(endDate)}\n` +
-        `<strong>Items:</strong> ${itemSummary}\n\n` +
-        (fieldValues.project_description ? `<strong>Description:</strong> ${fieldValues.project_description}\n\n` : '') +
-        `Request #${req.request_number || req.id}`,
+        `<strong>Items:</strong> ${itemSummary}`,
         { appName, logoUrl }
       )
 
-      // Get notification recipients
       getNotificationRecipients()
         .then((recipients) => {
           const adminEmails = (recipients || [])
@@ -279,13 +308,13 @@ export function CheckoutPage() {
           if (adminEmails.length > 0) {
             sendEmail({
               to: adminEmails,
-              subject: `[${appName}] VO Gear Hub - New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
+              subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
               body: emailBody,
               isHtml: true,
             })
           }
         })
-        .catch(() => {}) // silently fail — email is non-critical
+        .catch(() => {})
 
       navigate('/requests')
     } catch (err) {

@@ -7,10 +7,12 @@ UPDATE email_templates SET is_active = false WHERE template_key = 'order_ready';
 -- Deactivate return_reminder (step 4 — no longer needed)
 UPDATE email_templates SET is_active = false WHERE template_key = 'return_reminder';
 
--- Update existing templates: remove request numbers, fix project_name quotes (styled vars add quotes)
+-- Update order_confirmation to HTML format matching equipment_picked_up design
 UPDATE email_templates SET
   subject = 'Your equipment request for "{{project_name}}" has been received',
-  body = E'Dear {{user_name}},\n\nYour equipment request for project {{project_name}} has been successfully submitted.\n\nPickup Date: {{pickup_date}}\nReturn Date: {{return_date}}\nItems: {{item_list}}\n\nYou will receive a notification once your request has been reviewed.\n\nBest regards,\nThe VO Gear Hub Team'
+  body = E'Dear {{user_name}},\n\nYour equipment request for project {{project_name}} has been successfully submitted.\n\n{{details_card}}\n\n{{items_html}}\n\nYou will receive a notification once your request has been reviewed.\n\nBest regards,\nThe VO Gear Hub Team',
+  format = 'html',
+  variables = ARRAY['user_name', 'project_name', 'request_number', 'pickup_date', 'return_date', 'item_list', 'location', 'details_card', 'items_html', 'priority']
 WHERE template_key = 'order_confirmation';
 
 -- Update return_confirmation to HTML format matching equipment_picked_up design
