@@ -138,12 +138,26 @@ export function AdminEmailTemplatesPage() {
     return text.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
   }
 
-  // Build full HTML preview for iframe
+  // Build full HTML preview for the edit dialog iframe
   const htmlPreview = useMemo(() => {
     if (templateFormat !== 'html') return null
     const substituted = renderPreview(body, true)
     return wrapEmailHtml(substituted, { appName: settings?.app_name || 'VO Gear Hub', logoUrl: settings?.logo_url || '' })
   }, [body, templateFormat, sampleStyledVars, settings])
+
+  // Pre-compute HTML previews for all templates (used in timeline cards)
+  const templatePreviews = useMemo(() => {
+    const appName = settings?.app_name || 'VO Gear Hub'
+    const logoUrl = settings?.logo_url || ''
+    const previews = {}
+    for (const t of templates) {
+      if (t.format === 'html' && t.body) {
+        const substituted = renderPreview(t.body, true)
+        previews[t.id] = wrapEmailHtml(substituted, { appName, logoUrl })
+      }
+    }
+    return previews
+  }, [templates, sampleStyledVars, settings])
 
   if (isLoading) return <PageLoading />
 
@@ -226,23 +240,28 @@ export function AdminEmailTemplatesPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground mb-2">{t.description}</p>
-                    <div className="text-xs text-muted-foreground">
-                      <span className="font-medium">Subject:</span> {t.subject}
+                    <div className="text-xs text-muted-foreground mb-3">
+                      <span className="font-medium">Subject:</span> {renderPreview(t.subject)}
                     </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {(t.variables || []).map((v) => (
-                        <Badge key={v} variant="outline" className="text-[10px]">
-                          {`{{${v}}}`}
-                        </Badge>
-                      ))}
-                    </div>
+                    {templatePreviews[t.id] ? (
+                      <iframe
+                        srcDoc={templatePreviews[t.id]}
+                        className="w-full rounded-lg border pointer-events-none"
+                        style={{ height: '280px' }}
+                        title={`Preview: ${t.name}`}
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 max-h-40 overflow-hidden">
+                        {renderPreview(t.body)}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
             )
 
             return (
-              <div className="max-w-2xl">
+              <div className="max-w-3xl">
                 {mainFlow.map((t, i) => renderTemplateCard(t, TEMPLATE_ORDER[t.template_key], i === mainFlow.length - 1 && extensions.length === 0))}
 
                 {extensions.length > 0 && (
