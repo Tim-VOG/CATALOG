@@ -4,6 +4,13 @@
 CREATE POLICY "Email templates readable by authenticated users" ON email_templates
     FOR SELECT USING (auth.role() = 'authenticated');
 
+-- Fix: allow users to cancel their own pending requests (WITH CHECK must include 'cancelled')
+DROP POLICY "Users can update own draft/pending requests" ON loan_requests;
+CREATE POLICY "Users can update own draft/pending requests" ON loan_requests
+    FOR UPDATE
+    USING (user_id = auth.uid() AND status IN ('draft', 'pending'))
+    WITH CHECK (user_id = auth.uid() AND status IN ('draft', 'pending', 'cancelled'));
+
 -- Deactivate old templates that are no longer needed
 
 -- Deactivate order_ready (step 2 — admin approves, no longer needed)
