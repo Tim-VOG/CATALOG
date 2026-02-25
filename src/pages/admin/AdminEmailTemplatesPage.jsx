@@ -247,8 +247,12 @@ export function AdminEmailTemplatesPage() {
                       <iframe
                         srcDoc={templatePreviews[t.id]}
                         className="w-full rounded-lg border pointer-events-none"
-                        style={{ height: '280px' }}
+                        style={{ height: '80px' }}
                         title={`Preview: ${t.name}`}
+                        onLoad={(e) => {
+                          const doc = e.target.contentDocument
+                          if (doc) e.target.style.height = doc.documentElement.scrollHeight + 'px'
+                        }}
                       />
                     ) : (
                       <div className="whitespace-pre-wrap text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 max-h-40 overflow-hidden">
