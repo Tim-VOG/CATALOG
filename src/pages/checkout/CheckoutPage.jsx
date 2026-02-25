@@ -271,8 +271,11 @@ export function CheckoutPage() {
 
       // 1) Send confirmation email to user using template
       getEmailTemplateByKey('order_confirmation')
-        .then((template) => {
-          if (!template || !template.is_active) return
+        .then(async (template) => {
+          if (!template || !template.is_active) {
+            console.warn('[order_confirmation] Template not found or inactive', template)
+            return
+          }
           const requestData = {
             user_first_name: profile?.first_name || '',
             user_last_name: profile?.last_name || '',
@@ -287,9 +290,15 @@ export function CheckoutPage() {
             custom_fields: customFields,
           }
           const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl })
-          if (draft.to) sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+          if (!draft.to) {
+            console.warn('[order_confirmation] No recipient email — user.email:', user?.email)
+            return
+          }
+          const result = await sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+          if (!result.success) console.error('[order_confirmation] Send failed:', result.error)
+          else console.info('[order_confirmation] Email sent to', draft.to)
         })
-        .catch((err) => console.error('[order_confirmation email]', err))
+        .catch((err) => console.error('[order_confirmation] Error:', err))
 
       // 2) Send rich notification email to admins
       const detailsCard = generateDetailsCard({
