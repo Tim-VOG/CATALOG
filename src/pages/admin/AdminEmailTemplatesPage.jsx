@@ -16,17 +16,19 @@ import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/emai
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 
-// Process order: request flow then extension decisions
+// Chronological workflow order (inactive templates interleaved)
 const TEMPLATE_ORDER = {
   order_confirmation: 1,
-  equipment_picked_up: 2,
-  return_confirmation: 3,
-  request_closed: 4,
-  extension_approved: 5,
-  extension_rejected: 6,
-  order_ready: 90,
-  return_reminder: 91,
+  order_ready: 2,
+  equipment_picked_up: 3,
+  return_reminder: 4,
+  return_confirmation: 5,
+  request_closed: 6,
+  extension_approved: 7,
+  extension_rejected: 8,
 }
+
+const EXTENSION_STEP = 7
 
 const TEMPLATE_ICONS = {
   order_confirmation: '📋',
@@ -168,17 +170,20 @@ export function AdminEmailTemplatesPage() {
         <TabsContent value="templates" className="mt-6">
           {(() => {
             const sorted = [...templates].sort((a, b) => (TEMPLATE_ORDER[a.template_key] ?? 99) - (TEMPLATE_ORDER[b.template_key] ?? 99))
-            const active = sorted.filter((t) => t.is_active)
-            const inactive = sorted.filter((t) => !t.is_active)
+            const mainFlow = sorted.filter((t) => (TEMPLATE_ORDER[t.template_key] ?? 99) < EXTENSION_STEP)
+            const extensions = sorted.filter((t) => {
+              const order = TEMPLATE_ORDER[t.template_key] ?? 99
+              return order >= EXTENSION_STEP && order < 99
+            })
 
-            const renderTemplateCard = (t, stepNumber) => (
-              <div key={t.id} className="flex gap-4 group">
+            const renderTemplateCard = (t, stepNumber, isLast) => (
+              <div key={t.id} className="flex gap-4">
                 {/* Timeline dot + line */}
                 <div className="flex flex-col items-center pt-1">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${t.is_active ? 'border-primary bg-primary/10 text-primary' : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
                     {stepNumber}
                   </div>
-                  <div className="w-0.5 flex-1 bg-border mt-2 group-last:hidden" />
+                  {!isLast && <div className="w-0.5 flex-1 bg-border mt-2" />}
                 </div>
 
                 {/* Card */}
@@ -238,16 +243,16 @@ export function AdminEmailTemplatesPage() {
 
             return (
               <div className="max-w-2xl">
-                {active.map((t, i) => renderTemplateCard(t, i + 1))}
+                {mainFlow.map((t, i) => renderTemplateCard(t, TEMPLATE_ORDER[t.template_key], i === mainFlow.length - 1 && extensions.length === 0))}
 
-                {inactive.length > 0 && (
+                {extensions.length > 0 && (
                   <>
-                    <div className="flex items-center gap-3 my-4 ml-3.5">
+                    <div className="flex items-center gap-3 my-2 ml-3.5">
                       <div className="h-px flex-1 bg-border" />
-                      <span className="text-xs text-muted-foreground font-medium">Inactive</span>
+                      <span className="text-xs text-muted-foreground font-medium">Extensions</span>
                       <div className="h-px flex-1 bg-border" />
                     </div>
-                    {inactive.map((t, i) => renderTemplateCard(t, '–'))}
+                    {extensions.map((t, i) => renderTemplateCard(t, TEMPLATE_ORDER[t.template_key], i === extensions.length - 1))}
                   </>
                 )}
               </div>
