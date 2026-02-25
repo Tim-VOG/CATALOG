@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { useApproveExtension, useRejectExtension } from '@/hooks/use-extension-requests'
+import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
+import { sendEmail } from '@/lib/api/send-email'
+import { getEmailTemplateByKey } from '@/lib/api/email-templates'
+import { generateExtensionEmailDraft } from '@/lib/email-draft'
 import { Check, X, CalendarPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
   const approveExtension = useApproveExtension()
   const rejectExtension = useRejectExtension()
+  const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
   const [grantedDays, setGrantedDays] = useState(extension?.requested_days || 3)
@@ -21,6 +26,29 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
     ? format(addDays(new Date(extension.return_date), grantedDays), 'dd MMM yyyy')
     : ''
 
+  const appName = settings?.app_name || 'VO Gear Hub'
+  const logoUrl = settings?.logo_url || ''
+  const commentValid = adminNotes.trim().length > 0
+
+  // Send extension decision email (fire & forget)
+  const sendExtensionEmail = async (templateKey, updatedExtension) => {
+    try {
+      const template = await getEmailTemplateByKey(templateKey)
+      if (!template || !template.is_active) return
+      const draft = generateExtensionEmailDraft({
+        template,
+        extension: updatedExtension,
+        appName,
+        logoUrl,
+      })
+      if (draft.to) {
+        sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+      }
+    } catch {
+      // Email is non-critical
+    }
+  }
+
   const handleApprove = async () => {
     try {
       await approveExtension.mutateAsync({
@@ -28,6 +56,15 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
         granted_days: grantedDays,
         admin_notes: adminNotes,
       })
+
+      // Send approval email with the full extension data
+      sendExtensionEmail('extension_approved', {
+        ...extension,
+        status: 'approved',
+        granted_days: grantedDays,
+        admin_notes: adminNotes,
+      })
+
       showToast(`Extension approved — ${grantedDays} extra days`)
       onOpenChange(false)
     } catch (err) {
@@ -41,6 +78,14 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
         id: extension.id,
         admin_notes: adminNotes,
       })
+
+      // Send rejection email
+      sendExtensionEmail('extension_rejected', {
+        ...extension,
+        status: 'rejected',
+        admin_notes: adminNotes,
+      })
+
       showToast('Extension rejected')
       onOpenChange(false)
     } catch (err) {
@@ -87,21 +132,34 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
           </div>
 
           <div className="space-y-1">
-            <Label>Admin notes (optional)</Label>
+            <Label>Comment (required) <span className="text-destructive">*</span></Label>
             <Textarea
               value={adminNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
               rows={2}
-              placeholder="Notes about this decision..."
+              placeholder="Justify your decision — this will be sent to the user..."
             />
+            {!commentValid && adminNotes.length > 0 && (
+              <p className="text-xs text-destructive">A comment is required to approve or reject.</p>
+            )}
           </div>
         </div>
 
         <DialogFooter className="flex gap-2">
-          <Button variant="destructive" onClick={handleReject} disabled={rejectExtension.isPending} className="gap-1">
+          <Button
+            variant="destructive"
+            onClick={handleReject}
+            disabled={rejectExtension.isPending || !commentValid}
+            className="gap-1"
+          >
             <X className="h-4 w-4" /> Reject
           </Button>
-          <Button variant="success" onClick={handleApprove} disabled={approveExtension.isPending} className="gap-1">
+          <Button
+            variant="success"
+            onClick={handleApprove}
+            disabled={approveExtension.isPending || !commentValid}
+            className="gap-1"
+          >
             <Check className="h-4 w-4" /> Approve
           </Button>
         </DialogFooter>

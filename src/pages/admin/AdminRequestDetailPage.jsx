@@ -1,8 +1,12 @@
 import { Link, useParams } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
 import { useExtensionsByRequest } from '@/hooks/use-extension-requests'
+import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { useState } from 'react'
+import { sendEmail } from '@/lib/api/send-email'
+import { getEmailTemplateByKey } from '@/lib/api/email-templates'
+import { generateStatusEmailDraft } from '@/lib/email-draft'
 import {
   ArrowLeft, Calendar, MapPin, User, Clock, Package,
   Check, X, ShieldCheck, Undo2, CalendarPlus,
@@ -27,6 +31,7 @@ export function AdminRequestDetailPage() {
   const { data: request, isLoading } = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
   const { data: extensions = [] } = useExtensionsByRequest(requestId)
+  const { data: settings } = useAppSettings()
   const updateStatus = useUpdateRequestStatus()
   const showToast = useUIStore((s) => s.showToast)
 
@@ -37,10 +42,31 @@ export function AdminRequestDetailPage() {
   if (isLoading) return <PageLoading />
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
+  const appName = settings?.app_name || 'VO Gear Hub'
+  const logoUrl = settings?.logo_url || ''
+
+  // Send a status change email to the user (fire & forget)
+  const sendStatusEmail = async (templateKey) => {
+    try {
+      const template = await getEmailTemplateByKey(templateKey)
+      if (!template || !template.is_active) return
+      const draft = generateStatusEmailDraft({ template, request, items, appName, logoUrl })
+      if (draft.to) {
+        sendEmail({ to: draft.to, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+      }
+    } catch {
+      // Email is non-critical — don't block the action
+    }
+  }
+
   const handleStatusUpdate = async (status, extraData = {}) => {
     try {
       await updateStatus.mutateAsync({ id: request.id, status, ...extraData })
       showToast(`Request ${status}`)
+
+      // Auto-send emails for specific status changes
+      if (status === 'picked_up') sendStatusEmail('equipment_picked_up')
+      if (status === 'closed') sendStatusEmail('request_closed')
     } catch (err) {
       showToast(err.message, 'error')
     }

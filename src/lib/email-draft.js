@@ -2,6 +2,89 @@ import { format } from 'date-fns'
 import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/email-html'
 
 /**
+ * Generate a status change email draft (picked_up, closed, etc.)
+ */
+export function generateStatusEmailDraft({ template, request, items = [], appName, logoUrl }) {
+  const vars = {
+    user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
+    project_name: request.project_name || '',
+    request_number: String(request.request_number || ''),
+    pickup_date: request.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
+    return_date: request.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '',
+    item_list: items.map((i) => `- ${i.product_name} x${i.quantity}`).join('\n'),
+    items_html: generateItemsHtml(items),
+    location: request.location_name || '',
+    priority: request.priority || 'normal',
+    project_description: request.project_description || '',
+    _items: items,
+  }
+
+  if (request.custom_fields && typeof request.custom_fields === 'object') {
+    Object.entries(request.custom_fields).forEach(([key, val]) => {
+      if (val !== undefined && val !== null) vars[key] = String(val)
+    })
+  }
+
+  const isHtml = template?.format === 'html'
+  const resolvedVars = isHtml ? generateStyledVars(vars) : vars
+
+  const substituteVars = (text, useRaw = false) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
+
+  const subject = substituteVars(template?.subject || 'Request #{{request_number}} update', true)
+  let body = substituteVars(template?.body || 'Your request #{{request_number}} has been updated.')
+
+  if (isHtml) {
+    body = wrapEmailHtml(body, { appName, logoUrl })
+  }
+
+  return { to: request.user_email || '', subject, body, isHtml }
+}
+
+/**
+ * Generate an extension decision email draft (approved or rejected)
+ */
+export function generateExtensionEmailDraft({ template, extension, request, appName, logoUrl }) {
+  const vars = {
+    user_name: `${extension.user_first_name || request?.user_first_name || ''} ${extension.user_last_name || request?.user_last_name || ''}`.trim(),
+    project_name: extension.project_name || request?.project_name || '',
+    request_number: String(extension.request_number || request?.request_number || ''),
+    pickup_date: (extension.pickup_date || request?.pickup_date) ? format(new Date(extension.pickup_date || request.pickup_date), 'dd MMM yyyy') : '',
+    return_date: (extension.return_date || request?.return_date) ? format(new Date(extension.return_date || request.return_date), 'dd MMM yyyy') : '',
+    requested_days: String(extension.requested_days || ''),
+    granted_days: String(extension.granted_days || ''),
+    new_return_date: '',
+    admin_comment: extension.admin_notes || '',
+    location: extension.location_name || request?.location_name || '',
+    priority: request?.priority || 'normal',
+    project_description: request?.project_description || '',
+  }
+
+  // Calculate new return date for approved extensions
+  if (extension.status === 'approved' && extension.return_date && extension.granted_days) {
+    const newDate = new Date(extension.return_date)
+    newDate.setDate(newDate.getDate() + extension.granted_days)
+    vars.new_return_date = format(newDate, 'dd MMM yyyy')
+  }
+
+  const isHtml = template?.format === 'html'
+  const resolvedVars = isHtml ? generateStyledVars(vars) : vars
+
+  const substituteVars = (text, useRaw = false) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
+
+  const subject = substituteVars(template?.subject || 'Extension update — Request #{{request_number}}', true)
+  let body = substituteVars(template?.body || 'Your extension request has been reviewed.')
+
+  if (isHtml) {
+    body = wrapEmailHtml(body, { appName, logoUrl })
+  }
+
+  const to = extension.user_email || request?.user_email || ''
+  return { to, subject, body, isHtml }
+}
+
+/**
  * Generate a return email draft from template + request data
  */
 export function generateReturnDraft({ template, request, items, itemReturns, recipients }) {
