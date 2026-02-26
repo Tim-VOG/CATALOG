@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
 
 const Checkbox = React.forwardRef(({ className, checked, onCheckedChange, ...props }, ref) => {
+  const lastClick = React.useRef(0)
+
   return (
     <button
       ref={ref}
@@ -14,7 +16,14 @@ const Checkbox = React.forwardRef(({ className, checked, onCheckedChange, ...pro
         checked && 'bg-primary border-primary text-primary-foreground',
         className
       )}
-      onClick={(e) => { e.stopPropagation(); onCheckedChange?.(!checked) }}
+      onClick={(e) => {
+        e.stopPropagation()
+        // Guard against <label> triggering a duplicate synthetic click
+        const now = Date.now()
+        if (now - lastClick.current < 50) return
+        lastClick.current = now
+        onCheckedChange?.(!checked)
+      }}
       {...props}
     >
       {checked && <Check className="h-3 w-3 mx-auto" />}
