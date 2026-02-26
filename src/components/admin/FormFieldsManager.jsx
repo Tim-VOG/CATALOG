@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useFormFields, useCreateFormField, useUpdateFormField, useDeleteFormField } from '@/hooks/use-form-fields'
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, GripVertical, Lock } from 'lucide-react'
+import { Plus, Pencil, Trash2, GripVertical, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,6 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { useUIStore } from '@/stores/ui-store'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+import { CSS } from '@dnd-kit/utilities'
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Text' },
@@ -43,6 +47,70 @@ const emptyField = {
   is_active: true,
 }
 
+const fieldTypeLabel = (type) => {
+  if (type === 'location') return 'Location Picker'
+  if (type === 'priority') return 'Priority Selector'
+  return FIELD_TYPES.find((t) => t.value === type)?.label || type
+}
+
+function SortableFieldRow({ field, onToggle, onEdit, onDelete }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    position: isDragging ? 'relative' : undefined,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 p-3 rounded-lg border ${!field.is_active ? 'opacity-50' : ''} ${isDragging ? 'shadow-lg bg-card' : ''}`}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing touch-none p-1 -m-1 rounded hover:bg-muted"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      </button>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm">{field.label}</span>
+          {field.is_system && (
+            <Badge variant="outline" className="text-[10px] gap-1 border-blue-500/30 text-blue-400">
+              <Lock className="h-2.5 w-2.5" /> System
+            </Badge>
+          )}
+          {field.is_required && <Badge variant="outline" className="text-[10px]">Required</Badge>}
+        </div>
+        <div className="flex items-center gap-2 mt-0.5">
+          <Badge className="text-[10px] bg-muted text-muted-foreground">{fieldTypeLabel(field.field_type)}</Badge>
+          <span className="text-[10px] text-muted-foreground font-mono">{field.field_key}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-1">
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onToggle(field)}>
+          <Badge className={field.is_active ? 'bg-green-500/20 text-green-400 text-[10px]' : 'bg-red-500/20 text-red-400 text-[10px]'}>
+            {field.is_active ? 'On' : 'Off'}
+          </Badge>
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(field)}>
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        {!field.is_system && (
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(field)}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function FormFieldsManager() {
   const { data: fields = [], isLoading } = useFormFields()
   const createField = useCreateFormField()
@@ -54,6 +122,11 @@ export function FormFieldsManager() {
   const [editingField, setEditingField] = useState(null)
   const [form, setForm] = useState(emptyField)
   const [optionInput, setOptionInput] = useState('')
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   const openCreateField = () => {
     setEditingField(null)
@@ -151,26 +224,31 @@ export function FormFieldsManager() {
     }
   }
 
-  const handleMoveField = async (field, direction) => {
-    const idx = fields.findIndex((f) => f.id === field.id)
-    const newIdx = idx + direction
-    if (newIdx < 0 || newIdx >= fields.length) return
+  const handleDragEnd = async (event) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIdx = fields.findIndex((f) => f.id === active.id)
+    const newIdx = fields.findIndex((f) => f.id === over.id)
+    if (oldIdx === -1 || newIdx === -1) return
+
+    // Build new order and persist all sort_order values
+    const reordered = [...fields]
+    const [moved] = reordered.splice(oldIdx, 1)
+    reordered.splice(newIdx, 0, moved)
+
     try {
-      const other = fields[newIdx]
-      await updateField.mutateAsync({ id: field.id, sort_order: other.sort_order })
-      await updateField.mutateAsync({ id: other.id, sort_order: field.sort_order })
+      await Promise.all(
+        reordered.map((f, i) =>
+          f.sort_order !== i ? updateField.mutateAsync({ id: f.id, sort_order: i }) : null
+        ).filter(Boolean)
+      )
     } catch (err) {
       showToast(err.message, 'error')
     }
   }
 
   if (isLoading) return <PageLoading />
-
-  const fieldTypeLabel = (type) => {
-    if (type === 'location') return 'Location Picker'
-    if (type === 'priority') return 'Priority Selector'
-    return FIELD_TYPES.find((t) => t.value === type)?.label || type
-  }
 
   return (
     <>
@@ -183,63 +261,33 @@ export function FormFieldsManager() {
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            Manage all fields in the checkout form. System fields can be toggled, reordered, and relabeled but not deleted.
+            Drag fields to reorder. System fields can be toggled, reordered, and relabeled but not deleted.
           </p>
         </CardHeader>
         <CardContent>
           {fields.length === 0 ? (
             <p className="text-center py-6 text-muted-foreground text-sm">No fields configured</p>
           ) : (
-            <div className="space-y-2">
-              {fields.map((field, idx) => (
-                <div
-                  key={field.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border ${!field.is_active ? 'opacity-50' : ''}`}
-                >
-                  <div className="flex items-center gap-1">
-                    <GripVertical className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
-                    <div className="flex flex-col gap-0.5">
-                      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => handleMoveField(field, -1)} disabled={idx === 0}>
-                        <ChevronUp className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => handleMoveField(field, 1)} disabled={idx === fields.length - 1}>
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm">{field.label}</span>
-                      {field.is_system && (
-                        <Badge variant="outline" className="text-[10px] gap-1 border-blue-500/30 text-blue-400">
-                          <Lock className="h-2.5 w-2.5" /> System
-                        </Badge>
-                      )}
-                      {field.is_required && <Badge variant="outline" className="text-[10px]">Required</Badge>}
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Badge className="text-[10px] bg-muted text-muted-foreground">{fieldTypeLabel(field.field_type)}</Badge>
-                      <span className="text-[10px] text-muted-foreground font-mono">{field.field_key}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggleField(field)}>
-                      <Badge className={field.is_active ? 'bg-green-500/20 text-green-400 text-[10px]' : 'bg-red-500/20 text-red-400 text-[10px]'}>
-                        {field.is_active ? 'On' : 'Off'}
-                      </Badge>
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditField(field)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    {!field.is_system && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteField(field)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              modifiers={[restrictToVerticalAxis]}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2">
+                  {fields.map((field) => (
+                    <SortableFieldRow
+                      key={field.id}
+                      field={field}
+                      onToggle={handleToggleField}
+                      onEdit={openEditField}
+                      onDelete={handleDeleteField}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </CardContent>
       </Card>
