@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* ── Dark theme defaults (base) ──────────────────── */
   --color-background: #0f1419;
   --color-foreground: #f1f5f9;
 
@@ -62,6 +63,33 @@
   --color-input: #e2e8f0;
 }
 
+/* ── Border-radius presets via data-radius ──────────── */
+[data-radius="sm"] {
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+[data-radius="md"] {
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+[data-radius="lg"] {
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+}
+[data-radius="xl"] {
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+}
+[data-radius="full"] {
+  --radius-sm: 9999px;
+  --radius-md: 9999px;
+  --radius-lg: 9999px;
+}
+
 *,
 *::before,
 *::after {
@@ -74,6 +102,11 @@ body {
   color: var(--color-foreground);
   line-height: 1.6;
   min-height: 100vh;
+}
+
+/* Smooth theme transition */
+body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Custom scrollbar — slim, adapts to theme */

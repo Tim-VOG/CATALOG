@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Package, ShoppingCart, ClipboardList, Settings, X, LayoutDashboard, Inbox, RotateCcw, FolderTree } from 'lucide-react'
+import { Package, ShoppingCart, ClipboardList, Settings, X, LayoutDashboard, Inbox, RotateCcw, FolderTree, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
+import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -28,8 +29,12 @@ export function MobileNav() {
   const mobileNavOpen = useUIStore((s) => s.mobileNavOpen)
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
   const { data: settings } = useAppSettings()
+  const themeMode = useThemeMode()
+  const toggleTheme = useToggleTheme()
+
   const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url
+  const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
 
   if (!mobileNavOpen) return null
 
@@ -51,7 +56,7 @@ export function MobileNav() {
             )}
             <div className="flex flex-col leading-tight">
               <span className="font-display font-bold text-lg">{appName}</span>
-              <span className="text-[10px] text-muted-foreground font-normal tracking-wide">Book. Borrow. Return.</span>
+              <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={toggleMobileNav}>
@@ -99,6 +104,28 @@ export function MobileNav() {
             </>
           )}
         </nav>
+
+        {/* Theme toggle at bottom */}
+        <div className="p-3 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-3"
+            onClick={toggleTheme}
+          >
+            {themeMode === 'dark' ? (
+              <>
+                <Sun className="h-4 w-4" />
+                Switch to Light Mode
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4" />
+                Switch to Dark Mode
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </>
   )

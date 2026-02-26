@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
 import { uploadLogo } from '@/lib/api/settings'
-import { Palette, Upload, X, Save, Image, Mail, Sun, Moon, Monitor } from 'lucide-react'
+import {
+  Palette, Upload, X, Save, Image, Mail, Sun, Moon, Monitor,
+  Circle, Square, RectangleHorizontal, Radius, Type, RotateCcw,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,49 +13,234 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
+// ── Defaults ──────────────────────────────────────────────
+
+const DARK_DEFAULTS = {
+  background: '#0f1419',
+  foreground: '#f1f5f9',
+  card: '#1e2a3a',
+  popover: '#1a2332',
+  secondary: '#1a2332',
+  muted: '#242f3d',
+  muted_fg: '#94a3b8',
+  border: '#334155',
+}
+
+const LIGHT_DEFAULTS = {
+  background: '#f8fafc',
+  foreground: '#0f172a',
+  card: '#ffffff',
+  popover: '#ffffff',
+  secondary: '#f1f5f9',
+  muted: '#f1f5f9',
+  muted_fg: '#64748b',
+  border: '#e2e8f0',
+}
+
+const SHARED_DEFAULTS = {
+  primary_color: '#f97316',
+  accent_color: '#06b6d4',
+  success_color: '#10b981',
+  warning_color: '#f59e0b',
+  destructive_color: '#ef4444',
+}
+
+const PALETTE_LABELS = {
+  background: { label: 'Background', desc: 'Main page background' },
+  foreground: { label: 'Text', desc: 'Primary text color' },
+  card: { label: 'Card / Surface', desc: 'Cards, panels, header' },
+  popover: { label: 'Popover', desc: 'Dropdowns, tooltips, modals' },
+  secondary: { label: 'Secondary', desc: 'Secondary backgrounds' },
+  muted: { label: 'Muted', desc: 'Subtle backgrounds (tags, disabled)' },
+  muted_fg: { label: 'Muted Text', desc: 'Secondary text, descriptions' },
+  border: { label: 'Border', desc: 'Borders, dividers, inputs' },
+}
+
+const RADIUS_OPTIONS = [
+  { value: 'sm', label: 'Small', preview: '4px' },
+  { value: 'md', label: 'Medium', preview: '10px' },
+  { value: 'lg', label: 'Large', preview: '14px' },
+  { value: 'xl', label: 'X-Large', preview: '18px' },
+  { value: 'full', label: 'Full', preview: '9999px' },
+]
+
+// ── Color picker row ──────────────────────────────────────
+
+function ColorRow({ label, desc, value, onChange, defaultValue }) {
+  const isDefault = !value || value === defaultValue
+  return (
+    <div className="flex items-center gap-3">
+      <input
+        type="color"
+        value={value || defaultValue}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-9 w-11 rounded border border-border cursor-pointer bg-transparent shrink-0"
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{label}</span>
+          {isDefault && (
+            <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">default</span>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground truncate">{desc}</p>
+      </div>
+      <Input
+        value={value || defaultValue}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-24 font-mono text-xs"
+        maxLength={7}
+      />
+      {!isDefault && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
+          onClick={() => onChange('')}
+          title="Reset to default"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+        </Button>
+      )}
+    </div>
+  )
+}
+
+// ── Main Component ────────────────────────────────────────
+
 export function AdminDesignPage() {
   const { data: settings, isLoading } = useAppSettings()
   const updateSettings = useUpdateAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
+  // General
   const [appName, setAppName] = useState('')
-  const [primaryColor, setPrimaryColor] = useState('#f97316')
-  const [accentColor, setAccentColor] = useState('#06b6d4')
   const [logoUrl, setLogoUrl] = useState('')
+  const [headerTagline, setHeaderTagline] = useState('')
   const [emailTagline, setEmailTagline] = useState('')
   const [emailLogoHeight, setEmailLogoHeight] = useState('')
+
+  // Theme mode
   const [themeMode, setThemeMode] = useState('dark')
+
+  // Shared colors
+  const [primaryColor, setPrimaryColor] = useState('')
+  const [accentColor, setAccentColor] = useState('')
+  const [successColor, setSuccessColor] = useState('')
+  const [warningColor, setWarningColor] = useState('')
+  const [destructiveColor, setDestructiveColor] = useState('')
+
+  // Dark mode palette
+  const [darkPalette, setDarkPalette] = useState({ ...DARK_DEFAULTS })
+
+  // Light mode palette
+  const [lightPalette, setLightPalette] = useState({ ...LIGHT_DEFAULTS })
+
+  // Border radius
+  const [borderRadius, setBorderRadius] = useState('md')
+
+  // File upload
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef(null)
 
+  // Active palette tab in the editor
+  const [activePaletteTab, setActivePaletteTab] = useState('dark')
+
+  // ── Hydrate from settings ───────────────────
+
   useEffect(() => {
-    if (settings) {
-      setAppName(settings.app_name || 'VO Gear Hub')
-      setPrimaryColor(settings.primary_color || '#f97316')
-      setAccentColor(settings.accent_color || '#06b6d4')
-      setLogoUrl(settings.logo_url || '')
-      setEmailTagline(settings.email_tagline || '')
-      setEmailLogoHeight(settings.email_logo_height ? String(settings.email_logo_height) : '')
-      setThemeMode(settings.theme_mode || 'dark')
-    }
+    if (!settings) return
+    setAppName(settings.app_name || 'VO Gear Hub')
+    setLogoUrl(settings.logo_url || '')
+    setHeaderTagline(settings.header_tagline ?? 'Book. Borrow. Return.')
+    setEmailTagline(settings.email_tagline || '')
+    setEmailLogoHeight(settings.email_logo_height ? String(settings.email_logo_height) : '')
+    setThemeMode(settings.theme_mode || 'dark')
+    setPrimaryColor(settings.primary_color || '')
+    setAccentColor(settings.accent_color || '')
+    setSuccessColor(settings.success_color || '')
+    setWarningColor(settings.warning_color || '')
+    setDestructiveColor(settings.destructive_color || '')
+    setBorderRadius(settings.border_radius || 'md')
+
+    // Dark palette
+    setDarkPalette({
+      background: settings.dark_background || '',
+      foreground: settings.dark_foreground || '',
+      card: settings.dark_card || '',
+      popover: settings.dark_popover || '',
+      secondary: settings.dark_secondary || '',
+      muted: settings.dark_muted || '',
+      muted_fg: settings.dark_muted_fg || '',
+      border: settings.dark_border || '',
+    })
+
+    // Light palette
+    setLightPalette({
+      background: settings.light_background || '',
+      foreground: settings.light_foreground || '',
+      card: settings.light_card || '',
+      popover: settings.light_popover || '',
+      secondary: settings.light_secondary || '',
+      muted: settings.light_muted || '',
+      muted_fg: settings.light_muted_fg || '',
+      border: settings.light_border || '',
+    })
   }, [settings])
 
-  // Live-preview: apply theme mode as user toggles
+  // ── Live preview: apply theme as admin edits ─────
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themeMode)
   }, [themeMode])
 
-  // Live-preview: apply colors as user picks them
+  useEffect(() => {
+    document.documentElement.setAttribute('data-radius', borderRadius)
+  }, [borderRadius])
+
   useEffect(() => {
     const root = document.documentElement
-    root.style.setProperty('--color-primary', primaryColor)
-    root.style.setProperty('--color-ring', primaryColor)
+    const palette = themeMode === 'dark' ? darkPalette : lightPalette
+    const defaults = themeMode === 'dark' ? DARK_DEFAULTS : LIGHT_DEFAULTS
+
+    root.style.setProperty('--color-background', palette.background || defaults.background)
+    root.style.setProperty('--color-foreground', palette.foreground || defaults.foreground)
+    root.style.setProperty('--color-card', palette.card || defaults.card)
+    root.style.setProperty('--color-card-foreground', palette.foreground || defaults.foreground)
+    root.style.setProperty('--color-popover', palette.popover || defaults.popover)
+    root.style.setProperty('--color-popover-foreground', palette.foreground || defaults.foreground)
+    root.style.setProperty('--color-secondary', palette.secondary || defaults.secondary)
+    root.style.setProperty('--color-secondary-foreground', palette.foreground || defaults.foreground)
+    root.style.setProperty('--color-muted', palette.muted || defaults.muted)
+    root.style.setProperty('--color-muted-foreground', palette.muted_fg || defaults.muted_fg)
+    root.style.setProperty('--color-border', palette.border || defaults.border)
+    root.style.setProperty('--color-input', palette.border || defaults.border)
+  }, [themeMode, darkPalette, lightPalette])
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty('--color-primary', primaryColor || SHARED_DEFAULTS.primary_color)
+    root.style.setProperty('--color-ring', primaryColor || SHARED_DEFAULTS.primary_color)
   }, [primaryColor])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--color-accent', accentColor)
+    document.documentElement.style.setProperty('--color-accent', accentColor || SHARED_DEFAULTS.accent_color)
   }, [accentColor])
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--color-success', successColor || SHARED_DEFAULTS.success_color)
+  }, [successColor])
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--color-warning', warningColor || SHARED_DEFAULTS.warning_color)
+  }, [warningColor])
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--color-destructive', destructiveColor || SHARED_DEFAULTS.destructive_color)
+  }, [destructiveColor])
+
+  // ── Handlers ────────────────────────────────
 
   const handleLogoUpload = async (file) => {
     if (!file) return
@@ -64,7 +252,6 @@ export function AdminDesignPage() {
       showToast('Image must be under 2MB', 'error')
       return
     }
-
     setUploading(true)
     try {
       const url = await uploadLogo(file)
@@ -84,16 +271,45 @@ export function AdminDesignPage() {
     if (file) handleLogoUpload(file)
   }
 
+  const updateDarkPalette = (key, value) => setDarkPalette((p) => ({ ...p, [key]: value }))
+  const updateLightPalette = (key, value) => setLightPalette((p) => ({ ...p, [key]: value }))
+
+  const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map(k => [k, ''])))
+  const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map(k => [k, ''])))
+
   const handleSave = async () => {
     try {
       await updateSettings.mutateAsync({
         app_name: appName,
-        primary_color: primaryColor,
-        accent_color: accentColor,
         logo_url: logoUrl || null,
+        header_tagline: headerTagline || null,
         email_tagline: emailTagline || null,
         email_logo_height: emailLogoHeight ? parseInt(emailLogoHeight, 10) : null,
         theme_mode: themeMode,
+        primary_color: primaryColor || null,
+        accent_color: accentColor || null,
+        success_color: successColor || null,
+        warning_color: warningColor || null,
+        destructive_color: destructiveColor || null,
+        border_radius: borderRadius,
+        // Dark palette
+        dark_background: darkPalette.background || null,
+        dark_foreground: darkPalette.foreground || null,
+        dark_card: darkPalette.card || null,
+        dark_popover: darkPalette.popover || null,
+        dark_secondary: darkPalette.secondary || null,
+        dark_muted: darkPalette.muted || null,
+        dark_muted_fg: darkPalette.muted_fg || null,
+        dark_border: darkPalette.border || null,
+        // Light palette
+        light_background: lightPalette.background || null,
+        light_foreground: lightPalette.foreground || null,
+        light_card: lightPalette.card || null,
+        light_popover: lightPalette.popover || null,
+        light_secondary: lightPalette.secondary || null,
+        light_muted: lightPalette.muted || null,
+        light_muted_fg: lightPalette.muted_fg || null,
+        light_border: lightPalette.border || null,
       })
       showToast('Design settings saved')
     } catch (err) {
@@ -101,20 +317,51 @@ export function AdminDesignPage() {
     }
   }
 
+  // ── Change detection ────────────────────────
+
+  const str = (v) => v || ''
   const hasChanges = settings && (
     appName !== (settings.app_name || '') ||
-    primaryColor !== (settings.primary_color || '') ||
-    accentColor !== (settings.accent_color || '') ||
     logoUrl !== (settings.logo_url || '') ||
+    headerTagline !== (settings.header_tagline ?? 'Book. Borrow. Return.') ||
     emailTagline !== (settings.email_tagline || '') ||
     emailLogoHeight !== (settings.email_logo_height ? String(settings.email_logo_height) : '') ||
-    themeMode !== (settings.theme_mode || 'dark')
+    themeMode !== (settings.theme_mode || 'dark') ||
+    primaryColor !== (settings.primary_color || '') ||
+    accentColor !== (settings.accent_color || '') ||
+    successColor !== (settings.success_color || '') ||
+    warningColor !== (settings.warning_color || '') ||
+    destructiveColor !== (settings.destructive_color || '') ||
+    borderRadius !== (settings.border_radius || 'md') ||
+    // Dark palette
+    str(darkPalette.background) !== str(settings.dark_background) ||
+    str(darkPalette.foreground) !== str(settings.dark_foreground) ||
+    str(darkPalette.card) !== str(settings.dark_card) ||
+    str(darkPalette.popover) !== str(settings.dark_popover) ||
+    str(darkPalette.secondary) !== str(settings.dark_secondary) ||
+    str(darkPalette.muted) !== str(settings.dark_muted) ||
+    str(darkPalette.muted_fg) !== str(settings.dark_muted_fg) ||
+    str(darkPalette.border) !== str(settings.dark_border) ||
+    // Light palette
+    str(lightPalette.background) !== str(settings.light_background) ||
+    str(lightPalette.foreground) !== str(settings.light_foreground) ||
+    str(lightPalette.card) !== str(settings.light_card) ||
+    str(lightPalette.popover) !== str(settings.light_popover) ||
+    str(lightPalette.secondary) !== str(settings.light_secondary) ||
+    str(lightPalette.muted) !== str(settings.light_muted) ||
+    str(lightPalette.muted_fg) !== str(settings.light_muted_fg) ||
+    str(lightPalette.border) !== str(settings.light_border)
   )
 
   if (isLoading) return <PageLoading />
 
+  const activePalette = activePaletteTab === 'dark' ? darkPalette : lightPalette
+  const activeDefaults = activePaletteTab === 'dark' ? DARK_DEFAULTS : LIGHT_DEFAULTS
+  const updateActivePalette = activePaletteTab === 'dark' ? updateDarkPalette : updateLightPalette
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-display font-bold">Design & Branding</h1>
@@ -126,7 +373,7 @@ export function AdminDesignPage() {
         </Button>
       </div>
 
-      {/* ── Theme Mode Toggle ────────────────────── */}
+      {/* ─── Theme Mode ─────────────────────────────── */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
@@ -135,7 +382,7 @@ export function AdminDesignPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4 max-w-md">
-            {/* Dark mode card */}
+            {/* Dark card */}
             <button
               type="button"
               onClick={() => setThemeMode('dark')}
@@ -152,27 +399,23 @@ export function AdminDesignPage() {
               )}>
                 <Moon className="h-6 w-6" />
               </div>
-              <span className={cn(
-                'text-sm font-semibold',
-                themeMode === 'dark' ? 'text-primary' : 'text-muted-foreground'
-              )}>
+              <span className={cn('text-sm font-semibold', themeMode === 'dark' ? 'text-primary' : 'text-muted-foreground')}>
                 Dark
               </span>
-              {/* Mini preview */}
               <div className="w-full rounded-lg overflow-hidden border border-border/50">
-                <div className="h-3 bg-[#0f1419]" />
-                <div className="flex gap-0.5 p-1 bg-[#1e2a3a]">
-                  <div className="h-2 flex-1 rounded-sm bg-[#334155]" />
-                  <div className="h-2 w-6 rounded-sm" style={{ backgroundColor: primaryColor }} />
+                <div className="h-3" style={{ background: darkPalette.background || DARK_DEFAULTS.background }} />
+                <div className="flex gap-0.5 p-1" style={{ background: darkPalette.card || DARK_DEFAULTS.card }}>
+                  <div className="h-2 flex-1 rounded-sm" style={{ background: darkPalette.border || DARK_DEFAULTS.border }} />
+                  <div className="h-2 w-6 rounded-sm" style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }} />
                 </div>
-                <div className="p-1 bg-[#0f1419] space-y-0.5">
-                  <div className="h-1.5 w-3/4 rounded-sm bg-[#242f3d]" />
-                  <div className="h-1.5 w-1/2 rounded-sm bg-[#242f3d]" />
+                <div className="p-1 space-y-0.5" style={{ background: darkPalette.background || DARK_DEFAULTS.background }}>
+                  <div className="h-1.5 w-3/4 rounded-sm" style={{ background: darkPalette.muted || DARK_DEFAULTS.muted }} />
+                  <div className="h-1.5 w-1/2 rounded-sm" style={{ background: darkPalette.muted || DARK_DEFAULTS.muted }} />
                 </div>
               </div>
             </button>
 
-            {/* Light mode card */}
+            {/* Light card */}
             <button
               type="button"
               onClick={() => setThemeMode('light')}
@@ -189,34 +432,259 @@ export function AdminDesignPage() {
               )}>
                 <Sun className="h-6 w-6" />
               </div>
-              <span className={cn(
-                'text-sm font-semibold',
-                themeMode === 'light' ? 'text-primary' : 'text-muted-foreground'
-              )}>
+              <span className={cn('text-sm font-semibold', themeMode === 'light' ? 'text-primary' : 'text-muted-foreground')}>
                 Light
               </span>
-              {/* Mini preview */}
               <div className="w-full rounded-lg overflow-hidden border border-border/50">
-                <div className="h-3 bg-[#f8fafc]" />
-                <div className="flex gap-0.5 p-1 bg-[#ffffff]">
-                  <div className="h-2 flex-1 rounded-sm bg-[#e2e8f0]" />
-                  <div className="h-2 w-6 rounded-sm" style={{ backgroundColor: primaryColor }} />
+                <div className="h-3" style={{ background: lightPalette.background || LIGHT_DEFAULTS.background }} />
+                <div className="flex gap-0.5 p-1" style={{ background: lightPalette.card || LIGHT_DEFAULTS.card }}>
+                  <div className="h-2 flex-1 rounded-sm" style={{ background: lightPalette.border || LIGHT_DEFAULTS.border }} />
+                  <div className="h-2 w-6 rounded-sm" style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }} />
                 </div>
-                <div className="p-1 bg-[#f8fafc] space-y-0.5">
-                  <div className="h-1.5 w-3/4 rounded-sm bg-[#e2e8f0]" />
-                  <div className="h-1.5 w-1/2 rounded-sm bg-[#e2e8f0]" />
+                <div className="p-1 space-y-0.5" style={{ background: lightPalette.background || LIGHT_DEFAULTS.background }}>
+                  <div className="h-1.5 w-3/4 rounded-sm" style={{ background: lightPalette.muted || LIGHT_DEFAULTS.muted }} />
+                  <div className="h-1.5 w-1/2 rounded-sm" style={{ background: lightPalette.muted || LIGHT_DEFAULTS.muted }} />
                 </div>
               </div>
             </button>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Switch between dark and light mode. This applies to all users.
+            Sets the default theme for all users. Users can override via the toggle in the header.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* ─── Mode-specific Palettes ─────────────────── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Palette className="h-4 w-4" /> Mode Palettes
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs gap-1.5 text-muted-foreground"
+              onClick={activePaletteTab === 'dark' ? resetDarkPalette : resetLightPalette}
+            >
+              <RotateCcw className="h-3 w-3" />
+              Reset {activePaletteTab} to defaults
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Tab selector */}
+          <div className="flex gap-1 mb-5 p-1 bg-muted rounded-lg w-fit">
+            <button
+              type="button"
+              onClick={() => setActivePaletteTab('dark')}
+              className={cn(
+                'flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
+                activePaletteTab === 'dark'
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Moon className="h-3.5 w-3.5" /> Dark Palette
+            </button>
+            <button
+              type="button"
+              onClick={() => setActivePaletteTab('light')}
+              className={cn(
+                'flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
+                activePaletteTab === 'light'
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Sun className="h-3.5 w-3.5" /> Light Palette
+            </button>
+          </div>
+
+          {/* Palette color rows */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
+            {Object.entries(PALETTE_LABELS).map(([key, { label, desc }]) => (
+              <ColorRow
+                key={`${activePaletteTab}-${key}`}
+                label={label}
+                desc={desc}
+                value={activePalette[key]}
+                defaultValue={activeDefaults[key]}
+                onChange={(v) => updateActivePalette(key, v)}
+              />
+            ))}
+          </div>
+
+          {/* Palette mini preview */}
+          <div className="mt-5 rounded-lg border overflow-hidden">
+            <div className="p-3 text-xs font-medium text-muted-foreground border-b">
+              {activePaletteTab === 'dark' ? 'Dark' : 'Light'} Mode Preview
+            </div>
+            <div
+              className="p-4 space-y-3"
+              style={{
+                background: (activePalette.background || activeDefaults.background),
+                color: (activePalette.foreground || activeDefaults.foreground),
+              }}
+            >
+              <div
+                className="rounded-lg p-3 border"
+                style={{
+                  background: (activePalette.card || activeDefaults.card),
+                  borderColor: (activePalette.border || activeDefaults.border),
+                }}
+              >
+                <div className="font-semibold text-sm mb-1">Card Title</div>
+                <div className="text-xs" style={{ color: (activePalette.muted_fg || activeDefaults.muted_fg) }}>
+                  This is how muted text appears in cards.
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div
+                  className="rounded px-3 py-1.5 text-xs font-medium text-white"
+                  style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }}
+                >
+                  Primary Button
+                </div>
+                <div
+                  className="rounded px-3 py-1.5 text-xs font-medium"
+                  style={{
+                    background: (activePalette.secondary || activeDefaults.secondary),
+                    color: (activePalette.foreground || activeDefaults.foreground),
+                  }}
+                >
+                  Secondary
+                </div>
+                <div
+                  className="rounded px-3 py-1.5 text-xs font-medium"
+                  style={{
+                    background: (activePalette.muted || activeDefaults.muted),
+                    color: (activePalette.muted_fg || activeDefaults.muted_fg),
+                  }}
+                >
+                  Muted
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ─── Shared Colors ──────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Palette className="h-4 w-4" /> Shared Colors
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-muted-foreground mb-4">These colors apply in both dark and light mode.</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
+            <ColorRow
+              label="Primary"
+              desc="Buttons, links, and main accents"
+              value={primaryColor}
+              defaultValue={SHARED_DEFAULTS.primary_color}
+              onChange={setPrimaryColor}
+            />
+            <ColorRow
+              label="Accent"
+              desc="Secondary highlights and badges"
+              value={accentColor}
+              defaultValue={SHARED_DEFAULTS.accent_color}
+              onChange={setAccentColor}
+            />
+            <ColorRow
+              label="Success"
+              desc="Success states, confirmations"
+              value={successColor}
+              defaultValue={SHARED_DEFAULTS.success_color}
+              onChange={setSuccessColor}
+            />
+            <ColorRow
+              label="Warning"
+              desc="Warnings and cautions"
+              value={warningColor}
+              defaultValue={SHARED_DEFAULTS.warning_color}
+              onChange={setWarningColor}
+            />
+            <ColorRow
+              label="Destructive"
+              desc="Errors, deletions, danger"
+              value={destructiveColor}
+              defaultValue={SHARED_DEFAULTS.destructive_color}
+              onChange={setDestructiveColor}
+            />
+          </div>
+
+          {/* Color preview strip */}
+          <div className="mt-5 flex gap-2">
+            {[
+              { label: 'Primary', color: primaryColor || SHARED_DEFAULTS.primary_color },
+              { label: 'Accent', color: accentColor || SHARED_DEFAULTS.accent_color },
+              { label: 'Success', color: successColor || SHARED_DEFAULTS.success_color },
+              { label: 'Warning', color: warningColor || SHARED_DEFAULTS.warning_color },
+              { label: 'Destructive', color: destructiveColor || SHARED_DEFAULTS.destructive_color },
+            ].map(({ label, color }) => (
+              <div key={label} className="flex-1 text-center">
+                <div className="h-8 rounded-md mb-1" style={{ background: color }} />
+                <span className="text-[10px] text-muted-foreground">{label}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ─── Border Radius ──────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Radius className="h-4 w-4" /> Border Radius
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3 flex-wrap">
+            {RADIUS_OPTIONS.map(({ value, label, preview }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setBorderRadius(value)}
+                className={cn(
+                  'flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all cursor-pointer min-w-[80px]',
+                  borderRadius === value
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground/50'
+                )}
+              >
+                <div
+                  className="w-10 h-10 border-2"
+                  style={{
+                    borderRadius: preview,
+                    borderColor: borderRadius === value
+                      ? (primaryColor || SHARED_DEFAULTS.primary_color)
+                      : 'var(--color-border)',
+                    background: borderRadius === value
+                      ? `${primaryColor || SHARED_DEFAULTS.primary_color}20`
+                      : 'var(--color-muted)',
+                  }}
+                />
+                <span className={cn(
+                  'text-xs font-medium',
+                  borderRadius === value ? 'text-primary' : 'text-muted-foreground'
+                )}>
+                  {label}
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Controls the roundness of buttons, cards, inputs, and other elements.
           </p>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Logo Upload */}
+        {/* ─── Logo Upload ──────────────────────────── */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -265,11 +733,11 @@ export function AdminDesignPage() {
           </CardContent>
         </Card>
 
-        {/* App Name */}
+        {/* ─── General ──────────────────────────────── */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Palette className="h-4 w-4" /> General
+              <Type className="h-4 w-4" /> General
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -282,10 +750,19 @@ export function AdminDesignPage() {
               />
               <p className="text-xs text-muted-foreground">Displayed in the header and browser title</p>
             </div>
+            <div className="space-y-1">
+              <Label>Header Tagline</Label>
+              <Input
+                value={headerTagline}
+                onChange={(e) => setHeaderTagline(e.target.value)}
+                placeholder="Book. Borrow. Return."
+              />
+              <p className="text-xs text-muted-foreground">Shown below the app name in the header</p>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Email Branding */}
+        {/* ─── Email Branding ───────────────────────── */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -319,88 +796,126 @@ export function AdminDesignPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Colors */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Palette className="h-4 w-4" /> Colors
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Primary Color</Label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="h-10 w-14 rounded border border-border cursor-pointer bg-transparent"
-                  />
-                  <Input
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-28 font-mono text-sm"
-                    maxLength={7}
-                  />
-                  <div className="flex-1 flex gap-2">
-                    <div className="h-10 flex-1 rounded" style={{ backgroundColor: primaryColor }} />
-                    <div className="h-10 flex-1 rounded" style={{ backgroundColor: primaryColor, opacity: 0.6 }} />
-                    <div className="h-10 flex-1 rounded" style={{ backgroundColor: primaryColor, opacity: 0.3 }} />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">Used for buttons, links, and main accents</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Accent Color</Label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value)}
-                    className="h-10 w-14 rounded border border-border cursor-pointer bg-transparent"
-                  />
-                  <Input
-                    value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value)}
-                    className="w-28 font-mono text-sm"
-                    maxLength={7}
-                  />
-                  <div className="flex-1 flex gap-2">
-                    <div className="h-10 flex-1 rounded" style={{ backgroundColor: accentColor }} />
-                    <div className="h-10 flex-1 rounded" style={{ backgroundColor: accentColor, opacity: 0.6 }} />
-                    <div className="h-10 flex-1 rounded" style={{ backgroundColor: accentColor, opacity: 0.3 }} />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">Used for secondary highlights and badges</p>
-              </div>
-            </div>
-
-            {/* Live Preview */}
-            <div className="mt-6 p-4 rounded-lg border bg-card">
-              <p className="text-sm text-muted-foreground mb-3">Preview</p>
-              <div className="flex items-center gap-3 flex-wrap">
-                <Button style={{ backgroundColor: primaryColor, color: '#fff' }}>Primary Button</Button>
-                <Button variant="outline" style={{ borderColor: primaryColor, color: primaryColor }}>Outline</Button>
-                <span
-                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-                  style={{ backgroundColor: accentColor }}
-                >
-                  Accent Badge
-                </span>
-                <span
-                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  Primary Badge
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
+
+      {/* ─── Full Live Preview ──────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Monitor className="h-4 w-4" /> Live Preview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border overflow-hidden">
+            {/* Simulated header */}
+            <div
+              className="flex items-center gap-3 px-4 py-2.5 border-b"
+              style={{
+                background: `${activePaletteTab === themeMode
+                  ? (activePalette.card || activeDefaults.card)
+                  : (themeMode === 'dark' ? (darkPalette.card || DARK_DEFAULTS.card) : (lightPalette.card || LIGHT_DEFAULTS.card))
+                }`,
+                borderColor: activePaletteTab === themeMode
+                  ? (activePalette.border || activeDefaults.border)
+                  : 'var(--color-border)',
+              }}
+            >
+              <div
+                className="w-5 h-5 rounded"
+                style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }}
+              />
+              <span className="text-sm font-bold" style={{ color: primaryColor || SHARED_DEFAULTS.primary_color }}>
+                {appName || 'VO Gear Hub'}
+              </span>
+              <div className="ml-auto flex gap-1.5">
+                <div className="w-12 h-5 rounded text-[9px] font-medium flex items-center justify-center"
+                  style={{
+                    background: `${primaryColor || SHARED_DEFAULTS.primary_color}20`,
+                    color: primaryColor || SHARED_DEFAULTS.primary_color,
+                  }}
+                >
+                  Catalog
+                </div>
+                <div className="w-4 h-4 rounded-full" style={{ background: activePalette.muted || activeDefaults.muted }} />
+              </div>
+            </div>
+
+            {/* Simulated content */}
+            <div
+              className="p-4 space-y-3"
+              style={{
+                background: activePalette.background || activeDefaults.background,
+                color: activePalette.foreground || activeDefaults.foreground,
+              }}
+            >
+              <div className="text-base font-bold">Equipment Catalog</div>
+              <div className="text-xs" style={{ color: activePalette.muted_fg || activeDefaults.muted_fg }}>
+                Browse and reserve equipment for your projects
+              </div>
+
+              {/* Cards row */}
+              <div className="grid grid-cols-3 gap-2">
+                {['Laptop Pro', 'Camera Kit', 'Monitor 27"'].map((name, i) => (
+                  <div
+                    key={name}
+                    className="rounded-lg border p-2 space-y-1.5"
+                    style={{
+                      background: activePalette.card || activeDefaults.card,
+                      borderColor: activePalette.border || activeDefaults.border,
+                    }}
+                  >
+                    <div
+                      className="h-10 rounded"
+                      style={{ background: activePalette.muted || activeDefaults.muted }}
+                    />
+                    <div className="text-xs font-semibold">{name}</div>
+                    <div className="text-[10px]" style={{ color: activePalette.muted_fg || activeDefaults.muted_fg }}>
+                      {i === 0 ? '3 available' : i === 1 ? '1 available' : '0 available'}
+                    </div>
+                    <div className="flex gap-1">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded text-white"
+                        style={{ background: accentColor || SHARED_DEFAULTS.accent_color }}>
+                        {i === 0 ? 'IT' : i === 1 ? 'Video' : 'Display'}
+                      </span>
+                      <div className="ml-auto">
+                        <div
+                          className="text-[9px] px-1.5 py-0.5 rounded text-white font-medium"
+                          style={{ background: i === 2
+                            ? (destructiveColor || SHARED_DEFAULTS.destructive_color)
+                            : (primaryColor || SHARED_DEFAULTS.primary_color)
+                          }}
+                        >
+                          {i === 2 ? 'Unavailable' : 'Add'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Status badges */}
+              <div className="flex gap-2 pt-2">
+                <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
+                  style={{ background: successColor || SHARED_DEFAULTS.success_color }}>
+                  Returned
+                </span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
+                  style={{ background: warningColor || SHARED_DEFAULTS.warning_color }}>
+                  Pending
+                </span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
+                  style={{ background: destructiveColor || SHARED_DEFAULTS.destructive_color }}>
+                  Overdue
+                </span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
+                  style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }}>
+                  Active
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

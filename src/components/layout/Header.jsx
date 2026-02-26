@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Package, ShoppingCart, Settings, Menu, ClipboardList } from 'lucide-react'
+import { Package, ShoppingCart, Settings, Menu, ClipboardList, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
+import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from './UserMenu'
 import { NotificationBell } from './NotificationBell'
-import { cn } from '@/lib/utils'
 
 export function Header() {
   const { isAdmin } = useAuth()
@@ -15,9 +15,12 @@ export function Header() {
   const cartCount = useCartStore((s) => s.items.length)
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
   const { data: settings } = useAppSettings()
+  const themeMode = useThemeMode()
+  const toggleTheme = useToggleTheme()
 
   const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url
+  const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
 
   const navLinks = [
     { to: '/catalog', label: 'Catalog', icon: Package },
@@ -39,7 +42,7 @@ export function Header() {
           )}
           <div className="hidden sm:flex flex-col leading-tight">
             <span className="font-display text-lg font-bold">{appName}</span>
-            <span className="text-[10px] text-muted-foreground font-normal tracking-wide">Book. Borrow. Return.</span>
+            <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>
           </div>
         </Link>
 
@@ -75,8 +78,25 @@ export function Header() {
           )}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1">
           {!isAdmin && <NotificationBell />}
+
+          {/* Theme toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={toggleTheme}
+            title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {themeMode === 'dark' ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
+
+          {/* Cart */}
           <Link to="/cart">
             <Button
               variant={location.pathname === '/cart' ? 'secondary' : 'ghost'}
