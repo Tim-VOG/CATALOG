@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { LogOut, User } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -41,9 +42,11 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 h-4 w-4" />
-          Profile
+        <DropdownMenuItem asChild>
+          <Link to="/profile">
+            <User className="mr-2 h-4 w-4" />
+            Profile
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut}>

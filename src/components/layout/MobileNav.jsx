@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 const userLinks = [
   { to: '/catalog', label: 'Catalog', icon: Package },
   { to: '/cart', label: 'Cart', icon: ShoppingCart },
-  { to: '/requests', label: 'Requests', icon: ClipboardList },
+  { to: '/requests', label: 'My Requests', icon: ClipboardList },
 ]
 
 const adminLinks = [

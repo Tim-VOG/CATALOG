@@ -482,12 +482,6 @@ export function CheckoutPage() {
                     <span className="text-muted-foreground">Project</span>
                     <p className="font-medium">{fieldValues.project_name || '—'}</p>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Priority</span>
-                    <Badge variant={fieldValues.priority === 'urgent' ? 'destructive' : fieldValues.priority === 'high' ? 'warning' : 'secondary'}>
-                      {fieldValues.priority || 'normal'}
-                    </Badge>
-                  </div>
                   {selectedLocation && (
                     <div>
                       <span className="text-muted-foreground">Location</span>

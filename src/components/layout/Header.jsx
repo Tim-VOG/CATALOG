@@ -21,7 +21,7 @@ export function Header() {
 
   const navLinks = [
     { to: '/catalog', label: 'Catalog', icon: Package },
-    { to: '/requests', label: 'Requests', icon: ClipboardList },
+    { to: '/requests', label: 'My Requests', icon: ClipboardList },
   ]
 
   return (

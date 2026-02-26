@@ -24,6 +24,7 @@ import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
 import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
 import { AdminProductOptionsPage } from '@/pages/admin/AdminProductOptionsPage'
+import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export function AppRoutes() {
@@ -48,6 +49,7 @@ export function AppRoutes() {
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="requests" element={<RequestsPage />} />
         <Route path="requests/:requestId" element={<RequestDetailPage />} />
+        <Route path="profile" element={<ProfilePage />} />
 
         {/* Admin routes */}
         <Route
