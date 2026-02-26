@@ -14,7 +14,7 @@ const Checkbox = React.forwardRef(({ className, checked, onCheckedChange, ...pro
         checked && 'bg-primary border-primary text-primary-foreground',
         className
       )}
-      onClick={() => onCheckedChange?.(!checked)}
+      onClick={(e) => { e.stopPropagation(); onCheckedChange?.(!checked) }}
       {...props}
     >
       {checked && <Check className="h-3 w-3 mx-auto" />}
