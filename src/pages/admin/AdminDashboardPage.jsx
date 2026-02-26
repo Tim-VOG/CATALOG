@@ -60,7 +60,7 @@ export function AdminDashboardPage() {
     .slice(0, 8)
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Dashboard</h1>
         <p className="text-muted-foreground mt-1">Overview of your equipment management</p>
@@ -78,7 +78,7 @@ export function AdminDashboardPage() {
         {stats.map(({ label, value, icon: Icon, color, link }, i) => (
           <ScrollFadeIn key={label} delay={i * 0.08}>
             <Link to={link}>
-              <Card hoverable>
+              <Card variant="elevated" hoverable>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{label}</CardTitle>
                   <Icon className={`h-4 w-4 ${color}`} />
@@ -94,9 +94,9 @@ export function AdminDashboardPage() {
 
       {/* Active loans & recent requests */}
       <ScrollFadeIn>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* Active loans (picked up) */}
-        <Card>
+        <Card className="min-h-[300px]">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Active Loans</CardTitle>
             <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1">
@@ -139,7 +139,7 @@ export function AdminDashboardPage() {
         </Card>
 
         {/* Recent requests */}
-        <Card>
+        <Card className="min-h-[300px]">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Recent Requests</CardTitle>
             <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1">

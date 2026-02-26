@@ -133,7 +133,7 @@ export function RequestsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight">My Requests</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">My Requests</h1>
         <p className="text-muted-foreground mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} total</p>
         <motion.div
           className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"

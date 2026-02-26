@@ -4,6 +4,7 @@ import { Plus, Check, WifiOff, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
+import { BlurImage } from '@/components/common/BlurImage'
 import { ProductConfigModal } from './ProductConfigModal'
 import { cn } from '@/lib/utils'
 
@@ -28,19 +29,19 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
 
   return (
     <>
-      <Card className={cn(
-        'overflow-hidden group transition-all duration-200',
+      <Card spotlight={!isUnavailable} className={cn(
+        'overflow-hidden group transition-all duration-200 h-full flex flex-col',
         isUnavailable
           ? 'opacity-50 grayscale'
           : 'hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50 active:scale-[0.98]'
       )}>
         <Link to={`/catalog/${product.id}`}>
           <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-            <img
+            <BlurImage
               src={product.image_url || 'https://via.placeholder.com/400x250?text=No+Image'}
               alt={product.name}
               className={cn(
-                'object-cover w-full h-full transition-transform duration-300',
+                'transition-transform duration-300',
                 !isUnavailable && 'group-hover:scale-105'
               )}
             />
@@ -62,7 +63,7 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           </div>
         </Link>
 
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
           <Link to={`/catalog/${product.id}`}>
             <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors">
               {product.name}
@@ -93,7 +94,7 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-2 border-t">
+          <div className="flex items-center justify-between pt-2 border-t mt-auto">
             <div className="text-sm">
               <span
                 className={cn(

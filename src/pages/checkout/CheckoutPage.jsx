@@ -239,8 +239,15 @@ export function CheckoutPage() {
       </Link>
 
       <div>
-        <h1 className="text-3xl font-display font-bold">Checkout</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Checkout</h1>
         <p className="text-muted-foreground mt-1">Complete your equipment request</p>
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
       {/* Animated Stepper */}

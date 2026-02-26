@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { motion } from 'motion/react'
 import { AnimatedCounter } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
 
@@ -95,7 +96,16 @@ export function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-3xl font-display font-bold">Profile</h1>
+      <div>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Profile</h1>
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
+      </div>
 
       {/* Header card */}
       <Card>
@@ -177,7 +187,7 @@ export function ProfilePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
+        <Card variant="elevated" className="h-full">
           <CardContent className="pt-6">
             <div className="text-center">
               <ClipboardList className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
@@ -186,7 +196,7 @@ export function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="elevated" className="h-full">
           <CardContent className="pt-6">
             <div className="text-center">
               <Clock className="h-5 w-5 mx-auto mb-2 text-amber-500" />
@@ -195,7 +205,7 @@ export function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card variant="elevated" className="h-full">
           <CardContent className="pt-6">
             <div className="text-center">
               <CheckCircle2 className="h-5 w-5 mx-auto mb-2 text-green-500" />

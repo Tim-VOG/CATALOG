@@ -50,8 +50,15 @@ export function CartPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">Your Cart</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Your Cart</h1>
         <p className="text-muted-foreground mt-1">{items.length} item{items.length > 1 ? 's' : ''}</p>
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
       {/* Loan period summary — dates are set in the catalog */}

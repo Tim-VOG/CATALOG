@@ -169,3 +169,27 @@ body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Card spotlight hover glow — cursor-following radial highlight */
+.hover-glow {
+  position: relative;
+  overflow: hidden;
+}
+.hover-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    color-mix(in srgb, var(--color-primary) 6%, transparent),
+    transparent 40%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+.hover-glow:hover::before {
+  opacity: 1;
+}
