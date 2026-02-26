@@ -36,7 +36,7 @@ export function LoginPage() {
           <p className="text-center text-sm text-muted-foreground">
             Log in to access the VO equipment lending platform
           </p>
-          <p>You already have an account: </p>
+          <p className="text-center">You already have an account: </p>
           <Button
             variant="outline"
             className="w-full gap-2 h-11 text-base"
@@ -50,7 +50,7 @@ export function LoginPage() {
             </svg>
             Log in with Microsoft
           </Button>
-          <p>If you don't have an account, sign in: </p>
+          <p className="text-center">If you don't have an account: </p>
           <Button
             className="w-full gap-2 h-11 text-base"
             onClick={() => signInWithMicrosoft?.()}
