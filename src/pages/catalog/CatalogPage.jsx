@@ -50,17 +50,17 @@ export function CatalogPage() {
   if (productsLoading) return <PageLoading message="Loading catalog..." />
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
+    <div className="flex flex-col h-[calc(100vh-5rem)]">
+      {/* Header — static */}
+      <div className="shrink-0 pb-4">
         <h1 className="text-3xl font-display font-bold">Equipment Catalog</h1>
         <p className="text-muted-foreground mt-1">Browse and reserve equipment for your projects</p>
       </div>
 
-      {/* Sticky bar: Calendar + Category filters */}
-      <div className="sticky top-0 z-10 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-b">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 items-start">
-          {/* Left: Calendar */}
+      {/* Two-column layout — fills remaining height */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+        {/* Left column: Calendar — static, doesn't scroll */}
+        <div className="shrink-0">
           <Card className="h-fit">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -76,9 +76,12 @@ export function CatalogPage() {
               />
             </CardContent>
           </Card>
+        </div>
 
-          {/* Right: Category filters */}
-          <div className="flex flex-wrap gap-2 lg:pt-2">
+        {/* Right column: filters (static) + scrollable product grid */}
+        <div className="flex flex-col min-h-0">
+          {/* Category filters — static */}
+          <div className="shrink-0 flex flex-wrap gap-2 pb-4">
             <Button
               variant={selectedCategory === 'All' ? 'default' : 'outline'}
               size="sm"
@@ -97,32 +100,34 @@ export function CatalogPage() {
               </Button>
             ))}
           </div>
+
+          {/* Product grid — only this area scrolls */}
+          <div className="flex-1 min-h-0 overflow-y-auto -mr-4 pr-4">
+            {filtered.length === 0 ? (
+              <EmptyState
+                icon={Package}
+                title="No equipment found"
+                description="No products in this category"
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-6">
+                {filtered.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    cart={cartItems}
+                    onAddToCart={handleAddToCart}
+                    subscriptionPlans={subscriptionPlans}
+                    productOptions={productOptions}
+                    reservedQty={reservedByProduct[product.id] || 0}
+                    datesSelected={!!(startDate && endDate)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Product grid — scrolls behind the sticky bar */}
-      {filtered.length === 0 ? (
-        <EmptyState
-          icon={Package}
-          title="No equipment found"
-          description="No products in this category"
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              cart={cartItems}
-              onAddToCart={handleAddToCart}
-              subscriptionPlans={subscriptionPlans}
-              productOptions={productOptions}
-              reservedQty={reservedByProduct[product.id] || 0}
-              datesSelected={!!(startDate && endDate)}
-            />
-          ))}
-        </div>
-      )}
     </div>
   )
 }
