@@ -24,6 +24,7 @@ import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
 import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
 import { AdminProductOptionsPage } from '@/pages/admin/AdminProductOptionsPage'
+import { AdminNewRequestPage } from '@/pages/admin/AdminNewRequestPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -66,6 +67,7 @@ export function AppRoutes() {
           <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
+          <Route path="new-request" element={<AdminNewRequestPage />} />
           <Route path="returns" element={<AdminReturnsPage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="design" element={<AdminDesignPage />} />

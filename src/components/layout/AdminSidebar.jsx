@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Package, Inbox, RotateCcw, FolderTree, Users, Palette, Mail, CalendarRange, ArrowLeft, SlidersHorizontal } from 'lucide-react'
+import { LayoutDashboard, Package, Inbox, RotateCcw, FolderTree, Users, Palette, Mail, CalendarRange, ArrowLeft, SlidersHorizontal, FilePlus2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -9,6 +9,7 @@ const sidebarLinks = [
   { to: '/admin/product-options', label: 'Product Options', icon: SlidersHorizontal },
   { to: '/admin/categories', label: 'Categories', icon: FolderTree },
   { to: '/admin/requests', label: 'Requests', icon: Inbox },
+  { to: '/admin/new-request', label: 'New Request', icon: FilePlus2 },
   { to: '/admin/planning', label: 'Planning', icon: CalendarRange },
   { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
   { to: '/admin/users', label: 'Users', icon: Users },
