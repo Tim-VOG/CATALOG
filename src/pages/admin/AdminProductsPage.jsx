@@ -117,10 +117,10 @@ export function AdminProductsPage() {
               <TableCell>{p.total_stock}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)} aria-label={`Edit ${p.name}`}>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(p)} aria-label={`Edit ${p.name}`}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)} aria-label={`Delete ${p.name}`}>
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)} aria-label={`Delete ${p.name}`}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -140,7 +140,7 @@ export function AdminProductsPage() {
               <Label>Name *</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Category</Label>
                 <Select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>

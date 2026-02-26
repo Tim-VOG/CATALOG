@@ -93,16 +93,16 @@ function SortableFieldRow({ field, onToggle, onEdit, onDelete }) {
         </div>
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onToggle(field)} aria-label={`Toggle ${field.label}`}>
+        <Button variant="ghost" size="icon" onClick={() => onToggle(field)} aria-label={`Toggle ${field.label}`}>
           <Badge className={field.is_active ? 'bg-green-500/20 text-green-400 text-[10px]' : 'bg-red-500/20 text-red-400 text-[10px]'}>
             {field.is_active ? 'On' : 'Off'}
           </Badge>
         </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(field)} aria-label={`Edit ${field.label}`}>
+        <Button variant="ghost" size="icon" onClick={() => onEdit(field)} aria-label={`Edit ${field.label}`}>
           <Pencil className="h-3.5 w-3.5" />
         </Button>
         {!field.is_system && (
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(field)} aria-label={`Delete ${field.label}`}>
+          <Button variant="ghost" size="icon" className="text-destructive" onClick={() => onDelete(field)} aria-label={`Delete ${field.label}`}>
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         )}

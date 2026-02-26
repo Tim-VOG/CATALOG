@@ -179,7 +179,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
   return (
     <div className="border rounded-lg overflow-hidden">
       {/* Legend */}
-      <div className="flex items-center gap-4 px-4 py-2 border-b bg-muted/30 text-xs">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 border-b bg-muted/30 text-xs">
         {Object.entries(STATUS_COLORS).map(([status, color]) => (
           <div key={status} className="flex items-center gap-1.5">
             <div className={cn('h-3 w-3 rounded-sm', color)} />

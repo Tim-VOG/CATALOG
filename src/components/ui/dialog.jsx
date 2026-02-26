@@ -118,7 +118,8 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
             exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={cn(
-              'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg gap-4 border bg-card p-6 shadow-lg rounded-lg max-h-[85vh] overflow-y-auto',
+              'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg gap-4 border bg-card p-6 shadow-lg max-h-[85vh] overflow-y-auto',
+              'rounded-lg max-sm:max-w-none max-sm:h-full max-sm:max-h-full max-sm:rounded-none',
               className
             )}
             onClick={(e) => e.stopPropagation()}

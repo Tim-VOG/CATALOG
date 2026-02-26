@@ -479,7 +479,7 @@ export function AdminNewRequestPage() {
                               type="button"
                               variant="outline"
                               size="icon"
-                              className="h-7 w-7"
+                              className=""
                               onClick={() => updateItemQuantity(product.id, -1)}
                               aria-label={`Decrease ${product.name} quantity`}
                             >
@@ -490,7 +490,7 @@ export function AdminNewRequestPage() {
                               type="button"
                               variant="outline"
                               size="icon"
-                              className="h-7 w-7"
+                              className=""
                               onClick={() => updateItemQuantity(product.id, 1)}
                               aria-label={`Increase ${product.name} quantity`}
                             >
@@ -643,7 +643,7 @@ export function AdminNewRequestPage() {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
                     onClick={() => {
                       setCcEmails((prev) => prev.filter((_, j) => j !== i))
                       setFieldErrors((prev) => { const next = { ...prev }; delete next[`cc_email_${i}`]; return next })

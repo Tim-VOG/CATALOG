@@ -219,7 +219,6 @@ export function AdminEmailTemplatesPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
                           onClick={() => handleToggleActive(t)}
                           title={t.is_active ? 'Disable' : 'Enable'}
                         >
@@ -232,7 +231,6 @@ export function AdminEmailTemplatesPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
                           onClick={() => openEdit(t)}
                         >
                           <Pencil className="h-3.5 w-3.5" />

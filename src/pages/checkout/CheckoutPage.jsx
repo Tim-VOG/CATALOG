@@ -370,19 +370,19 @@ export function CheckoutPage() {
       </div>
 
       {/* Stepper */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {STEPS.map((label, i) => (
           <div key={label} className="flex items-center gap-2">
             <div className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold',
+              'flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0',
               i <= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
             )}>
               {i < step ? <Check className="h-4 w-4" /> : i + 1}
             </div>
-            <span className={cn('text-sm font-medium', i <= step ? 'text-foreground' : 'text-muted-foreground')}>
+            <span className={cn('text-xs sm:text-sm font-medium', i <= step ? 'text-foreground' : 'text-muted-foreground')}>
               {label}
             </span>
-            {i < STEPS.length - 1 && <div className="w-12 h-px bg-border" />}
+            {i < STEPS.length - 1 && <div className="w-8 sm:w-12 h-px bg-border shrink-0" />}
           </div>
         ))}
       </div>
@@ -436,7 +436,7 @@ export function CheckoutPage() {
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
                       onClick={() => {
                         setCcEmails((prev) => prev.filter((_, j) => j !== i))
                         setFieldErrors((prev) => { const next = { ...prev }; delete next[`cc_email_${i}`]; return next })
@@ -469,7 +469,7 @@ export function CheckoutPage() {
                 <CardTitle>Request Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Requester</span>
                     <p className="font-medium">{profile?.first_name} {profile?.last_name}</p>
