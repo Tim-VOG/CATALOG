@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { updateProfile } from '@/lib/api/profiles'
 import { supabase } from '@/lib/supabase'
-import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2 } from 'lucide-react'
+import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2, MessageSquare } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Badge } from '@/components/ui/badge'
@@ -136,6 +136,17 @@ export function ProfilePage() {
                 <Mail className="h-3.5 w-3.5" />
                 {user?.email}
               </p>
+              {user?.email && (
+                <a
+                  href={`https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(user.email)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-[#6264A7] hover:underline w-fit"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  Chat on Teams
+                </a>
+              )}
               {profile?.job_title && (
                 <p className="text-sm flex items-center gap-1.5">
                   <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
