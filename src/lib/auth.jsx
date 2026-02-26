@@ -142,6 +142,7 @@ export const AuthProvider = ({ children }) => {
       options: {
         scopes: 'email profile openid',
         redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: { prompt: 'select_account' },
       },
     })
     if (error) throw error
