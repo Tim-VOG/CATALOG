@@ -1,15 +1,16 @@
 import { create } from 'zustand'
+import { toast } from 'sonner'
 
 export const useUIStore = create((set) => ({
-  toast: null,
   mobileNavOpen: false,
 
   showToast: (message, type = 'success') => {
-    set({ toast: { message, type } })
-    setTimeout(() => set({ toast: null }), 4000)
+    if (type === 'error') {
+      toast.error(message)
+    } else {
+      toast.success(message)
+    }
   },
-
-  clearToast: () => set({ toast: null }),
 
   toggleMobileNav: () => set((s) => ({ mobileNavOpen: !s.mobileNavOpen })),
   closeMobileNav: () => set({ mobileNavOpen: false }),

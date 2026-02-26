@@ -6,6 +6,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { UserMenu } from './UserMenu'
 import { NotificationBell } from './NotificationBell'
 
@@ -82,35 +83,52 @@ export function Header() {
           {!isAdmin && <NotificationBell />}
 
           {/* Theme toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            onClick={toggleTheme}
-            title={themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {themeMode === 'dark' ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={toggleTheme}
+              >
+                {themeMode === 'dark' ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+                <span className="sr-only">
+                  {themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {themeMode === 'dark' ? 'Light mode' : 'Dark mode'}
+            </TooltipContent>
+          </Tooltip>
 
           {/* Cart */}
-          <Link to="/cart">
-            <Button
-              variant={location.pathname === '/cart' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="relative h-9 w-9"
-            >
-              <ShoppingCart className="h-4 w-4" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
-          </Link>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link to="/cart">
+                <Button
+                  variant={location.pathname === '/cart' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="relative h-9 w-9"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      {cartCount}
+                    </span>
+                  )}
+                  <span className="sr-only">Cart</span>
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              {cartCount > 0 ? `Cart (${cartCount})` : 'Cart'}
+            </TooltipContent>
+          </Tooltip>
           <UserMenu />
         </div>
       </div>
