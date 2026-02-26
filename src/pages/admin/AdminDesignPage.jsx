@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
 import { uploadLogo } from '@/lib/api/settings'
-import { Palette, Upload, X, Save, Image, Mail } from 'lucide-react'
+import { Palette, Upload, X, Save, Image, Mail, Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { useUIStore } from '@/stores/ui-store'
+import { cn } from '@/lib/utils'
 
 export function AdminDesignPage() {
   const { data: settings, isLoading } = useAppSettings()
@@ -20,6 +21,7 @@ export function AdminDesignPage() {
   const [logoUrl, setLogoUrl] = useState('')
   const [emailTagline, setEmailTagline] = useState('')
   const [emailLogoHeight, setEmailLogoHeight] = useState('')
+  const [themeMode, setThemeMode] = useState('dark')
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef(null)
@@ -32,8 +34,25 @@ export function AdminDesignPage() {
       setLogoUrl(settings.logo_url || '')
       setEmailTagline(settings.email_tagline || '')
       setEmailLogoHeight(settings.email_logo_height ? String(settings.email_logo_height) : '')
+      setThemeMode(settings.theme_mode || 'dark')
     }
   }, [settings])
+
+  // Live-preview: apply theme mode as user toggles
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeMode)
+  }, [themeMode])
+
+  // Live-preview: apply colors as user picks them
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty('--color-primary', primaryColor)
+    root.style.setProperty('--color-ring', primaryColor)
+  }, [primaryColor])
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--color-accent', accentColor)
+  }, [accentColor])
 
   const handleLogoUpload = async (file) => {
     if (!file) return
@@ -74,6 +93,7 @@ export function AdminDesignPage() {
         logo_url: logoUrl || null,
         email_tagline: emailTagline || null,
         email_logo_height: emailLogoHeight ? parseInt(emailLogoHeight, 10) : null,
+        theme_mode: themeMode,
       })
       showToast('Design settings saved')
     } catch (err) {
@@ -87,7 +107,8 @@ export function AdminDesignPage() {
     accentColor !== (settings.accent_color || '') ||
     logoUrl !== (settings.logo_url || '') ||
     emailTagline !== (settings.email_tagline || '') ||
-    emailLogoHeight !== (settings.email_logo_height ? String(settings.email_logo_height) : '')
+    emailLogoHeight !== (settings.email_logo_height ? String(settings.email_logo_height) : '') ||
+    themeMode !== (settings.theme_mode || 'dark')
   )
 
   if (isLoading) return <PageLoading />
@@ -104,6 +125,95 @@ export function AdminDesignPage() {
           {updateSettings.isPending ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
+
+      {/* ── Theme Mode Toggle ────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Monitor className="h-4 w-4" /> Theme Mode
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 max-w-md">
+            {/* Dark mode card */}
+            <button
+              type="button"
+              onClick={() => setThemeMode('dark')}
+              className={cn(
+                'relative flex flex-col items-center gap-3 rounded-xl border-2 p-5 transition-all cursor-pointer',
+                themeMode === 'dark'
+                  ? 'border-primary bg-primary/10 shadow-lg shadow-primary/10'
+                  : 'border-border hover:border-muted-foreground/50'
+              )}
+            >
+              <div className={cn(
+                'flex items-center justify-center w-12 h-12 rounded-full transition-colors',
+                themeMode === 'dark' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              )}>
+                <Moon className="h-6 w-6" />
+              </div>
+              <span className={cn(
+                'text-sm font-semibold',
+                themeMode === 'dark' ? 'text-primary' : 'text-muted-foreground'
+              )}>
+                Dark
+              </span>
+              {/* Mini preview */}
+              <div className="w-full rounded-lg overflow-hidden border border-border/50">
+                <div className="h-3 bg-[#0f1419]" />
+                <div className="flex gap-0.5 p-1 bg-[#1e2a3a]">
+                  <div className="h-2 flex-1 rounded-sm bg-[#334155]" />
+                  <div className="h-2 w-6 rounded-sm" style={{ backgroundColor: primaryColor }} />
+                </div>
+                <div className="p-1 bg-[#0f1419] space-y-0.5">
+                  <div className="h-1.5 w-3/4 rounded-sm bg-[#242f3d]" />
+                  <div className="h-1.5 w-1/2 rounded-sm bg-[#242f3d]" />
+                </div>
+              </div>
+            </button>
+
+            {/* Light mode card */}
+            <button
+              type="button"
+              onClick={() => setThemeMode('light')}
+              className={cn(
+                'relative flex flex-col items-center gap-3 rounded-xl border-2 p-5 transition-all cursor-pointer',
+                themeMode === 'light'
+                  ? 'border-primary bg-primary/10 shadow-lg shadow-primary/10'
+                  : 'border-border hover:border-muted-foreground/50'
+              )}
+            >
+              <div className={cn(
+                'flex items-center justify-center w-12 h-12 rounded-full transition-colors',
+                themeMode === 'light' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              )}>
+                <Sun className="h-6 w-6" />
+              </div>
+              <span className={cn(
+                'text-sm font-semibold',
+                themeMode === 'light' ? 'text-primary' : 'text-muted-foreground'
+              )}>
+                Light
+              </span>
+              {/* Mini preview */}
+              <div className="w-full rounded-lg overflow-hidden border border-border/50">
+                <div className="h-3 bg-[#f8fafc]" />
+                <div className="flex gap-0.5 p-1 bg-[#ffffff]">
+                  <div className="h-2 flex-1 rounded-sm bg-[#e2e8f0]" />
+                  <div className="h-2 w-6 rounded-sm" style={{ backgroundColor: primaryColor }} />
+                </div>
+                <div className="p-1 bg-[#f8fafc] space-y-0.5">
+                  <div className="h-1.5 w-3/4 rounded-sm bg-[#e2e8f0]" />
+                  <div className="h-1.5 w-1/2 rounded-sm bg-[#e2e8f0]" />
+                </div>
+              </div>
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Switch between dark and light mode. This applies to all users.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Logo Upload */}
@@ -271,7 +381,7 @@ export function AdminDesignPage() {
             {/* Live Preview */}
             <div className="mt-6 p-4 rounded-lg border bg-card">
               <p className="text-sm text-muted-foreground mb-3">Preview</p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <Button style={{ backgroundColor: primaryColor, color: '#fff' }}>Primary Button</Button>
                 <Button variant="outline" style={{ borderColor: primaryColor, color: primaryColor }}>Outline</Button>
                 <span
@@ -279,6 +389,12 @@ export function AdminDesignPage() {
                   style={{ backgroundColor: accentColor }}
                 >
                   Accent Badge
+                </span>
+                <span
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  Primary Badge
                 </span>
               </div>
             </div>
