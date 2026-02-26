@@ -63,9 +63,9 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           </div>
         </Link>
 
-        <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
+        <CardContent className="p-5 space-y-3 flex-1 flex flex-col">
           <Link to={`/catalog/${product.id}`}>
-            <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors">
+            <h3 className="font-semibold text-base leading-tight hover:text-primary transition-colors">
               {product.name}
             </h3>
           </Link>

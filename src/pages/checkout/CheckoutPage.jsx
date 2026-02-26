@@ -299,10 +299,10 @@ export function CheckoutPage() {
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
           <Card>
-            <CardHeader>
-              <CardTitle>Project Information</CardTitle>
+            <CardHeader className="px-6 pt-6 pb-4">
+              <CardTitle className="text-base font-semibold">Project Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-6 pb-6 space-y-4">
               {activeFields.map((field) => renderField(field))}
 
               {/* CC Email Recipients */}
@@ -380,11 +380,11 @@ export function CheckoutPage() {
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
           <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Request Summary</CardTitle>
+            <Card variant="elevated">
+              <CardHeader className="px-6 pt-6 pb-4">
+                <CardTitle className="text-base font-semibold">Request Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="px-6 pb-6 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Requester</span>
@@ -433,10 +433,10 @@ export function CheckoutPage() {
             </Card>
 
             <Card variant="elevated">
-              <CardHeader>
-                <CardTitle>Items ({items.length})</CardTitle>
+              <CardHeader className="px-6 pt-6 pb-4">
+                <CardTitle className="text-base font-semibold">Items ({items.length})</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="px-6 pb-6 space-y-3">
                 {items.map((item) => (
                   <div key={item.product.id} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 border border-border/50">
                     <div className="h-14 w-14 rounded-lg overflow-hidden shrink-0">

@@ -108,8 +108,8 @@ export function ProfilePage() {
       </div>
 
       {/* Header card */}
-      <Card>
-        <CardContent className="pt-6">
+      <Card variant="elevated">
+        <CardContent className="p-6">
           <div className="flex items-start gap-5">
             {/* Avatar with upload overlay */}
             <div className="relative group shrink-0">
@@ -218,12 +218,12 @@ export function ProfilePage() {
 
       {/* Contact */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+        <CardHeader className="px-6 pt-6 pb-4">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Phone className="h-4 w-4" /> Contact
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-6 pb-6">
           <div className="space-y-3">
             <div className="space-y-1">
               <Label>Phone number</Label>

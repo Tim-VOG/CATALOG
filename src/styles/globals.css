@@ -34,9 +34,14 @@
   --color-input: #334155;
   --color-ring: #f97316;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+
+  /* ── Indigo-tinted card shadows (from UI-Kit.sketch) ── */
+  --shadow-card: 0 8px 32px rgba(6, 16, 88, 0.12);
+  --shadow-card-hover: 0 16px 48px rgba(6, 16, 88, 0.18);
+  --shadow-card-sm: 0 4px 16px rgba(6, 16, 88, 0.08);
 
   --font-display: 'Space Grotesk Variable', sans-serif;
   --font-body: 'DM Sans Variable', sans-serif;
@@ -67,23 +72,23 @@
 /* ── Border-radius presets via data-radius ──────────── */
 [data-radius="sm"] {
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
 }
 [data-radius="md"] {
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
 }
 [data-radius="lg"] {
   --radius-sm: 8px;
   --radius-md: 14px;
-  --radius-lg: 22px;
+  --radius-lg: 24px;
 }
 [data-radius="xl"] {
-  --radius-sm: 10px;
-  --radius-md: 18px;
-  --radius-lg: 28px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
 }
 [data-radius="full"] {
   --radius-sm: 9999px;
@@ -104,6 +109,10 @@ body {
   line-height: 1.6;
   min-height: 100vh;
 }
+
+/* Card section padding — generous, matching UI-Kit reference */
+.card-section { @apply px-6 py-5; }
+.card-section-lg { @apply px-8 py-6; }
 
 /* Smooth theme transition */
 body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
@@ -168,6 +177,17 @@ body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Card shadow utilities (indigo-tinted, from UI-Kit.sketch) */
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+.shadow-card-sm {
+  box-shadow: var(--shadow-card-sm);
 }
 
 /* Card spotlight hover glow — cursor-following radial highlight */

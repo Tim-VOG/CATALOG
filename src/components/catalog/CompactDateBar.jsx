@@ -93,7 +93,7 @@ export function CompactDateBar({ startDate, endDate, onChange }) {
             style={{ originY: 0 }}
             className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-30 w-[260px]"
           >
-            <Card className="p-3 shadow-xl border-primary/10">
+            <Card className="p-3 shadow-card border-primary/10">
               <DateRangeCalendar
                 startDate={startDate}
                 endDate={endDate}

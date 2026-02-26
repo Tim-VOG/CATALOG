@@ -111,13 +111,13 @@ export function AdminPlanningPage() {
           <span className="text-sm font-semibold ml-3">{rangeLabel}</span>
         </div>
 
-        <div className="flex gap-1 bg-muted/60 rounded-lg p-1 border">
+        <div className="flex gap-1 bg-muted/40 rounded-full p-1 border">
           {VIEW_MODES.map(({ key, label }) => (
             <Button
               key={key}
               variant={viewMode === key ? 'default' : 'ghost'}
               size="sm"
-              className={cn('h-7 text-xs px-3', viewMode === key && 'shadow-sm')}
+              className={cn('h-7 text-xs px-3 rounded-full', viewMode === key && 'shadow-sm')}
               onClick={() => setViewMode(key)}
             >
               {label}

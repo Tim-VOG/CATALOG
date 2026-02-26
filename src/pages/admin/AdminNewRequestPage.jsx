@@ -32,6 +32,7 @@ import { Select } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 const STEPS = ['User & Equipment', 'Project Details', 'Review & Submit']
@@ -376,8 +377,15 @@ export function AdminNewRequestPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">New Request</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">New Request</h1>
         <p className="text-muted-foreground mt-1">Create an equipment reservation on behalf of a user</p>
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
       {/* Stepper */}

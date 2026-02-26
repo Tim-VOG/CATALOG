@@ -167,11 +167,11 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
   // Calculate needed row height based on max stacked reservations
   const getRowHeight = (reservations) => {
     const count = reservations.length
-    return Math.max(56, 16 + count * 32)
+    return Math.max(64, 18 + count * 36)
   }
 
   return (
-    <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+    <div className="border rounded-xl overflow-hidden bg-card shadow-card">
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-3 border-b bg-muted/20 text-xs">
         {Object.entries(STATUS_COLORS).map(([status, color]) => (
@@ -186,7 +186,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
         <div className="min-w-[800px]">
           {/* Header row */}
           <div className="flex border-b bg-muted/10 sticky top-0 z-10">
-            <div className="w-56 shrink-0 px-4 py-3 font-semibold text-xs text-muted-foreground border-r flex items-center gap-2">
+            <div className="w-64 shrink-0 px-5 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider border-r flex items-center gap-2">
               Product
             </div>
             <div className="flex-1 flex">
@@ -220,11 +220,11 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
               No reservations in this time range
             </div>
           ) : (
-            productRows.map((row) => {
+            productRows.map((row, rowIndex) => {
               const rowHeight = getRowHeight(row.reservations)
               return (
-                <div key={row.productId} className="flex border-b last:border-b-0 group/row hover:bg-muted/5 transition-colors">
-                  <div className="w-56 shrink-0 px-4 py-3 border-r flex items-start gap-3">
+                <div key={row.productId} className={cn('flex border-b last:border-b-0 group/row hover:bg-muted/8 transition-colors', rowIndex % 2 === 1 && 'bg-muted/5')}>
+                  <div className="w-64 shrink-0 px-5 py-3 border-r flex items-start gap-3">
                     <div
                       className="h-2 w-2 rounded-full mt-1.5 shrink-0"
                       style={{ backgroundColor: row.categoryColor }}
@@ -244,7 +244,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
                         className="absolute top-0 bottom-0 w-0.5 bg-red-500/50 z-20"
                         style={{ left: todayPosition }}
                       >
-                        <div className="absolute -top-0 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-red-500" />
+                        <div className="absolute -top-0 left-1/2 -translate-x-1/2 h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
                       </div>
                     )}
 
@@ -258,13 +258,13 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
                           key={res.id || i}
                           to={res.request_id ? `/admin/requests/${res.request_id}` : '#'}
                           className={cn(
-                            'absolute h-7 rounded-md flex items-center px-2 text-[10px] text-white font-medium',
-                            'shadow-sm transition-all duration-150 cursor-pointer',
+                            'absolute h-8 rounded-lg flex items-center px-2.5 text-[10px] text-white font-medium',
+                            'shadow-sm transition-all duration-150 cursor-pointer hover:scale-[1.02] hover:shadow-md',
                             statusColor
                           )}
                           style={{
                             ...barStyle,
-                            top: `${8 + i * 32}px`,
+                            top: `${10 + i * 36}px`,
                           }}
                           title={`${res.request_user_name || 'Unknown'} — ${res.request_project_name || 'No project'}\n${res.pickup_date} → ${res.return_date}\nQty: ${res.quantity}`}
                         >

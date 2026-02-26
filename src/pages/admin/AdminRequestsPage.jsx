@@ -120,8 +120,8 @@ export function AdminRequestsPage() {
         <div className="space-y-3">
           {filteredRequests.map((req) => (
             <Link key={req.id} to={`/admin/requests/${req.id}`}>
-              <Card className="hover:border-primary/50 hover:shadow-md hover:shadow-primary/5 transition-all duration-200 cursor-pointer">
-                <CardContent className="p-4">
+              <Card className="hover:border-primary/30 hover:shadow-card-hover transition-all duration-200 cursor-pointer">
+                <CardContent className="p-5">
                   <div className="flex items-center gap-4">
                     <UserAvatar
                       avatarUrl={req.user_avatar_url}

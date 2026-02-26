@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
-import { Plus, Pencil, Trash2, Search, Package, Box } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, Package, Box, Layers, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
@@ -110,14 +110,38 @@ export function AdminProductsPage() {
         </Button>
       </div>
 
-      {/* Search bar */}
+      {/* Quick stats bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
+          <Package className="h-3.5 w-3.5 text-primary" />
+          <span className="font-semibold">{products.length}</span>
+          <span className="text-muted-foreground">products</span>
+        </div>
+        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
+          <Box className="h-3.5 w-3.5 text-accent" />
+          <span className="font-semibold">{products.reduce((sum, p) => sum + (p.total_stock || 0), 0)}</span>
+          <span className="text-muted-foreground">total stock</span>
+        </div>
+        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
+          <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+          <span className="font-semibold">{products.filter((p) => p.total_stock <= 1).length}</span>
+          <span className="text-muted-foreground">low stock</span>
+        </div>
+        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
+          <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="font-semibold">{categories.length}</span>
+          <span className="text-muted-foreground">categories</span>
+        </div>
+      </div>
+
+      {/* Search bar — pill style */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search products..."
-          className="pl-9"
+          className="pl-10 rounded-full"
         />
       </div>
 
@@ -167,7 +191,7 @@ export function AdminProductsPage() {
                 </div>
 
                 {/* Info */}
-                <CardContent className="p-4 flex-1 flex flex-col">
+                <CardContent className="p-5 flex-1 flex flex-col">
                   <h3 className="font-semibold text-sm leading-tight truncate">{p.name}</h3>
                   {p.description && (
                     <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{p.description}</p>
