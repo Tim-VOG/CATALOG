@@ -96,7 +96,7 @@ export function AdminDashboardPage() {
       <ScrollFadeIn>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* Active loans (picked up) */}
-        <Card className="min-h-[300px]">
+        <Card variant="elevated" className="min-h-[300px]">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Active Loans</CardTitle>
             <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1">
@@ -139,7 +139,7 @@ export function AdminDashboardPage() {
         </Card>
 
         {/* Recent requests */}
-        <Card className="min-h-[300px]">
+        <Card variant="elevated" className="min-h-[300px]">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Recent Requests</CardTitle>
             <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1">

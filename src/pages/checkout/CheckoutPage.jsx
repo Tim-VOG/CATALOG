@@ -20,6 +20,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/EmptyState'
+import { BlurImage } from '@/components/common/BlurImage'
+import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { cn } from '@/lib/utils'
 
 const STEPS = ['Project Details', 'Review & Submit']
@@ -430,21 +432,29 @@ export function CheckoutPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card variant="elevated">
               <CardHeader>
                 <CardTitle>Items ({items.length})</CardTitle>
               </CardHeader>
-              <CardContent className="divide-y">
+              <CardContent className="space-y-3">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
-                    <div className="h-12 w-12 rounded overflow-hidden bg-muted shrink-0">
-                      <img src={item.product.image_url} alt="" className="h-full w-full object-cover" />
+                  <div key={item.product.id} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 border border-border/50">
+                    <div className="h-14 w-14 rounded-lg overflow-hidden shrink-0">
+                      <BlurImage
+                        src={item.product.image_url || 'https://via.placeholder.com/56'}
+                        alt={item.product.name}
+                        containerClassName="h-14 w-14"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{item.product.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.product.category_name}</p>
+                      <p className="font-semibold text-sm truncate">{item.product.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <CategoryBadge name={item.product.category_name} color={item.product.category_color} />
+                      </div>
                     </div>
-                    <span className="text-sm font-medium">&times; {item.quantity}</span>
+                    <div className="text-right shrink-0">
+                      <span className="text-lg font-bold text-primary">&times;{item.quantity}</span>
+                    </div>
                   </div>
                 ))}
               </CardContent>

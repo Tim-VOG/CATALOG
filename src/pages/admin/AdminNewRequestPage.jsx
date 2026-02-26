@@ -16,12 +16,14 @@ import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { generateStatusEmailDraft } from '@/lib/email-draft'
 import {
   ArrowLeft, ArrowRight, Check, Send, Plus, X as XIcon, Mail,
-  Search, Package, Minus, Settings2, Trash2,
+  Search, Package, Minus, Settings2, Trash2, CalendarRange,
 } from 'lucide-react'
 import { DynamicField } from '@/components/checkout/DynamicField'
 import { ProductConfigModal } from '@/components/catalog/ProductConfigModal'
 import { UserSearchSelect } from '@/components/admin/UserSearchSelect'
 import { UserAvatar } from '@/components/common/UserAvatar'
+import { CompactDateBar } from '@/components/catalog/CompactDateBar'
+import { BlurImage } from '@/components/common/BlurImage'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -410,35 +412,14 @@ export function AdminNewRequestPage() {
           </Card>
 
           {/* Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Loan Period</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="pickup_date">Pickup Date *</Label>
-                  <Input
-                    id="pickup_date"
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="return_date">Return Date *</Label>
-                  <Input
-                    id="return_date"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    min={startDate || new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CompactDateBar
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(start, end) => {
+              setStartDate(start || '')
+              setEndDate(end || '')
+            }}
+          />
 
           {/* Product selection */}
           <Card>
@@ -458,15 +439,20 @@ export function AdminNewRequestPage() {
                 />
               </div>
 
-              <div className="max-h-64 overflow-y-auto divide-y rounded-lg border">
+              <div className="max-h-72 overflow-y-auto divide-y rounded-xl border bg-muted/10">
                 {filteredProducts.map((product) => {
                   const inCart = selectedItems.find((i) => i.product.id === product.id)
                   return (
-                    <div key={product.id} className="flex items-center gap-3 px-3 py-2 hover:bg-muted/30 transition-colors">
-                      <div className="h-10 w-10 rounded bg-muted shrink-0 overflow-hidden">
-                        {product.image_url && (
-                          <img src={product.image_url} alt="" className="h-full w-full object-cover" />
-                        )}
+                    <div key={product.id} className={cn(
+                      'flex items-center gap-3 px-3 py-2.5 transition-colors',
+                      inCart ? 'bg-primary/5' : 'hover:bg-muted/30'
+                    )}>
+                      <div className="h-11 w-11 rounded-lg shrink-0 overflow-hidden">
+                        <BlurImage
+                          src={product.image_url || 'https://via.placeholder.com/44'}
+                          alt={product.name}
+                          containerClassName="h-11 w-11"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{product.name}</p>

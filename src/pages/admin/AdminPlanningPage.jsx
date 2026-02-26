@@ -6,9 +6,11 @@ import {
 import { usePlanning } from '@/hooks/use-planning'
 import { PlanningTimeline } from '@/components/admin/PlanningTimeline'
 import { PendingExtensionsBanner } from '@/components/admin/PendingExtensionsBanner'
+import { motion } from 'motion/react'
 import { ChevronLeft, ChevronRight, CalendarRange } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { cn } from '@/lib/utils'
 
 const VIEW_MODES = [
   { key: '1D', label: '1 Day' },
@@ -80,10 +82,17 @@ export function AdminPlanningPage() {
   const goToToday = () => setBaseDate(new Date())
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[1400px] mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">Planning</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Planning</h1>
         <p className="text-muted-foreground mt-1">Equipment reservation timeline</p>
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
       {/* Controls */}
@@ -92,23 +101,23 @@ export function AdminPlanningPage() {
           <Button variant="outline" size="icon" onClick={() => navigate(-1)} aria-label="Previous period">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={goToToday} className="gap-1">
+          <Button variant="outline" size="sm" onClick={goToToday} className="gap-1.5">
             <CalendarRange className="h-3.5 w-3.5" />
             Today
           </Button>
           <Button variant="outline" size="icon" onClick={() => navigate(1)} aria-label="Next period">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-medium ml-2">{rangeLabel}</span>
+          <span className="text-sm font-semibold ml-3">{rangeLabel}</span>
         </div>
 
-        <div className="flex gap-1 bg-muted rounded-lg p-1">
+        <div className="flex gap-1 bg-muted/60 rounded-lg p-1 border">
           {VIEW_MODES.map(({ key, label }) => (
             <Button
               key={key}
-              variant={viewMode === key ? 'secondary' : 'ghost'}
+              variant={viewMode === key ? 'default' : 'ghost'}
               size="sm"
-              className="h-7 text-xs px-3"
+              className={cn('h-7 text-xs px-3', viewMode === key && 'shadow-sm')}
               onClick={() => setViewMode(key)}
             >
               {label}

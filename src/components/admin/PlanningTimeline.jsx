@@ -1,17 +1,18 @@
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import {
-  format, addDays, addWeeks, addMonths, differenceInDays,
-  startOfDay, startOfWeek, startOfMonth, endOfMonth, eachDayOfInterval,
-  eachWeekOfInterval, isToday, isSameDay,
+  format, addDays, addMonths, differenceInDays,
+  startOfDay, endOfMonth, eachDayOfInterval,
+  eachWeekOfInterval, isToday,
 } from 'date-fns'
 import { cn } from '@/lib/utils'
 
 const STATUS_COLORS = {
-  pending: 'bg-amber-500/70',
-  approved: 'bg-blue-500/70',
-  reserved: 'bg-cyan-500/70',
-  picked_up: 'bg-green-500/70',
-  overdue: 'bg-red-500/70',
+  pending: 'bg-amber-500/80 hover:bg-amber-500',
+  approved: 'bg-blue-500/80 hover:bg-blue-500',
+  reserved: 'bg-cyan-500/80 hover:bg-cyan-500',
+  picked_up: 'bg-emerald-500/80 hover:bg-emerald-500',
+  overdue: 'bg-red-500/80 hover:bg-red-500',
 }
 
 const STATUS_LABELS = {
@@ -39,7 +40,6 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
 
     switch (viewMode) {
       case '1D': {
-        // 24 hours
         cols = Array.from({ length: 24 }, (_, i) => ({
           key: `h${i}`,
           label: `${i.toString().padStart(2, '0')}:00`,
@@ -52,9 +52,8 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
         break
       }
       case '1W': {
-        // 7 days
         const days = eachDayOfInterval({ start, end: addDays(start, 6) })
-        cols = days.map((d, i) => ({
+        cols = days.map((d) => ({
           key: format(d, 'yyyy-MM-dd'),
           label: format(d, 'EEE d'),
           date: d,
@@ -65,10 +64,8 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
         break
       }
       case '1M': {
-        // Full month
-        const monthStart = startOfMonth(start)
         const monthEnd = endOfMonth(start)
-        const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
+        const days = eachDayOfInterval({ start, end: monthEnd })
         cols = days.map((d) => ({
           key: format(d, 'yyyy-MM-dd'),
           label: format(d, 'd'),
@@ -78,11 +75,10 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
           isWeekend: d.getDay() === 0 || d.getDay() === 6,
         }))
         end = monthEnd
-        width = 'min-w-[36px]'
+        width = 'min-w-[38px]'
         break
       }
       case '3M': {
-        // 3 months in weeks
         const rangeEnd = addMonths(start, 3)
         const weeks = eachWeekOfInterval({ start, end: rangeEnd }, { weekStartsOn: 1 })
         cols = weeks.map((w) => ({
@@ -113,6 +109,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
           productName: item.product_name || 'Unknown',
           categoryName: item.category_name || '',
           categoryColor: item.category_color || '#6b7280',
+          imageUrl: item.product_image_url || '',
           reservations: [],
         })
       }
@@ -127,20 +124,11 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
     let timelineEnd
 
     switch (viewMode) {
-      case '1D':
-        timelineEnd = addDays(timelineStart, 1)
-        break
-      case '1W':
-        timelineEnd = addDays(timelineStart, 7)
-        break
-      case '1M':
-        timelineEnd = addDays(endOfMonth(timelineStart), 1)
-        break
-      case '3M':
-        timelineEnd = addMonths(timelineStart, 3)
-        break
-      default:
-        timelineEnd = addDays(timelineStart, 7)
+      case '1D': timelineEnd = addDays(timelineStart, 1); break
+      case '1W': timelineEnd = addDays(timelineStart, 7); break
+      case '1M': timelineEnd = addDays(endOfMonth(timelineStart), 1); break
+      case '3M': timelineEnd = addMonths(timelineStart, 3); break
+      default: timelineEnd = addDays(timelineStart, 7)
     }
 
     const totalDays = differenceInDays(timelineEnd, timelineStart) || 1
@@ -151,7 +139,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
     const endOffset = Math.min(totalDays, differenceInDays(returnD, timelineStart) + 1)
 
     const left = (startOffset / totalDays) * 100
-    const width = Math.max(((endOffset - startOffset) / totalDays) * 100, 1)
+    const width = Math.max(((endOffset - startOffset) / totalDays) * 100, 1.5)
 
     return { left: `${left}%`, width: `${width}%` }
   }
@@ -176,14 +164,20 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
     return `${(offset / totalDays) * 100}%`
   }, [viewMode, startDate])
 
+  // Calculate needed row height based on max stacked reservations
+  const getRowHeight = (reservations) => {
+    const count = reservations.length
+    return Math.max(56, 16 + count * 32)
+  }
+
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 border-b bg-muted/30 text-xs">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-3 border-b bg-muted/20 text-xs">
         {Object.entries(STATUS_COLORS).map(([status, color]) => (
-          <div key={status} className="flex items-center gap-1.5">
-            <div className={cn('h-3 w-3 rounded-sm', color)} />
-            <span className="text-muted-foreground">{STATUS_LABELS[status]}</span>
+          <div key={status} className="flex items-center gap-2">
+            <div className={cn('h-3 w-3 rounded-full', color)} />
+            <span className="text-muted-foreground font-medium">{STATUS_LABELS[status]}</span>
           </div>
         ))}
       </div>
@@ -191,8 +185,8 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
       <div className="overflow-x-auto">
         <div className="min-w-[800px]">
           {/* Header row */}
-          <div className="flex border-b bg-muted/20 sticky top-0 z-10">
-            <div className="w-52 shrink-0 px-3 py-2 font-medium text-xs text-muted-foreground border-r">
+          <div className="flex border-b bg-muted/10 sticky top-0 z-10">
+            <div className="w-56 shrink-0 px-4 py-3 font-semibold text-xs text-muted-foreground border-r flex items-center gap-2">
               Product
             </div>
             <div className="flex-1 flex">
@@ -200,9 +194,9 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
                 <div
                   key={col.key}
                   className={cn(
-                    'flex-1 text-center text-[11px] py-2 border-r last:border-r-0',
+                    'flex-1 text-center text-[11px] py-3 border-r last:border-r-0 transition-colors',
                     col.isToday && 'bg-primary/10 font-bold',
-                    col.isWeekend && 'bg-muted/40',
+                    col.isWeekend && 'bg-muted/30',
                     cellWidth
                   )}
                 >
@@ -210,7 +204,10 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
                     {col.label}
                   </div>
                   {col.sublabel && (
-                    <div className="text-[9px] text-muted-foreground/60">{col.sublabel}</div>
+                    <div className={cn(
+                      'text-[9px] mt-0.5',
+                      col.isToday ? 'text-primary/70' : 'text-muted-foreground/50'
+                    )}>{col.sublabel}</div>
                   )}
                 </div>
               ))}
@@ -219,52 +216,68 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
 
           {/* Product rows */}
           {productRows.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground text-sm">
+            <div className="py-16 text-center text-muted-foreground text-sm">
               No reservations in this time range
             </div>
           ) : (
-            productRows.map((row) => (
-              <div key={row.productId} className="flex border-b last:border-b-0 hover:bg-muted/10">
-                <div className="w-52 shrink-0 px-3 py-3 border-r">
-                  <div className="text-sm font-medium truncate">{row.productName}</div>
-                  <div className="text-[10px] text-muted-foreground">{row.categoryName}</div>
-                </div>
-                <div className="flex-1 relative py-1.5" style={{ minHeight: '44px' }}>
-                  {/* Today line */}
-                  {todayPosition && (
+            productRows.map((row) => {
+              const rowHeight = getRowHeight(row.reservations)
+              return (
+                <div key={row.productId} className="flex border-b last:border-b-0 group/row hover:bg-muted/5 transition-colors">
+                  <div className="w-56 shrink-0 px-4 py-3 border-r flex items-start gap-3">
                     <div
-                      className="absolute top-0 bottom-0 w-px bg-red-500/60 z-20"
-                      style={{ left: todayPosition }}
+                      className="h-2 w-2 rounded-full mt-1.5 shrink-0"
+                      style={{ backgroundColor: row.categoryColor }}
                     />
-                  )}
-
-                  {/* Reservation bars */}
-                  {row.reservations.map((res, i) => {
-                    const barStyle = getBarStyle(res.pickup_date, res.return_date)
-                    const statusColor = STATUS_COLORS[res.request_status] || STATUS_COLORS.pending
-
-                    return (
-                      <div
-                        key={res.id || i}
-                        className={cn(
-                          'absolute h-7 rounded-sm flex items-center px-1.5 text-[10px] text-white font-medium cursor-default group',
-                          statusColor
-                        )}
-                        style={{
-                          ...barStyle,
-                          top: `${4 + i * 32}px`,
-                        }}
-                        title={`${res.request_user_name || 'Unknown'} — ${res.request_project_name || 'No project'}\n${res.pickup_date} → ${res.return_date}\nQty: ${res.quantity}`}
-                      >
-                        <span className="truncate">
-                          {res.request_user_name ? `${res.request_user_name} — ` : ''}{res.request_project_name || `Qty ${res.quantity}`}
-                        </span>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate">{row.productName}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">{row.categoryName}</div>
+                      <div className="text-[10px] text-muted-foreground/60 mt-0.5">
+                        {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
                       </div>
-                    )
-                  })}
+                    </div>
+                  </div>
+                  <div className="flex-1 relative" style={{ minHeight: `${rowHeight}px` }}>
+                    {/* Today line */}
+                    {todayPosition && (
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-red-500/50 z-20"
+                        style={{ left: todayPosition }}
+                      >
+                        <div className="absolute -top-0 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-red-500" />
+                      </div>
+                    )}
+
+                    {/* Reservation bars */}
+                    {row.reservations.map((res, i) => {
+                      const barStyle = getBarStyle(res.pickup_date, res.return_date)
+                      const statusColor = STATUS_COLORS[res.request_status] || STATUS_COLORS.pending
+
+                      return (
+                        <Link
+                          key={res.id || i}
+                          to={res.request_id ? `/admin/requests/${res.request_id}` : '#'}
+                          className={cn(
+                            'absolute h-7 rounded-md flex items-center px-2 text-[10px] text-white font-medium',
+                            'shadow-sm transition-all duration-150 cursor-pointer',
+                            statusColor
+                          )}
+                          style={{
+                            ...barStyle,
+                            top: `${8 + i * 32}px`,
+                          }}
+                          title={`${res.request_user_name || 'Unknown'} — ${res.request_project_name || 'No project'}\n${res.pickup_date} → ${res.return_date}\nQty: ${res.quantity}`}
+                        >
+                          <span className="truncate">
+                            {res.request_user_name || `Qty ${res.quantity}`}
+                          </span>
+                        </Link>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </div>
