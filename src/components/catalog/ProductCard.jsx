@@ -7,16 +7,16 @@ import { Badge } from '@/components/ui/badge'
 import { ProductConfigModal } from './ProductConfigModal'
 import { cn } from '@/lib/utils'
 
-export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPlans, productOptions }) {
+export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, productOptions, reservedQty = 0, datesSelected = false }) {
   const [showConfig, setShowConfig] = useState(false)
 
-  const activeLoans = loans.filter(
-    (l) => l.product_id === product.id && (l.status === 'active' || l.status === 'pending')
-  )
-  const borrowed = activeLoans.reduce((sum, l) => sum + l.quantity, 0)
   const inCart = cart.find((c) => c.product.id === product.id)?.quantity || 0
-  const available = product.total_stock - borrowed - inCart
+  // When dates are selected, use the date-aware reservedQty; otherwise show full stock
+  const available = datesSelected
+    ? product.total_stock - reservedQty - inCart
+    : product.total_stock - inCart
   const needsConfig = product.has_accessories || product.has_software || product.has_subscription || product.has_apps
+  const isUnavailable = datesSelected && available <= 0
 
   const handleAdd = () => {
     if (needsConfig) setShowConfig(true)
@@ -30,13 +30,21 @@ export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPla
 
   return (
     <>
-      <Card className="overflow-hidden hover:border-primary/50 transition-colors group">
+      <Card className={cn(
+        'overflow-hidden transition-colors group',
+        isUnavailable
+          ? 'opacity-50 grayscale'
+          : 'hover:border-primary/50'
+      )}>
         <Link to={`/catalog/${product.id}`}>
           <div className="relative aspect-[4/3] overflow-hidden bg-muted">
             <img
               src={product.image_url || 'https://via.placeholder.com/400x250?text=No+Image'}
               alt={product.name}
-              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+              className={cn(
+                'object-cover w-full h-full transition-transform duration-300',
+                !isUnavailable && 'group-hover:scale-105'
+              )}
             />
             <Badge
               className="absolute top-3 left-3"
@@ -45,6 +53,13 @@ export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPla
               {product.category_name}
               {product.sub_type && ` - ${product.sub_type}`}
             </Badge>
+            {isUnavailable && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+                <span className="text-sm font-semibold text-destructive bg-background/80 px-3 py-1 rounded-full">
+                  Unavailable
+                </span>
+              </div>
+            )}
           </div>
         </Link>
 
@@ -81,17 +96,25 @@ export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPla
 
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="text-sm">
-              <span
-                className={cn(
-                  'font-bold',
-                  available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
-                )}
-              >
-                {available}
-              </span>
-              <span className="text-muted-foreground"> / {product.total_stock} available</span>
+              {datesSelected ? (
+                <>
+                  <span
+                    className={cn(
+                      'font-bold',
+                      available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
+                    )}
+                  >
+                    {Math.max(available, 0)}
+                  </span>
+                  <span className="text-muted-foreground"> / {product.total_stock} available</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground text-xs">
+                  {product.total_stock} in stock — select dates
+                </span>
+              )}
             </div>
-            <Button size="sm" onClick={handleAdd} disabled={available <= 0}>
+            <Button size="sm" onClick={handleAdd} disabled={isUnavailable || available <= 0}>
               <Plus className="h-4 w-4" />
               {needsConfig ? 'Configure' : 'Add'}
             </Button>

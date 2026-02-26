@@ -78,3 +78,33 @@ export const getProductReservations = async (productId) => {
     status: item.loan_requests.status,
   }))
 }
+
+/**
+ * Get all active reservations that overlap with a given date range.
+ * Returns { [product_id]: totalReservedQty }.
+ */
+export const getReservationsInRange = async (pickupDate, returnDate) => {
+  const { data, error } = await supabase
+    .from('loan_request_items')
+    .select(`
+      product_id,
+      quantity,
+      loan_requests!inner (
+        pickup_date,
+        return_date,
+        status
+      )
+    `)
+    .in('loan_requests.status', ['pending', 'approved', 'reserved', 'picked_up'])
+    .lte('loan_requests.pickup_date', returnDate)
+    .gte('loan_requests.return_date', pickupDate)
+
+  if (error) throw error
+
+  // Aggregate reserved qty per product
+  const map = {}
+  for (const item of data || []) {
+    map[item.product_id] = (map[item.product_id] || 0) + item.quantity
+  }
+  return map
+}

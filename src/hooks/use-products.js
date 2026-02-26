@@ -44,3 +44,15 @@ export const useProductReservations = (productId) =>
     queryFn: () => api.getProductReservations(productId),
     enabled: !!productId,
   })
+
+/**
+ * Fetch reserved quantities per product that overlap the given date range.
+ * Returns { [product_id]: reservedQty } or empty object.
+ * Only fires when both dates are set.
+ */
+export const useReservationsInRange = (pickupDate, returnDate) =>
+  useQuery({
+    queryKey: ['reservations-in-range', pickupDate, returnDate],
+    queryFn: () => api.getReservationsInRange(pickupDate, returnDate),
+    enabled: !!pickupDate && !!returnDate,
+  })

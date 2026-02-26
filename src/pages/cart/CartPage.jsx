@@ -1,12 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '@/stores/cart-store'
-import { useLoans } from '@/hooks/use-loans'
+import { useReservationsInRange } from '@/hooks/use-products'
 import { useProducts } from '@/hooks/use-products'
 import { useAuth } from '@/lib/auth'
-import { ShoppingCart, Minus, Plus, Trash2, Calendar, ArrowRight } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, Trash2, CalendarRange, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
 import { cn } from '@/lib/utils'
@@ -14,25 +12,25 @@ import { cn } from '@/lib/utils'
 export function CartPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
-  const { items, startDate, endDate, setDates, updateQuantity, removeItem } = useCartStore()
-  const { data: loans = [] } = useLoans()
+  const { items, startDate, endDate, updateQuantity, removeItem } = useCartStore()
   const { data: products = [] } = useProducts()
+  const { data: reservedByProduct = {} } = useReservationsInRange(startDate, endDate)
 
   const checkAvailability = (productId, qty) => {
     if (!startDate || !endDate) return true
-    const overlaps = loans.filter(
-      (l) =>
-        l.product_id === productId &&
-        (l.status === 'active' || l.status === 'pending') &&
-        !(endDate < l.pickup_date || startDate > l.return_date)
-    )
-    const borrowed = overlaps.reduce((s, l) => s + l.quantity, 0)
+    const reserved = reservedByProduct[productId] || 0
     const product = products.find((p) => p.id === productId)
-    return product && product.total_stock - borrowed >= qty
+    return product && product.total_stock - reserved >= qty
   }
 
   const allAvailable = items.every((i) => checkAvailability(i.product.id, i.quantity))
   const canProceed = items.length > 0 && startDate && endDate && allAvailable
+
+  const formatDate = (s) => {
+    if (!s) return '—'
+    const d = new Date(s + 'T00:00:00')
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
 
   if (items.length === 0) {
     return (
@@ -55,34 +53,37 @@ export function CartPage() {
         <p className="text-muted-foreground mt-1">{items.length} item{items.length > 1 ? 's' : ''}</p>
       </div>
 
+      {/* Loan period summary — dates are set in the catalog */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Calendar className="h-4 w-4" />
+            <CalendarRange className="h-4 w-4" />
             Loan Period
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label>Pickup Date</Label>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setDates(e.target.value, endDate)}
-                min={new Date().toISOString().split('T')[0]}
-              />
+          {startDate && endDate ? (
+            <div className="flex items-center justify-between">
+              <p className="text-sm">
+                <span className="font-medium">{formatDate(startDate)}</span>
+                <span className="text-muted-foreground mx-2">→</span>
+                <span className="font-medium">{formatDate(endDate)}</span>
+              </p>
+              <Link to="/catalog">
+                <Button variant="outline" size="sm">Change dates</Button>
+              </Link>
             </div>
-            <div className="space-y-1">
-              <Label>Return Date</Label>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setDates(startDate, e.target.value)}
-                min={startDate || new Date().toISOString().split('T')[0]}
-              />
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-destructive">No loan period selected</p>
+              <Link to="/catalog">
+                <Button variant="outline" size="sm" className="gap-1">
+                  <ArrowLeft className="h-3 w-3" />
+                  Select dates in catalog
+                </Button>
+              </Link>
             </div>
-          </div>
+          )}
           {startDate && endDate && !allAvailable && (
             <p className="text-sm text-destructive mt-3">Some items are not available for this period.</p>
           )}
@@ -110,7 +111,7 @@ export function CartPage() {
                   <p className="text-xs text-muted-foreground">{item.product.category_name}</p>
                   {startDate && endDate && (
                     <span className={cn('text-xs', isAvailable ? 'text-success' : 'text-destructive')}>
-                      {isAvailable ? 'Available' : 'Not available'}
+                      {isAvailable ? 'Available' : 'Not available for this period'}
                     </span>
                   )}
                 </div>
