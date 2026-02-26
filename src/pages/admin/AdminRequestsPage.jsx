@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useLoans, useUpdateLoanStatus } from '@/hooks/use-loans'
 import { User, Calendar, Check, X, Inbox, ChevronRight, Eye } from 'lucide-react'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -126,8 +127,15 @@ export function AdminRequestsPage() {
                         )}
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <User className="h-3.5 w-3.5" /> {req.user_first_name} {req.user_last_name}
+                        <span className="flex items-center gap-1.5">
+                          <UserAvatar
+                            avatarUrl={req.user_avatar_url}
+                            firstName={req.user_first_name}
+                            lastName={req.user_last_name}
+                            email={req.user_email}
+                            size="sm"
+                          />
+                          {req.user_first_name} {req.user_last_name}
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3.5 w-3.5" /> {formatDate(req.pickup_date)} &rarr; {formatDate(req.return_date)}

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { LogOut, User } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -15,12 +15,6 @@ import {
 export function UserMenu() {
   const { user, profile, signOut } = useAuth()
 
-  // Build initials: prefer first+last, fallback to first letter of email
-  const emailInitial = user?.email?.[0]?.toUpperCase() || '?'
-  const initials = profile
-    ? `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase() || emailInitial
-    : emailInitial
-
   const displayName = profile
     ? (`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || user?.email)
     : user?.email
@@ -29,9 +23,13 @@ export function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar>
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            avatarUrl={profile?.avatar_url}
+            firstName={profile?.first_name}
+            lastName={profile?.last_name}
+            email={user?.email}
+            size="md"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

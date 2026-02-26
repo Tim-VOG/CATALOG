@@ -11,6 +11,7 @@ import {
   ArrowLeft, Calendar, MapPin, User, Clock, Package, Mail,
   Check, X, ShieldCheck, Undo2, CalendarPlus,
 } from 'lucide-react'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -146,7 +147,13 @@ export function AdminRequestDetailPage() {
           <CardHeader><CardTitle className="text-base">Project Details</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
+              <UserAvatar
+                avatarUrl={request.user_avatar_url}
+                firstName={request.user_first_name}
+                lastName={request.user_last_name}
+                email={request.user_email}
+                size="sm"
+              />
               <span>{request.user_first_name} {request.user_last_name}</span>
               <span className="text-muted-foreground">({request.user_email})</span>
             </div>

@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { updateProfile } from '@/lib/api/profiles'
-import { User, Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +16,9 @@ import { useUIStore } from '@/stores/ui-store'
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024 // 2MB
+const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
+
 export function ProfilePage() {
   const { user, profile, loading, refreshProfile } = useAuth()
   const { data: requests = [] } = useMyLoanRequests(user?.id)
@@ -22,10 +26,11 @@ export function ProfilePage() {
 
   const [phone, setPhone] = useState(profile?.phone || '')
   const [saving, setSaving] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef(null)
 
   if (loading) return <PageLoading />
 
-  const initials = `${profile?.first_name?.[0] || ''}${profile?.last_name?.[0] || ''}`.toUpperCase() || '?'
   const fullName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
 
   // Stats
@@ -49,6 +54,44 @@ export function ProfilePage() {
     }
   }
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = '' // Reset so same file can be re-selected
+
+    // Validate type
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      showToast('Please upload a PNG, JPEG, or WebP image', 'error')
+      return
+    }
+
+    // Validate size
+    if (file.size > MAX_AVATAR_SIZE) {
+      showToast('Image must be under 2MB', 'error')
+      return
+    }
+
+    setUploadingAvatar(true)
+    try {
+      const ext = file.name.split('.').pop()
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true })
+      if (uploadError) throw uploadError
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      await updateProfile(user.id, { avatar_url: data.publicUrl })
+      await refreshProfile()
+      showToast('Profile photo updated')
+    } catch (err) {
+      showToast(err.message, 'error')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <h1 className="text-3xl font-display font-bold">Profile</h1>
@@ -57,10 +100,36 @@ export function ProfilePage() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-start gap-5">
-            <Avatar className="h-20 w-20 text-2xl">
-              <AvatarImage src={profile?.avatar_url} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
+            {/* Avatar with upload overlay */}
+            <div className="relative group shrink-0">
+              <UserAvatar
+                avatarUrl={profile?.avatar_url}
+                firstName={profile?.first_name}
+                lastName={profile?.last_name}
+                email={user?.email}
+                size="lg"
+              />
+              <button
+                type="button"
+                onClick={() => !uploadingAvatar && avatarInputRef.current?.click()}
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                aria-label="Change profile photo"
+              >
+                {uploadingAvatar ? (
+                  <Loader2 className="h-6 w-6 text-white animate-spin" />
+                ) : (
+                  <Camera className="h-6 w-6 text-white" />
+                )}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                className="hidden"
+                accept={ACCEPTED_TYPES.join(',')}
+                onChange={handleAvatarUpload}
+              />
+            </div>
+
             <div className="flex-1 space-y-1">
               <h2 className="text-2xl font-bold">{fullName}</h2>
               <p className="text-muted-foreground flex items-center gap-1.5">

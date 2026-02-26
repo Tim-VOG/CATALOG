@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useProfiles, useUpdateProfileRole, useToggleProfileActive } from '@/hooks/use-profiles'
 import { useAuth } from '@/lib/auth'
 import { Search, Users, Shield, ShieldCheck, User } from 'lucide-react'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -59,11 +60,6 @@ export function AdminUsersPage() {
     return <Badge className={opt.color}>{opt.label}</Badge>
   }
 
-  const getInitials = (profile) => {
-    const name = profile.full_name || profile.email || '?'
-    return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
-  }
-
   if (isLoading) return <PageLoading />
 
   return (
@@ -117,9 +113,13 @@ export function AdminUsersPage() {
               <TableRow key={p.id} className={!p.is_active && p.is_active !== undefined ? 'opacity-50' : ''}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-bold shrink-0">
-                      {getInitials(p)}
-                    </div>
+                    <UserAvatar
+                      avatarUrl={p.avatar_url}
+                      firstName={p.first_name}
+                      lastName={p.last_name}
+                      email={p.email}
+                      size="md"
+                    />
                     <div>
                       <div className="font-medium">{p.full_name || 'Unnamed'}</div>
                       <div className="text-xs text-muted-foreground">{p.email}</div>

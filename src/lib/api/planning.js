@@ -31,6 +31,7 @@ export const getPlanningData = async ({ startDate, endDate }) => {
       request_status: request?.status,
       request_project_name: request?.project_name,
       request_user_name: [request?.user_first_name, request?.user_last_name].filter(Boolean).join(' ') || request?.user_email,
+      request_user_avatar: request?.user_avatar_url,
       pickup_date: request?.pickup_date,
       return_date: request?.return_date,
     }
