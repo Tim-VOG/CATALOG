@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { CategoryBadge } from '@/components/common/CategoryBadge'
+import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { ExtensionRequestDialog } from '@/components/requests/ExtensionRequestDialog'
 
 const formatDate = (d) =>
@@ -29,7 +31,40 @@ export function RequestDetailPage() {
   const request = requestQuery.data
 
   if (requestQuery.isLoading || requestQuery.isError) {
-    return <QueryWrapper query={requestQuery} />
+    return (
+      <QueryWrapper
+        query={requestQuery}
+        skeleton={
+          <div className="max-w-3xl mx-auto space-y-6">
+            <Skeleton className="h-8 w-32" />
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-lg border bg-card p-6 space-y-3">
+                <Skeleton className="h-5 w-20" />
+                <SkeletonText lines={4} />
+              </div>
+              <div className="rounded-lg border bg-card p-6 space-y-3">
+                <Skeleton className="h-5 w-20" />
+                <SkeletonText lines={3} />
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-6 space-y-3">
+              <Skeleton className="h-5 w-24" />
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 py-2">
+                  <Skeleton className="h-12 w-12 rounded" />
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-8" />
+                </div>
+              ))}
+            </div>
+          </div>
+        }
+      />
+    )
   }
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
@@ -172,9 +207,7 @@ export function RequestDetailPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{item.product_name}</p>
                 <div className="flex gap-2">
-                  <Badge variant="outline" style={{ backgroundColor: item.category_color || '#6b7280', color: '#fff' }}>
-                    {item.category_name}
-                  </Badge>
+                  <CategoryBadge name={item.category_name} color={item.category_color} />
                 </div>
               </div>
               <span className="text-sm font-medium">&times; {item.quantity}</span>

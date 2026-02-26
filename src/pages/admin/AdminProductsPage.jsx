@@ -3,7 +3,7 @@ import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } fro
 import { useCategories } from '@/hooks/use-categories'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -112,7 +112,7 @@ export function AdminProductsPage() {
                 </div>
               </TableCell>
               <TableCell>
-                <Badge style={{ backgroundColor: p.category_color || '#6b7280' }}>{p.category_name}</Badge>
+                <CategoryBadge name={p.category_name} color={p.category_color} />
               </TableCell>
               <TableCell>{p.total_stock}</TableCell>
               <TableCell>

@@ -5,9 +5,10 @@ import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ArrowLeft, Plus, Check, WifiOff, AlertTriangle, CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
+import { CategoryBadge } from '@/components/common/CategoryBadge'
+import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { AvailabilityCalendar } from '@/components/calendar/AvailabilityCalendar'
 import { cn } from '@/lib/utils'
 
@@ -23,7 +24,25 @@ export function ProductDetailPage() {
   const product = productQuery.data
 
   if (productQuery.isLoading || productQuery.isError) {
-    return <QueryWrapper query={productQuery} />
+    return (
+      <QueryWrapper
+        query={productQuery}
+        skeleton={
+          <div className="max-w-5xl mx-auto space-y-6">
+            <Skeleton className="h-8 w-32" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Skeleton className="aspect-[4/3] w-full rounded-lg" />
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-24 rounded-md" />
+                <Skeleton className="h-8 w-3/4" />
+                <SkeletonText lines={3} />
+                <Skeleton className="h-32 w-full rounded-lg" />
+              </div>
+            </div>
+          </div>
+        }
+      />
+    )
   }
   if (!product) return <div className="text-center py-16 text-muted-foreground">Product not found</div>
 
@@ -61,10 +80,11 @@ export function ProductDetailPage() {
 
         <div className="space-y-4">
           <div>
-            <Badge style={{ backgroundColor: product.category_color || '#6b7280' }}>
-              {product.category_name}
-              {product.sub_type && ` - ${product.sub_type}`}
-            </Badge>
+            <CategoryBadge
+              name={product.category_name}
+              color={product.category_color}
+              subType={product.sub_type}
+            />
             <h1 className="text-2xl font-display font-bold mt-2">{product.name}</h1>
             <p className="text-muted-foreground mt-2">{product.description}</p>
           </div>

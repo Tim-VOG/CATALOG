@@ -21,7 +21,15 @@ function DialogTrigger({ children, asChild, ...props }) {
   return <button onClick={() => onOpenChange?.(true)} {...props}>{children}</button>
 }
 
-const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
+const DIALOG_SIZES = {
+  sm: 'max-w-sm',
+  default: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+  full: 'max-w-6xl',
+}
+
+const DialogContent = React.forwardRef(({ className, children, size = 'default', ...props }, ref) => {
   const { open, onOpenChange } = React.useContext(DialogContext)
   const contentRef = React.useRef(null)
   const previousFocusRef = React.useRef(null)
@@ -118,7 +126,8 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
             exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={cn(
-              'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg gap-4 border bg-card p-6 shadow-lg max-h-[85vh] overflow-y-auto',
+              'fixed left-1/2 top-1/2 z-50 grid w-full gap-4 border bg-card p-6 shadow-lg max-h-[85vh] overflow-y-auto',
+              DIALOG_SIZES[size] || DIALOG_SIZES.default,
               'rounded-lg max-sm:max-w-none max-sm:h-full max-sm:max-h-full max-sm:rounded-none',
               className
             )}

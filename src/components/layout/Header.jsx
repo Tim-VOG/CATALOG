@@ -29,7 +29,7 @@ export function Header() {
   ]
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)]">
       <div className="flex h-14 items-center px-4 gap-4">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
           <Menu className="h-5 w-5" />

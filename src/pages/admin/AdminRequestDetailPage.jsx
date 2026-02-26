@@ -4,9 +4,7 @@ import { useExtensionsByRequest } from '@/hooks/use-extension-requests'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { useState } from 'react'
-import { sendEmail } from '@/lib/api/send-email'
-import { getEmailTemplateByKey } from '@/lib/api/email-templates'
-import { generateStatusEmailDraft } from '@/lib/email-draft'
+import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
 import {
   ArrowLeft, Calendar, MapPin, User, Clock, Package, Mail,
   Check, X, ShieldCheck, Undo2, CalendarPlus,
@@ -15,6 +13,7 @@ import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -22,10 +21,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { ReturnProcessDialog } from '@/components/admin/ReturnProcessDialog'
 
-const formatDate = (d) =>
-  new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-const formatDateTime = (d) =>
-  new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+// formatDate and formatDateTime imported from request-status-service
 
 export function AdminRequestDetailPage() {
   const { requestId } = useParams()
@@ -43,36 +39,16 @@ export function AdminRequestDetailPage() {
   if (isLoading) return <PageLoading />
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
-  const appName = settings?.app_name || 'VO Gear Hub'
-  const logoUrl = settings?.logo_url || ''
-  const tagline = settings?.email_tagline || ''
-  const logoHeight = settings?.email_logo_height || 0
-
   // CC emails stored on the request
   const ccEmails = request.custom_fields?.cc_emails || []
-
-  // Send a status change email to the user (fire & forget)
-  const sendStatusEmail = async (templateKey) => {
-    try {
-      const template = await getEmailTemplateByKey(templateKey)
-      if (!template || !template.is_active) return
-      const draft = generateStatusEmailDraft({ template, request, items, appName, logoUrl, tagline, logoHeight })
-      if (draft.to) {
-        sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
-      }
-    } catch {
-      // Email is non-critical — don't block the action
-    }
-  }
 
   const handleStatusUpdate = async (status, extraData = {}) => {
     try {
       await updateStatus.mutateAsync({ id: request.id, status, ...extraData })
       showToast(`Request ${status}`)
 
-      // Auto-send emails for specific status changes
-      if (status === 'picked_up') sendStatusEmail('equipment_picked_up')
-      if (status === 'closed') sendStatusEmail('request_closed')
+      // Auto-send emails for specific status changes (fire & forget)
+      sendStatusChangeEmail(status, { request, items, settings })
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -83,15 +59,7 @@ export function AdminRequestDetailPage() {
     setShowReject(false)
   }
 
-  const timeline = [
-    { label: 'Submitted', date: request.created_at },
-    request.approved_at && { label: 'Approved', date: request.approved_at },
-    request.picked_up_at && { label: 'Picked up', date: request.picked_up_at },
-    request.returned_at && { label: 'Returned', date: request.returned_at },
-    request.closed_at && { label: 'Closed', date: request.closed_at },
-    request.status === 'rejected' && { label: 'Rejected', date: request.updated_at },
-    request.status === 'cancelled' && { label: 'Cancelled', date: request.updated_at },
-  ].filter(Boolean)
+  const timeline = buildTimeline(request)
 
   return (
     <div className="space-y-6">
@@ -242,7 +210,7 @@ export function AdminRequestDetailPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm">{item.product_name}</p>
-                <Badge style={{ backgroundColor: item.category_color || '#6b7280' }}>{item.category_name}</Badge>
+                <CategoryBadge name={item.category_name} color={item.category_color} />
               </div>
               <span className="text-sm font-medium">&times; {item.quantity}</span>
             </div>

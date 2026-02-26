@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 const ACTIVE_STATUSES = ['pending', 'approved', 'picked_up']
@@ -78,7 +79,35 @@ export function RequestsPage() {
   const [tab, setTab] = useState('active')
 
   if (requestsQuery.isLoading || requestsQuery.isError) {
-    return <QueryWrapper query={requestsQuery} />
+    return (
+      <QueryWrapper
+        query={requestsQuery}
+        skeleton={
+          <div className="max-w-3xl mx-auto space-y-6">
+            <div>
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-32 mt-2" />
+            </div>
+            <Skeleton className="h-10 w-full" />
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-lg border bg-card p-6 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </div>
+                  <div className="flex gap-4">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <Skeleton className="h-3 w-32" />
+                </div>
+              ))}
+            </div>
+          </div>
+        }
+      />
+    )
   }
 
   const requests = requestsQuery.data || []
@@ -103,8 +132,9 @@ export function RequestsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">My Requests</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight">My Requests</h1>
         <p className="text-muted-foreground mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} total</p>
+        <div className="mt-3 h-0.5 w-16 rounded-full bg-primary/60" />
       </div>
 
       {/* Tabs */}

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Plus, Check, WifiOff, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { ProductConfigModal } from './ProductConfigModal'
 import { cn } from '@/lib/utils'
 
@@ -44,13 +44,14 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
                 !isUnavailable && 'group-hover:scale-105'
               )}
             />
-            <Badge
+            {/* Subtle gradient overlay for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+            <CategoryBadge
               className="absolute top-3 left-3"
-              style={{ backgroundColor: product.category_color || '#6b7280' }}
-            >
-              {product.category_name}
-              {product.sub_type && ` - ${product.sub_type}`}
-            </Badge>
+              name={product.category_name}
+              color={product.category_color}
+              subType={product.sub_type}
+            />
             {isUnavailable && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/60">
                 <span className="text-sm font-semibold text-destructive bg-background/80 px-3 py-1 rounded-full">

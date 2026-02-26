@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
+import { SkeletonCard } from '@/components/ui/skeleton'
 import { useAnnounce } from '@/components/common/LiveRegion'
 
 export function CatalogPage() {
@@ -59,15 +60,33 @@ export function CatalogPage() {
   }
 
   if (productsQuery.isLoading || productsQuery.isError) {
-    return <QueryWrapper query={productsQuery} />
+    return (
+      <QueryWrapper
+        query={productsQuery}
+        skeleton={
+          <div className="space-y-6">
+            <div>
+              <div className="h-8 w-64 bg-muted rounded animate-pulse" />
+              <div className="h-4 w-96 bg-muted rounded animate-pulse mt-2" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          </div>
+        }
+      />
+    )
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)]">
       {/* Header — static */}
-      <div className="shrink-0 pb-4">
-        <h1 className="text-3xl font-display font-bold">Equipment Catalog</h1>
+      <div className="shrink-0 pb-6">
+        <h1 className="text-3xl font-display font-bold tracking-tight">Equipment Catalog</h1>
         <p className="text-muted-foreground mt-1">Browse and reserve equipment for your projects</p>
+        <div className="mt-3 h-0.5 w-16 rounded-full bg-primary/60" />
       </div>
 
       {/* Two-column layout — fills remaining height */}

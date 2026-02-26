@@ -5,6 +5,7 @@ import { useProducts } from '@/hooks/use-products'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/common/UserAvatar'
+import { FadeIn } from '@/components/ui/motion'
 import { Inbox, PackageCheck, AlertTriangle, PackageX, ArrowRight } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
@@ -60,24 +61,27 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-1">Overview of your equipment management</p>
+        <div className="mt-3 h-0.5 w-16 rounded-full bg-primary/60" />
       </div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map(({ label, value, icon: Icon, color, link }) => (
-          <Link key={label} to={link}>
-            <Card className="hover:border-primary/50 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                <Icon className={`h-4 w-4 ${color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${color}`}>{value}</div>
-              </CardContent>
-            </Card>
-          </Link>
+        {stats.map(({ label, value, icon: Icon, color, link }, i) => (
+          <FadeIn key={label} delay={i * 0.08}>
+            <Link to={link}>
+              <Card hoverable>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{label}</CardTitle>
+                  <Icon className={`h-4 w-4 ${color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-3xl font-display font-bold tracking-tight ${color}`}>{value}</div>
+                </CardContent>
+              </Card>
+            </Link>
+          </FadeIn>
         ))}
       </div>
 

@@ -7,11 +7,7 @@ import { useCreateLoanRequest } from '@/hooks/use-loan-requests'
 import { useActiveFormFields } from '@/hooks/use-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
-import { sendEmail } from '@/lib/api/send-email'
-import { wrapEmailHtml, generateDetailsCard, generateItemsHtml, escapeHtml } from '@/lib/email-html'
-import { getNotificationRecipients } from '@/lib/api/notification-recipients'
-import { getEmailTemplateByKey } from '@/lib/api/email-templates'
-import { generateStatusEmailDraft } from '@/lib/email-draft'
+import { validateCheckoutFields, buildLoanRequestPayload, sendCheckoutEmails } from '@/services/checkout-service'
 import { ArrowLeft, ArrowRight, Check, ClipboardList, Send, Plus, X as XIcon, Mail } from 'lucide-react'
 import { DynamicField } from '@/components/checkout/DynamicField'
 import { Button } from '@/components/ui/button'
@@ -82,33 +78,9 @@ export function CheckoutPage() {
   }
 
   const validateFields = () => {
-    const errors = {}
-    activeFields.forEach((field) => {
-      const val = fieldValues[field.field_key]
-      if (field.is_required) {
-        if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) {
-          errors[field.field_key] = `${field.label} is required`
-        }
-      }
-      if (field.field_type === 'email' && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-        errors[field.field_key] = 'Please enter a valid email'
-      }
-    })
-    // Validate CC emails
-    ccEmails.forEach((email, i) => {
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors[`cc_email_${i}`] = 'Invalid email address'
-      }
-    })
-    // Also validate project_name min length
-    if (fieldValues.project_name && fieldValues.project_name.length < 3) {
-      errors.project_name = 'Project name must be at least 3 characters'
-    }
-    if (fieldValues.project_description && fieldValues.project_description.length < 10) {
-      errors.project_description = 'Please provide a brief description (min 10 characters)'
-    }
+    const { valid, errors } = validateCheckoutFields(fieldValues, activeFields, ccEmails)
     setFieldErrors(errors)
-    return Object.keys(errors).length === 0
+    return valid
   }
 
   const handleStepNext = () => {
@@ -231,119 +203,20 @@ export function CheckoutPage() {
       return
     }
 
-    // Separate system field values from custom field values
-    const systemKeys = activeFields.filter((f) => f.is_system).map((f) => f.field_key)
-    const validCcEmails = ccEmails.map((e) => e.trim()).filter((e) => e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))
-    const customFields = {}
-    Object.entries(fieldValues).forEach(([k, v]) => {
-      if (!systemKeys.includes(k) && !['terms_accepted', 'responsibility_accepted', 'location_other'].includes(k)) {
-        customFields[k] = v
-      }
+    const { request: payload, items: payloadItems, validCcEmails } = buildLoanRequestPayload({
+      user, fieldValues, activeFields, items, startDate, endDate, ccEmails,
     })
-    if (validCcEmails.length > 0) {
-      customFields.cc_emails = validCcEmails
-    }
 
     try {
-      const req = await createRequest.mutateAsync({
-        request: {
-          user_id: user.id,
-          project_name: fieldValues.project_name || '',
-          project_description: fieldValues.project_description || '',
-          location_id: fieldValues.location_id || null,
-          location_other: fieldValues.location_other || null,
-          justification: fieldValues.justification || null,
-          priority: fieldValues.priority || 'normal',
-          pickup_date: startDate,
-          return_date: endDate,
-          terms_accepted: fieldValues.terms_accepted,
-          responsibility_accepted: fieldValues.responsibility_accepted,
-          custom_fields: customFields,
-          status: 'pending',
-        },
-        items,
-      })
+      await createRequest.mutateAsync({ request: payload, items: payloadItems })
       clearCart()
       showToast('Request submitted successfully!')
 
       // Send emails (fire and forget — don't block navigation)
-      const appName = settings?.app_name || 'VO Gear Hub'
-      const logoUrl = settings?.logo_url || ''
-      const tagline = settings?.email_tagline || ''
-      const logoHeight = settings?.email_logo_height || 0
-      const requesterName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
-      const selectedLoc = locations.find((l) => l.id === fieldValues.location_id)
-
-      // Shared item data for both emails
-      const itemData = items.map((i) => ({
-        product_name: i.product.name,
-        product_image: i.product.image_url,
-        quantity: i.quantity,
-        product_includes: i.product.includes || [],
-      }))
-
-      // 1) Send confirmation email to user using template
-      getEmailTemplateByKey('order_confirmation')
-        .then(async (template) => {
-          if (!template || !template.is_active) {
-            console.warn('[order_confirmation] Template not found or inactive', template)
-            return
-          }
-          const requestData = {
-            user_first_name: profile?.first_name || '',
-            user_last_name: profile?.last_name || '',
-            user_email: user?.email,
-            project_name: fieldValues.project_name || '',
-            project_description: fieldValues.project_description || '',
-            pickup_date: startDate,
-            return_date: endDate,
-            location_name: selectedLoc?.name || '',
-            custom_fields: customFields,
-          }
-          const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl, tagline, logoHeight })
-          if (!draft.to) {
-            console.warn('[order_confirmation] No recipient email — user.email:', user?.email)
-            return
-          }
-          const result = await sendEmail({ to: draft.to, cc: validCcEmails.length > 0 ? validCcEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
-          if (!result.success) console.error('[order_confirmation] Send failed:', result.error)
-          else console.info('[order_confirmation] Email sent to', draft.to, validCcEmails.length > 0 ? `cc: ${validCcEmails.join(', ')}` : '')
-        })
-        .catch((err) => console.error('[order_confirmation] Error:', err))
-
-      // 2) Send rich notification email to admins
-      const detailsCard = generateDetailsCard({
-        project_name: fieldValues.project_name || '',
-        pickup_date: formatDate(startDate),
-        return_date: formatDate(endDate),
+      sendCheckoutEmails({
+        fieldValues, items, startDate, endDate,
+        profile, user, settings, locations, ccEmails,
       })
-      const adminItemsHtml = generateItemsHtml(itemData)
-      const adminBody = wrapEmailHtml(
-        `New equipment request submitted by <strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong>.\n\n` +
-        detailsCard + '\n\n' +
-        adminItemsHtml,
-        { appName, logoUrl, tagline, logoHeight }
-      )
-
-      getNotificationRecipients()
-        .then(async (recipients) => {
-          const adminEmails = (recipients || [])
-            .filter((r) => r.is_active && r.notify_on_new_request)
-            .map((r) => r.email)
-          if (adminEmails.length === 0) {
-            console.warn('[admin notification] No active recipients with notify_on_new_request')
-            return
-          }
-          const result = await sendEmail({
-            to: adminEmails,
-            subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
-            body: adminBody,
-            isHtml: true,
-          })
-          if (!result.success) console.error('[admin notification] Send failed:', result.error)
-          else console.info('[admin notification] Email sent to', adminEmails)
-        })
-        .catch((err) => console.error('[admin notification] Error:', err))
 
       navigate('/requests')
     } catch (err) {
