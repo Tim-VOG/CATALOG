@@ -197,8 +197,8 @@ export function wrapEmailHtml(body, { appName = 'VO Gear Hub', logoUrl = '' } = 
   const htmlBody = formatTextToHtml(body)
 
   const logoCell = logoUrl
-    ? `<img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(appName)}" width="36" height="36" style="border-radius:8px;object-fit:contain;display:block;" />`
-    : `<div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#f97316,#06b6d4);display:inline-block;text-align:center;line-height:36px;font-size:18px;">&#9881;</div>`
+    ? `<img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(appName)}" width="100" height="17" style="border-radius:0px;object-fit:contain;display:block;" />`
+    : `<div style="width:100px;height:17px;border-radius:0px;background:linear-gradient(135deg,#f97316,#06b6d4);display:inline-block;text-align:center;line-height:36px;font-size:18px;">&#9881;</div>`
 
   return `<!DOCTYPE html>
 <html>
