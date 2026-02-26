@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
 
@@ -20,48 +21,48 @@ function DialogTrigger({ children, asChild, ...props }) {
   return <button onClick={() => onOpenChange?.(true)} {...props}>{children}</button>
 }
 
-function DialogPortal({ children }) {
-  const { open } = React.useContext(DialogContext)
-  if (!open) return null
-  return <>{children}</>
-}
-
-const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => {
-  const { onOpenChange } = React.useContext(DialogContext)
-  return (
-    <div
-      ref={ref}
-      className={cn('fixed inset-0 z-50 bg-black/80 animate-in fade-in-0', className)}
-      onClick={() => onOpenChange?.(false)}
-      {...props}
-    />
-  )
-})
-DialogOverlay.displayName = 'DialogOverlay'
-
 const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
-  const { onOpenChange } = React.useContext(DialogContext)
+  const { open, onOpenChange } = React.useContext(DialogContext)
   return (
-    <DialogPortal>
-      <DialogOverlay />
-      <div
-        ref={ref}
-        className={cn(
-          'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-card p-6 shadow-lg rounded-lg max-h-[85vh] overflow-y-auto',
-          className
-        )}
-        onClick={(e) => e.stopPropagation()}
-        {...props}
-      >
-        {children}
-        <button
-          className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
-          onClick={() => onOpenChange?.(false)}
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    </DialogPortal>
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            key="dialog-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-50 bg-black/80"
+            onClick={() => onOpenChange?.(false)}
+          />
+          {/* Content */}
+          <motion.div
+            key="dialog-content"
+            ref={ref}
+            initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className={cn(
+              'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg gap-4 border bg-card p-6 shadow-lg rounded-lg max-h-[85vh] overflow-y-auto',
+              className
+            )}
+            onClick={(e) => e.stopPropagation()}
+            {...props}
+          >
+            {children}
+            <button
+              className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+              onClick={() => onOpenChange?.(false)}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 })
 DialogContent.displayName = 'DialogContent'

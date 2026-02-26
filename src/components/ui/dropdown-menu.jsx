@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 const DropdownContext = React.createContext({})
@@ -33,19 +34,26 @@ function DropdownMenuTrigger({ children, asChild, ...props }) {
 
 function DropdownMenuContent({ className, align = 'end', children, ...props }) {
   const { open } = React.useContext(DropdownContext)
-  if (!open) return null
   return (
-    <div
-      className={cn(
-        'absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
-        align === 'end' ? 'right-0' : 'left-0',
-        'top-full mt-1',
-        className
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+          className={cn(
+            'absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+            align === 'end' ? 'right-0' : 'left-0',
+            'top-full mt-1',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </motion.div>
       )}
-      {...props}
-    >
-      {children}
-    </div>
+    </AnimatePresence>
   )
 }
 

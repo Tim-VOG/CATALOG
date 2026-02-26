@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'motion/react'
 import { useCartStore } from '@/stores/cart-store'
 import { useReservationsInRange } from '@/hooks/use-products'
 import { useProducts } from '@/hooks/use-products'
@@ -95,41 +96,53 @@ export function CartPage() {
           <CardTitle className="text-base">Items</CardTitle>
         </CardHeader>
         <CardContent className="divide-y">
-          {items.map((item) => {
-            const isAvailable = checkAvailability(item.product.id, item.quantity)
-            return (
-              <div key={item.product.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                <div className="h-16 w-16 rounded-md overflow-hidden bg-muted shrink-0">
-                  <img
-                    src={item.product.image_url}
-                    alt={item.product.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium truncate">{item.product.name}</h4>
-                  <p className="text-xs text-muted-foreground">{item.product.category_name}</p>
-                  {startDate && endDate && (
-                    <span className={cn('text-xs', isAvailable ? 'text-success' : 'text-destructive')}>
-                      {isAvailable ? 'Available' : 'Not available for this period'}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <span className="w-8 text-center font-medium">{item.quantity}</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeItem(item.product.id)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            )
-          })}
+          <AnimatePresence initial={false}>
+            {items.map((item) => {
+              const isAvailable = checkAvailability(item.product.id, item.quantity)
+              return (
+                <motion.div
+                  key={item.product.id}
+                  layout
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                    <div className="h-16 w-16 rounded-md overflow-hidden bg-muted shrink-0">
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium truncate">{item.product.name}</h4>
+                      <p className="text-xs text-muted-foreground">{item.product.category_name}</p>
+                      {startDate && endDate && (
+                        <span className={cn('text-xs', isAvailable ? 'text-success' : 'text-destructive')}>
+                          {isAvailable ? 'Available' : 'Not available for this period'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeItem(item.product.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
         </CardContent>
       </Card>
 

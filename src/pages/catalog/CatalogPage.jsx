@@ -7,6 +7,7 @@ import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { DateRangeCalendar } from '@/components/catalog/DateRangeCalendar'
+import { AnimateList, AnimateListItem } from '@/components/ui/motion'
 import { CalendarRange, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -116,20 +117,24 @@ export function CatalogPage() {
                 description="No products in this category"
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-6">
+              <AnimateList
+                key={selectedCategory}
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-6"
+              >
                 {filtered.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    cart={cartItems}
-                    onAddToCart={handleAddToCart}
-                    subscriptionPlans={subscriptionPlans}
-                    productOptions={productOptions}
-                    reservedQty={reservedByProduct[product.id] || 0}
-                    datesSelected={datesSelected}
-                  />
+                  <AnimateListItem key={product.id}>
+                    <ProductCard
+                      product={product}
+                      cart={cartItems}
+                      onAddToCart={handleAddToCart}
+                      subscriptionPlans={subscriptionPlans}
+                      productOptions={productOptions}
+                      reservedQty={reservedByProduct[product.id] || 0}
+                      datesSelected={datesSelected}
+                    />
+                  </AnimateListItem>
                 ))}
-              </div>
+              </AnimateList>
             )}
           </div>
         </div>
