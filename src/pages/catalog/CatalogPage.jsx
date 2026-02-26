@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
@@ -29,8 +29,14 @@ export function CatalogPage() {
   const cartItems = useCartStore((s) => s.items)
   const showToast = useUIStore((s) => s.showToast)
 
-  // Fetch reservations overlapping the selected date range
-  const { data: reservedByProduct = {} } = useReservationsInRange(startDate, endDate)
+  // Today's date for fallback availability
+  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
+  const datesSelected = !!(startDate && endDate)
+
+  // Fetch reservations overlapping the selected date range (or today if no dates selected)
+  const queryStart = datesSelected ? startDate : today
+  const queryEnd = datesSelected ? endDate : today
+  const { data: reservedByProduct = {} } = useReservationsInRange(queryStart, queryEnd)
 
   const filtered = products.filter((p) => {
     const matchesCategory =
@@ -120,7 +126,7 @@ export function CatalogPage() {
                     subscriptionPlans={subscriptionPlans}
                     productOptions={productOptions}
                     reservedQty={reservedByProduct[product.id] || 0}
-                    datesSelected={!!(startDate && endDate)}
+                    datesSelected={datesSelected}
                   />
                 ))}
               </div>

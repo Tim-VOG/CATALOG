@@ -11,12 +11,10 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
   const [showConfig, setShowConfig] = useState(false)
 
   const inCart = cart.find((c) => c.product.id === product.id)?.quantity || 0
-  // When dates are selected, use the date-aware reservedQty; otherwise show full stock
-  const available = datesSelected
-    ? product.total_stock - reservedQty - inCart
-    : product.total_stock - inCart
+  // Always compute availability from reservedQty (today or selected range)
+  const available = product.total_stock - reservedQty - inCart
   const needsConfig = product.has_accessories || product.has_software || product.has_subscription || product.has_apps
-  const isUnavailable = datesSelected && available <= 0
+  const isUnavailable = available <= 0
 
   const handleAdd = () => {
     if (needsConfig) setShowConfig(true)
@@ -96,25 +94,17 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
 
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="text-sm">
-              {datesSelected ? (
-                <>
-                  <span
-                    className={cn(
-                      'font-bold',
-                      available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
-                    )}
-                  >
-                    {Math.max(available, 0)}
-                  </span>
-                  <span className="text-muted-foreground"> / {product.total_stock} available</span>
-                </>
-              ) : (
-                <span className="text-muted-foreground text-xs">
-                  {product.total_stock} in stock — select dates
-                </span>
-              )}
+              <span
+                className={cn(
+                  'font-bold',
+                  available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
+                )}
+              >
+                {Math.max(available, 0)}
+              </span>
+              <span className="text-muted-foreground"> / {product.total_stock} available</span>
             </div>
-            <Button size="sm" onClick={handleAdd} disabled={isUnavailable || available <= 0}>
+            <Button size="sm" onClick={handleAdd} disabled={isUnavailable}>
               <Plus className="h-4 w-4" />
               {needsConfig ? 'Configure' : 'Add'}
             </Button>
