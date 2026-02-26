@@ -31,7 +31,7 @@ export const getProfiles = async ({ search, role } = {}) => {
     query = query.eq('role', role)
   }
   if (search) {
-    query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`)
+    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
   }
 
   const { data, error } = await query
