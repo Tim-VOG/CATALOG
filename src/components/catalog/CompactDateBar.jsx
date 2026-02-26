@@ -91,9 +91,9 @@ export function CompactDateBar({ startDate, endDate, onChange }) {
             exit={{ opacity: 0, y: -8, scaleY: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             style={{ originY: 0 }}
-            className="absolute top-full left-0 right-0 mt-2 z-30"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-30 w-[260px]"
           >
-            <Card className="p-4 shadow-xl border-primary/10">
+            <Card className="p-3 shadow-xl border-primary/10">
               <DateRangeCalendar
                 startDate={startDate}
                 endDate={endDate}

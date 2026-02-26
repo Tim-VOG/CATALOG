@@ -98,41 +98,41 @@ export function DateRangeCalendar({ startDate, endDate, onChange }) {
     if (!startDate) return null
     const fmt = (s) => {
       const d = new Date(s + 'T00:00:00')
-      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     }
-    if (!endDate) return `From ${fmt(startDate)} — select return date`
+    if (!endDate) return `${fmt(startDate)} — pick return`
     const s = new Date(startDate + 'T00:00:00')
     const e = new Date(endDate + 'T00:00:00')
     const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24))
-    return `${fmt(startDate)} → ${fmt(endDate)}  (${diffDays} day${diffDays !== 1 ? 's' : ''})`
+    return `${fmt(startDate)} → ${fmt(endDate)} (${diffDays}d)`
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1.5">
       {/* Month header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={prevMonth} aria-label="Previous month">
-          <ChevronLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth} aria-label="Previous month">
+          <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
-        <span className="font-semibold text-sm">
+        <span className="font-semibold text-xs">
           {MONTHS[currentMonth]} {currentYear}
         </span>
-        <Button variant="ghost" size="icon" onClick={nextMonth} aria-label="Next month">
-          <ChevronRight className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth} aria-label="Next month">
+          <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-0.5">
         {DAYS.map((d) => (
-          <div key={d} className="text-center text-[11px] font-medium text-muted-foreground py-1">
+          <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-0.5">
             {d}
           </div>
         ))}
 
         {/* Day cells */}
         {days.map((date, i) => {
-          if (!date) return <div key={`pad-${i}`} className="aspect-square" />
+          if (!date) return <div key={`pad-${i}`} className="h-7" />
 
           const dateStr = toDateStr(date)
           const state = getDayState(dateStr)
@@ -148,7 +148,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange }) {
               onMouseEnter={() => setHoverDate(dateStr)}
               onMouseLeave={() => setHoverDate(null)}
               className={cn(
-                'aspect-square flex items-center justify-center text-xs font-medium transition-colors relative max-sm:text-sm max-sm:min-h-[44px]',
+                'h-7 w-full flex items-center justify-center text-[11px] font-medium transition-colors relative',
                 isPast && 'text-muted-foreground/30 cursor-not-allowed',
                 // Normal day
                 state === 'normal' && !isPast && 'hover:bg-primary/10 rounded-md cursor-pointer',
@@ -188,8 +188,8 @@ export function DateRangeCalendar({ startDate, endDate, onChange }) {
       )}
 
       {!startDate && (
-        <p className="text-xs text-muted-foreground text-center">
-          Click a date to set the pickup date
+        <p className="text-[10px] text-muted-foreground text-center">
+          Select pickup date
         </p>
       )}
     </div>
