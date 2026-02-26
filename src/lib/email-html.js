@@ -208,6 +208,13 @@ export function wrapEmailHtml(body, { appName = 'VO Gear Hub', logoUrl = '', tag
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+    *::-webkit-scrollbar { width: 6px; height: 6px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    *::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
 </head>
 <body style="margin:0;padding:0;background:#0f1419;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f1419;">
