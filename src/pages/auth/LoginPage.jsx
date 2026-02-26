@@ -34,20 +34,9 @@ export function LoginPage() {
 
         <CardContent className="pt-2 pb-8 space-y-4">
           <p className="text-center text-sm text-muted-foreground">
-            Log in to access the equipment lending platform
+            Log in to access the VO equipment lending platform
           </p>
-          <Button
-            className="w-full gap-2 h-11 text-base"
-            onClick={() => signInWithMicrosoft?.()}
-          >
-            <svg className="h-5 w-5" viewBox="0 0 21 21">
-              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-            </svg>
-            Sign in with Microsoft
-          </Button>
+          <p>You already have an account: </p>
           <Button
             variant="outline"
             className="w-full gap-2 h-11 text-base"
@@ -61,6 +50,20 @@ export function LoginPage() {
             </svg>
             Log in with Microsoft
           </Button>
+          <p>If you don't have an account, sign in: </p>
+          <Button
+            className="w-full gap-2 h-11 text-base"
+            onClick={() => signInWithMicrosoft?.()}
+          >
+            <svg className="h-5 w-5" viewBox="0 0 21 21">
+              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+            </svg>
+            Sign in with Microsoft
+          </Button>
+          
         </CardContent>
       </Card>
     </div>
