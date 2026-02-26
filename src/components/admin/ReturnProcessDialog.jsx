@@ -75,6 +75,8 @@ export function ReturnProcessDialog({ open, onOpenChange, request, items }) {
           recipients,
           appName: settings?.app_name || 'VO Gear Hub',
           logoUrl: settings?.logo_url || '',
+          tagline: settings?.email_tagline || '',
+          logoHeight: settings?.email_logo_height || 0,
         })
         if (draft.to) {
           const requestCc = request.custom_fields?.cc_emails || []

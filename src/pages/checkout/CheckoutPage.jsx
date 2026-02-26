@@ -269,6 +269,8 @@ export function CheckoutPage() {
       // Send emails (fire and forget — don't block navigation)
       const appName = settings?.app_name || 'VO Gear Hub'
       const logoUrl = settings?.logo_url || ''
+      const tagline = settings?.email_tagline || ''
+      const logoHeight = settings?.email_logo_height || 0
       const requesterName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user?.email
       const selectedLoc = locations.find((l) => l.id === fieldValues.location_id)
 
@@ -298,7 +300,7 @@ export function CheckoutPage() {
             location_name: selectedLoc?.name || '',
             custom_fields: customFields,
           }
-          const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl })
+          const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl, tagline, logoHeight })
           if (!draft.to) {
             console.warn('[order_confirmation] No recipient email — user.email:', user?.email)
             return
@@ -320,7 +322,7 @@ export function CheckoutPage() {
         `New equipment request submitted by <strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong>.\n\n` +
         detailsCard + '\n\n' +
         adminItemsHtml,
-        { appName, logoUrl }
+        { appName, logoUrl, tagline, logoHeight }
       )
 
       getNotificationRecipients()

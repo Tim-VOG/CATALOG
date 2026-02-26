@@ -192,13 +192,16 @@ export function generateItemsHtml(items, itemReturns = []) {
 /**
  * Wrap email body in a full HTML document with dark theme
  */
-export function wrapEmailHtml(body, { appName = 'VO Gear Hub', logoUrl = '' } = {}) {
+export function wrapEmailHtml(body, { appName = 'VO Gear Hub', logoUrl = '', tagline = '', logoHeight = 0 } = {}) {
   // Convert plain text newlines to HTML structure
   const htmlBody = formatTextToHtml(body)
 
+  const h = logoHeight || 17
+  const resolvedTagline = tagline || 'Equipment Lending Platform'
+
   const logoCell = logoUrl
-    ? `<img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(appName)}" width="100" height="17" style="border-radius:0px;object-fit:contain;display:block;" />`
-    : `<div style="width:100px;height:17px;border-radius:0px;background:linear-gradient(135deg,#f97316,#06b6d4);display:inline-block;text-align:center;line-height:36px;font-size:18px;">&#9881;</div>`
+    ? `<img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(appName)}" height="${h}" style="border-radius:0px;object-fit:contain;display:block;width:auto;" />`
+    : `<div style="height:${h}px;border-radius:0px;background:linear-gradient(135deg,#f97316,#06b6d4);display:inline-block;text-align:center;line-height:${h}px;font-size:18px;padding:0 8px;">&#9881;</div>`
 
   return `<!DOCTYPE html>
 <html>
@@ -221,7 +224,7 @@ export function wrapEmailHtml(body, { appName = 'VO Gear Hub', logoUrl = '' } = 
                   </td>
                   <td style="vertical-align:middle;">
                     <div style="font-size:22px;font-weight:700;color:#f97316;letter-spacing:-0.3px;">${escapeHtml(appName)}</div>
-                    <div style="font-size:11px;color:#64748b;margin-top:1px;">Equipment Lending Platform</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:1px;">${escapeHtml(resolvedTagline)}</div>
                   </td>
                 </tr>
               </table>
@@ -257,7 +260,7 @@ export function wrapEmailHtml(body, { appName = 'VO Gear Hub', logoUrl = '' } = 
 /**
  * Render a template with variable substitution, optionally wrapping in HTML
  */
-export function renderEmailTemplate(template, vars, { appName, logoUrl } = {}) {
+export function renderEmailTemplate(template, vars, { appName, logoUrl, tagline, logoHeight } = {}) {
   // For HTML templates, use styled variable versions
   const resolvedVars = template.format === 'html' ? generateStyledVars(vars) : vars
 
@@ -265,7 +268,7 @@ export function renderEmailTemplate(template, vars, { appName, logoUrl } = {}) {
   let subject = template.subject.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
 
   if (template.format === 'html') {
-    body = wrapEmailHtml(body, { appName, logoUrl })
+    body = wrapEmailHtml(body, { appName, logoUrl, tagline, logoHeight })
   }
 
   return { subject, body }

@@ -44,6 +44,8 @@ export function AdminRequestDetailPage() {
 
   const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url || ''
+  const tagline = settings?.email_tagline || ''
+  const logoHeight = settings?.email_logo_height || 0
 
   // CC emails stored on the request
   const ccEmails = request.custom_fields?.cc_emails || []
@@ -53,7 +55,7 @@ export function AdminRequestDetailPage() {
     try {
       const template = await getEmailTemplateByKey(templateKey)
       if (!template || !template.is_active) return
-      const draft = generateStatusEmailDraft({ template, request, items, appName, logoUrl })
+      const draft = generateStatusEmailDraft({ template, request, items, appName, logoUrl, tagline, logoHeight })
       if (draft.to) {
         sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
       }

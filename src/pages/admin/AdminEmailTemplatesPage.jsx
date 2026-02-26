@@ -142,18 +142,20 @@ export function AdminEmailTemplatesPage() {
   const htmlPreview = useMemo(() => {
     if (templateFormat !== 'html') return null
     const substituted = renderPreview(body, true)
-    return wrapEmailHtml(substituted, { appName: settings?.app_name || 'VO Gear Hub', logoUrl: settings?.logo_url || '' })
+    return wrapEmailHtml(substituted, { appName: settings?.app_name || 'VO Gear Hub', logoUrl: settings?.logo_url || '', tagline: settings?.email_tagline || '', logoHeight: settings?.email_logo_height || 0 })
   }, [body, templateFormat, sampleStyledVars, settings])
 
   // Pre-compute HTML previews for all templates (used in timeline cards)
   const templatePreviews = useMemo(() => {
     const appName = settings?.app_name || 'VO Gear Hub'
     const logoUrl = settings?.logo_url || ''
+    const tagline = settings?.email_tagline || ''
+    const logoHeight = settings?.email_logo_height || 0
     const previews = {}
     for (const t of templates) {
       if (t.format === 'html' && t.body) {
         const substituted = renderPreview(t.body, true)
-        previews[t.id] = wrapEmailHtml(substituted, { appName, logoUrl })
+        previews[t.id] = wrapEmailHtml(substituted, { appName, logoUrl, tagline, logoHeight })
       }
     }
     return previews

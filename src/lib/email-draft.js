@@ -4,7 +4,7 @@ import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/emai
 /**
  * Generate a status change email draft (picked_up, closed, etc.)
  */
-export function generateStatusEmailDraft({ template, request, items = [], appName, logoUrl }) {
+export function generateStatusEmailDraft({ template, request, items = [], appName, logoUrl, tagline, logoHeight }) {
   const vars = {
     user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
     project_name: request.project_name || '',
@@ -32,7 +32,7 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
   let body = substituteVars(template?.body || 'Your request for {{project_name}} has been updated.')
 
   if (isHtml) {
-    body = wrapEmailHtml(body, { appName, logoUrl })
+    body = wrapEmailHtml(body, { appName, logoUrl, tagline, logoHeight })
   }
 
   return { to: request.user_email || '', subject, body, isHtml }
@@ -41,7 +41,7 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
 /**
  * Generate an extension decision email draft (approved or rejected)
  */
-export function generateExtensionEmailDraft({ template, extension, request, appName, logoUrl }) {
+export function generateExtensionEmailDraft({ template, extension, request, appName, logoUrl, tagline, logoHeight }) {
   const vars = {
     user_name: `${extension.user_first_name || request?.user_first_name || ''} ${extension.user_last_name || request?.user_last_name || ''}`.trim(),
     project_name: extension.project_name || request?.project_name || '',
@@ -73,7 +73,7 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
   let body = substituteVars(template?.body || 'Your extension request has been reviewed.')
 
   if (isHtml) {
-    body = wrapEmailHtml(body, { appName, logoUrl })
+    body = wrapEmailHtml(body, { appName, logoUrl, tagline, logoHeight })
   }
 
   const to = extension.user_email || request?.user_email || ''
@@ -83,7 +83,7 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
 /**
  * Generate a return email draft from template + request data
  */
-export function generateReturnDraft({ template, request, items, itemReturns, recipients, appName, logoUrl }) {
+export function generateReturnDraft({ template, request, items, itemReturns, recipients, appName, logoUrl, tagline, logoHeight }) {
   // Build item list text (plain text version)
   const itemLines = items.map((item) => {
     const ret = itemReturns.find((r) => r.id === item.id) || {}
@@ -149,7 +149,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   let body = substituteVars(template?.body || 'Return confirmation for {{project_name}}.\n\nItems:\n{{item_list}}\n\nCondition: {{condition}}')
 
   if (isHtml) {
-    body = wrapEmailHtml(body, { appName: appName || 'VO Gear Hub', logoUrl })
+    body = wrapEmailHtml(body, { appName: appName || 'VO Gear Hub', logoUrl, tagline, logoHeight })
   }
 
   // Build recipients

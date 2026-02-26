@@ -31,6 +31,8 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
 
   const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url || ''
+  const tagline = settings?.email_tagline || ''
+  const logoHeight = settings?.email_logo_height || 0
   const commentValid = adminNotes.trim().length > 0
 
   // Send extension decision email (fire & forget)
@@ -43,6 +45,8 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
         extension: updatedExtension,
         appName,
         logoUrl,
+        tagline,
+        logoHeight,
       })
       if (draft.to) {
         sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })

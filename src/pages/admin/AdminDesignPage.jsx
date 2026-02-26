@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
 import { uploadLogo } from '@/lib/api/settings'
-import { Palette, Upload, X, Save, Image } from 'lucide-react'
+import { Palette, Upload, X, Save, Image, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,6 +18,8 @@ export function AdminDesignPage() {
   const [primaryColor, setPrimaryColor] = useState('#f97316')
   const [accentColor, setAccentColor] = useState('#06b6d4')
   const [logoUrl, setLogoUrl] = useState('')
+  const [emailTagline, setEmailTagline] = useState('')
+  const [emailLogoHeight, setEmailLogoHeight] = useState('')
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef(null)
@@ -28,6 +30,8 @@ export function AdminDesignPage() {
       setPrimaryColor(settings.primary_color || '#f97316')
       setAccentColor(settings.accent_color || '#06b6d4')
       setLogoUrl(settings.logo_url || '')
+      setEmailTagline(settings.email_tagline || '')
+      setEmailLogoHeight(settings.email_logo_height ? String(settings.email_logo_height) : '')
     }
   }, [settings])
 
@@ -68,6 +72,8 @@ export function AdminDesignPage() {
         primary_color: primaryColor,
         accent_color: accentColor,
         logo_url: logoUrl || null,
+        email_tagline: emailTagline || null,
+        email_logo_height: emailLogoHeight ? parseInt(emailLogoHeight, 10) : null,
       })
       showToast('Design settings saved')
     } catch (err) {
@@ -79,7 +85,9 @@ export function AdminDesignPage() {
     appName !== (settings.app_name || '') ||
     primaryColor !== (settings.primary_color || '') ||
     accentColor !== (settings.accent_color || '') ||
-    logoUrl !== (settings.logo_url || '')
+    logoUrl !== (settings.logo_url || '') ||
+    emailTagline !== (settings.email_tagline || '') ||
+    emailLogoHeight !== (settings.email_logo_height ? String(settings.email_logo_height) : '')
   )
 
   if (isLoading) return <PageLoading />
@@ -163,6 +171,41 @@ export function AdminDesignPage() {
                 placeholder="VO Gear Hub"
               />
               <p className="text-xs text-muted-foreground">Displayed in the header and browser title</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Email Branding */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Mail className="h-4 w-4" /> Email Branding
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <Label>Email Tagline</Label>
+                <Input
+                  value={emailTagline}
+                  onChange={(e) => setEmailTagline(e.target.value)}
+                  placeholder="Equipment Lending Platform"
+                />
+                <p className="text-xs text-muted-foreground">Shown below the app name in the email header</p>
+              </div>
+              <div className="space-y-1">
+                <Label>Email Logo Height (px)</Label>
+                <Input
+                  type="number"
+                  value={emailLogoHeight}
+                  onChange={(e) => setEmailLogoHeight(e.target.value)}
+                  placeholder="17"
+                  min={10}
+                  max={120}
+                  className="w-28"
+                />
+                <p className="text-xs text-muted-foreground">Height of the logo in emails (width scales automatically)</p>
+              </div>
             </div>
           </CardContent>
         </Card>
