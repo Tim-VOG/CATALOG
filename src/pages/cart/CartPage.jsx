@@ -109,35 +109,53 @@ export function CartPage() {
                   transition={{ duration: 0.2, ease: 'easeOut' }}
                   className="overflow-hidden"
                 >
-                  <div className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                    <div className="h-16 w-16 rounded-md overflow-hidden bg-muted shrink-0">
-                      <img
-                        src={item.product.image_url}
-                        alt={item.product.name}
-                        className="h-full w-full object-cover"
-                      />
+                  {/* Swipe-to-delete wrapper (mobile) */}
+                  <div className="relative">
+                    {/* Delete zone revealed on swipe */}
+                    <div className="absolute inset-y-0 right-0 flex items-center justify-end pr-4 bg-destructive/10 rounded-r-md w-20 md:hidden">
+                      <Trash2 className="h-5 w-5 text-destructive" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">{item.product.name}</h4>
-                      <p className="text-xs text-muted-foreground">{item.product.category_name}</p>
-                      {startDate && endDate && (
-                        <span className={cn('text-xs', isAvailable ? 'text-success' : 'text-destructive')}>
-                          {isAvailable ? 'Available' : 'Not available for this period'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="icon" onClick={() => updateQuantity(item.product.id, item.quantity - 1)} aria-label={`Decrease ${item.product.name} quantity`}>
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="w-8 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
-                      <Button variant="outline" size="icon" onClick={() => updateQuantity(item.product.id, item.quantity + 1)} aria-label={`Increase ${item.product.name} quantity`}>
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeItem(item.product.id)} aria-label={`Remove ${item.product.name}`}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <motion.div
+                      drag="x"
+                      dragConstraints={{ left: -80, right: 0 }}
+                      dragElastic={0.1}
+                      dragSnapToOrigin
+                      onDragEnd={(_, info) => {
+                        if (info.offset.x < -60) removeItem(item.product.id)
+                      }}
+                      className="relative bg-card md:!transform-none"
+                    >
+                      <div className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                        <div className="h-16 w-16 rounded-md overflow-hidden bg-muted shrink-0">
+                          <img
+                            src={item.product.image_url}
+                            alt={item.product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium truncate">{item.product.name}</h4>
+                          <p className="text-xs text-muted-foreground">{item.product.category_name}</p>
+                          {startDate && endDate && (
+                            <span className={cn('text-xs', isAvailable ? 'text-success' : 'text-destructive')}>
+                              {isAvailable ? 'Available' : 'Not available for this period'}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="icon" onClick={() => updateQuantity(item.product.id, item.quantity - 1)} aria-label={`Decrease ${item.product.name} quantity`}>
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="w-8 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
+                          <Button variant="outline" size="icon" onClick={() => updateQuantity(item.product.id, item.quantity + 1)} aria-label={`Increase ${item.product.name} quantity`}>
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <Button variant="ghost" size="icon" className="text-destructive max-md:hidden" onClick={() => removeItem(item.product.id)} aria-label={`Remove ${item.product.name}`}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
                   </div>
                 </motion.div>
               )
@@ -146,17 +164,19 @@ export function CartPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground mb-4">
-            Requesting as: <strong>{profile?.first_name} {profile?.last_name}</strong> ({user?.email})
-          </p>
-          <Button className="w-full gap-2" size="lg" disabled={!canProceed} onClick={() => navigate('/checkout')}>
-            Continue to Project Form
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="sticky bottom-20 md:bottom-0 z-10">
+        <Card className="bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground mb-4 max-md:hidden">
+              Requesting as: <strong>{profile?.first_name} {profile?.last_name}</strong> ({user?.email})
+            </p>
+            <Button className="w-full gap-2" size="lg" disabled={!canProceed} onClick={() => navigate('/checkout')}>
+              Continue to Project Form
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

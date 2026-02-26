@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 // ── FadeIn ────────────────────────────────────────────────
@@ -114,6 +114,85 @@ function PageTransition({ children, className }) {
   )
 }
 
+// ── ScrollFadeIn ─────────────────────────────────────────
+// Like FadeIn but viewport-triggered. For content below the fold.
+const ScrollFadeIn = React.forwardRef(
+  ({ children, className, delay = 0, duration = 0.4, y = 12, ...props }, ref) => {
+    const innerRef = React.useRef(null)
+    const combinedRef = ref || innerRef
+    const isInView = useInView(combinedRef, { once: true, margin: '-60px' })
+    return (
+      <motion.div
+        ref={combinedRef}
+        initial={{ opacity: 0, y }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y }}
+        transition={{ duration, delay, ease: 'easeOut' }}
+        className={className}
+        {...props}
+      >
+        {children}
+      </motion.div>
+    )
+  },
+)
+ScrollFadeIn.displayName = 'ScrollFadeIn'
+
+// ── AnimatedCounter ──────────────────────────────────────
+// Spring-driven number counter that animates from 0 to value.
+function AnimatedCounter({ value, duration = 1.2, className }) {
+  const motionValue = useMotionValue(0)
+  const springValue = useSpring(motionValue, { duration: duration * 1000 })
+  const display = useTransform(springValue, (v) => Math.round(v))
+  const [displayValue, setDisplayValue] = React.useState(0)
+
+  React.useEffect(() => {
+    motionValue.set(value)
+  }, [value, motionValue])
+
+  React.useEffect(() => {
+    const unsubscribe = display.on('change', (v) => setDisplayValue(v))
+    return unsubscribe
+  }, [display])
+
+  return <span className={className}>{displayValue}</span>
+}
+
+// ── ScalePop ─────────────────────────────────────────────
+// For badge/count changes. Pops with spring physics.
+function ScalePop({ children, className, motionKey }) {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={motionKey}
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.5, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+        className={className}
+      >
+        {children}
+      </motion.span>
+    </AnimatePresence>
+  )
+}
+
+// ── PressScale ───────────────────────────────────────────
+// Wrapper with press feedback for interactive elements.
+const PressScale = React.forwardRef(
+  ({ children, className, scale = 0.97, ...props }, ref) => (
+    <motion.div
+      ref={ref}
+      whileTap={{ scale }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  ),
+)
+PressScale.displayName = 'PressScale'
+
 // ── Fade overlay ──────────────────────────────────────────
 // Pour les overlays de dialog / dropdown.
 const FadeOverlay = React.forwardRef(
@@ -140,4 +219,8 @@ export {
   AnimateListItem,
   PageTransition,
   FadeOverlay,
+  ScrollFadeIn,
+  AnimatedCounter,
+  ScalePop,
+  PressScale,
 }

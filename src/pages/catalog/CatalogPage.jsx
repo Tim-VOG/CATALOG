@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { motion } from 'motion/react'
 import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
@@ -7,7 +8,7 @@ import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { DateRangeCalendar } from '@/components/catalog/DateRangeCalendar'
-import { AnimateList, AnimateListItem } from '@/components/ui/motion'
+import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
 import { CalendarRange, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +16,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
 import { useAnnounce } from '@/components/common/LiveRegion'
+import { cn } from '@/lib/utils'
 
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -84,9 +86,15 @@ export function CatalogPage() {
     <div className="flex flex-col h-[calc(100vh-5rem)]">
       {/* Header — static */}
       <div className="shrink-0 pb-6">
-        <h1 className="text-3xl font-display font-bold tracking-tight">Equipment Catalog</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Equipment Catalog</h1>
         <p className="text-muted-foreground mt-1">Browse and reserve equipment for your projects</p>
-        <div className="mt-3 h-0.5 w-16 rounded-full bg-primary/60" />
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
       {/* Two-column layout — fills remaining height */}
@@ -112,25 +120,33 @@ export function CatalogPage() {
 
         {/* Right column: filters (static) + scrollable product grid */}
         <div className="flex flex-col min-h-0">
-          {/* Category filters — static */}
+          {/* Category filters — animated pills */}
           <div className="shrink-0 flex flex-wrap gap-2 pb-4">
-            <Button
-              variant={selectedCategory === 'All' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory('All')}
-            >
-              All
-            </Button>
-            {categories.map((c) => (
-              <Button
-                key={c.id}
-                variant={selectedCategory === c.name ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(c.name)}
-              >
-                {c.name}
-              </Button>
-            ))}
+            {[{ id: 'all', name: 'All' }, ...categories].map((c) => {
+              const isActive = selectedCategory === c.name
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(c.name)}
+                  className={cn(
+                    'relative px-3 py-1.5 text-sm font-medium rounded-full transition-colors',
+                    isActive
+                      ? 'text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="category-pill"
+                      className="absolute inset-0 rounded-full bg-primary"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{c.name}</span>
+                </button>
+              )
+            })}
           </div>
 
           {/* Product grid — only this area scrolls */}
@@ -142,24 +158,26 @@ export function CatalogPage() {
                 description="No products in this category"
               />
             ) : (
-              <AnimateList
-                key={selectedCategory}
-                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-6"
-              >
-                {filtered.map((product) => (
-                  <AnimateListItem key={product.id}>
-                    <ProductCard
-                      product={product}
-                      cart={cartItems}
-                      onAddToCart={handleAddToCart}
-                      subscriptionPlans={subscriptionPlans}
-                      productOptions={productOptions}
-                      reservedQty={reservedByProduct[product.id] || 0}
-                      datesSelected={datesSelected}
-                    />
-                  </AnimateListItem>
-                ))}
-              </AnimateList>
+              <ScrollFadeIn>
+                <AnimateList
+                  key={selectedCategory}
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-6"
+                >
+                  {filtered.map((product) => (
+                    <AnimateListItem key={product.id}>
+                      <ProductCard
+                        product={product}
+                        cart={cartItems}
+                        onAddToCart={handleAddToCart}
+                        subscriptionPlans={subscriptionPlans}
+                        productOptions={productOptions}
+                        reservedQty={reservedByProduct[product.id] || 0}
+                        datesSelected={datesSelected}
+                      />
+                    </AnimateListItem>
+                  ))}
+                </AnimateList>
+              </ScrollFadeIn>
             )}
           </div>
         </div>

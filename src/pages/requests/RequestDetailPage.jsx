@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
+import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { ExtensionRequestDialog } from '@/components/requests/ExtensionRequestDialog'
 
@@ -174,22 +175,7 @@ export function RequestDetailPage() {
             <CardTitle className="text-base">Timeline</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {timeline.map((event, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
-                      <event.icon className="h-3 w-3" />
-                    </div>
-                    {i < timeline.length - 1 && <div className="w-px h-4 bg-border" />}
-                  </div>
-                  <div className="text-sm">
-                    <p className="font-medium">{event.label}</p>
-                    <p className="text-xs text-muted-foreground">{formatDateTime(event.date)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <AnimatedTimeline events={timeline} />
           </CardContent>
         </Card>
       </div>

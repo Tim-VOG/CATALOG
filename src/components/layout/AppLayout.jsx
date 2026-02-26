@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { Header } from './Header'
 import { MobileNav } from './MobileNav'
+import { BottomTabBar } from './BottomTabBar'
 import { PageTransition } from '@/components/ui/motion'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
@@ -24,7 +25,8 @@ export function AppLayout() {
         </a>
         <Header />
         <MobileNav />
-        <main id="main-content" className="container mx-auto px-4 py-6 max-w-7xl">
+        <BottomTabBar />
+        <main id="main-content" className="container mx-auto px-4 py-6 pb-20 md:pb-6 max-w-7xl">
           <PageTransition key={location.pathname}>
             <Outlet />
           </PageTransition>
@@ -33,6 +35,12 @@ export function AppLayout() {
           theme={themeMode}
           position="bottom-right"
           richColors
+          offset={16}
+          gap={8}
+          toastOptions={{
+            className: 'font-body',
+          }}
+          className="max-md:!bottom-20"
         />
       </div>
     </TooltipProvider>

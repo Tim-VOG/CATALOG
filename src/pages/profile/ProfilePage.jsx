@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AnimatedCounter } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
 
 const formatDate = (d) =>
@@ -180,7 +181,7 @@ export function ProfilePage() {
           <CardContent className="pt-6">
             <div className="text-center">
               <ClipboardList className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-3xl font-bold">{totalRequests}</p>
+              <AnimatedCounter value={totalRequests} className="text-3xl font-bold" />
               <p className="text-xs text-muted-foreground mt-1">Total Requests</p>
             </div>
           </CardContent>
@@ -189,7 +190,7 @@ export function ProfilePage() {
           <CardContent className="pt-6">
             <div className="text-center">
               <Clock className="h-5 w-5 mx-auto mb-2 text-amber-500" />
-              <p className="text-3xl font-bold text-amber-500">{activeRequests}</p>
+              <AnimatedCounter value={activeRequests} className="text-3xl font-bold text-amber-500" />
               <p className="text-xs text-muted-foreground mt-1">Active</p>
             </div>
           </CardContent>
@@ -198,7 +199,7 @@ export function ProfilePage() {
           <CardContent className="pt-6">
             <div className="text-center">
               <CheckCircle2 className="h-5 w-5 mx-auto mb-2 text-green-500" />
-              <p className="text-3xl font-bold text-green-500">{completedRequests}</p>
+              <AnimatedCounter value={completedRequests} className="text-3xl font-bold text-green-500" />
               <p className="text-xs text-muted-foreground mt-1">Completed</p>
             </div>
           </CardContent>

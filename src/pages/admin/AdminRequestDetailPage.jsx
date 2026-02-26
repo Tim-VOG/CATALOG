@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { ReturnProcessDialog } from '@/components/admin/ReturnProcessDialog'
 
 // formatDate and formatDateTime imported from request-status-service
@@ -180,22 +181,7 @@ export function AdminRequestDetailPage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Timeline</CardTitle></CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {timeline.map((event, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary">
-                      <Clock className="h-3 w-3" />
-                    </div>
-                    {i < timeline.length - 1 && <div className="w-px h-4 bg-border" />}
-                  </div>
-                  <div className="text-sm">
-                    <p className="font-medium">{event.label}</p>
-                    <p className="text-xs text-muted-foreground">{formatDateTime(event.date)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <AnimatedTimeline events={timeline} />
           </CardContent>
         </Card>
       </div>

@@ -5,6 +5,8 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { ResponsiveTable } from '@/components/admin/ResponsiveTable'
+import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -88,47 +90,71 @@ export function AdminProductsPage() {
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {products.map((p) => (
-            <TableRow key={p.id}>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded overflow-hidden bg-muted shrink-0">
-                    <img src={p.image_url || 'https://via.placeholder.com/40'} alt="" className="h-full w-full object-cover" />
-                  </div>
-                  <div>
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-xs text-muted-foreground truncate max-w-[300px]">{p.description}</div>
+      <ResponsiveTable
+        columns={[
+          { key: 'product', label: 'Product' },
+          { key: 'category', label: 'Category' },
+          { key: 'stock', label: 'Stock' },
+          { key: 'actions', label: 'Actions', className: 'w-24' },
+        ]}
+        data={products}
+        keyExtractor={(p) => p.id}
+        renderRow={(p) => (
+          <>
+            <TableCell>
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded overflow-hidden bg-muted shrink-0">
+                  <img src={p.image_url || 'https://via.placeholder.com/40'} alt="" className="h-full w-full object-cover" />
+                </div>
+                <div>
+                  <div className="font-medium">{p.name}</div>
+                  <div className="text-xs text-muted-foreground truncate max-w-[300px]">{p.description}</div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <CategoryBadge name={p.category_name} color={p.category_color} />
+            </TableCell>
+            <TableCell>{p.total_stock}</TableCell>
+            <TableCell>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" onClick={() => openEdit(p)} aria-label={`Edit ${p.name}`}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)} aria-label={`Delete ${p.name}`}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </TableCell>
+          </>
+        )}
+        renderMobileCard={(p) => (
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 rounded-lg overflow-hidden bg-muted shrink-0">
+                  <img src={p.image_url || 'https://via.placeholder.com/56'} alt="" className="h-full w-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="font-medium truncate">{p.name}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <CategoryBadge name={p.category_name} color={p.category_color} />
+                    <span className="text-xs text-muted-foreground">Stock: {p.total_stock}</span>
                   </div>
                 </div>
-              </TableCell>
-              <TableCell>
-                <CategoryBadge name={p.category_name} color={p.category_color} />
-              </TableCell>
-              <TableCell>{p.total_stock}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(p)} aria-label={`Edit ${p.name}`}>
-                    <Pencil className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openEdit(p)} aria-label={`Edit ${p.name}`}>
+                    <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)} aria-label={`Delete ${p.name}`}>
-                    <Trash2 className="h-3.5 w-3.5" />
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => handleDelete(p.id)} aria-label={`Delete ${p.name}`}>
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      />
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-2xl">

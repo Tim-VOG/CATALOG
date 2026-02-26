@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -15,9 +16,13 @@ export function EmptyState({ icon: Icon, title, description, action, children, c
   return (
     <div className={cn('flex flex-col items-center justify-center py-16 gap-4 text-center', className)}>
       {Icon && (
-        <div className="flex items-center justify-center h-20 w-20 rounded-full bg-muted/50">
+        <motion.div
+          className="flex items-center justify-center h-20 w-20 rounded-full bg-muted/50"
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        >
           <Icon className="h-10 w-10 text-muted-foreground/60" />
-        </div>
+        </motion.div>
       )}
       <div>
         <h2 className="text-xl font-semibold text-foreground">{title}</h2>

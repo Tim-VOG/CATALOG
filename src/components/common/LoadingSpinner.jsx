@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react'
+import { FadeIn } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
 export function LoadingSpinner({ className, size = 24 }) {
@@ -7,9 +8,11 @@ export function LoadingSpinner({ className, size = 24 }) {
 
 export function PageLoading({ message = 'Loading...' }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-      <LoadingSpinner size={32} />
-      <p className="text-muted-foreground text-sm">{message}</p>
-    </div>
+    <FadeIn>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <LoadingSpinner size={32} />
+        <p className="text-muted-foreground text-sm">{message}</p>
+      </div>
+    </FadeIn>
   )
 }

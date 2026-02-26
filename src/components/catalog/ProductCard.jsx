@@ -29,10 +29,10 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
   return (
     <>
       <Card className={cn(
-        'overflow-hidden transition-colors group',
+        'overflow-hidden group transition-all duration-200',
         isUnavailable
           ? 'opacity-50 grayscale'
-          : 'hover:border-primary/50'
+          : 'hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50 active:scale-[0.98]'
       )}>
         <Link to={`/catalog/${product.id}`}>
           <div className="relative aspect-[4/3] overflow-hidden bg-muted">

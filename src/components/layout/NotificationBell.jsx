@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'motion/react'
 import { Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/use-notifications'
@@ -44,43 +45,60 @@ export function NotificationBell() {
     <div className="relative" ref={ref}>
       <Button variant="ghost" size="icon" className="relative" onClick={() => setOpen(!open)} aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'} aria-expanded={open}>
         <Bell className="h-4 w-4" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
+        <AnimatePresence>
+          {unreadCount > 0 && (
+            <motion.span
+              key={unreadCount}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground"
+            >
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </Button>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-lg border bg-card shadow-lg z-50">
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <h3 className="font-semibold text-sm">Notifications</h3>
-            {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" className="text-xs h-auto py-1" onClick={() => markAllAsRead.mutate()}>
-                Mark all read
-              </Button>
-            )}
-          </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="absolute right-0 top-full mt-2 w-80 rounded-lg border bg-card shadow-lg z-50"
+          >
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <h3 className="font-semibold text-sm">Notifications</h3>
+              {unreadCount > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-auto py-1" onClick={() => markAllAsRead.mutate()}>
+                  Mark all read
+                </Button>
+              )}
+            </div>
 
-          <div className="max-h-80 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <p className="text-center text-sm text-muted-foreground py-8">No notifications</p>
-            ) : (
-              notifications.slice(0, 20).map((n) => (
-                <div key={n.id} onClick={() => handleNotificationClick(n)}>
-                  {n.link ? (
-                    <Link to={n.link} className="block">
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground py-8">No notifications</p>
+              ) : (
+                notifications.slice(0, 20).map((n) => (
+                  <div key={n.id} onClick={() => handleNotificationClick(n)}>
+                    {n.link ? (
+                      <Link to={n.link} className="block">
+                        <NotificationItem notification={n} />
+                      </Link>
+                    ) : (
                       <NotificationItem notification={n} />
-                    </Link>
-                  ) : (
-                    <NotificationItem notification={n} />
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'motion/react'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { ClipboardList, Calendar, MapPin, ChevronRight, Clock, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
@@ -21,7 +22,7 @@ const formatDate = (d) =>
 function RequestCard({ req }) {
   return (
     <Link to={`/requests/${req.id}`}>
-      <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+      <Card className="hover:-translate-y-0.5 hover:shadow-md hover:border-primary/50 transition-all duration-200 cursor-pointer">
         <CardContent className="pt-6">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2 flex-1 min-w-0">
@@ -134,43 +135,49 @@ export function RequestsPage() {
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight">My Requests</h1>
         <p className="text-muted-foreground mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} total</p>
-        <div className="mt-3 h-0.5 w-16 rounded-full bg-primary/60" />
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b">
-        <button
-          onClick={() => setTab('active')}
-          className={cn(
-            'px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px',
-            tab === 'active'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          )}
-        >
-          Active
-          {activeRequests.length > 0 && (
-            <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold px-1.5">
-              {activeRequests.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setTab('past')}
-          className={cn(
-            'px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px',
-            tab === 'past'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          )}
-        >
-          Past
-          {pastRequests.length > 0 && (
-            <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted text-muted-foreground text-xs font-bold px-1.5">
-              {pastRequests.length}
-            </span>
-          )}
-        </button>
+      {/* Tabs with animated underline */}
+      <div className="flex gap-1 border-b relative">
+        {[
+          { id: 'active', label: 'Active', count: activeRequests.length, showCount: activeRequests.length > 0 },
+          { id: 'past', label: 'Past', count: pastRequests.length, showCount: pastRequests.length > 0 },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={cn(
+              'relative px-4 py-2 text-sm font-medium transition-colors -mb-px',
+              tab === t.id
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {t.label}
+            {t.showCount && (
+              <span className={cn(
+                'ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full text-xs font-bold px-1.5',
+                tab === t.id ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+              )}>
+                {t.count}
+              </span>
+            )}
+            {tab === t.id && (
+              <motion.div
+                layoutId="request-tab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              />
+            )}
+          </button>
+        ))}
       </div>
 
       {/* Request list */}

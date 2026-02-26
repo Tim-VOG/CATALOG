@@ -5,7 +5,8 @@ import { useProducts } from '@/hooks/use-products'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/common/UserAvatar'
-import { FadeIn } from '@/components/ui/motion'
+import { motion } from 'motion/react'
+import { ScrollFadeIn, AnimatedCounter } from '@/components/ui/motion'
 import { Inbox, PackageCheck, AlertTriangle, PackageX, ArrowRight } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
@@ -61,15 +62,21 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Dashboard</h1>
         <p className="text-muted-foreground mt-1">Overview of your equipment management</p>
-        <div className="mt-3 h-0.5 w-16 rounded-full bg-primary/60" />
+        <motion.div
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          style={{ originX: 0 }}
+        />
       </div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ label, value, icon: Icon, color, link }, i) => (
-          <FadeIn key={label} delay={i * 0.08}>
+          <ScrollFadeIn key={label} delay={i * 0.08}>
             <Link to={link}>
               <Card hoverable>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -77,15 +84,16 @@ export function AdminDashboardPage() {
                   <Icon className={`h-4 w-4 ${color}`} />
                 </CardHeader>
                 <CardContent>
-                  <div className={`text-3xl font-display font-bold tracking-tight ${color}`}>{value}</div>
+                  <AnimatedCounter value={value} className={`text-3xl font-display font-bold tracking-tight ${color}`} />
                 </CardContent>
               </Card>
             </Link>
-          </FadeIn>
+          </ScrollFadeIn>
         ))}
       </div>
 
       {/* Active loans & recent requests */}
+      <ScrollFadeIn>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active loans (picked up) */}
         <Card>
@@ -168,6 +176,7 @@ export function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+      </ScrollFadeIn>
 
       {/* Overdue alert */}
       {overdue.length > 0 && (

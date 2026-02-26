@@ -17,7 +17,7 @@ export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tool
 export { Separator } from './separator'
 export { Progress } from './progress'
 export { AlertDialog, AlertDialogPortal, AlertDialogOverlay, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from './alert-dialog'
-export { AnimatePresence, FadeIn, SlideIn, ScaleIn, AnimateList, AnimateListItem, PageTransition, FadeOverlay } from './motion'
+export { AnimatePresence, FadeIn, SlideIn, ScaleIn, AnimateList, AnimateListItem, PageTransition, FadeOverlay, ScrollFadeIn, AnimatedCounter, ScalePop, PressScale } from './motion'
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from './dropdown-menu'
 export { Sheet, SheetPortal, SheetOverlay, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription } from './sheet'
 export { ScrollArea, ScrollBar } from './scroll-area'

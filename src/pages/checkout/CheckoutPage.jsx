@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useLocations } from '@/hooks/use-locations'
@@ -242,27 +243,52 @@ export function CheckoutPage() {
         <p className="text-muted-foreground mt-1">Complete your equipment request</p>
       </div>
 
-      {/* Stepper */}
+      {/* Animated Stepper */}
       <div className="flex items-center gap-2 sm:gap-4">
         {STEPS.map((label, i) => (
           <div key={label} className="flex items-center gap-2">
-            <div className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0',
-              i <= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            )}>
+            <motion.div
+              className={cn(
+                'flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0'
+              )}
+              animate={{
+                backgroundColor: i <= step ? 'var(--color-primary)' : 'var(--color-muted)',
+                color: i <= step ? 'var(--color-primary-foreground)' : 'var(--color-muted-foreground)',
+                scale: i === step ? 1.1 : 1,
+              }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
               {i < step ? <Check className="h-4 w-4" /> : i + 1}
-            </div>
+            </motion.div>
             <span className={cn('text-xs sm:text-sm font-medium', i <= step ? 'text-foreground' : 'text-muted-foreground')}>
               {label}
             </span>
-            {i < STEPS.length - 1 && <div className="w-8 sm:w-12 h-px bg-border shrink-0" />}
+            {i < STEPS.length - 1 && (
+              <div className="w-8 sm:w-12 h-px bg-border shrink-0 overflow-hidden relative">
+                <motion.div
+                  className="absolute inset-y-0 left-0 w-full bg-primary"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: step > i ? 1 : 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  style={{ originX: 0 }}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       <form onSubmit={onSubmit}>
+        <AnimatePresence mode="wait">
         {/* Step 1: Project Details — all fields from DB */}
         {step === 0 && (
+          <motion.div
+            key="step-0"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
           <Card>
             <CardHeader>
               <CardTitle>Project Information</CardTitle>
@@ -332,10 +358,18 @@ export function CheckoutPage() {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         )}
 
         {/* Step 2: Review & Submit */}
         {step === 1 && (
+          <motion.div
+            key="step-1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
           <div className="space-y-4">
             <Card>
               <CardHeader>
@@ -447,7 +481,9 @@ export function CheckoutPage() {
               </CardContent>
             </Card>
           </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </form>
     </div>
   )

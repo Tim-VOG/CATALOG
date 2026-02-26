@@ -29,7 +29,7 @@ export function Header() {
   ]
 
   return (
-    <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)]">
+    <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-primary/20 after:to-transparent">
       <div className="flex h-14 items-center px-4 gap-4">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
           <Menu className="h-5 w-5" />
@@ -106,29 +106,31 @@ export function Header() {
             </TooltipContent>
           </Tooltip>
 
-          {/* Cart */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link to="/cart">
-                <Button
-                  variant={location.pathname === '/cart' ? 'secondary' : 'ghost'}
-                  size="icon"
-                  className="relative h-9 w-9"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                      {cartCount}
-                    </span>
-                  )}
-                  <span className="sr-only">Cart</span>
-                </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              {cartCount > 0 ? `Cart (${cartCount})` : 'Cart'}
-            </TooltipContent>
-          </Tooltip>
+          {/* Cart — hidden on mobile (bottom tab bar handles it) */}
+          <div className="max-md:hidden">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/cart">
+                  <Button
+                    variant={location.pathname === '/cart' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="relative h-9 w-9"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                        {cartCount}
+                      </span>
+                    )}
+                    <span className="sr-only">Cart</span>
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                {cartCount > 0 ? `Cart (${cartCount})` : 'Cart'}
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <UserMenu />
         </div>
       </div>

@@ -148,7 +148,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange }) {
               onMouseEnter={() => setHoverDate(dateStr)}
               onMouseLeave={() => setHoverDate(null)}
               className={cn(
-                'aspect-square flex items-center justify-center text-xs font-medium transition-colors relative',
+                'aspect-square flex items-center justify-center text-xs font-medium transition-colors relative max-sm:text-sm max-sm:min-h-[44px]',
                 isPast && 'text-muted-foreground/30 cursor-not-allowed',
                 // Normal day
                 state === 'normal' && !isPast && 'hover:bg-primary/10 rounded-md cursor-pointer',
