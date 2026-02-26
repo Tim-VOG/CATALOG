@@ -1,5 +1,10 @@
 import { AppRoutes } from '@/app/routes'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 export default function App() {
-  return <AppRoutes />
+  return (
+    <ErrorBoundary>
+      <AppRoutes />
+    </ErrorBoundary>
+  )
 }

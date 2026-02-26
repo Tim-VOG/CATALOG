@@ -7,7 +7,7 @@ import { ArrowLeft, Calendar, MapPin, User, Clock, Package, XCircle, CalendarPlu
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { PageLoading } from '@/components/common/LoadingSpinner'
+import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { ExtensionRequestDialog } from '@/components/requests/ExtensionRequestDialog'
 
@@ -19,14 +19,18 @@ const formatDateTime = (d) =>
 
 export function RequestDetailPage() {
   const { requestId } = useParams()
-  const { data: request, isLoading } = useLoanRequest(requestId)
+  const requestQuery = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
   const { data: extensions = [] } = useExtensionsByRequest(requestId)
   const cancelRequest = useCancelRequest()
   const showToast = useUIStore((s) => s.showToast)
   const [showExtension, setShowExtension] = useState(false)
 
-  if (isLoading) return <PageLoading />
+  const request = requestQuery.data
+
+  if (requestQuery.isLoading || requestQuery.isError) {
+    return <QueryWrapper query={requestQuery} />
+  }
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
   const handleCancel = async () => {

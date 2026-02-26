@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/EmptyState'
-import { PageLoading } from '@/components/common/LoadingSpinner'
+import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { cn } from '@/lib/utils'
 
@@ -74,10 +74,14 @@ function RequestCard({ req }) {
 
 export function RequestsPage() {
   const { user } = useAuth()
-  const { data: requests = [], isLoading } = useMyLoanRequests(user?.id)
+  const requestsQuery = useMyLoanRequests(user?.id)
   const [tab, setTab] = useState('active')
 
-  if (isLoading) return <PageLoading />
+  if (requestsQuery.isLoading || requestsQuery.isError) {
+    return <QueryWrapper query={requestsQuery} />
+  }
+
+  const requests = requestsQuery.data || []
 
   const activeRequests = requests.filter((r) => ACTIVE_STATUSES.includes(r.status))
   const pastRequests = requests.filter((r) => PAST_STATUSES.includes(r.status))

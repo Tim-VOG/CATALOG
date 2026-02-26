@@ -7,20 +7,24 @@ import { ArrowLeft, Plus, Check, WifiOff, AlertTriangle, CalendarDays } from 'lu
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { PageLoading } from '@/components/common/LoadingSpinner'
+import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { AvailabilityCalendar } from '@/components/calendar/AvailabilityCalendar'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
   const { productId } = useParams()
-  const { data: product, isLoading } = useProduct(productId)
+  const productQuery = useProduct(productId)
   const { data: loans = [] } = useLoans()
   const { data: reservations = [] } = useProductReservations(productId)
   const addItem = useCartStore((s) => s.addItem)
   const cartItems = useCartStore((s) => s.items)
   const showToast = useUIStore((s) => s.showToast)
 
-  if (isLoading) return <PageLoading />
+  const product = productQuery.data
+
+  if (productQuery.isLoading || productQuery.isError) {
+    return <QueryWrapper query={productQuery} />
+  }
   if (!product) return <div className="text-center py-16 text-muted-foreground">Product not found</div>
 
   const activeLoans = loans.filter(

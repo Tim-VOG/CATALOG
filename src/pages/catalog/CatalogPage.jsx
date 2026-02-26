@@ -12,13 +12,14 @@ import { CalendarRange, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
-import { PageLoading } from '@/components/common/LoadingSpinner'
+import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { useAnnounce } from '@/components/common/LiveRegion'
 
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
 
-  const { data: products = [], isLoading: productsLoading } = useProducts()
+  const productsQuery = useProducts()
+  const products = productsQuery.data || []
   const { data: categories = [] } = useCategories()
   const { data: subscriptionPlans = [] } = useSubscriptionPlans()
   const { data: productOptions = [] } = useProductOptions()
@@ -57,7 +58,9 @@ export function CatalogPage() {
     setDates(start, end)
   }
 
-  if (productsLoading) return <PageLoading message="Loading catalog..." />
+  if (productsQuery.isLoading || productsQuery.isError) {
+    return <QueryWrapper query={productsQuery} />
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)]">
