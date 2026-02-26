@@ -42,7 +42,7 @@ export function NotificationBell() {
 
   return (
     <div className="relative" ref={ref}>
-      <Button variant="ghost" size="icon" className="relative" onClick={() => setOpen(!open)}>
+      <Button variant="ghost" size="icon" className="relative" onClick={() => setOpen(!open)} aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'} aria-expanded={open}>
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">

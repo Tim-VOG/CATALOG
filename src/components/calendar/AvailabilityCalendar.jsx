@@ -85,13 +85,13 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1 }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={prevMonth}>
+        <Button variant="ghost" size="icon" onClick={prevMonth} aria-label="Previous month">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="font-semibold text-sm">
           {MONTHS[currentMonth]} {currentYear}
         </span>
-        <Button variant="ghost" size="icon" onClick={nextMonth}>
+        <Button variant="ghost" size="icon" onClick={nextMonth} aria-label="Next month">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

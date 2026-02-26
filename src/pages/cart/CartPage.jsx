@@ -127,15 +127,15 @@ export function CartPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity - 1)} aria-label={`Decrease ${item.product.name} quantity`}>
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="w-8 text-center font-medium">{item.quantity}</span>
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
+                      <span className="w-8 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)} aria-label={`Increase ${item.product.name} quantity`}>
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeItem(item.product.id)}>
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeItem(item.product.id)} aria-label={`Remove ${item.product.name}`}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

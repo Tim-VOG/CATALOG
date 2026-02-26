@@ -118,6 +118,7 @@ export function ImageUpload({
             size="icon"
             className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground"
             onClick={handleRemove}
+            aria-label="Remove image"
           >
             <X className="h-3 w-3" />
           </Button>

@@ -63,7 +63,7 @@ export function AdminCategoriesPage() {
             <Card key={cat.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base">{cat.name}</CardTitle>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(cat.id)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(cat.id)} aria-label={`Delete ${cat.name}`}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </CardHeader>

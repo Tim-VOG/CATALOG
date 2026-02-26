@@ -31,7 +31,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="flex h-14 items-center px-4 gap-4">
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav}>
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
           <Menu className="h-5 w-5" />
         </Button>
 

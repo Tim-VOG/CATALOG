@@ -112,7 +112,7 @@ export function NotificationRecipientsManager() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteRecipient(r.id)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteRecipient(r.id)} aria-label={`Remove ${r.email}`}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </TableCell>

@@ -77,7 +77,7 @@ export function MobileNav() {
                   <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={toggleMobileNav}>
+              <Button variant="ghost" size="icon" onClick={toggleMobileNav} aria-label="Close menu">
                 <X className="h-5 w-5" />
               </Button>
             </div>

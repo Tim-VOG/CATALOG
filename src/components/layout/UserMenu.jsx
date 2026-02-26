@@ -22,7 +22,7 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button variant="ghost" size="icon" className="rounded-full" aria-label="User menu">
           <UserAvatar
             avatarUrl={profile?.avatar_url}
             firstName={profile?.first_name}

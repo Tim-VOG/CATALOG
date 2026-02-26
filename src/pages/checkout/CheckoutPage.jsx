@@ -441,6 +441,7 @@ export function CheckoutPage() {
                         setCcEmails((prev) => prev.filter((_, j) => j !== i))
                         setFieldErrors((prev) => { const next = { ...prev }; delete next[`cc_email_${i}`]; return next })
                       }}
+                      aria-label="Remove CC email"
                     >
                       <XIcon className="h-4 w-4" />
                     </Button>

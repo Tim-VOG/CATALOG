@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { useAnnounce } from '@/components/common/LiveRegion'
 
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -29,6 +30,7 @@ export function CatalogPage() {
   const addItem = useCartStore((s) => s.addItem)
   const cartItems = useCartStore((s) => s.items)
   const showToast = useUIStore((s) => s.showToast)
+  const announce = useAnnounce()
 
   // Today's date for fallback availability
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
@@ -48,6 +50,7 @@ export function CatalogPage() {
   const handleAddToCart = (product, qty, options) => {
     addItem(product, qty, options)
     showToast(`${product.name} added to cart`)
+    announce(`${product.name} added to cart`)
   }
 
   const handleDatesChange = (start, end) => {

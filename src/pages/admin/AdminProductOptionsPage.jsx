@@ -102,15 +102,15 @@ function OptionSection({ title, icon: Icon, options, optionType, onCreate, onUpd
                   <span className="ml-2 text-[10px] text-muted-foreground font-mono">{opt.value}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggle(opt)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggle(opt)} aria-label={`Toggle ${opt.name}`}>
                     <Badge className={opt.is_active ? 'bg-green-500/20 text-green-400 text-[10px]' : 'bg-red-500/20 text-red-400 text-[10px]'}>
                       {opt.is_active ? 'On' : 'Off'}
                     </Badge>
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(opt)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(opt)} aria-label={`Edit ${opt.name}`}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(opt)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(opt)} aria-label={`Delete ${opt.name}`}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -245,15 +245,15 @@ function SubscriptionSection({ plans, onCreate, onUpdate, onDelete }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggle(plan)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleToggle(plan)} aria-label={`Toggle ${plan.name}`}>
                     <Badge className={plan.is_active ? 'bg-green-500/20 text-green-400 text-[10px]' : 'bg-red-500/20 text-red-400 text-[10px]'}>
                       {plan.is_active ? 'On' : 'Off'}
                     </Badge>
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(plan)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(plan)} aria-label={`Edit ${plan.name}`}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(plan)}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(plan)} aria-label={`Delete ${plan.name}`}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>

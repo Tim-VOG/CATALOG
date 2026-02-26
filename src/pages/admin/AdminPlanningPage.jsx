@@ -89,14 +89,14 @@ export function AdminPlanningPage() {
       {/* Controls */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => navigate(-1)} aria-label="Previous period">
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={goToToday} className="gap-1">
             <CalendarRange className="h-3.5 w-3.5" />
             Today
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => navigate(1)}>
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => navigate(1)} aria-label="Next period">
             <ChevronRight className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium ml-2">{rangeLabel}</span>

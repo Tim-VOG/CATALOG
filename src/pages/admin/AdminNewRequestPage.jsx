@@ -481,6 +481,7 @@ export function AdminNewRequestPage() {
                               size="icon"
                               className="h-7 w-7"
                               onClick={() => updateItemQuantity(product.id, -1)}
+                              aria-label={`Decrease ${product.name} quantity`}
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
@@ -491,6 +492,7 @@ export function AdminNewRequestPage() {
                               size="icon"
                               className="h-7 w-7"
                               onClick={() => updateItemQuantity(product.id, 1)}
+                              aria-label={`Increase ${product.name} quantity`}
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
@@ -570,6 +572,7 @@ export function AdminNewRequestPage() {
                       size="icon"
                       className="h-7 w-7 text-muted-foreground hover:text-destructive"
                       onClick={() => removeItem(item.product.id)}
+                      aria-label={`Remove ${item.product.name}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -645,6 +648,7 @@ export function AdminNewRequestPage() {
                       setCcEmails((prev) => prev.filter((_, j) => j !== i))
                       setFieldErrors((prev) => { const next = { ...prev }; delete next[`cc_email_${i}`]; return next })
                     }}
+                    aria-label="Remove CC email"
                   >
                     <XIcon className="h-4 w-4" />
                   </Button>

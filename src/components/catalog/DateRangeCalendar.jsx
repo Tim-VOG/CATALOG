@@ -111,13 +111,13 @@ export function DateRangeCalendar({ startDate, endDate, onChange }) {
     <div className="space-y-3">
       {/* Month header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth}>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth} aria-label="Previous month">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="font-semibold text-sm">
           {MONTHS[currentMonth]} {currentYear}
         </span>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth}>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth} aria-label="Next month">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

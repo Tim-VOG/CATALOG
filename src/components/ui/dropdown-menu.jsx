@@ -16,6 +16,19 @@ function DropdownMenu({ children }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // ESC key to close
+  React.useEffect(() => {
+    if (!open) return
+    const handler = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [open])
+
   return (
     <DropdownContext.Provider value={{ open, setOpen }}>
       <div ref={ref} className="relative inline-block">{children}</div>
@@ -26,18 +39,73 @@ function DropdownMenu({ children }) {
 function DropdownMenuTrigger({ children, asChild, ...props }) {
   const { open, setOpen } = React.useContext(DropdownContext)
   const handleClick = () => setOpen(!open)
-  if (asChild) {
-    return React.cloneElement(children, { onClick: handleClick, ...props })
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setOpen(true)
+    }
   }
-  return <button onClick={handleClick} {...props}>{children}</button>
+  const triggerProps = {
+    onClick: handleClick,
+    onKeyDown: handleKeyDown,
+    'aria-haspopup': 'menu',
+    'aria-expanded': open,
+    ...props,
+  }
+  if (asChild) {
+    return React.cloneElement(children, triggerProps)
+  }
+  return <button {...triggerProps}>{children}</button>
 }
 
 function DropdownMenuContent({ className, align = 'end', children, ...props }) {
-  const { open } = React.useContext(DropdownContext)
+  const { open, setOpen } = React.useContext(DropdownContext)
+  const contentRef = React.useRef(null)
+
+  // Focus first item when opened
+  React.useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        const el = contentRef.current
+        if (!el) return
+        const first = el.querySelector('[role="menuitem"]')
+        first?.focus()
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [open])
+
+  // Arrow key navigation within menu
+  const handleKeyDown = (e) => {
+    const el = contentRef.current
+    if (!el) return
+    const items = Array.from(el.querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])'))
+    const current = items.indexOf(document.activeElement)
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const next = current < items.length - 1 ? current + 1 : 0
+      items[next]?.focus()
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const prev = current > 0 ? current - 1 : items.length - 1
+      items[prev]?.focus()
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      items[0]?.focus()
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      items[items.length - 1]?.focus()
+    }
+  }
+
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={contentRef}
+          role="menu"
+          aria-orientation="vertical"
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
@@ -48,6 +116,7 @@ function DropdownMenuContent({ className, align = 'end', children, ...props }) {
             'top-full mt-1',
             className
           )}
+          onKeyDown={handleKeyDown}
           {...props}
         >
           {children}
@@ -57,16 +126,32 @@ function DropdownMenuContent({ className, align = 'end', children, ...props }) {
   )
 }
 
-function DropdownMenuItem({ className, children, onClick, ...props }) {
+function DropdownMenuItem({ className, children, onClick, disabled, ...props }) {
   const { setOpen } = React.useContext(DropdownContext)
+  const handleClick = (e) => {
+    if (disabled) return
+    onClick?.(e)
+    setOpen(false)
+  }
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick(e)
+    }
+  }
   return (
     <div
       role="menuitem"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled || undefined}
       className={cn(
-        'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-muted focus:bg-muted',
+        'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
+        'hover:bg-muted focus:bg-muted focus-visible:ring-1 focus-visible:ring-ring',
+        disabled && 'pointer-events-none opacity-50',
         className
       )}
-      onClick={(e) => { onClick?.(e); setOpen(false) }}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
       {...props}
     >
       {children}
@@ -75,7 +160,7 @@ function DropdownMenuItem({ className, children, onClick, ...props }) {
 }
 
 function DropdownMenuSeparator({ className, ...props }) {
-  return <div className={cn('-mx-1 my-1 h-px bg-border', className)} {...props} />
+  return <div role="separator" className={cn('-mx-1 my-1 h-px bg-border', className)} {...props} />
 }
 
 function DropdownMenuLabel({ className, ...props }) {
