@@ -38,9 +38,9 @@
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Space Grotesk Variable', sans-serif;
+  --font-body: 'DM Sans Variable', sans-serif;
+  --font-sans: 'DM Sans Variable', sans-serif;
 }
 
 /* ── Light theme overrides ─────────────────────────────── */

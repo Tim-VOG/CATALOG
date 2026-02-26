@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './lib/auth'
 import App from './App'
+import '@fontsource-variable/space-grotesk'
+import '@fontsource-variable/dm-sans'
 import './styles/globals.css'
 
 const queryClient = new QueryClient({
