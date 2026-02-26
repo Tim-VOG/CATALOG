@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { ProductConfigModal } from './ProductConfigModal'
 import { cn } from '@/lib/utils'
 
-export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPlans }) {
+export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPlans, productOptions }) {
   const [showConfig, setShowConfig] = useState(false)
 
   const activeLoans = loans.filter(
@@ -103,6 +103,7 @@ export function ProductCard({ product, loans, cart, onAddToCart, subscriptionPla
         <ProductConfigModal
           product={product}
           subscriptionPlans={subscriptionPlans}
+          productOptions={productOptions}
           onConfirm={handleConfirm}
           onClose={() => setShowConfig(false)}
         />

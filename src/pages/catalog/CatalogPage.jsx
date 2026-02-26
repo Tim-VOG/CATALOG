@@ -3,6 +3,7 @@ import { useProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { useLoans } from '@/hooks/use-loans'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
+import { useProductOptions } from '@/hooks/use-product-options'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
@@ -20,6 +21,7 @@ export function CatalogPage() {
   const { data: categories = [] } = useCategories()
   const { data: loans = [] } = useLoans()
   const { data: subscriptionPlans = [] } = useSubscriptionPlans()
+  const { data: productOptions = [] } = useProductOptions()
   const addItem = useCartStore((s) => s.addItem)
   const cartItems = useCartStore((s) => s.items)
   const showToast = useUIStore((s) => s.showToast)
@@ -96,6 +98,7 @@ export function CatalogPage() {
               cart={cartItems}
               onAddToCart={handleAddToCart}
               subscriptionPlans={subscriptionPlans}
+              productOptions={productOptions}
             />
           ))}
         </div>

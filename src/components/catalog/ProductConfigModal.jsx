@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onClose }) {
+export function ProductConfigModal({ product, subscriptionPlans, productOptions = [], onConfirm, onClose }) {
   const [options, setOptions] = useState({
     accessories: [],
     software: [],
@@ -29,6 +29,9 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
     (p) => p.type === options.subscriptionType || p.type === 'both'
   )
 
+  const accessoryOptions = productOptions.filter((o) => o.option_type === 'accessory')
+  const softwareOptions = productOptions.filter((o) => o.option_type === 'software')
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-lg">
@@ -37,41 +40,36 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {product.has_accessories && (
+          {product.has_accessories && accessoryOptions.length > 0 && (
             <div className="space-y-3">
               <Label className="font-semibold">Accessories</Label>
               <div className="space-y-2">
-                {['keyboard', 'mouse'].map((acc) => (
-                  <label key={acc} className="flex items-center gap-2 cursor-pointer">
+                {accessoryOptions.map((acc) => (
+                  <label key={acc.value} className="flex items-center gap-2 cursor-pointer">
                     <Checkbox
-                      checked={options.accessories.includes(acc)}
-                      onCheckedChange={() => toggleArray('accessories', acc)}
+                      checked={options.accessories.includes(acc.value)}
+                      onCheckedChange={() => toggleArray('accessories', acc.value)}
                     />
-                    <span className="text-sm capitalize">{acc}</span>
+                    <span className="text-sm">{acc.label}</span>
                   </label>
                 ))}
               </div>
             </div>
           )}
 
-          {product.has_software && (
+          {product.has_software && softwareOptions.length > 0 && (
             <div className="space-y-3">
               <Label className="font-semibold">Software</Label>
               <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={options.software.includes('office')}
-                    onCheckedChange={() => toggleArray('software', 'office')}
-                  />
-                  <span className="text-sm">Microsoft Office Suite</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={options.software.includes('other')}
-                    onCheckedChange={() => toggleArray('software', 'other')}
-                  />
-                  <span className="text-sm">Other software</span>
-                </label>
+                {softwareOptions.map((sw) => (
+                  <label key={sw.value} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={options.software.includes(sw.value)}
+                      onCheckedChange={() => toggleArray('software', sw.value)}
+                    />
+                    <span className="text-sm">{sw.label}</span>
+                  </label>
+                ))}
               </div>
               {options.software.includes('other') && (
                 <Input
