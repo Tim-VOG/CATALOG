@@ -1,6 +1,7 @@
 /**
  * Build MJML markup from blocks config + recipient data.
- * This is compiled to HTML by mjml-browser (client) or the edge function (server).
+ * This produces a rich, modular email with card-based blocks,
+ * colored accents, and visual hierarchy.
  */
 
 function escapeHtml(str) {
@@ -15,87 +16,275 @@ function substituteVars(text, vars) {
   return text.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
 }
 
-function textToMjml(text) {
-  // Convert plain text with newlines to HTML paragraphs
+// Convert plain text to HTML paragraphs with bullet list support
+function textToHtml(text) {
   return text
     .split(/\n\n+/)
     .map((para) => {
       const trimmed = para.trim()
       if (!trimmed) return ''
+      // Check if this paragraph is a bullet list
+      const lines = trimmed.split('\n')
+      const allBullets = lines.every((l) => l.trim().startsWith('- ') || l.trim().startsWith('• '))
+      if (allBullets && lines.length > 1) {
+        const items = lines
+          .map((l) => l.trim().replace(/^[-•]\s*/, ''))
+          .map((item) => `<li style="margin:0 0 6px 0;padding-left:4px;">${item}</li>`)
+          .join('')
+        return `<ul style="margin:0 0 14px 0;padding-left:18px;list-style:none;">${items}</ul>`
+      }
+      // Check if paragraph starts with Q: / R: or Q: / A: (FAQ format)
+      if (trimmed.match(/^[QR]:\s/m) || trimmed.match(/^[QA]:\s/m)) {
+        const faqLines = trimmed.split('\n').map((line) => {
+          if (line.match(/^Q:\s/)) {
+            return `<p style="margin:0 0 4px 0;color:#f1f5f9;font-weight:600;">&#x2753; ${line.slice(3)}</p>`
+          }
+          if (line.match(/^[RA]:\s/)) {
+            return `<p style="margin:0 0 12px 0;color:#94a3b8;padding-left:24px;">${line.slice(3)}</p>`
+          }
+          return `<p style="margin:0 0 6px 0;">${line}</p>`
+        })
+        return faqLines.join('')
+      }
       return `<p style="margin:0 0 14px 0;line-height:1.7;">${trimmed.replace(/\n/g, '<br/>')}</p>`
     })
     .filter(Boolean)
     .join('\n')
 }
 
-function buildBlockMjml(block, language, vars) {
+// Block visual config: emoji icon + accent color
+const BLOCK_THEME = {
+  salutation:      { emoji: '&#x1F44B;', color: '#22c55e', label_fr: 'Bienvenue',          label_en: 'Welcome' },
+  email_info:      { emoji: '&#x1F4E7;', color: '#3b82f6', label_fr: 'Email',              label_en: 'Email' },
+  building_info:   { emoji: '&#x1F3E2;', color: '#f59e0b', label_fr: 'B\u00e2timent',      label_en: 'Building' },
+  it_security:     { emoji: '&#x1F6E1;', color: '#ef4444', label_fr: 'S\u00e9curit\u00e9 IT', label_en: 'IT Security' },
+  email_signature: { emoji: '&#x270D;',  color: '#8b5cf6', label_fr: 'Signature',           label_en: 'Signature' },
+  sharepoint:      { emoji: '&#x1F4C1;', color: '#2563eb', label_fr: 'SharePoint',          label_en: 'SharePoint' },
+  teams:           { emoji: '&#x1F4AC;', color: '#6366f1', label_fr: 'Teams',               label_en: 'Teams' },
+  wifi:            { emoji: '&#x1F4F6;', color: '#06b6d4', label_fr: 'WiFi',                label_en: 'WiFi' },
+  image_rights:    { emoji: '&#x1F4F7;', color: '#ec4899', label_fr: 'Droit \u00e0 l\'image', label_en: 'Image Rights' },
+  faq_it:          { emoji: '&#x2753;',  color: '#f97316', label_fr: 'FAQ IT',              label_en: 'IT FAQ' },
+  cta_link:        { emoji: '&#x1F517;', color: '#f97316', label_fr: 'Lien',                label_en: 'Link' },
+  closing:         { emoji: '&#x2728;',  color: '#14b8a6', label_fr: 'Conclusion',          label_en: 'Closing' },
+}
+
+function buildBlockMjml(block, language, vars, index, totalEnabled) {
   const content = language === 'fr' ? block.content_fr : block.content_en
   if (!content) return ''
 
   const rendered = substituteVars(content, vars)
   const opts = block.options || {}
+  const theme = BLOCK_THEME[block.block_key] || { emoji: '&#x1F4DD;', color: '#64748b', label_fr: 'Bloc', label_en: 'Block' }
+  const sectionLabel = language === 'fr' ? theme.label_fr : theme.label_en
 
-  // CTA blocks get a button
+  // Special handling: salutation block — hero greeting, no card wrapper
+  if (block.block_key === 'salutation') {
+    return `
+    <mj-section background-color="#1a1f25" padding="20px 32px 8px 32px">
+      <mj-column>
+        <mj-text color="#f1f5f9" font-size="16px" line-height="1.7" padding="0">
+          ${textToHtml(rendered)}
+        </mj-text>
+      </mj-column>
+    </mj-section>`
+  }
+
+  // Special handling: closing block — warm sign-off, no card
+  if (block.block_key === 'closing') {
+    return `
+    <mj-section background-color="#1a1f25" padding="16px 32px 8px 32px">
+      <mj-column>
+        <mj-divider border-color="#1e293b" border-width="1px" padding="0 0 16px 0" />
+        <mj-text color="#94a3b8" font-size="14px" line-height="1.7" padding="0">
+          ${textToHtml(rendered)}
+        </mj-text>
+      </mj-column>
+    </mj-section>`
+  }
+
+  // CTA blocks: prominent button
   if (block.block_key === 'cta_link' && opts.url) {
     const btnLabel = language === 'fr'
       ? (opts.label_fr || 'Acceder')
       : (opts.label_en || 'Access')
     return `
-      <mj-section padding="0 32px">
-        <mj-column>
-          <mj-text color="#cbd5e1" font-size="14px" line-height="1.7" padding="12px 0">
-            ${textToMjml(rendered)}
-          </mj-text>
-          <mj-button
-            background-color="#f97316"
-            color="#ffffff"
-            border-radius="8px"
-            font-size="14px"
-            font-weight="600"
-            padding="8px 0 20px 0"
-            inner-padding="12px 28px"
-            href="${escapeHtml(opts.url)}"
-          >
-            ${escapeHtml(btnLabel)}
-          </mj-button>
-        </mj-column>
-      </mj-section>`
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="0 20px 12px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${textToHtml(rendered)}
+        </mj-text>
+        <mj-button
+          background-color="${theme.color}"
+          color="#ffffff"
+          border-radius="8px"
+          font-size="14px"
+          font-weight="600"
+          padding="4px 20px 20px 20px"
+          inner-padding="12px 32px"
+          href="${escapeHtml(opts.url)}"
+        >
+          ${escapeHtml(btnLabel)} &#8594;
+        </mj-button>
+      </mj-column>
+    </mj-section>`
   }
 
-  // SharePoint / Teams blocks with optional button
+  // SharePoint / Teams: card with outline button
   if ((block.block_key === 'sharepoint' || block.block_key === 'teams') && opts.url) {
     const btnLabel = language === 'fr'
       ? (opts.label_fr || 'Ouvrir')
       : (opts.label_en || 'Open')
     return `
-      <mj-section padding="0 32px">
-        <mj-column>
-          <mj-text color="#cbd5e1" font-size="14px" line-height="1.7" padding="12px 0">
-            ${textToMjml(rendered)}
-          </mj-text>
-          <mj-button
-            background-color="transparent"
-            color="#06b6d4"
-            border="1px solid #06b6d4"
-            border-radius="8px"
-            font-size="13px"
-            font-weight="600"
-            padding="4px 0 20px 0"
-            inner-padding="10px 24px"
-            href="${escapeHtml(opts.url)}"
-          >
-            ${escapeHtml(btnLabel)} &#8594;
-          </mj-button>
-        </mj-column>
-      </mj-section>`
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="0 20px 12px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${textToHtml(rendered)}
+        </mj-text>
+        <mj-button
+          background-color="transparent"
+          color="${theme.color}"
+          border="1px solid ${theme.color}"
+          border-radius="8px"
+          font-size="13px"
+          font-weight="600"
+          padding="4px 20px 20px 20px"
+          inner-padding="10px 24px"
+          href="${escapeHtml(opts.url)}"
+        >
+          ${escapeHtml(btnLabel)} &#8594;
+        </mj-button>
+      </mj-column>
+    </mj-section>`
   }
 
-  // Default: text block
+  // WiFi block: info box with network details
+  if (block.block_key === 'wifi') {
+    return `
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="0 20px 4px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${textToHtml(rendered)}
+        </mj-text>
+        ${opts.network_name ? `
+        <mj-text padding="8px 20px 16px 20px" color="#94a3b8" font-size="12px">
+          <table cellpadding="0" cellspacing="0" style="width:100%;">
+            <tr>
+              <td style="background:${theme.color}15;border-radius:8px;padding:10px 14px;border:1px solid ${theme.color}30;">
+                <span style="color:${theme.color};font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Network</span><br/>
+                <span style="color:#f1f5f9;font-size:14px;font-weight:500;">${escapeHtml(opts.network_name)}</span>
+              </td>
+              ${opts.guest_network ? `
+              <td style="width:12px;"></td>
+              <td style="background:#1e293b;border-radius:8px;padding:10px 14px;border:1px solid #334155;">
+                <span style="color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Guest</span><br/>
+                <span style="color:#94a3b8;font-size:14px;font-weight:500;">${escapeHtml(opts.guest_network)}</span>
+              </td>` : ''}
+            </tr>
+          </table>
+        </mj-text>` : ''}
+      </mj-column>
+    </mj-section>`
+  }
+
+  // IT Security block: warning-style card
+  if (block.block_key === 'it_security') {
+    // Transform bullet points into styled list items
+    const htmlContent = rendered
+      .split(/\n\n+/)
+      .map((para) => {
+        const trimmed = para.trim()
+        const lines = trimmed.split('\n')
+        const allBullets = lines.every((l) => l.trim().startsWith('- ') || l.trim().startsWith('• '))
+        if (allBullets) {
+          const items = lines
+            .map((l) => l.trim().replace(/^[-•]\s*/, ''))
+            .map((item) => `
+              <tr>
+                <td style="padding:6px 0;vertical-align:top;width:24px;">
+                  <span style="color:${theme.color};font-size:14px;">&#x26A0;</span>
+                </td>
+                <td style="padding:6px 0;color:#cbd5e1;font-size:13px;line-height:1.5;">${item}</td>
+              </tr>`)
+            .join('')
+          return `<table cellpadding="0" cellspacing="0" style="width:100%;margin:4px 0 8px 0;">${items}</table>`
+        }
+        return `<p style="margin:0 0 12px 0;line-height:1.7;">${trimmed.replace(/\n/g, '<br/>')}</p>`
+      })
+      .filter(Boolean)
+      .join('')
+
+    return `
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid ${theme.color}30" padding="0">
+        <mj-text padding="16px 20px 4px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="4px 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${htmlContent}
+        </mj-text>
+      </mj-column>
+    </mj-section>`
+  }
+
+  // Email signature: info card with structured data
+  if (block.block_key === 'email_signature') {
+    return `
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="0 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${textToHtml(rendered)}
+        </mj-text>
+      </mj-column>
+    </mj-section>`
+  }
+
+  // FAQ block: styled Q&A format
+  if (block.block_key === 'faq_it') {
+    return `
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="0 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${textToHtml(rendered)}
+        </mj-text>
+        ${opts.support_email ? `
+        <mj-text padding="0 20px 16px 20px" color="#94a3b8" font-size="12px">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="background:${theme.color}15;border-radius:6px;padding:8px 12px;border:1px solid ${theme.color}30;">
+                <span style="color:${theme.color};font-size:11px;font-weight:600;">&#x1F4E9; SUPPORT</span>
+                <span style="color:#f1f5f9;margin-left:8px;">${escapeHtml(opts.support_email)}</span>
+              </td>
+            </tr>
+          </table>
+        </mj-text>` : ''}
+      </mj-column>
+    </mj-section>`
+  }
+
+  // Default: card module with colored header
   return `
-    <mj-section padding="0 32px">
-      <mj-column>
-        <mj-text color="#cbd5e1" font-size="14px" line-height="1.7" padding="12px 0">
-          ${textToMjml(rendered)}
+    <mj-section background-color="#1a1f25" padding="8px 32px">
+      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+          <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
+        </mj-text>
+        <mj-text padding="0 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+          ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
     </mj-section>`
@@ -124,7 +313,13 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
   }
 
   const enabledBlocks = blocksConfig.filter((b) => b.enabled)
-  const blocksSections = enabledBlocks.map((b) => buildBlockMjml(b, language, vars)).filter(Boolean)
+  const blocksSections = enabledBlocks
+    .map((b, i) => buildBlockMjml(b, language, vars, i, enabledBlocks.length))
+    .filter(Boolean)
+
+  const welcomeTitle = language === 'fr'
+    ? `Bienvenue ${vars.first_name} !`
+    : `Welcome ${vars.first_name}!`
 
   return `<mjml>
   <mj-head>
@@ -138,25 +333,27 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
       a { color: #06b6d4; text-decoration: none; }
       a:hover { text-decoration: underline; }
       strong { color: #f1f5f9; }
+      ul { margin: 0 0 14px 0; padding-left: 18px; }
+      li { margin: 0 0 6px 0; padding-left: 4px; }
     </mj-style>
   </mj-head>
   <mj-body background-color="#0f1419">
-    <!-- Header -->
-    <mj-section background-color="#1a1f25" border-radius="12px 12px 0 0" padding="28px 32px 16px 32px">
-      <mj-column>
-        <mj-text font-size="22px" font-weight="700" color="#f97316" padding="0">
-          VO Gear Hub
-        </mj-text>
-        <mj-text font-size="11px" color="#64748b" padding="2px 0 0 0">
-          ${language === 'fr' ? 'Plateforme de pret d\'equipement' : 'Equipment Lending Platform'}
-        </mj-text>
-      </mj-column>
-    </mj-section>
+    <!-- Spacer -->
+    <mj-section background-color="transparent" padding="8px 0" />
 
-    <!-- Divider -->
-    <mj-section background-color="#1a1f25" padding="0 32px">
-      <mj-column>
-        <mj-divider border-color="#1e293b" border-width="1px" padding="0" />
+    <!-- Header banner -->
+    <mj-section background-color="#1a1f25" border-radius="16px 16px 0 0" padding="0">
+      <mj-column padding="0">
+        <mj-text padding="28px 32px 0 32px" font-size="11px" font-weight="700" color="#f97316" letter-spacing="2px">
+          VO GEAR HUB
+        </mj-text>
+        <mj-text padding="8px 32px 4px 32px" font-size="26px" font-weight="800" color="#f1f5f9" line-height="1.2">
+          ${escapeHtml(welcomeTitle)}
+        </mj-text>
+        <mj-text padding="0 32px 0 32px" font-size="12px" color="#64748b">
+          ${language === 'fr' ? 'Votre guide d\'int\u00e9gration chez VO Group' : 'Your onboarding guide at VO Group'}
+        </mj-text>
+        <mj-divider border-color="#f97316" border-width="3px" padding="16px 32px 0 32px" width="60px" />
       </mj-column>
     </mj-section>
 
@@ -164,16 +361,24 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     ${blocksSections.join('\n')}
 
     <!-- Footer -->
-    <mj-section background-color="rgba(15,20,25,0.5)" border-radius="0 0 12px 12px" padding="20px 32px">
+    <mj-section background-color="#1a1f25" padding="12px 32px 8px 32px">
       <mj-column>
-        <mj-text align="center" font-size="11px" color="#475569" padding="0">
-          ${language === 'fr' ? 'Envoye depuis' : 'Sent from'} <span style="color:#64748b;font-weight:500;">VO Gear Hub</span>
+        <mj-divider border-color="#1e293b" border-width="1px" padding="0 0 12px 0" />
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#1a1f25" border-radius="0 0 16px 16px" padding="0 32px 28px 32px">
+      <mj-column>
+        <mj-text align="center" font-size="12px" color="#64748b" padding="0 0 4px 0">
+          <span style="color:#f97316;font-weight:700;">VO</span> Gear Hub &mdash; ${language === 'fr' ? 'Plateforme IT interne' : 'Internal IT Platform'}
         </mj-text>
-        <mj-text align="center" font-size="10px" color="#334155" padding="4px 0 0 0">
-          Equipment Lending Management System
+        <mj-text align="center" font-size="10px" color="#334155" padding="0">
+          ${language === 'fr' ? 'Cet email a \u00e9t\u00e9 envoy\u00e9 automatiquement depuis VO Gear Hub' : 'This email was sent automatically from VO Gear Hub'}
         </mj-text>
       </mj-column>
     </mj-section>
+
+    <!-- Bottom spacer -->
+    <mj-section background-color="transparent" padding="8px 0" />
   </mj-body>
 </mjml>`
 }
