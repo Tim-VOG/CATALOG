@@ -6,10 +6,10 @@ import {
 import { usePlanning } from '@/hooks/use-planning'
 import { PlanningTimeline } from '@/components/admin/PlanningTimeline'
 import { PendingExtensionsBanner } from '@/components/admin/PendingExtensionsBanner'
-import { motion } from 'motion/react'
 import { ChevronLeft, ChevronRight, CalendarRange } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
 const VIEW_MODES = [
@@ -83,17 +83,7 @@ export function AdminPlanningPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Planning</h1>
-        <p className="text-muted-foreground mt-1">Equipment reservation timeline</p>
-        <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ originX: 0 }}
-        />
-      </div>
+      <AdminPageHeader title="Planning" description="Equipment reservation timeline" />
 
       {/* Controls */}
       <div className="flex items-center justify-between flex-wrap gap-3">

@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { useProfiles } from '@/hooks/use-profiles'
 import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-access'
 import { useAuth } from '@/lib/auth'
-import { motion } from 'motion/react'
 import {
   Search, ShieldCheck, Package, UserPlus, ClipboardList, Mail,
   Check, X, Loader2,
@@ -13,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 
 const MODULES = [
@@ -121,18 +121,7 @@ export function AdminModuleAccessPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <motion.h1
-          className="text-3xl font-display font-bold tracking-tight text-gradient-primary"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          Module Access
-        </motion.h1>
-        <p className="text-muted-foreground mt-1">
-          Control which modules each user can access
-        </p>
-      </div>
+      <AdminPageHeader title="Module Access" description="Control which modules each user can access" />
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">

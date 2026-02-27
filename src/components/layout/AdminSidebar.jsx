@@ -63,13 +63,13 @@ export function AdminSidebar() {
             </h3>
             <div className="space-y-0.5">
               {section.links.map(({ to, label, icon: Icon, exact }) => (
-                <Link key={to} to={to}>
+                <Link key={to} to={to} className="group">
                   <Button
                     variant={isActive(to, exact) ? 'secondary' : 'ghost'}
                     className={cn('w-full justify-start gap-3')}
                     size="sm"
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6" />
                     {label}
                   </Button>
                 </Link>
@@ -80,9 +80,9 @@ export function AdminSidebar() {
       </nav>
 
       <div className="p-2 border-t">
-        <Link to="/">
+        <Link to="/" className="group">
           <Button variant="ghost" className="w-full justify-start gap-3" size="sm">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 group-hover:-translate-x-0.5" />
             Back to Hub
           </Button>
         </Link>

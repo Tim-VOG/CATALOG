@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
@@ -85,7 +86,7 @@ export function AdminReturnsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-display font-bold">Returns Management</h1>
+      <AdminPageHeader title="Returns" description={`${active.length} active loans`} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { useUIStore } from '@/stores/ui-store'
-import { motion } from 'motion/react'
 import {
   Variable, ArrowRight, Search, Calendar, UserPlus,
   Braces, CheckCircle2, AlertCircle,
@@ -14,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { OnboardingTabNav } from './OnboardingRecipientsPage'
 
 // Mapping from IT request fields → onboarding variables
@@ -111,19 +111,7 @@ export function OnboardingVariablesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
-          <p className="text-muted-foreground mt-1">Map IT request data to email variables</p>
-          <motion.div
-            className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ originX: 0 }}
-          />
-        </div>
-      </div>
+      <AdminPageHeader title="Onboarding" description="Map IT request data to email variables" />
 
       <OnboardingTabNav />
 

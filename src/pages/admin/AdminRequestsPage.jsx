@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useLoans, useUpdateLoanStatus } from '@/hooks/use-loans'
-import { motion } from 'motion/react'
 import { User, Calendar, Check, X, Inbox, ChevronRight, Eye } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
@@ -11,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 
 const formatDate = (d) =>
@@ -53,19 +53,7 @@ export function AdminRequestsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Requests</h1>
-        <p className="text-muted-foreground mt-1">Manage equipment loan requests</p>
-        <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ originX: 0 }}
-        />
-      </div>
-
-      <div className="flex flex-wrap gap-2">
+      <AdminPageHeader title="Requests" description="Manage equipment loan requests">
         {statusFilters.map((s) => (
           <Button
             key={s}
@@ -81,7 +69,7 @@ export function AdminRequestsPage() {
             )}
           </Button>
         ))}
-      </div>
+      </AdminPageHeader>
 
       {/* Legacy pending loans */}
       {pendingLoans.length > 0 && (

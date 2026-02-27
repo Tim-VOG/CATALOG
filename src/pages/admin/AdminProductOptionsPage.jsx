@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 
 // ─── Option Section (accessories / software) ─────────────────────
@@ -333,12 +334,7 @@ export function AdminProductOptionsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold">Product Options</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage accessories, software, and subscription plans available during checkout
-        </p>
-      </div>
+      <AdminPageHeader title="Product Options" description="Manage accessories, software, and subscription plans available during checkout" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <OptionSection

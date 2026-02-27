@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'motion/react'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { Plus, Pencil, Trash2, Search, Package, Box, Layers, AlertTriangle } from 'lucide-react'
@@ -18,6 +17,7 @@ import { ImageUpload } from '@/components/admin/ImageUpload'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ScrollFadeIn } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
 const emptyForm = {
@@ -93,22 +93,11 @@ export function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Products</h1>
-          <p className="text-muted-foreground mt-1">{products.length} products in catalog</p>
-          <motion.div
-            className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ originX: 0 }}
-          />
-        </div>
+      <AdminPageHeader title="Products" description={`${products.length} products in catalog`}>
         <Button onClick={openCreate} className="gap-2">
           <Plus className="h-4 w-4" /> Add Product
         </Button>
-      </div>
+      </AdminPageHeader>
 
       {/* Quick stats bar */}
       <div className="flex flex-wrap items-center gap-3">

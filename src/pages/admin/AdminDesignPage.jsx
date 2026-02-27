@@ -4,6 +4,7 @@ import { uploadLogo } from '@/lib/api/settings'
 import {
   Palette, Upload, X, Save, Image, Mail, Sun, Moon, Monitor,
   Circle, Square, RectangleHorizontal, Radius, Type, RotateCcw,
+  Home, PenLine,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { useUIStore } from '@/stores/ui-store'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
 // ── Defaults ──────────────────────────────────────────────
@@ -116,6 +118,8 @@ export function AdminDesignPage() {
   // General
   const [appName, setAppName] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
+  const [logoUrlDark, setLogoUrlDark] = useState('')
+  const [logoUrlLight, setLogoUrlLight] = useState('')
   const [headerTagline, setHeaderTagline] = useState('')
   const [emailTagline, setEmailTagline] = useState('')
   const [emailLogoHeight, setEmailLogoHeight] = useState('')
@@ -141,11 +145,29 @@ export function AdminDesignPage() {
 
   // File upload
   const [uploading, setUploading] = useState(false)
+  const [uploadingDark, setUploadingDark] = useState(false)
+  const [uploadingLight, setUploadingLight] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [dragOverDark, setDragOverDark] = useState(false)
+  const [dragOverLight, setDragOverLight] = useState(false)
   const fileInputRef = useRef(null)
+  const darkFileInputRef = useRef(null)
+  const lightFileInputRef = useRef(null)
 
   // Active palette tab in the editor
   const [activePaletteTab, setActivePaletteTab] = useState('dark')
+
+  // Hub page content
+  const [hubMainTitle, setHubMainTitle] = useState('')
+  const [hubTagline, setHubTagline] = useState('')
+  const [hubCatalogTitle, setHubCatalogTitle] = useState('')
+  const [hubCatalogDescription, setHubCatalogDescription] = useState('')
+  const [hubOnboardingTitle, setHubOnboardingTitle] = useState('')
+  const [hubOnboardingDescription, setHubOnboardingDescription] = useState('')
+  const [hubMailboxTitle, setHubMailboxTitle] = useState('')
+  const [hubMailboxDescription, setHubMailboxDescription] = useState('')
+  const [hubItRequestTitle, setHubItRequestTitle] = useState('')
+  const [hubItRequestDescription, setHubItRequestDescription] = useState('')
 
   // ── Hydrate from settings ───────────────────
 
@@ -153,6 +175,8 @@ export function AdminDesignPage() {
     if (!settings) return
     setAppName(settings.app_name || 'VO Gear Hub')
     setLogoUrl(settings.logo_url || '')
+    setLogoUrlDark(settings.logo_url_dark || '')
+    setLogoUrlLight(settings.logo_url_light || '')
     setHeaderTagline(settings.header_tagline ?? 'Book. Borrow. Return.')
     setEmailTagline(settings.email_tagline || '')
     setEmailLogoHeight(settings.email_logo_height ? String(settings.email_logo_height) : '')
@@ -187,6 +211,18 @@ export function AdminDesignPage() {
       muted_fg: settings.light_muted_fg || '',
       border: settings.light_border || '',
     })
+
+    // Hub page content
+    setHubMainTitle(settings.hub_main_title || '')
+    setHubTagline(settings.hub_tagline || '')
+    setHubCatalogTitle(settings.hub_catalog_title || '')
+    setHubCatalogDescription(settings.hub_catalog_description || '')
+    setHubOnboardingTitle(settings.hub_onboarding_title || '')
+    setHubOnboardingDescription(settings.hub_onboarding_description || '')
+    setHubMailboxTitle(settings.hub_mailbox_title || '')
+    setHubMailboxDescription(settings.hub_mailbox_description || '')
+    setHubItRequestTitle(settings.hub_it_request_title || '')
+    setHubItRequestDescription(settings.hub_it_request_description || '')
   }, [settings])
 
   // ── Live preview: apply theme as admin edits ─────
@@ -242,7 +278,7 @@ export function AdminDesignPage() {
 
   // ── Handlers ────────────────────────────────
 
-  const handleLogoUpload = async (file) => {
+  const handleLogoUpload = async (file, variant = '') => {
     if (!file) return
     if (!['image/png', 'image/svg+xml', 'image/jpeg', 'image/webp'].includes(file.type)) {
       showToast('Please upload a PNG, SVG, JPEG or WebP image', 'error')
@@ -252,23 +288,28 @@ export function AdminDesignPage() {
       showToast('Image must be under 2MB', 'error')
       return
     }
-    setUploading(true)
+    const setLoading = variant === 'dark' ? setUploadingDark : variant === 'light' ? setUploadingLight : setUploading
+    setLoading(true)
     try {
-      const url = await uploadLogo(file)
-      setLogoUrl(url)
-      showToast('Logo uploaded')
+      const url = await uploadLogo(file, variant)
+      if (variant === 'dark') setLogoUrlDark(url)
+      else if (variant === 'light') setLogoUrlLight(url)
+      else setLogoUrl(url)
+      showToast(`${variant ? variant.charAt(0).toUpperCase() + variant.slice(1) + ' mode l' : 'L'}ogo uploaded`)
     } catch (err) {
       showToast(err.message, 'error')
     } finally {
-      setUploading(false)
+      setLoading(false)
     }
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = (e, variant = '') => {
     e.preventDefault()
-    setDragOver(false)
+    if (variant === 'dark') setDragOverDark(false)
+    else if (variant === 'light') setDragOverLight(false)
+    else setDragOver(false)
     const file = e.dataTransfer.files[0]
-    if (file) handleLogoUpload(file)
+    if (file) handleLogoUpload(file, variant)
   }
 
   const updateDarkPalette = (key, value) => setDarkPalette((p) => ({ ...p, [key]: value }))
@@ -282,6 +323,8 @@ export function AdminDesignPage() {
       await updateSettings.mutateAsync({
         app_name: appName,
         logo_url: logoUrl || null,
+        logo_url_dark: logoUrlDark || null,
+        logo_url_light: logoUrlLight || null,
         header_tagline: headerTagline || null,
         email_tagline: emailTagline || null,
         email_logo_height: emailLogoHeight ? parseInt(emailLogoHeight, 10) : null,
@@ -310,6 +353,17 @@ export function AdminDesignPage() {
         light_muted: lightPalette.muted || null,
         light_muted_fg: lightPalette.muted_fg || null,
         light_border: lightPalette.border || null,
+        // Hub page content
+        hub_main_title: hubMainTitle || null,
+        hub_tagline: hubTagline || null,
+        hub_catalog_title: hubCatalogTitle || null,
+        hub_catalog_description: hubCatalogDescription || null,
+        hub_onboarding_title: hubOnboardingTitle || null,
+        hub_onboarding_description: hubOnboardingDescription || null,
+        hub_mailbox_title: hubMailboxTitle || null,
+        hub_mailbox_description: hubMailboxDescription || null,
+        hub_it_request_title: hubItRequestTitle || null,
+        hub_it_request_description: hubItRequestDescription || null,
       })
       showToast('Design settings saved')
     } catch (err) {
@@ -323,6 +377,8 @@ export function AdminDesignPage() {
   const hasChanges = settings && (
     appName !== (settings.app_name || '') ||
     logoUrl !== (settings.logo_url || '') ||
+    logoUrlDark !== (settings.logo_url_dark || '') ||
+    logoUrlLight !== (settings.logo_url_light || '') ||
     headerTagline !== (settings.header_tagline ?? 'Book. Borrow. Return.') ||
     emailTagline !== (settings.email_tagline || '') ||
     emailLogoHeight !== (settings.email_logo_height ? String(settings.email_logo_height) : '') ||
@@ -350,7 +406,18 @@ export function AdminDesignPage() {
     str(lightPalette.secondary) !== str(settings.light_secondary) ||
     str(lightPalette.muted) !== str(settings.light_muted) ||
     str(lightPalette.muted_fg) !== str(settings.light_muted_fg) ||
-    str(lightPalette.border) !== str(settings.light_border)
+    str(lightPalette.border) !== str(settings.light_border) ||
+    // Hub page content
+    hubMainTitle !== (settings.hub_main_title || '') ||
+    hubTagline !== (settings.hub_tagline || '') ||
+    hubCatalogTitle !== (settings.hub_catalog_title || '') ||
+    hubCatalogDescription !== (settings.hub_catalog_description || '') ||
+    hubOnboardingTitle !== (settings.hub_onboarding_title || '') ||
+    hubOnboardingDescription !== (settings.hub_onboarding_description || '') ||
+    hubMailboxTitle !== (settings.hub_mailbox_title || '') ||
+    hubMailboxDescription !== (settings.hub_mailbox_description || '') ||
+    hubItRequestTitle !== (settings.hub_it_request_title || '') ||
+    hubItRequestDescription !== (settings.hub_it_request_description || '')
   )
 
   if (isLoading) return <PageLoading />
@@ -362,16 +429,12 @@ export function AdminDesignPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display font-bold">Design & Branding</h1>
-          <p className="text-muted-foreground mt-1">Customize the look and feel of your platform</p>
-        </div>
+      <AdminPageHeader title="Design & Branding" description="Customize the look and feel of your platform">
         <Button onClick={handleSave} disabled={!hasChanges || updateSettings.isPending} className="gap-2">
           <Save className="h-4 w-4" />
           {updateSettings.isPending ? 'Saving...' : 'Save Changes'}
         </Button>
-      </div>
+      </AdminPageHeader>
 
       {/* ─── Theme Mode ─────────────────────────────── */}
       <Card>
@@ -683,55 +746,115 @@ export function AdminDesignPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ─── Logo Upload ──────────────────────────── */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Image className="h-4 w-4" /> Logo
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {logoUrl ? (
-              <div className="relative inline-block">
-                <div className="h-20 w-auto max-w-[200px] bg-muted rounded-lg p-2 flex items-center justify-center">
-                  <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+      {/* ─── Logos ──────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Image className="h-4 w-4" /> Logos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-muted-foreground mb-4">
+            Upload a specific logo for each theme mode. If only one is set, it will be used for both modes.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Dark mode logo */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Moon className="h-4 w-4 text-muted-foreground" />
+                Dark Mode Logo
+              </div>
+              {logoUrlDark ? (
+                <div className="relative inline-block">
+                  <div className="h-20 w-auto max-w-[200px] bg-[#0f1419] rounded-lg p-3 flex items-center justify-center">
+                    <img src={logoUrlDark} alt="Dark logo" className="max-h-full max-w-full object-contain" />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground"
+                    onClick={() => setLogoUrlDark('')}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground"
-                  onClick={() => setLogoUrl('')}
+              ) : (
+                <div
+                  className={cn(
+                    'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
+                    dragOverDark ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
+                  )}
+                  onDrop={(e) => handleDrop(e, 'dark')}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverDark(true) }}
+                  onDragLeave={() => setDragOverDark(false)}
+                  onClick={() => darkFileInputRef.current?.click()}
                 >
-                  <X className="h-3 w-3" />
-                </Button>
+                  <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    {uploadingDark ? 'Uploading...' : 'Drop or click to upload'}
+                  </p>
+                </div>
+              )}
+              <input
+                ref={darkFileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                onChange={(e) => handleLogoUpload(e.target.files[0], 'dark')}
+              />
+            </div>
+
+            {/* Light mode logo */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Sun className="h-4 w-4 text-muted-foreground" />
+                Light Mode Logo
               </div>
-            ) : (
-              <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
-                }`}
-                onDrop={handleDrop}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-                onDragLeave={() => setDragOver(false)}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  {uploading ? 'Uploading...' : 'Drag & drop or click to upload'}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">PNG, SVG, JPEG or WebP, max 2MB</p>
-              </div>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept="image/png,image/svg+xml,image/jpeg,image/webp"
-              onChange={(e) => handleLogoUpload(e.target.files[0])}
-            />
-          </CardContent>
-        </Card>
+              {logoUrlLight ? (
+                <div className="relative inline-block">
+                  <div className="h-20 w-auto max-w-[200px] bg-[#f8fafc] rounded-lg p-3 flex items-center justify-center">
+                    <img src={logoUrlLight} alt="Light logo" className="max-h-full max-w-full object-contain" />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground"
+                    onClick={() => setLogoUrlLight('')}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  className={cn(
+                    'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
+                    dragOverLight ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
+                  )}
+                  onDrop={(e) => handleDrop(e, 'light')}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverLight(true) }}
+                  onDragLeave={() => setDragOverLight(false)}
+                  onClick={() => lightFileInputRef.current?.click()}
+                >
+                  <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    {uploadingLight ? 'Uploading...' : 'Drop or click to upload'}
+                  </p>
+                </div>
+              )}
+              <input
+                ref={lightFileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                onChange={(e) => handleLogoUpload(e.target.files[0], 'light')}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4">PNG, SVG, JPEG or WebP, max 2MB per file</p>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* ─── General ──────────────────────────────── */}
         <Card>
@@ -797,6 +920,114 @@ export function AdminDesignPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ─── Hub Page Content ─────────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Home className="h-4 w-4" /> Hub Page Content
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-xs text-muted-foreground">Customize the titles and descriptions displayed on the Hub landing page.</p>
+
+          {/* Main title + tagline */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>Hub Title</Label>
+              <Input
+                value={hubMainTitle}
+                onChange={(e) => setHubMainTitle(e.target.value)}
+                placeholder="VO Gear Hub"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Hub Tagline</Label>
+              <Input
+                value={hubTagline}
+                onChange={(e) => setHubTagline(e.target.value)}
+                placeholder="Welcome — choose your destination"
+              />
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <p className="text-xs font-medium text-muted-foreground mb-4 flex items-center gap-1.5">
+              <PenLine className="h-3 w-3" /> Section Cards
+            </p>
+
+            <div className="space-y-4">
+              {/* Catalog */}
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary" /> Equipment Catalog
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Title</Label>
+                    <Input value={hubCatalogTitle} onChange={(e) => setHubCatalogTitle(e.target.value)} placeholder="Equipment Catalog" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Description</Label>
+                    <Input value={hubCatalogDescription} onChange={(e) => setHubCatalogDescription(e.target.value)} placeholder="Browse and reserve equipment..." />
+                  </div>
+                </div>
+              </div>
+
+              {/* Onboarding */}
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-cyan-500" /> Onboarding Hub
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Title</Label>
+                    <Input value={hubOnboardingTitle} onChange={(e) => setHubOnboardingTitle(e.target.value)} placeholder="Onboarding Hub" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Description</Label>
+                    <Input value={hubOnboardingDescription} onChange={(e) => setHubOnboardingDescription(e.target.value)} placeholder="Compose and send welcome emails..." />
+                  </div>
+                </div>
+              </div>
+
+              {/* Functional Mailbox */}
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-violet-500" /> Functional Mailbox
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Title</Label>
+                    <Input value={hubMailboxTitle} onChange={(e) => setHubMailboxTitle(e.target.value)} placeholder="Functional Mailbox" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Description</Label>
+                    <Input value={hubMailboxDescription} onChange={(e) => setHubMailboxDescription(e.target.value)} placeholder="Request a new functional mailbox..." />
+                  </div>
+                </div>
+              </div>
+
+              {/* IT Request */}
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" /> IT Onboarding Request
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Title</Label>
+                    <Input value={hubItRequestTitle} onChange={(e) => setHubItRequestTitle(e.target.value)} placeholder="IT Onboarding Request" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Description</Label>
+                    <Input value={hubItRequestDescription} onChange={(e) => setHubItRequestDescription(e.target.value)} placeholder="Submit an IT onboarding request..." />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ─── Full Live Preview ──────────────────────── */}
       <Card>

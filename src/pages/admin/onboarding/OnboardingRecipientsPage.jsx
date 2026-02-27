@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useOnboardingRecipients, useCreateRecipient, useUpdateRecipient, useDeleteRecipient } from '@/hooks/use-onboarding'
-import { motion } from 'motion/react'
 import { UserPlus, Pencil, Trash2, Search, Mail, Users, Globe, Calendar, Plus, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/common/EmptyState'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
@@ -192,22 +192,11 @@ export function OnboardingRecipientsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
-          <p className="text-muted-foreground mt-1">Manage new hire welcome emails</p>
-          <motion.div
-            className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ originX: 0 }}
-          />
-        </div>
+      <AdminPageHeader title="Onboarding" description="Manage new hire welcome emails">
         <Button onClick={openCreate} className="gap-2" disabled={!!isSchemaError}>
           <Plus className="h-4 w-4" /> Add Recipient
         </Button>
-      </div>
+      </AdminPageHeader>
 
       <OnboardingTabNav />
 

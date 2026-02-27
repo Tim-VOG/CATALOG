@@ -10,6 +10,7 @@ import { Select } from '@/components/ui/select'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 
 const ROLE_OPTIONS = [
@@ -64,12 +65,7 @@ export function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display font-bold">User Management</h1>
-          <p className="text-muted-foreground mt-1">{profiles.length} user{profiles.length !== 1 ? 's' : ''}</p>
-        </div>
-      </div>
+      <AdminPageHeader title="Users" description={`${profiles.length} user${profiles.length !== 1 ? 's' : ''}`} />
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
         <div className="relative flex-1 max-w-sm">

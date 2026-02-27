@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
+import { useAppSettings } from '@/hooks/use-settings'
 import { Package, UserPlus, ArrowRight, Mail, ClipboardList, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -76,6 +77,11 @@ export function HubPage() {
   const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
   const { hasAccess: hasItForm } = useHasModuleAccess('it_form')
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
+  const { data: settings } = useAppSettings()
+
+  // Hub page titles from settings (with fallback defaults)
+  const hubTitle = settings?.hub_main_title || 'VO Gear Hub'
+  const hubTagline = settings?.hub_tagline || 'Welcome — choose your destination'
 
   // Build visible cards dynamically
   const cards = []
@@ -86,8 +92,8 @@ export function HubPage() {
       key="catalog"
       to="/catalog"
       icon={Package}
-      title="Equipment Catalog"
-      description="Browse and reserve equipment for your projects. View availability and submit loan requests."
+      title={settings?.hub_catalog_title || 'Equipment Catalog'}
+      description={settings?.hub_catalog_description || 'Browse and reserve equipment for your projects. View availability and submit loan requests.'}
       color="primary"
       buttonLabel="Open Catalog"
     />
@@ -100,8 +106,8 @@ export function HubPage() {
         key="onboarding"
         to="/admin/onboarding"
         icon={UserPlus}
-        title="Onboarding Hub"
-        description="Compose and send welcome emails to new team members. Manage recipients and track delivery."
+        title={settings?.hub_onboarding_title || 'Onboarding Hub'}
+        description={settings?.hub_onboarding_description || 'Compose and send welcome emails to new team members. Manage recipients and track delivery.'}
         color="cyan"
         badge="Admin"
         buttonLabel="Open Onboarding"
@@ -116,8 +122,8 @@ export function HubPage() {
       <HubCard
         key="mailbox"
         icon={Mail}
-        title="Functional Mailbox"
-        description="Request a new functional mailbox for your team or project. Approval workflow included."
+        title={settings?.hub_mailbox_title || 'Functional Mailbox'}
+        description={settings?.hub_mailbox_description || 'Request a new functional mailbox for your team or project. Approval workflow included.'}
         color="violet"
       />
     )
@@ -130,8 +136,8 @@ export function HubPage() {
         key="it-request"
         to="/it-request"
         icon={ClipboardList}
-        title="IT Onboarding Request"
-        description="Submit an IT onboarding request for new hires. Provide equipment and access requirements."
+        title={settings?.hub_it_request_title || 'IT Onboarding Request'}
+        description={settings?.hub_it_request_description || 'Submit an IT onboarding request for new hires. Provide equipment and access requirements.'}
         color="amber"
         buttonLabel="New Request"
         variant="outline"
@@ -151,10 +157,10 @@ export function HubPage() {
         transition={{ duration: 0.5 }}
       >
         <h1 className="text-4xl font-display font-bold tracking-tight text-gradient-primary">
-          VO Gear Hub
+          {hubTitle}
         </h1>
         <p className="text-muted-foreground mt-3 text-lg">
-          Welcome — choose your destination
+          {hubTagline}
         </p>
         <motion.div
           className="mt-4 h-0.5 w-16 rounded-full bg-primary/60 mx-auto"

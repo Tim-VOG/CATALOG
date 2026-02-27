@@ -2,6 +2,7 @@ import { Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
+import { useThemeMode } from '@/hooks/use-theme'
 import { Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'
@@ -18,8 +19,11 @@ const MicrosoftIcon = () => (
 export function LoginPage() {
   const { user, signInWithMicrosoft } = useAuth()
   const { data: settings } = useAppSettings()
+  const themeMode = useThemeMode()
   const appName = settings?.app_name || 'VO Gear Hub'
-  const logoUrl = settings?.logo_url
+  const logoUrl = themeMode === 'dark'
+    ? (settings?.logo_url_dark || settings?.logo_url)
+    : (settings?.logo_url_light || settings?.logo_url)
 
   if (user) return <Navigate to="/" replace />
 

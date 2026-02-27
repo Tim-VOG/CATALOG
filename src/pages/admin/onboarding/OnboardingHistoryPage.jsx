@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useOnboardingEmails, useDeleteEmail } from '@/hooks/use-onboarding'
-import { motion } from 'motion/react'
 import { Mail, Trash2, Clock, CheckCircle2, XCircle, FileEdit, Inbox, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { OnboardingTabNav } from './OnboardingRecipientsPage'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
@@ -47,17 +47,7 @@ export function OnboardingHistoryPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
-        <p className="text-muted-foreground mt-1">Email send history</p>
-        <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ originX: 0 }}
-        />
-      </div>
+      <AdminPageHeader title="Onboarding" description="Email send history" />
 
       <OnboardingTabNav />
 

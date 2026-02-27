@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { useUIStore } from '@/stores/ui-store'
-import { motion } from 'motion/react'
 import {
   Search, ClipboardList, UserPlus, Trash2, Eye, Calendar,
   Monitor, MonitorOff, ChevronRight,
@@ -14,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 
 export function AdminItRequestsPage() {
   const { data: requests = [], isLoading } = useItRequests()
@@ -71,20 +71,7 @@ export function AdminItRequestsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1
-            className="text-3xl font-display font-bold tracking-tight text-gradient-primary"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            IT Requests
-          </motion.h1>
-          <p className="text-muted-foreground mt-1">
-            {requests.length} submission{requests.length !== 1 ? 's' : ''}
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader title="IT Requests" description={`${requests.length} submission${requests.length !== 1 ? 's' : ''}`} />
 
       {/* Search */}
       <div className="relative max-w-sm">

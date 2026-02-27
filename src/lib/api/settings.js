@@ -24,9 +24,10 @@ export const updateAppSettings = async (updates) => {
   return data
 }
 
-export const uploadLogo = async (file) => {
+export const uploadLogo = async (file, variant = '') => {
   const ext = file.name.split('.').pop()
-  const path = `logo-${Date.now()}.${ext}`
+  const prefix = variant ? `logo-${variant}` : 'logo'
+  const path = `${prefix}-${Date.now()}.${ext}`
   const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
   if (error) throw error
   const { data: urlData } = supabase.storage.from('logos').getPublicUrl(path)

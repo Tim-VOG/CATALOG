@@ -11,7 +11,6 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { CSS } from '@dnd-kit/utilities'
-import { motion } from 'motion/react'
 import {
   Settings, Plus, GripVertical, Pencil, Trash2, Lock,
   Eye, EyeOff, ChevronRight, AlertCircle, Zap,
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/dialog'
 import { Select } from '@/components/ui/select'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
 const FIELD_TYPES = [
@@ -330,24 +330,12 @@ export function AdminItFormBuilderPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1
-            className="text-3xl font-display font-bold tracking-tight text-gradient-primary"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            IT Form Builder
-          </motion.h1>
-          <p className="text-muted-foreground mt-1">
-            {fields.length} field{fields.length !== 1 ? 's' : ''} · Drag to reorder · Add conditional logic
-          </p>
-        </div>
+      <AdminPageHeader title="IT Form Builder" description={`${fields.length} field${fields.length !== 1 ? 's' : ''} · Drag to reorder · Add conditional logic`}>
         <Button onClick={handleAdd} className="gap-2">
           <Plus className="h-4 w-4" />
           Add Field
         </Button>
-      </div>
+      </AdminPageHeader>
 
       {/* Fields list with DnD */}
       <DndContext

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 
 export function AdminCategoriesPage() {
@@ -48,12 +49,11 @@ export function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-display font-bold">Categories</h1>
+      <AdminPageHeader title="Categories" description={`${categories.length} categories`}>
         <Button onClick={() => setShowForm(true)} className="gap-2">
           <Plus className="h-4 w-4" /> Add Category
         </Button>
-      </div>
+      </AdminPageHeader>
 
       {categories.length === 0 ? (
         <EmptyState icon={FolderTree} title="No categories" description="Create your first category to organize products" />

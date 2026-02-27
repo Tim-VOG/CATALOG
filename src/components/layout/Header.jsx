@@ -247,7 +247,9 @@ export function Header() {
   const toggleTheme = useToggleTheme()
 
   const appName = settings?.app_name || 'VO Gear Hub'
-  const logoUrl = settings?.logo_url
+  const logoUrl = themeMode === 'dark'
+    ? (settings?.logo_url_dark || settings?.logo_url)
+    : (settings?.logo_url_light || settings?.logo_url)
   const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
 
   const navLinks = [
