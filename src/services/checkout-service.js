@@ -117,6 +117,7 @@ export function sendCheckoutEmails({
     product_image: i.product.image_url,
     quantity: i.quantity,
     product_includes: i.product.includes || [],
+    options: i.options || {},
   }))
 
   // 1) User confirmation email

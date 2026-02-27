@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { differenceInCalendarDays, parseISO } from 'date-fns'
 import { useLoans, useReturnLoan } from '@/hooks/use-loans'
 import { AlertTriangle, Clock, Check, User, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -14,9 +15,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
 const getDaysUntil = (d) => {
-  const today = new Date(); today.setHours(0, 0, 0, 0)
-  const target = new Date(d); target.setHours(0, 0, 0, 0)
-  return Math.ceil((target - today) / 86400000)
+  return differenceInCalendarDays(parseISO(d), new Date())
 }
 
 const formatDate = (d) =>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '@/lib/auth'
@@ -51,6 +51,16 @@ export function CheckoutPage() {
   })
   const [fieldErrors, setFieldErrors] = useState({})
   const [ccEmails, setCcEmails] = useState([])
+
+  // Pre-fill form fields from user profile
+  useEffect(() => {
+    if (!profile) return
+    setFieldValues((prev) => ({
+      ...prev,
+      ...(profile.first_name && !prev.first_name ? { first_name: profile.first_name } : {}),
+      ...(profile.last_name && !prev.last_name ? { last_name: profile.last_name } : {}),
+    }))
+  }, [profile])
 
   if (items.length === 0) {
     return (
@@ -438,7 +448,7 @@ export function CheckoutPage() {
               </CardHeader>
               <CardContent className="px-6 pb-6 space-y-3">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 border border-border/50">
+                  <div key={item.product.id} className="flex items-start gap-4 p-3 rounded-xl bg-muted/30 border border-border/50">
                     <div className="h-14 w-14 rounded-lg overflow-hidden shrink-0">
                       <BlurImage
                         src={item.product.image_url || 'https://via.placeholder.com/56'}
@@ -451,6 +461,19 @@ export function CheckoutPage() {
                       <div className="flex items-center gap-2 mt-1">
                         <CategoryBadge name={item.product.category_name} color={item.product.category_color} />
                       </div>
+                      {item.options && Object.keys(item.options).length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {Object.entries(item.options).map(([key, val]) => {
+                            if (!val || (Array.isArray(val) && val.length === 0)) return null
+                            const display = Array.isArray(val) ? val.join(', ') : typeof val === 'boolean' ? key.replace(/_/g, ' ') : String(val)
+                            return (
+                              <Badge key={key} variant="outline" className="text-xs font-normal">
+                                {display}
+                              </Badge>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-lg font-bold text-primary">&times;{item.quantity}</span>

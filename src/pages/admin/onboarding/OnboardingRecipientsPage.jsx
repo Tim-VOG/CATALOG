@@ -30,7 +30,7 @@ const emptyForm = {
   team: '',
   department: '',
   start_date: '',
-  language: 'fr',
+  language: 'en',
   custom_links: [],
 }
 

@@ -190,15 +190,28 @@ export function AdminRequestDetailPage() {
         <CardHeader><CardTitle className="text-base">Items ({items.length})</CardTitle></CardHeader>
         <CardContent className="divide-y">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+            <div key={item.id} className="flex items-start gap-4 py-3 first:pt-0 last:pb-0">
               <div className="h-12 w-12 rounded overflow-hidden bg-muted shrink-0">
                 <img src={item.product_image} alt="" className="h-full w-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm">{item.product_name}</p>
                 <CategoryBadge name={item.category_name} color={item.category_color} />
+                {item.options && Object.keys(item.options).length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {Object.entries(item.options).map(([key, val]) => {
+                      if (!val || (Array.isArray(val) && val.length === 0)) return null
+                      const display = Array.isArray(val) ? val.join(', ') : typeof val === 'boolean' ? key.replace(/_/g, ' ') : String(val)
+                      return (
+                        <Badge key={key} variant="outline" className="text-xs font-normal">
+                          {display}
+                        </Badge>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-              <span className="text-sm font-medium">&times; {item.quantity}</span>
+              <span className="text-sm font-medium shrink-0">&times; {item.quantity}</span>
             </div>
           ))}
         </CardContent>

@@ -62,7 +62,7 @@ export function AdminPlanningPage() {
     }
   }, [viewMode, baseDate])
 
-  const { data: planningItems = [], isLoading } = usePlanning(
+  const { data: planningItems = [], isLoading, isError } = usePlanning(
     format(startDate, 'yyyy-MM-dd'),
     format(endDate, 'yyyy-MM-dd')
   )
@@ -120,6 +120,17 @@ export function AdminPlanningPage() {
 
       {isLoading ? (
         <PageLoading />
+      ) : isError ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <p>Failed to load planning data. Try adjusting the date range or refreshing the page.</p>
+          <Button variant="outline" size="sm" className="mt-3" onClick={goToToday}>Reset to Today</Button>
+        </div>
+      ) : planningItems.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <CalendarRange className="h-10 w-10 mx-auto mb-3 opacity-40" />
+          <p className="font-medium">No reservations in this period</p>
+          <p className="text-sm mt-1">Try a different date range or view mode</p>
+        </div>
       ) : (
         <PlanningTimeline
           items={planningItems}

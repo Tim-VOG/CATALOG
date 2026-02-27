@@ -17,7 +17,7 @@ export const useCartStore = create(
           set({
             items: items.map((i) =>
               i.product.id === product.id
-                ? { ...i, quantity: i.quantity + quantity }
+                ? { ...i, quantity: i.quantity + quantity, options: { ...i.options, ...options } }
                 : i
             ),
           })

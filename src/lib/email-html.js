@@ -147,6 +147,14 @@ export function generateItemsHtml(items, itemReturns = []) {
       )
       .join('')
 
+    const optionsBadges = Object.entries(item.options || {})
+      .filter(([, v]) => v && !(Array.isArray(v) && v.length === 0))
+      .map(([k, v]) => {
+        const display = Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? k.replace(/_/g, ' ') : String(v)
+        return `<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#eff6ff;border:1px solid #bfdbfe;color:#2563eb;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(display)}</span>`
+      })
+      .join('')
+
     const conditionBadge = condition
       ? `<span style="display:inline-block;padding:3px 10px;border-radius:4px;background:${conditionColors[condition] || '#6b7280'}12;border:1px solid ${conditionColors[condition] || '#6b7280'}30;color:${conditionColors[condition] || '#6b7280'};font-size:11px;font-weight:600;">${condition.charAt(0).toUpperCase() + condition.slice(1)}</span>`
       : ''
@@ -172,6 +180,7 @@ export function generateItemsHtml(items, itemReturns = []) {
         <div style="font-weight:600;color:#0f172a;font-size:14px;">${escapeHtml(item.product_name)}</div>
         <div style="font-size:12px;color:#64748b;margin-top:2px;">Qty: <strong style="color:#334155;">${item.quantity}</strong></div>
         ${includesBadges ? `<div style="margin-top:6px;">${includesBadges}</div>` : ''}
+        ${optionsBadges ? `<div style="margin-top:4px;">${optionsBadges}</div>` : ''}
         ${notes}
       </td>
       <td style="padding:12px;border-bottom:1px solid #f1f5f9;text-align:right;white-space:nowrap;">

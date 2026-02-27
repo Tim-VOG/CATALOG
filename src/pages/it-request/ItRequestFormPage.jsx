@@ -454,17 +454,18 @@ export function ItRequestFormPage() {
           last_name: form.last_name,
           email: form.generated_email || '',
           team: form.business_unit || '',
-          department: form.status || '',
+          department: '',
           start_date: form.start_date || null,
-          language: 'fr',
+          language: 'en',
           personal_email: form.personal_email || '',
         })
       } catch {
         // Don't block the IT request on onboarding creation failure
       }
 
-      showToast('IT request submitted successfully!')
       navigate('/')
+      // Show toast after navigation so it's visible on the hub page
+      setTimeout(() => showToast('IT request submitted successfully!'), 100)
     } catch (err) {
       showToast(err.message || 'Failed to submit request', 'error')
     }

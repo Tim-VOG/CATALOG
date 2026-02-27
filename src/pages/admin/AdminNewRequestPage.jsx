@@ -757,7 +757,7 @@ export function AdminNewRequestPage() {
                 <Checkbox checked={autoApprove} onCheckedChange={setAutoApprove} />
                 <div>
                   <span className="text-sm font-medium">Auto-approve this request</span>
-                  <p className="text-xs text-muted-foreground">Skip the approval step and set status directly to "Approved"</p>
+                  <p className="text-xs text-amber-500">This will skip the normal approval workflow and immediately mark the request as approved</p>
                 </div>
               </label>
 

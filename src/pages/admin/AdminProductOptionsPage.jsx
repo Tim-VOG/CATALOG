@@ -44,6 +44,10 @@ function OptionSection({ title, icon: Icon, options, optionType, onCreate, onUpd
         showToast('Option updated')
       } else {
         const value = label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+        if (options.some((o) => o.value === value)) {
+          showToast('An option with this name already exists', 'error')
+          return
+        }
         await onCreate({
           option_type: optionType,
           label: label.trim(),
