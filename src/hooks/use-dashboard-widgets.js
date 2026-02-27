@@ -9,6 +9,7 @@ const ALL_WIDGETS = {
   'chart-requests':   { label: 'Requests Chart',     group: 'charts', defaultVisible: true },
   'chart-categories': { label: 'Category Breakdown', group: 'charts', defaultVisible: false },
   'chart-loans':      { label: 'Loan Activity',      group: 'charts', defaultVisible: false },
+  'timeline':         { label: 'Planning Timeline',  group: 'charts', defaultVisible: true },
   'active-loans':     { label: 'Active Loans List',  group: 'lists',  defaultVisible: true },
   'recent-requests':  { label: 'Recent Requests',    group: 'lists',  defaultVisible: true },
   'overdue-returns':  { label: 'Overdue Returns',    group: 'lists',  defaultVisible: false },
@@ -20,7 +21,15 @@ const STORAGE_KEY = 'vo-dashboard-widgets'
 function getInitialVisibility() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) return JSON.parse(stored)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      // Merge with defaults to handle new widgets added after initial save
+      const merged = {}
+      for (const [id, w] of Object.entries(ALL_WIDGETS)) {
+        merged[id] = parsed[id] ?? w.defaultVisible
+      }
+      return merged
+    }
   } catch {}
   // Use defaults
   const defaults = {}

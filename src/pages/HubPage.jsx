@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, UserPlus, ArrowRight, Mail, ClipboardList, Clock } from 'lucide-react'
+import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -24,6 +24,7 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
     cyan: { iconBg: 'bg-cyan-500/10', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
     violet: { iconBg: 'bg-violet-500/10', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
     amber: { iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
+    rose: { iconBg: 'bg-rose-500/10', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/30', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
   }
   const c = colorMap[color] || colorMap.primary
 
@@ -77,6 +78,7 @@ export function HubPage() {
   const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
   const { hasAccess: hasItForm } = useHasModuleAccess('it_form')
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
+  const { hasAccess: hasOffboarding } = useHasModuleAccess('offboarding')
   const { data: settings } = useAppSettings()
 
   // Hub page titles from settings (with fallback defaults)
@@ -145,8 +147,25 @@ export function HubPage() {
     )
   }
 
+  // Offboarding — admin only
+  if (hasOffboarding && isAdmin) {
+    cards.push(
+      <HubCard
+        key="offboarding"
+        to="/admin/offboarding"
+        icon={UserMinus}
+        title={settings?.hub_offboarding_title || 'Offboarding'}
+        description={settings?.hub_offboarding_description || 'Manage employee departure processes. Track equipment returns, access revocation, and exit checklists.'}
+        color="rose"
+        badge="Admin"
+        buttonLabel="Open Offboarding"
+        variant="outline"
+      />
+    )
+  }
+
   // Determine grid columns based on card count
-  const gridCols = cards.length <= 2 ? 'sm:grid-cols-2' : cards.length <= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-2'
+  const gridCols = cards.length <= 2 ? 'sm:grid-cols-2' : cards.length <= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-3'
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-6">

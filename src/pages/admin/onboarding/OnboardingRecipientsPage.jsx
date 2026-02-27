@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useOnboardingRecipients, useCreateRecipient, useUpdateRecipient, useDeleteRecipient } from '@/hooks/use-onboarding'
-import { UserPlus, Pencil, Trash2, Search, Mail, Users, Globe, Calendar, Plus, AlertTriangle } from 'lucide-react'
+import { UserPlus, Pencil, Trash2, Search, Mail, Users, Globe, Calendar, Plus, AlertTriangle, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,6 +16,11 @@ import { cn } from '@/lib/utils'
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
+
+const BUSINESS_UNITS = [
+  'VO GROUP', 'THE LITTLE VOICE', 'VO EVENT', 'VO CONSULTING',
+  'VO PRODUCTION', 'VO STUDIOS', 'KRAFTHAUS',
+]
 
 const emptyForm = {
   first_name: '',
@@ -99,13 +104,13 @@ function SchemaError() {
         <div className="space-y-2">
           <h3 className="font-semibold text-sm">Database tables not found</h3>
           <p className="text-sm text-muted-foreground">
-            The onboarding tables haven't been created yet. Please run the migration:
+            The onboarding tables haven&apos;t been created yet. Please run the migration:
           </p>
           <code className="block text-xs bg-muted/50 rounded-lg p-3 text-muted-foreground">
             supabase/migrations/020_onboarding_tables.sql
           </code>
           <p className="text-xs text-muted-foreground">
-            After running the migration, go to Supabase Dashboard → Project Settings → API and click <strong>"Reload schema cache"</strong>, then refresh this page.
+            After running the migration, go to Supabase Dashboard &rarr; Project Settings &rarr; API and click <strong>&ldquo;Reload schema cache&rdquo;</strong>, then refresh this page.
           </p>
         </div>
       </CardContent>
@@ -124,6 +129,7 @@ export function OnboardingRecipientsPage() {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [search, setSearch] = useState('')
+  const [buFilter, setBuFilter] = useState('all')
 
   const isSchemaError = error?.message?.includes('schema cache') || error?.message?.includes('relation') || error?.code === '42P01'
 
@@ -178,17 +184,39 @@ export function OnboardingRecipientsPage() {
     }
   }
 
-  const filtered = recipients.filter((r) => {
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
-    return (
-      r.first_name.toLowerCase().includes(q) ||
-      r.last_name.toLowerCase().includes(q) ||
-      r.email.toLowerCase().includes(q) ||
-      (r.team || '').toLowerCase().includes(q) ||
-      (r.department || '').toLowerCase().includes(q)
-    )
-  })
+  const filtered = useMemo(() => {
+    let result = recipients
+
+    // Filter by business unit (team field)
+    if (buFilter !== 'all') {
+      result = result.filter((r) => (r.team || '') === buFilter)
+    }
+
+    // Filter by search
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (r) =>
+          r.first_name.toLowerCase().includes(q) ||
+          r.last_name.toLowerCase().includes(q) ||
+          r.email.toLowerCase().includes(q) ||
+          (r.team || '').toLowerCase().includes(q) ||
+          (r.department || '').toLowerCase().includes(q)
+      )
+    }
+
+    return result
+  }, [recipients, search, buFilter])
+
+  // Unique BUs from recipients for stats
+  const buStats = useMemo(() => {
+    const counts = {}
+    recipients.forEach((r) => {
+      const bu = r.team || 'Unassigned'
+      counts[bu] = (counts[bu] || 0) + 1
+    })
+    return counts
+  }, [recipients])
 
   return (
     <div className="space-y-6">
@@ -219,19 +247,38 @@ export function OnboardingRecipientsPage() {
             <span className="font-semibold">{recipients.filter((r) => r.language === 'en').length}</span>
             <span className="text-muted-foreground">EN</span>
           </div>
+          {Object.keys(buStats).length > 1 && (
+            <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
+              <Building2 className="h-3.5 w-3.5 text-amber-500" />
+              <span className="font-semibold">{Object.keys(buStats).length}</span>
+              <span className="text-muted-foreground">business units</span>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Search */}
+      {/* Search + BU filter */}
       {!isSchemaError && (
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search recipients..."
-            className="pl-10 rounded-full"
-          />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search recipients..."
+              className="pl-10 rounded-full"
+            />
+          </div>
+          <Select
+            value={buFilter}
+            onChange={(e) => setBuFilter(e.target.value)}
+            className="w-48 h-9 text-xs"
+          >
+            <option value="all">All Business Units</option>
+            {BUSINESS_UNITS.map((bu) => (
+              <option key={bu} value={bu}>{bu}</option>
+            ))}
+          </Select>
         </div>
       )}
 
@@ -242,7 +289,7 @@ export function OnboardingRecipientsPage() {
         <EmptyState
           icon={UserPlus}
           title="No recipients"
-          description={search ? 'Try a different search term' : 'Add your first recipient to get started'}
+          description={search || buFilter !== 'all' ? 'Try a different search term or filter' : 'Add your first recipient to get started'}
         />
       ) : (
         <div className="space-y-3">
@@ -261,12 +308,17 @@ export function OnboardingRecipientsPage() {
                       <Badge variant={r.language === 'fr' ? 'default' : 'secondary'} className="text-[10px] uppercase">
                         {r.language}
                       </Badge>
+                      {r.team && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <Building2 className="h-2.5 w-2.5" />
+                          {r.team}
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" /> {r.email}
                       </span>
-                      {r.team && <span>{r.team}</span>}
                       {r.department && <span>{r.department}</span>}
                       {r.start_date && (
                         <span className="flex items-center gap-1">
@@ -322,8 +374,13 @@ export function OnboardingRecipientsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>Team</Label>
-                <Input value={form.team} onChange={(e) => setForm({ ...form, team: e.target.value })} />
+                <Label>Business Unit</Label>
+                <Select value={form.team} onChange={(e) => setForm({ ...form, team: e.target.value })}>
+                  <option value="">Select...</option>
+                  {BUSINESS_UNITS.map((bu) => (
+                    <option key={bu} value={bu}>{bu}</option>
+                  ))}
+                </Select>
               </div>
               <div className="space-y-1">
                 <Label>Department</Label>

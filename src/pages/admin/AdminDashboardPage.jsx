@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
+import { format, addDays, differenceInDays, startOfDay } from 'date-fns'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useProducts } from '@/hooks/use-products'
 import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets'
@@ -17,7 +18,7 @@ import {
   Inbox, PackageCheck, AlertTriangle, PackageX,
   ArrowRight, CalendarRange, Box, TrendingDown,
   LayoutGrid, BarChart3, PieChart, Activity,
-  Eye, EyeOff, RotateCcw,
+  Eye, EyeOff, RotateCcw, Calendar,
 } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
@@ -31,6 +32,7 @@ const WIDGET_ICONS = {
   'chart-requests': BarChart3,
   'chart-categories': PieChart,
   'chart-loans': Activity,
+  'timeline': CalendarRange,
   'active-loans': PackageCheck,
   'recent-requests': Inbox,
   'overdue-returns': AlertTriangle,
@@ -107,6 +109,143 @@ function ChartWidget({ title, icon: Icon, children }) {
   )
 }
 
+// ── Timeline Planning mini widget ──
+const TIMELINE_COLORS = {
+  pending: 'bg-amber-500/80',
+  approved: 'bg-blue-500/80',
+  reserved: 'bg-cyan-500/80',
+  picked_up: 'bg-emerald-500/80',
+}
+
+function TimelineWidget({ requests }) {
+  const today = startOfDay(new Date())
+  const days = 14 // Show 14-day window
+  const dayColumns = Array.from({ length: days }, (_, i) => addDays(today, i))
+
+  // Get active/upcoming requests that overlap the 14-day window
+  const timelineItems = useMemo(() => {
+    const endWindow = addDays(today, days)
+    return requests
+      .filter((r) => ['pending', 'approved', 'picked_up'].includes(r.status))
+      .filter((r) => {
+        const start = startOfDay(new Date(r.pickup_date || r.created_at))
+        const end = startOfDay(new Date(r.return_date || addDays(start, 7)))
+        return start < endWindow && end >= today
+      })
+      .slice(0, 8) // Max 8 rows
+      .map((r) => {
+        const start = startOfDay(new Date(r.pickup_date || r.created_at))
+        const end = startOfDay(new Date(r.return_date || addDays(start, 7)))
+        const startCol = Math.max(0, differenceInDays(start, today))
+        const endCol = Math.min(days - 1, differenceInDays(end, today))
+        return { ...r, startCol, endCol, barWidth: endCol - startCol + 1 }
+      })
+  }, [requests, today])
+
+  return (
+    <Card variant="elevated" className="overflow-hidden">
+      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-primary/10">
+            <CalendarRange className="h-4 w-4 text-primary" />
+          </div>
+          <CardTitle className="text-base font-semibold">Planning Timeline</CardTitle>
+        </div>
+        <Link to="/admin/planning" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
+          Full view <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+      <CardContent className="px-5 pb-4 overflow-x-auto">
+        {timelineItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
+            <Calendar className="h-8 w-8 mb-2 opacity-30" />
+            <p className="text-sm">No upcoming reservations</p>
+          </div>
+        ) : (
+          <div className="min-w-[600px]">
+            {/* Day headers */}
+            <div className="grid gap-px mb-2" style={{ gridTemplateColumns: `120px repeat(${days}, 1fr)` }}>
+              <div />
+              {dayColumns.map((day, i) => {
+                const isToday = i === 0
+                const isWeekend = day.getDay() === 0 || day.getDay() === 6
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      'text-center text-[10px] font-medium py-1 rounded',
+                      isToday && 'bg-primary/10 text-primary font-bold',
+                      isWeekend && !isToday && 'text-muted-foreground/40',
+                      !isToday && !isWeekend && 'text-muted-foreground/70',
+                    )}
+                  >
+                    <div>{format(day, 'EEE')}</div>
+                    <div className="text-[9px]">{format(day, 'd')}</div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Timeline rows */}
+            <div className="space-y-1">
+              {timelineItems.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/admin/requests/${item.id}`}
+                  className="grid gap-px items-center group hover:bg-muted/20 rounded transition-colors"
+                  style={{ gridTemplateColumns: `120px repeat(${days}, 1fr)` }}
+                >
+                  {/* Label */}
+                  <div className="pr-2 truncate">
+                    <p className="text-xs font-medium truncate group-hover:text-primary transition-colors">
+                      {item.user_first_name} {item.user_last_name?.[0]}.
+                    </p>
+                    <p className="text-[10px] text-muted-foreground truncate">{item.project_name}</p>
+                  </div>
+
+                  {/* Grid cells with bar */}
+                  {dayColumns.map((_, colIdx) => {
+                    const isStart = colIdx === item.startCol
+                    const isInRange = colIdx >= item.startCol && colIdx <= item.endCol
+                    const isEnd = colIdx === item.endCol
+
+                    if (!isInRange) {
+                      return <div key={colIdx} className="h-6" />
+                    }
+
+                    return (
+                      <div
+                        key={colIdx}
+                        className={cn(
+                          'h-6 transition-opacity',
+                          TIMELINE_COLORS[item.status] || 'bg-muted',
+                          isStart && 'rounded-l-md',
+                          isEnd && 'rounded-r-md',
+                          'group-hover:opacity-90',
+                        )}
+                      />
+                    )
+                  })}
+                </Link>
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-border/30">
+              {Object.entries({ pending: 'Pending', approved: 'Approved', picked_up: 'Active' }).map(([key, label]) => (
+                <div key={key} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <div className={cn('h-2.5 w-2.5 rounded-sm', TIMELINE_COLORS[key])} />
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 export function AdminDashboardPage() {
   const { data: requests = [], isLoading: requestsLoading } = useLoanRequests()
   const { data: products = [], isLoading: productsLoading } = useProducts()
@@ -144,6 +283,7 @@ export function AdminDashboardPage() {
   const hasChartRequests = isVisible('chart-requests')
   const hasChartCategories = isVisible('chart-categories')
   const hasChartLoans = isVisible('chart-loans')
+  const hasTimeline = isVisible('timeline')
   const visiblePrimaryLists = ['active-loans', 'recent-requests'].filter((id) => isVisible(id))
   const visibleSecondaryLists = ['overdue-returns', 'low-stock'].filter((id) => isVisible(id))
 
@@ -248,7 +388,14 @@ export function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ── Row 2: Requests Chart + Category Breakdown ── */}
+        {/* ── Row 2: Planning Timeline (full width) ── */}
+        {hasTimeline && (
+          <motion.div {...fadeUp(nextDelay())}>
+            <TimelineWidget requests={requests} />
+          </motion.div>
+        )}
+
+        {/* ── Row 3: Requests Chart + Category Breakdown ── */}
         {(hasChartRequests || hasChartCategories) && (
           <div className={cn(
             'grid gap-4',
@@ -276,7 +423,7 @@ export function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ── Row 3: Active Loans + Recent Requests ── */}
+        {/* ── Row 4: Active Loans + Recent Requests ── */}
         {visiblePrimaryLists.length > 0 && (
           <div className={cn(
             'grid gap-4',
@@ -358,7 +505,7 @@ export function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ── Row 4: Loan Activity Chart (full width) ── */}
+        {/* ── Row 5: Loan Activity Chart (full width) ── */}
         {hasChartLoans && (
           <motion.div {...fadeUp(nextDelay())} className="h-[320px]">
             <ChartWidget title="Loan Activity" icon={Activity}>
@@ -367,7 +514,7 @@ export function AdminDashboardPage() {
           </motion.div>
         )}
 
-        {/* ── Row 5: Overdue Returns + Low Stock ── */}
+        {/* ── Row 6: Overdue Returns + Low Stock ── */}
         {visibleSecondaryLists.length > 0 && (
           <div className={cn(
             'grid gap-4',

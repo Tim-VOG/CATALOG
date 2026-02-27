@@ -60,3 +60,11 @@ export const toggleProfileActive = async (userId, isActive) => {
   if (error) throw error
   return data
 }
+
+export const deleteProfile = async (userId) => {
+  // Delete module_access first (cascade should handle, but be explicit)
+  await supabase.from('module_access').delete().eq('user_id', userId)
+  // Delete profile — user will need to sign in again (trigger recreates profile)
+  const { error } = await supabase.from('profiles').delete().eq('id', userId)
+  if (error) throw error
+}
