@@ -21,6 +21,7 @@ const emptyForm = {
   first_name: '',
   last_name: '',
   email: '',
+  personal_email: '',
   team: '',
   department: '',
   start_date: '',
@@ -138,6 +139,7 @@ export function OnboardingRecipientsPage() {
       first_name: r.first_name,
       last_name: r.last_name,
       email: r.email,
+      personal_email: r.personal_email || '',
       team: r.team || '',
       department: r.department || '',
       start_date: r.start_date || '',
@@ -322,8 +324,12 @@ export function OnboardingRecipientsPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label>Email *</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Label>Corporate Email *</Label>
+              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Corporate email" />
+            </div>
+            <div className="space-y-1">
+              <Label>Personal Email</Label>
+              <Input type="email" value={form.personal_email} onChange={(e) => setForm({ ...form, personal_email: e.target.value })} placeholder="Personal email (for welcome email)" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">

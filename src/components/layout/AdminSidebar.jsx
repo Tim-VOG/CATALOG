@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
-  ShieldCheck,
+  ShieldCheck, Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -33,6 +33,7 @@ const sidebarSections = [
       { to: '/admin/onboarding/compose', label: 'Compose', icon: PenLine },
       { to: '/admin/onboarding/history', label: 'History', icon: Clock },
       { to: '/admin/it-requests', label: 'IT Requests', icon: ClipboardList },
+      { to: '/admin/it-form-builder', label: 'Form Builder', icon: Settings },
     ],
   },
 ]

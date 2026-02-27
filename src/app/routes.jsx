@@ -34,6 +34,7 @@ import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
 import { OnboardingVariablesPage } from '@/pages/admin/onboarding/OnboardingVariablesPage'
 import { AdminModuleAccessPage } from '@/pages/admin/AdminModuleAccessPage'
+import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -90,6 +91,7 @@ export function AppRoutes() {
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
           <Route path="onboarding/variables" element={<OnboardingVariablesPage />} />
           <Route path="it-requests" element={<AdminItRequestsPage />} />
+          <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
           <Route path="module-access" element={<AdminModuleAccessPage />} />
         </Route>
       </Route>

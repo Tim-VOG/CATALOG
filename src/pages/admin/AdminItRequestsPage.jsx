@@ -41,11 +41,12 @@ export function AdminItRequestsPage() {
       const recipient = await createOnboardingRecipient({
         first_name: req.first_name,
         last_name: req.last_name,
-        email: '',
+        email: req.generated_email || '',
         team: req.business_unit || '',
         department: req.status || '',
         start_date: req.start_date || null,
         language: 'fr',
+        personal_email: req.personal_email || '',
       })
       showToast('Onboarding recipient created!')
       navigate(`/admin/onboarding/compose?recipientId=${recipient.id}`)
@@ -202,6 +203,8 @@ export function AdminItRequestsPage() {
               {[
                 ['Status', detailRequest.status],
                 ['Business Unit', detailRequest.business_unit],
+                ['Corporate Email', detailRequest.generated_email],
+                ['Personal Email', detailRequest.personal_email],
                 ['Signature Title', detailRequest.signature_title],
                 ['Starting Date', detailRequest.start_date ? new Date(detailRequest.start_date).toLocaleDateString('fr-FR') : null],
                 ['Leaving Date', detailRequest.leaving_date ? new Date(detailRequest.leaving_date).toLocaleDateString('fr-FR') : null],

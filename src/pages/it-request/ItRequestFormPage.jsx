@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
+import { useItFormFields } from '@/hooks/use-it-form-fields'
 import { useUIStore } from '@/stores/ui-store'
+import { BUSINESS_UNITS } from '@/lib/constants/business-units'
+import { generateCorporateEmail } from '@/lib/utils/generate-email'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   User, Calendar, Monitor, Settings, CheckCircle,
-  ArrowRight, ArrowLeft, Send, Loader2,
+  ArrowRight, ArrowLeft, Send, Loader2, Mail,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -14,10 +17,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
+import { PageLoading } from '@/components/common/LoadingSpinner'
 
 // ── Step definitions ──
-const STEPS = [
+const STEP_DEFS = [
   { id: 'identity', label: 'Identity', icon: User },
   { id: 'dates', label: 'Dates', icon: Calendar },
   { id: 'it-needs', label: 'IT Needs', icon: Monitor },
@@ -25,26 +31,228 @@ const STEPS = [
   { id: 'review', label: 'Review', icon: CheckCircle },
 ]
 
-const ACCESS_OPTIONS = [
-  'SHAREPOINT',
-  'MAIL',
-  'TEAMS',
-  'TEAMS VO CONNECT',
-]
+// System field keys that map directly to it_requests columns
+const SYSTEM_FIELD_KEYS = new Set([
+  'first_name', 'last_name', 'status', 'business_unit',
+  'personal_email', 'signature_title', 'start_date', 'leaving_date',
+  'needs_computer', 'access_needs', 'sharepoint_url', 'listing', 'listing_date',
+])
 
-const STATUS_OPTIONS = [
-  'INTRAMUROS',
-  'FREELANCE',
-  'CONSULTANT',
-  'INTERN',
-]
+// ── Evaluate conditional logic ──
+function evaluateCondition(field, formValues) {
+  if (!field.condition_field) return true
 
-const LISTING_OPTIONS = [
-  'INTERNAL NEWSLETTER',
-  'EXTERNAL NEWSLETTER',
-  'BOTH',
-  'NONE',
-]
+  const value = formValues[field.condition_field]
+  const { condition_operator, condition_value } = field
+
+  switch (condition_operator) {
+    case 'equals':
+      return String(value) === String(condition_value)
+    case 'not_equals':
+      return String(value) !== String(condition_value)
+    case 'contains':
+      return Array.isArray(value)
+        ? value.includes(condition_value)
+        : String(value || '').includes(condition_value)
+    case 'is_true':
+      return value === true || value === 'true'
+    case 'is_false':
+      return value === false || value === 'false' || !value
+    default:
+      return true
+  }
+}
+
+// ── Render a single dynamic field ──
+function DynamicField({ field, value, onChange, form }) {
+  const options = Array.isArray(field.options) ? field.options : []
+
+  switch (field.field_type) {
+    case 'text':
+      return (
+        <Input
+          type={field.field_key === 'personal_email' ? 'email' : 'text'}
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+        />
+      )
+
+    case 'textarea':
+      return (
+        <Textarea
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          rows={3}
+        />
+      )
+
+    case 'select':
+      // Special: business_unit uses BUSINESS_UNITS constant for domains
+      if (field.field_key === 'business_unit') {
+        return (
+          <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+            <option value="">Select...</option>
+            {BUSINESS_UNITS.map((bu) => (
+              <option key={bu.value} value={bu.value}>{bu.value}</option>
+            ))}
+          </Select>
+        )
+      }
+      return (
+        <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+          <option value="">Select...</option>
+          {options.map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </Select>
+      )
+
+    case 'multi_select': {
+      const selected = Array.isArray(value) ? value : []
+      const toggleOpt = (opt) => {
+        if (selected.includes(opt)) {
+          onChange(selected.filter((s) => s !== opt))
+        } else {
+          onChange([...selected, opt])
+        }
+      }
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {options.map((opt) => {
+            const checked = selected.includes(opt)
+            return (
+              <label
+                key={opt}
+                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                  checked
+                    ? 'border-primary/40 bg-primary/5'
+                    : 'border-border hover:border-muted-foreground/30'
+                }`}
+              >
+                <Checkbox checked={checked} onCheckedChange={() => toggleOpt(opt)} />
+                <span className="text-sm font-medium">{opt}</span>
+              </label>
+            )
+          })}
+        </div>
+      )
+    }
+
+    case 'date':
+      return (
+        <Input
+          type="date"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )
+
+    case 'toggle':
+      // Special: needs_computer renders as Yes/No buttons
+      if (field.field_key === 'needs_computer') {
+        return (
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant={value === true ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onChange(true)}
+              className="min-w-[80px]"
+            >
+              Yes
+            </Button>
+            <Button
+              type="button"
+              variant={value === false ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onChange(false)}
+              className="min-w-[80px]"
+            >
+              No
+            </Button>
+          </div>
+        )
+      }
+      return (
+        <div className="flex items-center gap-3">
+          <Switch checked={!!value} onCheckedChange={onChange} />
+          <span className="text-sm text-muted-foreground">{value ? 'Yes' : 'No'}</span>
+        </div>
+      )
+
+    case 'checkbox':
+      return (
+        <div className="flex items-center gap-3">
+          <Checkbox checked={!!value} onCheckedChange={onChange} />
+          <span className="text-sm">{field.help_text || field.label}</span>
+        </div>
+      )
+
+    default:
+      return (
+        <Input
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+        />
+      )
+  }
+}
+
+// ── Dynamic step: renders all fields for a given step ──
+function DynamicFormStep({ fields, form, setField }) {
+  return (
+    <div className="space-y-5">
+      {fields.map((field) => {
+        // Get value from form (system fields) or form.custom_fields (custom fields)
+        const isSystem = SYSTEM_FIELD_KEYS.has(field.field_key)
+        const value = isSystem ? form[field.field_key] : (form.custom_fields?.[field.field_key] ?? '')
+
+        const handleChange = (val) => {
+          if (isSystem) {
+            setField(field.field_key, val)
+          } else {
+            setField('custom_fields', { ...form.custom_fields, [field.field_key]: val })
+          }
+        }
+
+        return (
+          <div key={field.id} className="space-y-2">
+            {/* Don't show label for checkbox/toggle types that show inline */}
+            {field.field_type !== 'checkbox' && (
+              <Label>
+                {field.label}
+                {field.is_required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+            )}
+            <DynamicField
+              field={field}
+              value={value}
+              onChange={handleChange}
+              form={form}
+            />
+            {field.help_text && field.field_type !== 'checkbox' && (
+              <p className="text-[11px] text-muted-foreground">{field.help_text}</p>
+            )}
+
+            {/* Auto-generated email preview for business_unit */}
+            {field.field_key === 'business_unit' && form.generated_email && (
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-primary/5 border border-primary/20 mt-2">
+                <Mail className="h-4 w-4 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] text-muted-foreground">Generated corporate email</p>
+                  <code className="text-sm font-mono text-primary font-semibold">{form.generated_email}</code>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps }) {
@@ -90,198 +298,36 @@ function StepProgress({ currentStep, steps }) {
   )
 }
 
-// ── Individual step components ──
+// ── Review step ──
+function StepReview({ form, profile, allFields }) {
+  const rows = allFields
+    .filter((f) => f.is_active && evaluateCondition(f, form))
+    .map((f) => {
+      const isSystem = SYSTEM_FIELD_KEYS.has(f.field_key)
+      const raw = isSystem ? form[f.field_key] : (form.custom_fields?.[f.field_key] ?? '')
+      let display = ''
 
-function StepIdentity({ form, setField }) {
-  return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>First Name <span className="text-destructive">*</span></Label>
-          <Input
-            value={form.first_name}
-            onChange={(e) => setField('first_name', e.target.value)}
-            placeholder="e.g. Lulla"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Last Name <span className="text-destructive">*</span></Label>
-          <Input
-            value={form.last_name}
-            onChange={(e) => setField('last_name', e.target.value)}
-            placeholder="e.g. Van Steensel"
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <Select value={form.status} onChange={(e) => setField('status', e.target.value)}>
-          <option value="">Select status...</option>
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label>Business Unit</Label>
-        <Input
-          value={form.business_unit}
-          onChange={(e) => setField('business_unit', e.target.value)}
-          placeholder="e.g. SIGN BRUSSELS"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>Signature Title</Label>
-        <Input
-          value={form.signature_title}
-          onChange={(e) => setField('signature_title', e.target.value)}
-          placeholder="e.g. Intern, Consultant, Developer..."
-        />
-      </div>
-    </div>
+      if (Array.isArray(raw)) {
+        display = raw.join(', ') || '—'
+      } else if (typeof raw === 'boolean') {
+        display = raw ? 'Yes' : 'No'
+      } else {
+        display = raw || '—'
+      }
+
+      return { label: f.label, value: display }
+    })
+
+  // Add generated email + requested by
+  rows.splice(
+    rows.findIndex((r) => r.label === 'Business Unit') + 1,
+    0,
+    { label: 'Corporate Email', value: form.generated_email || '—' }
   )
-}
-
-function StepDates({ form, setField }) {
-  return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Starting Date <span className="text-destructive">*</span></Label>
-          <Input
-            type="date"
-            value={form.start_date}
-            onChange={(e) => setField('start_date', e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Leaving Date</Label>
-          <Input
-            type="date"
-            value={form.leaving_date}
-            onChange={(e) => setField('leaving_date', e.target.value)}
-          />
-          <p className="text-[11px] text-muted-foreground">Leave empty if permanent position</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function StepItNeeds({ form, setField }) {
-  const toggleAccess = (option) => {
-    const current = form.access_needs || []
-    if (current.includes(option)) {
-      setField('access_needs', current.filter((a) => a !== option))
-    } else {
-      setField('access_needs', [...current, option])
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <Label>Does he/she need a computer?</Label>
-        <div className="flex gap-3">
-          <Button
-            type="button"
-            variant={form.needs_computer === true ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setField('needs_computer', true)}
-            className="min-w-[80px]"
-          >
-            Yes
-          </Button>
-          <Button
-            type="button"
-            variant={form.needs_computer === false ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setField('needs_computer', false)}
-            className="min-w-[80px]"
-          >
-            No
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <Label>Access needed</Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {ACCESS_OPTIONS.map((option) => {
-            const checked = (form.access_needs || []).includes(option)
-            return (
-              <label
-                key={option}
-                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                  checked
-                    ? 'border-primary/40 bg-primary/5'
-                    : 'border-border hover:border-muted-foreground/30'
-                }`}
-              >
-                <Checkbox
-                  checked={checked}
-                  onCheckedChange={() => toggleAccess(option)}
-                />
-                <span className="text-sm font-medium">{option}</span>
-              </label>
-            )
-          })}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>SharePoint Files URL</Label>
-        <Input
-          value={form.sharepoint_url}
-          onChange={(e) => setField('sharepoint_url', e.target.value)}
-          placeholder="https://vogroupbxl.sharepoint.com/..."
-        />
-        <p className="text-[11px] text-muted-foreground">Link to the user's SharePoint folder if applicable</p>
-      </div>
-    </div>
-  )
-}
-
-function StepAdditional({ form, setField }) {
-  return (
-    <div className="space-y-5">
-      <div className="space-y-2">
-        <Label>Listing</Label>
-        <Select value={form.listing} onChange={(e) => setField('listing', e.target.value)}>
-          <option value="">Select listing...</option>
-          {LISTING_OPTIONS.map((l) => (
-            <option key={l} value={l}>{l}</option>
-          ))}
-        </Select>
-        <p className="text-[11px] text-muted-foreground">Newsletter subscription for the new hire</p>
-      </div>
-      <div className="space-y-2">
-        <Label>Listing date</Label>
-        <Input
-          type="date"
-          value={form.listing_date}
-          onChange={(e) => setField('listing_date', e.target.value)}
-        />
-      </div>
-    </div>
-  )
-}
-
-function StepReview({ form, profile }) {
-  const rows = [
-    { label: 'Name', value: `${form.first_name} ${form.last_name}` },
-    { label: 'Status', value: form.status || '—' },
-    { label: 'Business Unit', value: form.business_unit || '—' },
-    { label: 'Signature Title', value: form.signature_title || '—' },
-    { label: 'Starting Date', value: form.start_date || '—' },
-    { label: 'Leaving Date', value: form.leaving_date || '—' },
-    { label: 'Needs Computer', value: form.needs_computer ? 'Yes' : 'No' },
-    { label: 'Access Needed', value: (form.access_needs || []).join(', ') || '—' },
-    { label: 'SharePoint URL', value: form.sharepoint_url || '—' },
-    { label: 'Listing', value: form.listing || '—' },
-    { label: 'Listing Date', value: form.listing_date || '—' },
-    { label: 'Requested By', value: profile ? `${profile.first_name} ${profile.last_name}` : '—' },
-  ]
+  rows.push({
+    label: 'Requested By',
+    value: profile ? `${profile.first_name} ${profile.last_name}` : '—',
+  })
 
   return (
     <div className="space-y-4">
@@ -312,6 +358,7 @@ export function ItRequestFormPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const createRequest = useCreateItRequest()
+  const { data: formFields = [], isLoading: fieldsLoading } = useItFormFields()
   const showToast = useUIStore((s) => s.showToast)
 
   const [currentStep, setCurrentStep] = useState(0)
@@ -321,6 +368,8 @@ export function ItRequestFormPage() {
     status: '',
     business_unit: '',
     signature_title: '',
+    personal_email: '',
+    generated_email: '',
     start_date: '',
     leaving_date: '',
     needs_computer: false,
@@ -328,26 +377,74 @@ export function ItRequestFormPage() {
     sharepoint_url: '',
     listing: '',
     listing_date: '',
+    custom_fields: {},
   })
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
 
+  // Auto-generate corporate email when name or business unit changes
+  useEffect(() => {
+    const email = generateCorporateEmail(form.first_name, form.last_name, form.business_unit)
+    setForm((prev) => (prev.generated_email !== email ? { ...prev, generated_email: email } : prev))
+  }, [form.first_name, form.last_name, form.business_unit])
+
+  // Active fields only, filtered by conditional logic
+  const activeFields = useMemo(() => {
+    return formFields.filter((f) => f.is_active && evaluateCondition(f, form))
+  }, [formFields, form])
+
+  // Group active fields by step
+  const fieldsByStep = useMemo(() => {
+    const groups = {}
+    for (const step of STEP_DEFS) {
+      if (step.id === 'review') continue
+      groups[step.id] = activeFields.filter((f) => f.step === step.id)
+    }
+    return groups
+  }, [activeFields])
+
+  // Determine which steps have fields (skip empty steps)
+  const activeSteps = useMemo(() => {
+    const steps = STEP_DEFS.filter((s) => {
+      if (s.id === 'review') return true // always show review
+      return (fieldsByStep[s.id] || []).length > 0
+    })
+    return steps
+  }, [fieldsByStep])
+
+  // Validation: check required fields for current step
   const canGoNext = () => {
-    if (currentStep === 0) return form.first_name.trim() && form.last_name.trim()
-    if (currentStep === 1) return form.start_date
+    const step = activeSteps[currentStep]
+    if (!step || step.id === 'review') return true
+
+    const stepFields = fieldsByStep[step.id] || []
+    for (const field of stepFields) {
+      if (!field.is_required) continue
+      if (!evaluateCondition(field, form)) continue
+
+      const isSystem = SYSTEM_FIELD_KEYS.has(field.field_key)
+      const value = isSystem ? form[field.field_key] : (form.custom_fields?.[field.field_key] ?? '')
+
+      if (Array.isArray(value)) {
+        if (value.length === 0) return false
+      } else if (!value && value !== false) {
+        return false
+      }
+    }
     return true
   }
 
   const handleSubmit = async () => {
     try {
-      await createRequest.mutateAsync({
-        ...form,
-        start_date: form.start_date || null,
-        leaving_date: form.leaving_date || null,
-        listing_date: form.listing_date || null,
-        requested_by: user?.id,
-        requested_by_name: profile ? `${profile.first_name} ${profile.last_name}` : '',
-      })
+      const payload = { ...form }
+      // Clean date fields
+      payload.start_date = payload.start_date || null
+      payload.leaving_date = payload.leaving_date || null
+      payload.listing_date = payload.listing_date || null
+      payload.requested_by = user?.id
+      payload.requested_by_name = profile ? `${profile.first_name} ${profile.last_name}` : ''
+
+      await createRequest.mutateAsync(payload)
       showToast('IT request submitted successfully!')
       navigate('/')
     } catch (err) {
@@ -355,13 +452,10 @@ export function ItRequestFormPage() {
     }
   }
 
-  const stepContent = [
-    <StepIdentity key="identity" form={form} setField={setField} />,
-    <StepDates key="dates" form={form} setField={setField} />,
-    <StepItNeeds key="it-needs" form={form} setField={setField} />,
-    <StepAdditional key="additional" form={form} setField={setField} />,
-    <StepReview key="review" form={form} profile={profile} />,
-  ]
+  if (fieldsLoading) return <PageLoading />
+
+  const currentStepDef = activeSteps[currentStep]
+  const isReview = currentStepDef?.id === 'review'
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
@@ -383,21 +477,21 @@ export function ItRequestFormPage() {
       </motion.div>
 
       {/* Step progress */}
-      <StepProgress currentStep={currentStep} steps={STEPS} />
+      <StepProgress currentStep={currentStep} steps={activeSteps} />
 
       {/* Step content */}
       <Card variant="elevated" className="mb-6">
         <CardContent className="p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-6">
             {(() => {
-              const StepIcon = STEPS[currentStep].icon
+              const StepIcon = currentStepDef.icon
               return <StepIcon className="h-5 w-5 text-primary" />
             })()}
             <h2 className="text-lg font-display font-bold">
-              {STEPS[currentStep].label}
+              {currentStepDef.label}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {STEPS.length}
+              Step {currentStep + 1} of {activeSteps.length}
             </span>
           </div>
 
@@ -409,7 +503,15 @@ export function ItRequestFormPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              {stepContent[currentStep]}
+              {isReview ? (
+                <StepReview form={form} profile={profile} allFields={formFields} />
+              ) : (
+                <DynamicFormStep
+                  fields={fieldsByStep[currentStepDef.id] || []}
+                  form={form}
+                  setField={setField}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </CardContent>
@@ -426,7 +528,7 @@ export function ItRequestFormPage() {
           {currentStep === 0 ? 'Cancel' : 'Back'}
         </Button>
 
-        {currentStep < STEPS.length - 1 ? (
+        {currentStep < activeSteps.length - 1 ? (
           <Button
             onClick={() => setCurrentStep((s) => s + 1)}
             disabled={!canGoNext()}

@@ -20,7 +20,8 @@ import { OnboardingTabNav } from './OnboardingRecipientsPage'
 const VARIABLE_MAPPING = [
   { variable: '{{first_name}}', itField: 'first_name', label: 'First Name' },
   { variable: '{{last_name}}', itField: 'last_name', label: 'Last Name' },
-  { variable: '{{email}}', itField: null, label: 'Email', note: 'Not in IT form — fill manually' },
+  { variable: '{{email}}', itField: 'generated_email', label: 'Corporate Email (auto-generated)' },
+  { variable: '{{personal_email}}', itField: 'personal_email', label: 'Personal Email' },
   { variable: '{{team}}', itField: 'business_unit', label: 'Team / Business Unit' },
   { variable: '{{department}}', itField: 'status', label: 'Department / Status' },
   { variable: '{{start_date}}', itField: 'start_date', label: 'Start Date' },
@@ -89,11 +90,12 @@ export function OnboardingVariablesPage() {
       const recipient = await createOnboardingRecipient({
         first_name: req.first_name,
         last_name: req.last_name,
-        email: '',
+        email: req.generated_email || '',
         team: req.business_unit || '',
         department: req.status || '',
         start_date: req.start_date || null,
         language: 'fr',
+        personal_email: req.personal_email || '',
       })
       showToast('Recipient created from IT request!')
       navigate(`/admin/onboarding/compose?recipientId=${recipient.id}`)
