@@ -18,6 +18,7 @@ export const useOnboardingRecipients = () =>
   useQuery({
     queryKey: ['onboarding-recipients'],
     queryFn: getOnboardingRecipients,
+    retry: 1,
   })
 
 export const useCreateRecipient = () => {
@@ -50,6 +51,8 @@ export const useOnboardingBlockTemplates = () =>
   useQuery({
     queryKey: ['onboarding-block-templates'],
     queryFn: getOnboardingBlockTemplates,
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 min — block templates rarely change
   })
 
 // ── Emails ──
@@ -58,6 +61,7 @@ export const useOnboardingEmails = () =>
   useQuery({
     queryKey: ['onboarding-emails'],
     queryFn: getOnboardingEmails,
+    retry: 1,
   })
 
 export const useOnboardingEmail = (id) =>
@@ -65,6 +69,7 @@ export const useOnboardingEmail = (id) =>
     queryKey: ['onboarding-emails', id],
     queryFn: () => getOnboardingEmail(id),
     enabled: !!id,
+    retry: 1,
   })
 
 export const useCreateEmail = () => {

@@ -3,6 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useOnboardingRecipients, useOnboardingBlockTemplates, useOnboardingEmail, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildMjmlFromBlocks } from '@/lib/onboarding-mjml'
+import { DEFAULT_BLOCK_TEMPLATES } from '@/lib/onboarding-defaults'
 import { motion } from 'motion/react'
 import { Save, Send, Eye, Globe, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,12 +11,27 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { PageLoading } from '@/components/common/LoadingSpinner'
 import { BlockEditor } from '@/components/admin/onboarding/BlockEditor'
 import { OnboardingTabNav } from './OnboardingRecipientsPage'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuth } from '@/lib/auth'
+
+function ComposerSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 animate-pulse">
+      <div className="lg:col-span-3 space-y-3">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Card key={i}><CardContent className="p-4"><div className="h-10 rounded bg-muted" /></CardContent></Card>
+        ))}
+      </div>
+      <div className="lg:col-span-2">
+        <div className="h-[600px] rounded-xl bg-muted" />
+      </div>
+    </div>
+  )
+}
 
 export function OnboardingComposerPage() {
   const { emailId } = useParams()
@@ -25,10 +41,13 @@ export function OnboardingComposerPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const { data: recipients = [] } = useOnboardingRecipients()
-  const { data: blockTemplates = [], isLoading: blocksLoading } = useOnboardingBlockTemplates()
+  const { data: dbBlockTemplates = [], isLoading: blocksLoading, error: blocksError } = useOnboardingBlockTemplates()
   const { data: existingEmail, isLoading: emailLoading } = useOnboardingEmail(emailId)
   const createEmail = useCreateEmail()
   const updateEmail = useUpdateEmail()
+
+  // Use DB templates if available, otherwise fallback to hardcoded defaults
+  const blockTemplates = dbBlockTemplates.length > 0 ? dbBlockTemplates : DEFAULT_BLOCK_TEMPLATES
 
   const [recipientId, setRecipientId] = useState(searchParams.get('recipientId') || '')
   const [language, setLanguage] = useState('fr')
@@ -40,25 +59,29 @@ export function OnboardingComposerPage() {
   const [showSendDialog, setShowSendDialog] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [previewHtml, setPreviewHtml] = useState('')
+  const [initialized, setInitialized] = useState(false)
 
-  // Initialize blocks from templates when loaded
+  // Initialize blocks from existing email or from templates
   useEffect(() => {
+    if (initialized) return
     if (existingEmail) {
       setRecipientId(existingEmail.recipient_id || '')
       setLanguage(existingEmail.language || 'fr')
       setSubject(existingEmail.subject || '')
       setBlocksConfig(existingEmail.blocks_config || [])
-    } else if (blockTemplates.length > 0 && blocksConfig.length === 0) {
+      setInitialized(true)
+    } else if (blockTemplates.length > 0 && !blocksLoading) {
       const initial = blockTemplates.map((t) => ({
         block_key: t.block_key,
         enabled: true,
         content_fr: t.default_content_fr,
         content_en: t.default_content_en,
-        options: { ...t.default_options },
+        options: { ...(t.default_options || {}) },
       }))
       setBlocksConfig(initial)
+      setInitialized(true)
     }
-  }, [blockTemplates, existingEmail])
+  }, [blockTemplates, existingEmail, blocksLoading, initialized])
 
   // Set language from recipient when selected
   useEffect(() => {
@@ -73,7 +96,7 @@ export function OnboardingComposerPage() {
     [recipients, recipientId]
   )
 
-  // Build preview HTML
+  // Build preview MJML
   const buildPreview = useCallback(() => {
     if (blocksConfig.length === 0) return ''
     try {
@@ -85,16 +108,13 @@ export function OnboardingComposerPage() {
         department: 'Technology',
         start_date: new Date().toISOString().split('T')[0],
       }
-      const mjml = buildMjmlFromBlocks(blocksConfig, language, recipient)
-      // Use mjml-browser for client-side rendering
-      // For now return MJML as placeholder until mjml-browser is loaded
-      return mjml
+      return buildMjmlFromBlocks(blocksConfig, language, recipient)
     } catch {
       return ''
     }
   }, [blocksConfig, language, selectedRecipient])
 
-  // Lazy load mjml-browser and render preview
+  // Lazy-load mjml-browser and render preview
   useEffect(() => {
     let cancelled = false
     const render = async () => {
@@ -172,25 +192,13 @@ export function OnboardingComposerPage() {
       })
 
       if (result?.error) {
-        // Update status to failed
         if (emailDbId) {
-          await updateEmail.mutateAsync({
-            id: emailDbId,
-            status: 'failed',
-            error_message: result.error,
-            rendered_html: html,
-          })
+          await updateEmail.mutateAsync({ id: emailDbId, status: 'failed', error_message: result.error, rendered_html: html })
         }
         showToast(`Send failed: ${result.error}`, 'error')
       } else {
-        // Update status to sent
         if (emailDbId) {
-          await updateEmail.mutateAsync({
-            id: emailDbId,
-            status: 'sent',
-            sent_at: new Date().toISOString(),
-            rendered_html: html,
-          })
+          await updateEmail.mutateAsync({ id: emailDbId, status: 'sent', sent_at: new Date().toISOString(), rendered_html: html })
         }
         showToast('Email sent successfully!')
         navigate('/admin/onboarding/history')
@@ -203,7 +211,8 @@ export function OnboardingComposerPage() {
     }
   }
 
-  if (blocksLoading || emailLoading) return <PageLoading />
+  // Show skeleton only on initial load of existing email
+  const isInitialLoad = emailId && emailLoading
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
@@ -227,6 +236,13 @@ export function OnboardingComposerPage() {
       </div>
 
       <OnboardingTabNav />
+
+      {/* DB fallback notice */}
+      {blocksError && (
+        <div className="text-xs text-amber-500/80 bg-amber-500/5 border border-amber-500/20 rounded-lg px-4 py-2">
+          Block templates loaded from defaults — run the migration &amp; reload schema cache for full DB support.
+        </div>
+      )}
 
       {/* Top bar: recipient, language, subject */}
       <div className="flex flex-wrap items-end gap-4 p-4 rounded-xl border bg-card">
@@ -273,45 +289,49 @@ export function OnboardingComposerPage() {
       </div>
 
       {/* Two-column layout: editor + preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left: Block editor */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-              Email Blocks
-            </h2>
-            <Badge variant="outline" className="text-[10px]">
-              {blocksConfig.filter((b) => b.enabled).length}/{blocksConfig.length} enabled
-            </Badge>
-          </div>
-          <BlockEditor
-            blocks={blocksConfig}
-            blockTemplates={blockTemplates}
-            language={language}
-            onChange={setBlocksConfig}
-          />
-        </div>
-
-        {/* Right: Preview */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-              Preview
-            </h2>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setShowPreview(true)}>
-              <Eye className="h-3 w-3" /> Full screen
-            </Button>
-          </div>
-          <div className="border rounded-xl overflow-hidden bg-card sticky top-20">
-            <iframe
-              srcDoc={previewHtml || '<div style="padding:40px;text-align:center;color:#666;font-family:sans-serif;">Preview will appear here</div>'}
-              className="w-full border-0"
-              style={{ minHeight: '600px', height: '70vh' }}
-              title="Email preview"
+      {isInitialLoad ? (
+        <ComposerSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left: Block editor */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
+                Email Blocks
+              </h2>
+              <Badge variant="outline" className="text-[10px]">
+                {blocksConfig.filter((b) => b.enabled).length}/{blocksConfig.length} enabled
+              </Badge>
+            </div>
+            <BlockEditor
+              blocks={blocksConfig}
+              blockTemplates={blockTemplates}
+              language={language}
+              onChange={setBlocksConfig}
             />
           </div>
+
+          {/* Right: Preview */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
+                Preview
+              </h2>
+              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setShowPreview(true)}>
+                <Eye className="h-3 w-3" /> Full screen
+              </Button>
+            </div>
+            <div className="border rounded-xl overflow-hidden bg-card sticky top-20">
+              <iframe
+                srcDoc={previewHtml || '<div style="padding:40px;text-align:center;color:#666;font-family:sans-serif;">Preview will appear here</div>'}
+                className="w-full border-0"
+                style={{ minHeight: '600px', height: '70vh' }}
+                title="Email preview"
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Bottom action bar */}
       <div className="flex items-center justify-end gap-3 p-4 rounded-xl border bg-card sticky bottom-4">

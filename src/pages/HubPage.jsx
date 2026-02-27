@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
-import { Package, UserPlus, ArrowRight, Lock } from 'lucide-react'
+import { Package, UserPlus, ArrowRight, Mail, ClipboardList, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +8,7 @@ import { motion } from 'motion/react'
 
 const container = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.15 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.12 } },
 }
 
 const item = {
@@ -16,13 +16,67 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 }
 
+function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel, variant = 'default' }) {
+  const colorMap = {
+    primary: { iconBg: 'bg-primary/10', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: '' },
+    cyan: { iconBg: 'bg-cyan-500/10', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
+    violet: { iconBg: 'bg-violet-500/10', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
+    amber: { iconBg: 'bg-amber-500/10', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
+  }
+  const c = colorMap[color] || colorMap.primary
+
+  if (!to) {
+    return (
+      <motion.div variants={item}>
+        <Card variant="elevated" className="h-full opacity-55 overflow-hidden">
+          <CardContent className="p-7 flex flex-col items-center text-center h-full">
+            <div className={`h-14 w-14 rounded-2xl ${c.iconBg} flex items-center justify-center mb-4`}>
+              <Icon className={`h-7 w-7 ${c.iconColor}`} />
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-display font-bold">{title}</h2>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-1">{description}</p>
+            <Badge variant="outline" className="text-[10px] gap-1 text-muted-foreground">
+              <Clock className="h-2.5 w-2.5" /> Coming soon
+            </Badge>
+          </CardContent>
+        </Card>
+      </motion.div>
+    )
+  }
+
+  return (
+    <motion.div variants={item}>
+      <Link to={to} className="block h-full">
+        <Card variant="elevated" className={`h-full group ${c.hoverBorder} hover:shadow-card-hover transition-all duration-300 cursor-pointer overflow-hidden`}>
+          <CardContent className="p-7 flex flex-col items-center text-center h-full">
+            <div className={`h-14 w-14 rounded-2xl ${c.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+              <Icon className={`h-7 w-7 ${c.iconColor}`} />
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-display font-bold">{title}</h2>
+              {badge && <Badge variant="secondary" className="text-[10px]">{badge}</Badge>}
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{description}</p>
+            <Button variant={variant === 'outline' ? 'outline' : 'default'} className={`gap-2 group-hover:gap-3 transition-all ${variant === 'outline' ? c.btnClass : ''}`}>
+              {buttonLabel}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
+      </Link>
+    </motion.div>
+  )
+}
+
 export function HubPage() {
   const { isAdmin } = useAuth()
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
+    <div className="max-w-5xl mx-auto py-12 px-4">
       <motion.div
-        className="text-center mb-12"
+        className="text-center mb-10"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -42,73 +96,50 @@ export function HubPage() {
       </motion.div>
 
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className={`grid grid-cols-1 ${isAdmin ? 'sm:grid-cols-2 lg:grid-cols-2' : 'sm:grid-cols-3'} gap-5`}
         variants={container}
         initial="hidden"
         animate="show"
       >
-        {/* Equipment Catalog */}
-        <motion.div variants={item}>
-          <Link to="/catalog" className="block h-full">
-            <Card variant="elevated" className="h-full group hover:border-primary/30 hover:shadow-card-hover transition-all duration-300 cursor-pointer overflow-hidden">
-              <CardContent className="p-8 flex flex-col items-center text-center h-full">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                  <Package className="h-8 w-8 text-primary" />
-                </div>
-                <h2 className="text-xl font-display font-bold mb-2">Equipment Catalog</h2>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
-                  Browse and reserve equipment for your projects. View availability, submit loan requests, and manage your reservations.
-                </p>
-                <Button className="gap-2 group-hover:gap-3 transition-all">
-                  Open Catalog
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-        </motion.div>
+        {/* Equipment Catalog — everyone */}
+        <HubCard
+          to="/catalog"
+          icon={Package}
+          title="Equipment Catalog"
+          description="Browse and reserve equipment for your projects. View availability and submit loan requests."
+          color="primary"
+          buttonLabel="Open Catalog"
+        />
 
-        {/* Onboarding Hub */}
-        <motion.div variants={item}>
-          {isAdmin ? (
-            <Link to="/admin/onboarding" className="block h-full">
-              <Card variant="elevated" className="h-full group hover:border-cyan-500/30 hover:shadow-card-hover transition-all duration-300 cursor-pointer overflow-hidden">
-                <CardContent className="p-8 flex flex-col items-center text-center h-full">
-                  <div className="h-16 w-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                    <UserPlus className="h-8 w-8 text-cyan-500" />
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h2 className="text-xl font-display font-bold">Onboarding Hub</h2>
-                    <Badge variant="secondary" className="text-[10px]">Admin</Badge>
-                  </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
-                    Compose and send welcome emails to new team members. Manage recipients, customize email blocks, and track delivery.
-                  </p>
-                  <Button variant="outline" className="gap-2 group-hover:gap-3 transition-all border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10">
-                    Open Onboarding
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          ) : (
-            <Card variant="elevated" className="h-full opacity-60">
-              <CardContent className="p-8 flex flex-col items-center text-center h-full">
-                <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-5">
-                  <Lock className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h2 className="text-xl font-display font-bold mb-2">Onboarding Hub</h2>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
-                  Compose and send welcome emails to new team members. This section is reserved for administrators.
-                </p>
-                <Badge variant="outline" className="text-muted-foreground">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Admin only
-                </Badge>
-              </CardContent>
-            </Card>
-          )}
-        </motion.div>
+        {/* Onboarding Hub — admin only, hidden for users */}
+        {isAdmin && (
+          <HubCard
+            to="/admin/onboarding"
+            icon={UserPlus}
+            title="Onboarding Hub"
+            description="Compose and send welcome emails to new team members. Manage recipients and track delivery."
+            color="cyan"
+            badge="Admin"
+            buttonLabel="Open Onboarding"
+            variant="outline"
+          />
+        )}
+
+        {/* Coming soon: Functional Mailbox Request */}
+        <HubCard
+          icon={Mail}
+          title="Functional Mailbox"
+          description="Request a new functional mailbox for your team or project. Approval workflow included."
+          color="violet"
+        />
+
+        {/* Coming soon: Form IT Request */}
+        <HubCard
+          icon={ClipboardList}
+          title="IT Request"
+          description="Submit an IT request for hardware, software, or access. Track the status of your requests."
+          color="amber"
+        />
       </motion.div>
     </div>
   )
