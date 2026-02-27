@@ -4,6 +4,7 @@ import { RequireAdmin } from '@/components/auth/RequireAdmin'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 
+import { HubPage } from '@/pages/HubPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
 import { CatalogPage } from '@/pages/catalog/CatalogPage'
@@ -26,6 +27,9 @@ import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
 import { AdminProductOptionsPage } from '@/pages/admin/AdminProductOptionsPage'
 import { AdminNewRequestPage } from '@/pages/admin/AdminNewRequestPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
+import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
+import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingComposerPage'
+import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export function AppRoutes() {
@@ -43,7 +47,7 @@ export function AppRoutes() {
           </RequireAuth>
         }
       >
-        <Route index element={<Navigate to="/catalog" replace />} />
+        <Route index element={<HubPage />} />
         <Route path="catalog" element={<CatalogPage />} />
         <Route path="catalog/:productId" element={<ProductDetailPage />} />
         <Route path="cart" element={<CartPage />} />
@@ -74,6 +78,10 @@ export function AppRoutes() {
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
           <Route path="planning" element={<AdminPlanningPage />} />
           <Route path="forms" element={<AdminFormFieldsPage />} />
+          <Route path="onboarding" element={<OnboardingRecipientsPage />} />
+          <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
+          <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
+          <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
         </Route>
       </Route>
 
