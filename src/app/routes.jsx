@@ -36,6 +36,9 @@ import { OnboardingVariablesPage } from '@/pages/admin/onboarding/OnboardingVari
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
 import { OffboardingPage } from '@/pages/admin/offboarding/OffboardingPage'
 import { AdminOffboardingFormBuilderPage } from '@/pages/admin/AdminOffboardingFormBuilderPage'
+import { FunctionalMailboxFormPage } from '@/pages/functional-mailbox/FunctionalMailboxFormPage'
+import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
+import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -63,6 +66,7 @@ export function AppRoutes() {
         <Route path="requests/:requestId" element={<RequestDetailPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="it-request" element={<RequireModuleAccess moduleKey="it_form"><ItRequestFormPage /></RequireModuleAccess>} />
+        <Route path="functional-mailbox" element={<RequireModuleAccess moduleKey="functional_mailbox"><FunctionalMailboxFormPage /></RequireModuleAccess>} />
 
         {/* Admin routes */}
         <Route
@@ -95,6 +99,8 @@ export function AppRoutes() {
           <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
           <Route path="offboarding" element={<OffboardingPage />} />
           <Route path="offboarding-form-builder" element={<AdminOffboardingFormBuilderPage />} />
+          <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
+          <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
           {/* Redirect old module-access route to users page */}
           <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
         </Route>

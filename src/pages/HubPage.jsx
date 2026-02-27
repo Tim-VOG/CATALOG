@@ -118,15 +118,18 @@ export function HubPage() {
     )
   }
 
-  // Functional Mailbox — coming soon, show if access granted
+  // Functional Mailbox — show if access granted
   if (hasMailbox) {
     cards.push(
       <HubCard
         key="mailbox"
+        to="/functional-mailbox"
         icon={Mail}
         title={settings?.hub_mailbox_title || 'Functional Mailbox'}
         description={settings?.hub_mailbox_description || 'Request a new functional mailbox for your team or project. Approval workflow included.'}
         color="violet"
+        buttonLabel="New Request"
+        variant="outline"
       />
     )
   }

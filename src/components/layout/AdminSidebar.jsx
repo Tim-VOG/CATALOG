@@ -27,6 +27,7 @@ const ANIM = {
   itRequests:   'group-hover:scale-110 group-hover:rotate-[-3deg]',
   formBuild:    'group-hover:rotate-180 duration-300',
   offboarding:  'group-hover:scale-110 group-hover:translate-y-0.5',
+  mailbox:      'sidebar-icon-wiggle',
 }
 
 const sidebarSections = [
@@ -54,6 +55,13 @@ const sidebarSections = [
       { to: '/admin/onboarding/history', label: 'History', icon: Clock, anim: ANIM.history },
       { to: '/admin/it-requests', label: 'IT Requests', icon: ClipboardList, anim: ANIM.itRequests },
       { to: '/admin/it-form-builder', label: 'Form Builder', icon: Settings, anim: ANIM.formBuild },
+    ],
+  },
+  {
+    label: 'Functional Mailbox',
+    links: [
+      { to: '/admin/mailbox-requests', label: 'Requests', icon: Mail, exact: true, anim: ANIM.mailbox },
+      { to: '/admin/mailbox-form-builder', label: 'Form Builder', icon: Settings, anim: ANIM.formBuild },
     ],
   },
   {
