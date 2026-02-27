@@ -3,14 +3,14 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { ChartTooltip } from './ChartTooltip'
 
 const COLORS = [
-  'var(--color-primary)',
   'var(--color-accent)',
+  '#8b5cf6', // violet
   'var(--color-success)',
   'var(--color-warning)',
-  'var(--color-destructive)',
-  '#8b5cf6', // violet
+  '#f97316', // orange
   '#ec4899', // pink
   '#6366f1', // indigo
+  'var(--color-destructive)',
 ]
 
 export function CategoryChart({ products = [] }) {

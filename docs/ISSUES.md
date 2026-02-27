@@ -7,21 +7,21 @@
 
 ## Priority 1 — Database Migration Required
 
-- [ ] **Offboarding tables not created yet** — `offboarding_processes` and `offboarding_form_fields` tables return 404 from Supabase. Migration `025_offboarding_and_updates.sql` needs to be executed in Supabase SQL Editor, then reload schema cache. Pages handle the error gracefully but are non-functional until migration is run.
+- [x] **Offboarding tables not created yet** — ✅ Migration `025_offboarding_and_updates.sql` executed in Supabase SQL Editor. Tables `offboarding_processes` and `offboarding_form_fields` created with RLS policies, triggers, and seed data. Offboarding pages now fully functional.
 
 ---
 
 ## Priority 2 — Visual / Design Issues
 
-- [ ] **Dashboard chart bars appear solid black** — The "Requests (7 Days)" bar chart uses `--color-primary` which resolves to `#000000` in light mode. The bars are technically correct but look jarring/ugly against the light background. **Fix:** Use `--color-accent` (#06b6d4) or a dedicated chart color instead of `--color-primary` for the bar fill in `src/components/admin/dashboard/RequestsChart.jsx` (line 28).
+- [x] **Dashboard chart bars appear solid black** — ✅ Fixed. All 3 chart components (`RequestsChart.jsx`, `CategoryChart.jsx`, `LoansChart.jsx`) updated to use `--color-accent` (#06b6d4) instead of `--color-primary` (#000000). Bar chart now renders with a cyan gradient, pie chart uses accent as primary color, area chart active line uses accent.
 
-- [ ] **Onboarding email templates still in dark mode** — The onboarding email composer (MJML-based) still uses dark backgrounds (`#1a1f25`, `#111827`, `#1e293b`) while the equipment/request email templates have been converted to light mode. This creates visual inconsistency. **Fix:** Update `src/lib/onboarding-mjml.js` to use light mode colors matching the new email-html.js palette (white cards, light gray backgrounds, dark text).
+- [x] **Onboarding email templates still in dark mode** — ✅ Fixed. Converted all dark mode colors in `src/lib/onboarding-mjml.js` to light mode palette matching `email-html.js`: white cards (#ffffff), light gray backgrounds (#f1f5f9, #f8fafc), dark text (#1e293b, #334155), light borders (#e2e8f0).
 
 ---
 
 ## Priority 3 — Minor / Polish
 
-- [ ] **Offboarding stat cards may flash blank on first load** — When the offboarding page loads and the API returns a 404 (missing tables), the stat cards briefly show empty content before the error state renders. This is a minor React Query timing issue — once the migration is run it should be a non-issue. **Note:** Verify after migration is executed.
+- [x] **Offboarding stat cards may flash blank on first load** — ✅ Resolved. After migration 025 was executed, the API no longer returns 404. Stat cards load correctly with proper data (Total, Pending, In Progress, Completed counts). No more flash of empty content.
 
 ---
 

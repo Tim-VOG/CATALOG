@@ -25,17 +25,22 @@ export function RequestsChart({ requests = [] }) {
     return days
   }, [requests])
 
-  const primary = getThemeColor('--color-primary')
   const accent = getThemeColor('--color-accent')
 
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
+        <defs>
+          <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={accent} stopOpacity={0.9} />
+            <stop offset="100%" stopColor={accent} stopOpacity={0.6} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.3} />
         <XAxis dataKey="label" tick={{ fill: 'var(--color-muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: 'var(--color-muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
         <Tooltip content={<ChartTooltip />} />
-        <Bar dataKey="count" name="Requests" fill={primary} radius={[4, 4, 0, 0]} animationDuration={800} />
+        <Bar dataKey="count" name="Requests" fill="url(#barGrad)" radius={[4, 4, 0, 0]} animationDuration={800} />
       </BarChart>
     </ResponsiveContainer>
   )

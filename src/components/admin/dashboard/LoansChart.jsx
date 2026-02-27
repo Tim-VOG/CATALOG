@@ -32,8 +32,8 @@ export function LoansChart({ requests = [] }) {
       <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
         <defs>
           <linearGradient id="gradActive" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+            <stop offset="0%" stopColor="var(--color-accent)" stopOpacity={0.3} />
+            <stop offset="100%" stopColor="var(--color-accent)" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="gradReturned" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--color-success)" stopOpacity={0.3} />
@@ -44,7 +44,7 @@ export function LoansChart({ requests = [] }) {
         <XAxis dataKey="label" tick={{ fill: 'var(--color-muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: 'var(--color-muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
         <Tooltip content={<ChartTooltip />} />
-        <Area type="monotone" dataKey="active" name="Active" stroke="var(--color-primary)" fill="url(#gradActive)" strokeWidth={2} animationDuration={800} />
+        <Area type="monotone" dataKey="active" name="Active" stroke="var(--color-accent)" fill="url(#gradActive)" strokeWidth={2} animationDuration={800} />
         <Area type="monotone" dataKey="returned" name="Returned" stroke="var(--color-success)" fill="url(#gradReturned)" strokeWidth={2} animationDuration={800} />
       </AreaChart>
     </ResponsiveContainer>

@@ -37,10 +37,10 @@ function textToHtml(text) {
       if (trimmed.match(/^[QR]:\s/m) || trimmed.match(/^[QA]:\s/m)) {
         const faqLines = trimmed.split('\n').map((line) => {
           if (line.match(/^Q:\s/)) {
-            return `<p style="margin:0 0 4px 0;color:#f1f5f9;font-weight:600;">&#x2753; ${line.slice(3)}</p>`
+            return `<p style="margin:0 0 4px 0;color:#1e293b;font-weight:600;">&#x2753; ${line.slice(3)}</p>`
           }
           if (line.match(/^[RA]:\s/)) {
-            return `<p style="margin:0 0 12px 0;color:#94a3b8;padding-left:24px;">${line.slice(3)}</p>`
+            return `<p style="margin:0 0 12px 0;color:#64748b;padding-left:24px;">${line.slice(3)}</p>`
           }
           return `<p style="margin:0 0 6px 0;">${line}</p>`
         })
@@ -80,9 +80,9 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   // Special handling: salutation block — hero greeting, no card wrapper
   if (block.block_key === 'salutation') {
     return `
-    <mj-section background-color="#1a1f25" padding="20px 32px 8px 32px">
+    <mj-section background-color="#ffffff" padding="20px 32px 8px 32px">
       <mj-column>
-        <mj-text color="#f1f5f9" font-size="16px" line-height="1.7" padding="0">
+        <mj-text color="#1e293b" font-size="16px" line-height="1.7" padding="0">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
@@ -92,10 +92,10 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   // Special handling: closing block — warm sign-off, no card
   if (block.block_key === 'closing') {
     return `
-    <mj-section background-color="#1a1f25" padding="16px 32px 8px 32px">
+    <mj-section background-color="#ffffff" padding="16px 32px 8px 32px">
       <mj-column>
-        <mj-divider border-color="#1e293b" border-width="1px" padding="0 0 16px 0" />
-        <mj-text color="#94a3b8" font-size="14px" line-height="1.7" padding="0">
+        <mj-divider border-color="#e2e8f0" border-width="1px" padding="0 0 16px 0" />
+        <mj-text color="#64748b" font-size="14px" line-height="1.7" padding="0">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
@@ -108,12 +108,12 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
       ? (opts.label_fr || 'Acceder')
       : (opts.label_en || 'Access')
     return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid #e2e8f0" padding="0">
         <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 12px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 12px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${textToHtml(rendered)}
         </mj-text>
         <mj-button
@@ -138,12 +138,12 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
       ? (opts.label_fr || 'Ouvrir')
       : (opts.label_en || 'Open')
     return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid #e2e8f0" padding="0">
         <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 12px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 12px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${textToHtml(rendered)}
         </mj-text>
         <mj-button
@@ -166,27 +166,27 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   // WiFi block: info box with network details
   if (block.block_key === 'wifi') {
     return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid #e2e8f0" padding="0">
         <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 4px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 4px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${textToHtml(rendered)}
         </mj-text>
         ${opts.network_name ? `
-        <mj-text padding="8px 20px 16px 20px" color="#94a3b8" font-size="12px">
+        <mj-text padding="8px 20px 16px 20px" color="#64748b" font-size="12px">
           <table cellpadding="0" cellspacing="0" style="width:100%;">
             <tr>
               <td style="background:${theme.color}15;border-radius:8px;padding:10px 14px;border:1px solid ${theme.color}30;">
                 <span style="color:${theme.color};font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Network</span><br/>
-                <span style="color:#f1f5f9;font-size:14px;font-weight:500;">${escapeHtml(opts.network_name)}</span>
+                <span style="color:#1e293b;font-size:14px;font-weight:500;">${escapeHtml(opts.network_name)}</span>
               </td>
               ${opts.guest_network ? `
               <td style="width:12px;"></td>
-              <td style="background:#1e293b;border-radius:8px;padding:10px 14px;border:1px solid #334155;">
-                <span style="color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Guest</span><br/>
-                <span style="color:#94a3b8;font-size:14px;font-weight:500;">${escapeHtml(opts.guest_network)}</span>
+              <td style="background:#f1f5f9;border-radius:8px;padding:10px 14px;border:1px solid #e2e8f0;">
+                <span style="color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Guest</span><br/>
+                <span style="color:#64748b;font-size:14px;font-weight:500;">${escapeHtml(opts.guest_network)}</span>
               </td>` : ''}
             </tr>
           </table>
@@ -212,7 +212,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
                 <td style="padding:6px 0;vertical-align:top;width:24px;">
                   <span style="color:${theme.color};font-size:14px;">&#x26A0;</span>
                 </td>
-                <td style="padding:6px 0;color:#cbd5e1;font-size:13px;line-height:1.5;">${item}</td>
+                <td style="padding:6px 0;color:#334155;font-size:13px;line-height:1.5;">${item}</td>
               </tr>`)
             .join('')
           return `<table cellpadding="0" cellspacing="0" style="width:100%;margin:4px 0 8px 0;">${items}</table>`
@@ -223,12 +223,12 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
       .join('')
 
     return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid ${theme.color}30" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid ${theme.color}30" padding="0">
         <mj-text padding="16px 20px 4px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="4px 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="4px 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${htmlContent}
         </mj-text>
       </mj-column>
@@ -238,12 +238,12 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   // Email signature: info card with structured data
   if (block.block_key === 'email_signature') {
     return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid #e2e8f0" padding="0">
         <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
@@ -253,21 +253,21 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   // FAQ block: styled Q&A format
   if (block.block_key === 'faq_it') {
     return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid #e2e8f0" padding="0">
         <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${textToHtml(rendered)}
         </mj-text>
         ${opts.support_email ? `
-        <mj-text padding="0 20px 16px 20px" color="#94a3b8" font-size="12px">
+        <mj-text padding="0 20px 16px 20px" color="#64748b" font-size="12px">
           <table cellpadding="0" cellspacing="0">
             <tr>
               <td style="background:${theme.color}15;border-radius:6px;padding:8px 12px;border:1px solid ${theme.color}30;">
                 <span style="color:${theme.color};font-size:11px;font-weight:600;">&#x1F4E9; SUPPORT</span>
-                <span style="color:#f1f5f9;margin-left:8px;">${escapeHtml(opts.support_email)}</span>
+                <span style="color:#1e293b;margin-left:8px;">${escapeHtml(opts.support_email)}</span>
               </td>
             </tr>
           </table>
@@ -278,12 +278,12 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
 
   // Default: card module with colored header
   return `
-    <mj-section background-color="#1a1f25" padding="8px 32px">
-      <mj-column background-color="#111827" border-radius="12px" border="1px solid #1e293b" padding="0">
+    <mj-section background-color="#ffffff" padding="8px 32px">
+      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid #e2e8f0" padding="0">
         <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 16px 20px" color="#cbd5e1" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
@@ -325,32 +325,33 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
   <mj-head>
     <mj-attributes>
       <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" />
-      <mj-body background-color="#0f1419" />
-      <mj-section background-color="#1a1f25" />
-      <mj-text color="#cbd5e1" font-size="14px" line-height="1.7" />
+      <mj-body background-color="#f1f5f9" />
+      <mj-section background-color="#ffffff" />
+      <mj-text color="#334155" font-size="14px" line-height="1.7" />
     </mj-attributes>
     <mj-style>
       a { color: #06b6d4; text-decoration: none; }
       a:hover { text-decoration: underline; }
-      strong { color: #f1f5f9; }
+      strong { color: #1e293b; }
       ul { margin: 0 0 14px 0; padding-left: 18px; }
       li { margin: 0 0 6px 0; padding-left: 4px; }
     </mj-style>
   </mj-head>
-  <mj-body background-color="#0f1419">
+  <mj-body background-color="#f1f5f9">
     <!-- Spacer -->
     <mj-section background-color="transparent" padding="8px 0" />
 
     <!-- Header banner -->
-    <mj-section background-color="#1a1f25" border-radius="16px 16px 0 0" padding="0">
+    <mj-section background-color="#ffffff" border-radius="16px 16px 0 0" padding="0">
       <mj-column padding="0">
+        <mj-divider border-color="#f97316" border-width="3px" padding="0" width="100%" />
         <mj-text padding="28px 32px 0 32px" font-size="11px" font-weight="700" color="#f97316" letter-spacing="2px">
           VO GEAR HUB
         </mj-text>
-        <mj-text padding="8px 32px 4px 32px" font-size="26px" font-weight="800" color="#f1f5f9" line-height="1.2">
+        <mj-text padding="8px 32px 4px 32px" font-size="26px" font-weight="800" color="#1e293b" line-height="1.2">
           ${escapeHtml(welcomeTitle)}
         </mj-text>
-        <mj-text padding="0 32px 0 32px" font-size="12px" color="#64748b">
+        <mj-text padding="0 32px 0 32px" font-size="12px" color="#94a3b8">
           ${language === 'fr' ? 'Votre guide d\'int\u00e9gration chez VO Group' : 'Your onboarding guide at VO Group'}
         </mj-text>
         <mj-divider border-color="#f97316" border-width="3px" padding="16px 32px 0 32px" width="60px" />
@@ -361,17 +362,17 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     ${blocksSections.join('\n')}
 
     <!-- Footer -->
-    <mj-section background-color="#1a1f25" padding="12px 32px 8px 32px">
+    <mj-section background-color="#ffffff" padding="12px 32px 8px 32px">
       <mj-column>
-        <mj-divider border-color="#1e293b" border-width="1px" padding="0 0 12px 0" />
+        <mj-divider border-color="#e2e8f0" border-width="1px" padding="0 0 12px 0" />
       </mj-column>
     </mj-section>
-    <mj-section background-color="#1a1f25" border-radius="0 0 16px 16px" padding="0 32px 28px 32px">
+    <mj-section background-color="#f8fafc" border-radius="0 0 16px 16px" padding="0 32px 28px 32px">
       <mj-column>
-        <mj-text align="center" font-size="12px" color="#64748b" padding="0 0 4px 0">
+        <mj-text align="center" font-size="12px" color="#94a3b8" padding="0 0 4px 0">
           <span style="color:#f97316;font-weight:700;">VO</span> Gear Hub &mdash; ${language === 'fr' ? 'Plateforme IT interne' : 'Internal IT Platform'}
         </mj-text>
-        <mj-text align="center" font-size="10px" color="#334155" padding="0">
+        <mj-text align="center" font-size="10px" color="#cbd5e1" padding="0">
           ${language === 'fr' ? 'Cet email a \u00e9t\u00e9 envoy\u00e9 automatiquement depuis VO Gear Hub' : 'This email was sent automatically from VO Gear Hub'}
         </mj-text>
       </mj-column>
