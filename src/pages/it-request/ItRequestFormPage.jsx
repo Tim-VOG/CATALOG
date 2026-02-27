@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
+import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { useItFormFields } from '@/hooks/use-it-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { BUSINESS_UNITS } from '@/lib/constants/business-units'
@@ -445,6 +446,23 @@ export function ItRequestFormPage() {
       payload.requested_by_name = profile ? `${profile.first_name} ${profile.last_name}` : ''
 
       await createRequest.mutateAsync(payload)
+
+      // Auto-create onboarding recipient so they appear in the Compose dropdown
+      try {
+        await createOnboardingRecipient({
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.generated_email || '',
+          team: form.business_unit || '',
+          department: form.status || '',
+          start_date: form.start_date || null,
+          language: 'fr',
+          personal_email: form.personal_email || '',
+        })
+      } catch {
+        // Don't block the IT request on onboarding creation failure
+      }
+
       showToast('IT request submitted successfully!')
       navigate('/')
     } catch (err) {

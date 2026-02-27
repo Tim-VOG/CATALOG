@@ -1,13 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ResponsiveGridLayout as RGLResponsive } from 'react-grid-layout'
-import 'react-grid-layout/css/styles.css'
-import 'react-resizable/css/styles.css'
+import { motion } from 'motion/react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useProducts } from '@/hooks/use-products'
-import { useDashboardLayout } from '@/hooks/use-dashboard-layout'
 import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets'
-import { BREAKPOINTS, COLS, ROW_HEIGHT } from '@/components/admin/dashboard/dashboard-layouts'
 import { RequestsChart } from '@/components/admin/dashboard/RequestsChart'
 import { CategoryChart } from '@/components/admin/dashboard/CategoryChart'
 import { LoansChart } from '@/components/admin/dashboard/LoansChart'
@@ -20,13 +16,11 @@ import { AnimatedCounter } from '@/components/ui/motion'
 import {
   Inbox, PackageCheck, AlertTriangle, PackageX,
   ArrowRight, CalendarRange, Box, TrendingDown,
-  GripHorizontal, RotateCcw, LayoutGrid, BarChart3, PieChart, Activity,
-  Eye, EyeOff,
+  LayoutGrid, BarChart3, PieChart, Activity,
+  Eye, EyeOff, RotateCcw,
 } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
-
-// react-grid-layout v2 exports ResponsiveGridLayout directly with built-in width detection
 
 // Widget icon map for the toggle panel
 const WIDGET_ICONS = {
@@ -43,18 +37,22 @@ const WIDGET_ICONS = {
   'low-stock': TrendingDown,
 }
 
+// Staggered entrance animation factory
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] },
+})
+
 // ── Stat widget (small card) ──
 function StatWidget({ label, value, icon: Icon, color, borderColor, bgColor, link }) {
   return (
-    <Link to={link} className="block h-full">
-      <Card variant="elevated" hoverable className={cn('h-full border-l-4 flex flex-col', borderColor)}>
-        <div className="drag-handle flex items-center justify-center py-1 cursor-grab active:cursor-grabbing opacity-0 hover:opacity-100 transition-opacity">
-          <GripHorizontal className="h-3 w-3 text-muted-foreground/40" />
-        </div>
-        <CardContent className="px-5 pb-5 pt-0 flex-1 flex flex-col justify-center">
+    <Link to={link} className="block h-full group">
+      <Card variant="elevated" hoverable className={cn('h-full border-l-4', borderColor)}>
+        <CardContent className="px-5 py-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
-            <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center', bgColor)}>
+            <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110', bgColor)}>
               <Icon className={cn('h-4 w-4', color)} />
             </div>
           </div>
@@ -68,18 +66,15 @@ function StatWidget({ label, value, icon: Icon, color, borderColor, bgColor, lin
 // ── List widget wrapper ──
 function ListWidget({ title, icon: Icon, iconColor, iconBg, headerRight, emptyIcon: EmptyIcon, emptyText, children, borderClass }) {
   return (
-    <Card variant="elevated" className={cn('h-full flex flex-col overflow-hidden', borderClass)}>
-      <div className="drag-handle flex items-center justify-between px-5 pt-4 pb-2 cursor-grab active:cursor-grabbing">
-        <div className="flex items-center gap-2">
+    <Card variant="elevated" className={cn('flex flex-col overflow-hidden', borderClass)}>
+      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+        <div className="flex items-center gap-2.5">
           <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center', iconBg)}>
             <Icon className={cn('h-4 w-4', iconColor)} />
           </div>
           <CardTitle className="text-base font-semibold">{title}</CardTitle>
         </div>
-        <div className="flex items-center gap-2">
-          {headerRight}
-          <GripHorizontal className="h-3.5 w-3.5 text-muted-foreground/30" />
-        </div>
+        {headerRight}
       </div>
       <CardContent className="px-5 pb-5 flex-1 overflow-auto">
         {children || (
@@ -97,14 +92,13 @@ function ListWidget({ title, icon: Icon, iconColor, iconBg, headerRight, emptyIc
 function ChartWidget({ title, icon: Icon, children }) {
   return (
     <Card variant="elevated" className="h-full flex flex-col overflow-hidden">
-      <div className="drag-handle flex items-center justify-between px-5 pt-4 pb-2 cursor-grab active:cursor-grabbing">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center px-5 pt-4 pb-2">
+        <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-primary/10">
             <Icon className="h-4 w-4 text-primary" />
           </div>
           <CardTitle className="text-base font-semibold">{title}</CardTitle>
         </div>
-        <GripHorizontal className="h-3.5 w-3.5 text-muted-foreground/30" />
       </div>
       <CardContent className="px-3 pb-3 flex-1 min-h-0">
         {children}
@@ -116,7 +110,6 @@ function ChartWidget({ title, icon: Icon, children }) {
 export function AdminDashboardPage() {
   const { data: requests = [], isLoading: requestsLoading } = useLoanRequests()
   const { data: products = [], isLoading: productsLoading } = useProducts()
-  const { layouts, onLayoutChange, resetLayout } = useDashboardLayout()
   const { isVisible, toggleWidget, resetWidgets, allWidgets } = useDashboardWidgets()
   const [showCustomize, setShowCustomize] = useState(false)
 
@@ -144,269 +137,308 @@ export function AdminDashboardPage() {
     .filter((r) => ['pending', 'approved', 'picked_up'].includes(r.status))
     .slice(0, 8)
 
-  // Filter layouts to only include visible widgets
-  const filteredLayouts = useMemo(() => {
-    const filtered = {}
-    for (const [bp, items] of Object.entries(layouts)) {
-      filtered[bp] = items.filter((item) => isVisible(item.i))
-    }
-    return filtered
-  }, [layouts, isVisible])
-
   if (requestsLoading || productsLoading) return <PageLoading />
 
-  // Build the widget map — only render visible ones
-  const widgetMap = {
-    'stat-pending': (
-      <StatWidget label="Pending" value={pending.length} icon={Inbox} color="text-warning" borderColor="border-l-warning" bgColor="bg-warning/8" link="/admin/requests" />
-    ),
-    'stat-active': (
-      <StatWidget label="Active Loans" value={active.length} icon={PackageCheck} color="text-primary" borderColor="border-l-primary" bgColor="bg-primary/8" link="/admin/requests" />
-    ),
-    'stat-overdue': (
-      <StatWidget label="Overdue" value={overdue.length} icon={AlertTriangle} color="text-destructive" borderColor="border-l-destructive" bgColor="bg-destructive/8" link="/admin/requests" />
-    ),
-    'stat-pickup': (
-      <StatWidget label="Awaiting Pickup" value={approved.length} icon={PackageX} color="text-accent" borderColor="border-l-accent" bgColor="bg-accent/8" link="/admin/requests" />
-    ),
-    'chart-requests': (
-      <ChartWidget title="Requests (7 Days)" icon={BarChart3}>
-        <RequestsChart requests={requests} />
-      </ChartWidget>
-    ),
-    'chart-categories': (
-      <ChartWidget title="Products by Category" icon={PieChart}>
-        <CategoryChart products={products} />
-      </ChartWidget>
-    ),
-    'chart-loans': (
-      <ChartWidget title="Loan Activity" icon={Activity}>
-        <LoansChart requests={requests} />
-      </ChartWidget>
-    ),
-    'active-loans': (
-      <ListWidget
-        title="Active Loans"
-        icon={PackageCheck}
-        iconColor="text-primary"
-        iconBg="bg-primary/10"
-        emptyIcon={PackageCheck}
-        emptyText="No active loans"
-        headerRight={
-          <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
-            View all <ArrowRight className="h-3 w-3" />
-          </Link>
-        }
-      >
-        {active.length > 0 && (
-          <div className="space-y-1">
-            {active.slice(0, 8).map((r) => {
-              const isOverdue = r.return_date < today
-              return (
-                <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group">
-                  <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name} · {r.item_count} item{r.item_count > 1 ? 's' : ''}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    {isOverdue ? (
-                      <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30">Overdue</Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1"><CalendarRange className="h-3 w-3" />{r.return_date}</span>
-                    )}
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </ListWidget>
-    ),
-    'recent-requests': (
-      <ListWidget
-        title="Recent Requests"
-        icon={Inbox}
-        iconColor="text-accent"
-        iconBg="bg-accent/10"
-        emptyIcon={Inbox}
-        emptyText="No recent requests"
-        headerRight={
-          <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">View all <ArrowRight className="h-3 w-3" /></Link>
-        }
-      >
-        {recentRequests.length > 0 && (
-          <div className="space-y-1">
-            {recentRequests.slice(0, 5).map((r) => (
-              <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group">
-                <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name}</p>
-                </div>
-                <Badge variant="outline" className={cn('text-[10px] shrink-0', STATUS_COLORS[r.status] || '')}>
-                  {r.status === 'picked_up' ? 'Active' : r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                </Badge>
-              </Link>
-            ))}
-          </div>
-        )}
-      </ListWidget>
-    ),
-    'overdue-returns': (
-      <ListWidget
-        title={`Overdue Returns (${overdue.length})`}
-        icon={AlertTriangle}
-        iconColor="text-destructive"
-        iconBg="bg-destructive/10"
-        emptyIcon={AlertTriangle}
-        emptyText="No overdue returns — all clear!"
-        borderClass={overdue.length > 0 ? 'border-destructive/30' : ''}
-      >
-        {overdue.length > 0 && (
-          <div className="space-y-1">
-            {overdue.slice(0, 5).map((r) => (
-              <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group">
-                <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate group-hover:text-destructive transition-colors">{r.project_name}</p>
-                  <p className="text-xs text-muted-foreground">{r.user_first_name} {r.user_last_name} · Due {r.return_date}</p>
-                </div>
-                <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30 shrink-0">Overdue</Badge>
-              </Link>
-            ))}
-          </div>
-        )}
-      </ListWidget>
-    ),
-    'low-stock': (
-      <ListWidget
-        title={`Low Stock (${lowStock.length})`}
-        icon={TrendingDown}
-        iconColor="text-warning"
-        iconBg="bg-warning/10"
-        emptyIcon={Box}
-        emptyText="All stock levels healthy"
-        borderClass={lowStock.length > 0 ? 'border-warning/30' : ''}
-        headerRight={
-          <Link to="/admin/products" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">Manage <ArrowRight className="h-3 w-3" /></Link>
-        }
-      >
-        {lowStock.length > 0 && (
-          <div className="space-y-1">
-            {lowStock.slice(0, 5).map((p) => (
-              <div key={p.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
-                <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <Box className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">{p.category_name}</p>
-                </div>
-                <Badge variant="outline" className={cn('text-[10px] shrink-0', p.total_stock === 0 ? 'bg-destructive/15 text-destructive border-destructive/30' : 'bg-warning/15 text-warning border-warning/30')}>
-                  {p.total_stock === 0 ? 'Out of stock' : `${p.total_stock} left`}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
-      </ListWidget>
-    ),
-  }
+  // Determine visible widgets per section
+  const visibleStats = ['stat-pending', 'stat-active', 'stat-overdue', 'stat-pickup'].filter((id) => isVisible(id))
+  const hasChartRequests = isVisible('chart-requests')
+  const hasChartCategories = isVisible('chart-categories')
+  const hasChartLoans = isVisible('chart-loans')
+  const visiblePrimaryLists = ['active-loans', 'recent-requests'].filter((id) => isVisible(id))
+  const visibleSecondaryLists = ['overdue-returns', 'low-stock'].filter((id) => isVisible(id))
+
+  // Staggered delay counter
+  let d = -0.06
+  const nextDelay = () => { d += 0.06; return d }
 
   // Group widgets for customize panel
   const groups = { stats: 'Stat Cards', charts: 'Charts', lists: 'Lists' }
 
   return (
-    <div className="space-y-4">
+    <div>
       {/* Page header */}
       <AdminPageHeader title="Dashboard" description="Overview of your equipment management">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Button
-              variant={showCustomize ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setShowCustomize(!showCustomize)}
-              className="gap-2 text-xs text-muted-foreground"
-            >
-              <LayoutGrid className="h-3 w-3" />
-              Customize
-            </Button>
-
-            {/* Customize dropdown */}
-            {showCustomize && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowCustomize(false)} />
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border bg-popover shadow-card z-50 overflow-hidden">
-                  <div className="px-4 py-3 border-b flex items-center justify-between">
-                    <span className="text-sm font-semibold">Dashboard Widgets</span>
-                    <Button variant="ghost" size="sm" className="text-[10px] h-6 px-2 text-muted-foreground" onClick={() => { resetWidgets(); resetLayout() }}>
-                      Reset all
-                    </Button>
-                  </div>
-                  <div className="p-2 max-h-80 overflow-auto space-y-3">
-                    {Object.entries(groups).map(([groupKey, groupLabel]) => (
-                      <div key={groupKey}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1">{groupLabel}</p>
-                        {Object.entries(allWidgets)
-                          .filter(([, w]) => w.group === groupKey)
-                          .map(([id, w]) => {
-                            const WidgetIcon = WIDGET_ICONS[id] || Box
-                            const visible = isVisible(id)
-                            return (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() => toggleWidget(id)}
-                                className={cn(
-                                  'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left transition-colors',
-                                  visible ? 'hover:bg-muted/50' : 'opacity-50 hover:opacity-75'
-                                )}
-                              >
-                                <WidgetIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                <span className="text-sm flex-1">{w.label}</span>
-                                {visible ? (
-                                  <Eye className="h-3.5 w-3.5 text-primary shrink-0" />
-                                ) : (
-                                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-                                )}
-                              </button>
-                            )
-                          })}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <Button variant="ghost" size="sm" onClick={resetLayout} className="gap-2 text-xs text-muted-foreground">
-            <RotateCcw className="h-3 w-3" />
-            Reset Layout
+        <div className="relative">
+          <Button
+            variant={showCustomize ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setShowCustomize(!showCustomize)}
+            className="gap-2 text-xs text-muted-foreground"
+          >
+            <LayoutGrid className="h-3 w-3" />
+            Customize
           </Button>
+
+          {/* Customize dropdown */}
+          {showCustomize && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowCustomize(false)} />
+              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border bg-popover shadow-card z-50 overflow-hidden">
+                <div className="px-4 py-3 border-b flex items-center justify-between">
+                  <span className="text-sm font-semibold">Dashboard Widgets</span>
+                  <Button variant="ghost" size="sm" className="text-[10px] h-6 px-2 text-muted-foreground gap-1" onClick={resetWidgets}>
+                    <RotateCcw className="h-3 w-3" />
+                    Reset
+                  </Button>
+                </div>
+                <div className="p-2 max-h-80 overflow-auto space-y-3">
+                  {Object.entries(groups).map(([groupKey, groupLabel]) => (
+                    <div key={groupKey}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1">{groupLabel}</p>
+                      {Object.entries(allWidgets)
+                        .filter(([, w]) => w.group === groupKey)
+                        .map(([id, w]) => {
+                          const WidgetIcon = WIDGET_ICONS[id] || Box
+                          const visible = isVisible(id)
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => toggleWidget(id)}
+                              className={cn(
+                                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left transition-colors',
+                                visible ? 'hover:bg-muted/50' : 'opacity-50 hover:opacity-75'
+                              )}
+                            >
+                              <WidgetIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-sm flex-1">{w.label}</span>
+                              {visible ? (
+                                <Eye className="h-3.5 w-3.5 text-primary shrink-0" />
+                              ) : (
+                                <EyeOff className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                              )}
+                            </button>
+                          )
+                        })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </AdminPageHeader>
 
-      {/* ── Responsive grid layout ── */}
-      <RGLResponsive
-        className="dashboard-grid -mx-2"
-        layouts={filteredLayouts}
-        breakpoints={BREAKPOINTS}
-        cols={COLS}
-        rowHeight={ROW_HEIGHT}
-        onLayoutChange={onLayoutChange}
-        draggableHandle=".drag-handle"
-        isResizable
-        isDraggable
-        compactType="vertical"
-        margin={[16, 16]}
-      >
-        {Object.entries(widgetMap)
-          .filter(([id]) => isVisible(id))
-          .map(([id, widget]) => (
-            <div key={id}>{widget}</div>
-          ))}
-      </RGLResponsive>
+      {/* ── Dashboard sections with auto-flowing layout ── */}
+      <div className="space-y-6">
+
+        {/* ── Row 1: Stat Cards ── */}
+        {visibleStats.length > 0 && (
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-4">
+            {isVisible('stat-pending') && (
+              <motion.div {...fadeUp(nextDelay())}>
+                <StatWidget label="Pending" value={pending.length} icon={Inbox} color="text-warning" borderColor="border-l-warning" bgColor="bg-warning/8" link="/admin/requests" />
+              </motion.div>
+            )}
+            {isVisible('stat-active') && (
+              <motion.div {...fadeUp(nextDelay())}>
+                <StatWidget label="Active Loans" value={active.length} icon={PackageCheck} color="text-primary" borderColor="border-l-primary" bgColor="bg-primary/8" link="/admin/requests" />
+              </motion.div>
+            )}
+            {isVisible('stat-overdue') && (
+              <motion.div {...fadeUp(nextDelay())}>
+                <StatWidget label="Overdue" value={overdue.length} icon={AlertTriangle} color="text-destructive" borderColor="border-l-destructive" bgColor="bg-destructive/8" link="/admin/requests" />
+              </motion.div>
+            )}
+            {isVisible('stat-pickup') && (
+              <motion.div {...fadeUp(nextDelay())}>
+                <StatWidget label="Awaiting Pickup" value={approved.length} icon={PackageX} color="text-accent" borderColor="border-l-accent" bgColor="bg-accent/8" link="/admin/requests" />
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* ── Row 2: Requests Chart + Category Breakdown ── */}
+        {(hasChartRequests || hasChartCategories) && (
+          <div className={cn(
+            'grid gap-4',
+            hasChartRequests && hasChartCategories
+              ? 'grid-cols-1 lg:grid-cols-3'
+              : 'grid-cols-1'
+          )}>
+            {hasChartRequests && (
+              <motion.div
+                {...fadeUp(nextDelay())}
+                className={cn('h-[380px]', hasChartCategories ? 'lg:col-span-2' : '')}
+              >
+                <ChartWidget title="Requests (7 Days)" icon={BarChart3}>
+                  <RequestsChart requests={requests} />
+                </ChartWidget>
+              </motion.div>
+            )}
+            {hasChartCategories && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
+                <ChartWidget title="Products by Category" icon={PieChart}>
+                  <CategoryChart products={products} />
+                </ChartWidget>
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* ── Row 3: Active Loans + Recent Requests ── */}
+        {visiblePrimaryLists.length > 0 && (
+          <div className={cn(
+            'grid gap-4',
+            visiblePrimaryLists.length >= 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
+          )}>
+            {isVisible('active-loans') && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[420px]">
+                <ListWidget
+                  title="Active Loans"
+                  icon={PackageCheck}
+                  iconColor="text-primary"
+                  iconBg="bg-primary/10"
+                  emptyIcon={PackageCheck}
+                  emptyText="No active loans"
+                  headerRight={
+                    <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
+                      View all <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  }
+                >
+                  {active.length > 0 && (
+                    <div className="space-y-1">
+                      {active.slice(0, 8).map((r) => {
+                        const isOverdue = r.return_date < today
+                        return (
+                          <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group">
+                            <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name} · {r.item_count} item{r.item_count > 1 ? 's' : ''}</p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              {isOverdue ? (
+                                <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30">Overdue</Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground flex items-center gap-1"><CalendarRange className="h-3 w-3" />{r.return_date}</span>
+                              )}
+                            </div>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </ListWidget>
+              </motion.div>
+            )}
+            {isVisible('recent-requests') && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[420px]">
+                <ListWidget
+                  title="Recent Requests"
+                  icon={Inbox}
+                  iconColor="text-accent"
+                  iconBg="bg-accent/10"
+                  emptyIcon={Inbox}
+                  emptyText="No recent requests"
+                  headerRight={
+                    <Link to="/admin/requests" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">View all <ArrowRight className="h-3 w-3" /></Link>
+                  }
+                >
+                  {recentRequests.length > 0 && (
+                    <div className="space-y-1">
+                      {recentRequests.slice(0, 5).map((r) => (
+                        <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group">
+                          <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name}</p>
+                          </div>
+                          <Badge variant="outline" className={cn('text-[10px] shrink-0', STATUS_COLORS[r.status] || '')}>
+                            {r.status === 'picked_up' ? 'Active' : r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                          </Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </ListWidget>
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* ── Row 4: Loan Activity Chart (full width) ── */}
+        {hasChartLoans && (
+          <motion.div {...fadeUp(nextDelay())} className="h-[320px]">
+            <ChartWidget title="Loan Activity" icon={Activity}>
+              <LoansChart requests={requests} />
+            </ChartWidget>
+          </motion.div>
+        )}
+
+        {/* ── Row 5: Overdue Returns + Low Stock ── */}
+        {visibleSecondaryLists.length > 0 && (
+          <div className={cn(
+            'grid gap-4',
+            visibleSecondaryLists.length >= 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
+          )}>
+            {isVisible('overdue-returns') && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
+                <ListWidget
+                  title={`Overdue Returns (${overdue.length})`}
+                  icon={AlertTriangle}
+                  iconColor="text-destructive"
+                  iconBg="bg-destructive/10"
+                  emptyIcon={AlertTriangle}
+                  emptyText="No overdue returns — all clear!"
+                  borderClass={overdue.length > 0 ? 'border-destructive/30' : ''}
+                >
+                  {overdue.length > 0 && (
+                    <div className="space-y-1">
+                      {overdue.slice(0, 5).map((r) => (
+                        <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors group">
+                          <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate group-hover:text-destructive transition-colors">{r.project_name}</p>
+                            <p className="text-xs text-muted-foreground">{r.user_first_name} {r.user_last_name} · Due {r.return_date}</p>
+                          </div>
+                          <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30 shrink-0">Overdue</Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </ListWidget>
+              </motion.div>
+            )}
+            {isVisible('low-stock') && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
+                <ListWidget
+                  title={`Low Stock (${lowStock.length})`}
+                  icon={TrendingDown}
+                  iconColor="text-warning"
+                  iconBg="bg-warning/10"
+                  emptyIcon={Box}
+                  emptyText="All stock levels healthy"
+                  borderClass={lowStock.length > 0 ? 'border-warning/30' : ''}
+                  headerRight={
+                    <Link to="/admin/products" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">Manage <ArrowRight className="h-3 w-3" /></Link>
+                  }
+                >
+                  {lowStock.length > 0 && (
+                    <div className="space-y-1">
+                      {lowStock.slice(0, 5).map((p) => (
+                        <div key={p.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
+                          <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                            <Box className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{p.name}</p>
+                            <p className="text-xs text-muted-foreground">{p.category_name}</p>
+                          </div>
+                          <Badge variant="outline" className={cn('text-[10px] shrink-0', p.total_stock === 0 ? 'bg-destructive/15 text-destructive border-destructive/30' : 'bg-warning/15 text-warning border-warning/30')}>
+                            {p.total_stock === 0 ? 'Out of stock' : `${p.total_stock} left`}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ListWidget>
+              </motion.div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
