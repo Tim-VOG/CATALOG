@@ -26,7 +26,7 @@ export function AppLayout() {
         <Header />
         <MobileNav />
         <BottomTabBar />
-        <main id="main-content" className="container mx-auto px-4 py-6 pb-20 md:pb-6 max-w-7xl">
+        <main id="main-content" className="px-6 py-6 pb-20 md:pb-6 lg:px-10">
           <PageTransition key={location.pathname}>
             <Outlet />
           </PageTransition>

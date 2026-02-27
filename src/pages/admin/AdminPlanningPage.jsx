@@ -82,7 +82,7 @@ export function AdminPlanningPage() {
   const goToToday = () => setBaseDate(new Date())
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Planning</h1>
         <p className="text-muted-foreground mt-1">Equipment reservation timeline</p>

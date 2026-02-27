@@ -375,7 +375,7 @@ export function AdminNewRequestPage() {
   // ---- Render ----
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">New Request</h1>
         <p className="text-muted-foreground mt-1">Create an equipment reservation on behalf of a user</p>

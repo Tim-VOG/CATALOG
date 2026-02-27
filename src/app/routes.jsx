@@ -30,6 +30,11 @@ import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
 import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingComposerPage'
 import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
+import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
+import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
+import { OnboardingVariablesPage } from '@/pages/admin/onboarding/OnboardingVariablesPage'
+import { AdminModuleAccessPage } from '@/pages/admin/AdminModuleAccessPage'
+import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export function AppRoutes() {
@@ -55,6 +60,7 @@ export function AppRoutes() {
         <Route path="requests" element={<RequestsPage />} />
         <Route path="requests/:requestId" element={<RequestDetailPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="it-request" element={<RequireModuleAccess moduleKey="it_form"><ItRequestFormPage /></RequireModuleAccess>} />
 
         {/* Admin routes */}
         <Route
@@ -82,6 +88,9 @@ export function AppRoutes() {
           <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
           <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
+          <Route path="onboarding/variables" element={<OnboardingVariablesPage />} />
+          <Route path="it-requests" element={<AdminItRequestsPage />} />
+          <Route path="module-access" element={<AdminModuleAccessPage />} />
         </Route>
       </Route>
 

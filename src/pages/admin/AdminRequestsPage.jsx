@@ -52,7 +52,7 @@ export function AdminRequestsPage() {
   const statusFilters = ['all', 'pending', 'approved', 'picked_up', 'returned']
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Requests</h1>
         <p className="text-muted-foreground mt-1">Manage equipment loan requests</p>

@@ -46,7 +46,7 @@ export function OnboardingHistoryPage() {
   const filtered = filter === 'all' ? emails : emails.filter((e) => e.status === filter)
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
         <p className="text-muted-foreground mt-1">Email send history</p>

@@ -20,13 +20,13 @@ import { useAuth } from '@/lib/auth'
 
 function ComposerSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 animate-pulse">
-      <div className="lg:col-span-3 space-y-3">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
+      <div className="lg:col-span-1 space-y-3">
         {[1, 2, 3, 4, 5].map((i) => (
           <Card key={i}><CardContent className="p-4"><div className="h-10 rounded bg-muted" /></CardContent></Card>
         ))}
       </div>
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-1">
         <div className="h-[600px] rounded-xl bg-muted" />
       </div>
     </div>
@@ -215,7 +215,7 @@ export function OnboardingComposerPage() {
   const isInitialLoad = emailId && emailLoading
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
@@ -292,9 +292,9 @@ export function OnboardingComposerPage() {
       {isInitialLoad ? (
         <ComposerSkeleton />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Block editor */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
                 Email Blocks
@@ -312,7 +312,7 @@ export function OnboardingComposerPage() {
           </div>
 
           {/* Right: Preview */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
                 Preview

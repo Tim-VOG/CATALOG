@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { Package, UserPlus, ArrowRight, Mail, ClipboardList, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -72,9 +73,77 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
 
 export function HubPage() {
   const { isAdmin } = useAuth()
+  const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
+  const { hasAccess: hasItForm } = useHasModuleAccess('it_form')
+  const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
+
+  // Build visible cards dynamically
+  const cards = []
+
+  // Catalog — always visible (accessible to all)
+  cards.push(
+    <HubCard
+      key="catalog"
+      to="/catalog"
+      icon={Package}
+      title="Equipment Catalog"
+      description="Browse and reserve equipment for your projects. View availability and submit loan requests."
+      color="primary"
+      buttonLabel="Open Catalog"
+    />
+  )
+
+  // Onboarding Hub — admin only
+  if (hasOnboarding && isAdmin) {
+    cards.push(
+      <HubCard
+        key="onboarding"
+        to="/admin/onboarding"
+        icon={UserPlus}
+        title="Onboarding Hub"
+        description="Compose and send welcome emails to new team members. Manage recipients and track delivery."
+        color="cyan"
+        badge="Admin"
+        buttonLabel="Open Onboarding"
+        variant="outline"
+      />
+    )
+  }
+
+  // Functional Mailbox — coming soon, show if access granted
+  if (hasMailbox) {
+    cards.push(
+      <HubCard
+        key="mailbox"
+        icon={Mail}
+        title="Functional Mailbox"
+        description="Request a new functional mailbox for your team or project. Approval workflow included."
+        color="violet"
+      />
+    )
+  }
+
+  // IT Onboarding Request — show if access granted
+  if (hasItForm) {
+    cards.push(
+      <HubCard
+        key="it-request"
+        to="/it-request"
+        icon={ClipboardList}
+        title="IT Onboarding Request"
+        description="Submit an IT onboarding request for new hires. Provide equipment and access requirements."
+        color="amber"
+        buttonLabel="New Request"
+        variant="outline"
+      />
+    )
+  }
+
+  // Determine grid columns based on card count
+  const gridCols = cards.length <= 2 ? 'sm:grid-cols-2' : cards.length <= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-2'
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4">
+    <div className="max-w-6xl mx-auto py-12 px-6">
       <motion.div
         className="text-center mb-10"
         initial={{ opacity: 0, y: -10 }}
@@ -96,50 +165,12 @@ export function HubPage() {
       </motion.div>
 
       <motion.div
-        className={`grid grid-cols-1 ${isAdmin ? 'sm:grid-cols-2 lg:grid-cols-2' : 'sm:grid-cols-3'} gap-5`}
+        className={`grid grid-cols-1 ${gridCols} gap-5`}
         variants={container}
         initial="hidden"
         animate="show"
       >
-        {/* Equipment Catalog — everyone */}
-        <HubCard
-          to="/catalog"
-          icon={Package}
-          title="Equipment Catalog"
-          description="Browse and reserve equipment for your projects. View availability and submit loan requests."
-          color="primary"
-          buttonLabel="Open Catalog"
-        />
-
-        {/* Onboarding Hub — admin only, hidden for users */}
-        {isAdmin && (
-          <HubCard
-            to="/admin/onboarding"
-            icon={UserPlus}
-            title="Onboarding Hub"
-            description="Compose and send welcome emails to new team members. Manage recipients and track delivery."
-            color="cyan"
-            badge="Admin"
-            buttonLabel="Open Onboarding"
-            variant="outline"
-          />
-        )}
-
-        {/* Coming soon: Functional Mailbox Request */}
-        <HubCard
-          icon={Mail}
-          title="Functional Mailbox"
-          description="Request a new functional mailbox for your team or project. Approval workflow included."
-          color="violet"
-        />
-
-        {/* Coming soon: Form IT Request */}
-        <HubCard
-          icon={ClipboardList}
-          title="IT Request"
-          description="Submit an IT request for hardware, software, or access. Track the status of your requests."
-          color="amber"
-        />
+        {cards}
       </motion.div>
     </div>
   )

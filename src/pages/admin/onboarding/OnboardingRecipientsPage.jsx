@@ -32,6 +32,7 @@ const TABS = [
   { key: 'recipients', label: 'Recipients', to: '/admin/onboarding' },
   { key: 'compose', label: 'Compose', to: '/admin/onboarding/compose' },
   { key: 'history', label: 'History', to: '/admin/onboarding/history' },
+  { key: 'variables', label: 'Variables', to: '/admin/onboarding/variables' },
 ]
 
 export function OnboardingTabNav() {
@@ -40,6 +41,7 @@ export function OnboardingTabNav() {
   const getActiveTab = () => {
     if (location.pathname.includes('/compose')) return 'compose'
     if (location.pathname.includes('/history')) return 'history'
+    if (location.pathname.includes('/variables')) return 'variables'
     return 'recipients'
   }
 
@@ -187,7 +189,7 @@ export function OnboardingRecipientsPage() {
   })
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
