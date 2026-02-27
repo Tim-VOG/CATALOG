@@ -3,9 +3,9 @@ import { AdminSidebar } from './AdminSidebar'
 
 export function AdminLayout() {
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)]">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
       <AdminSidebar />
-      <main className="flex-1 px-6 py-6 lg:px-10 overflow-auto">
+      <main className="admin-main flex-1 overflow-y-auto px-6 py-6 lg:px-10">
         <Outlet />
       </main>
     </div>

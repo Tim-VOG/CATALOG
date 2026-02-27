@@ -214,13 +214,31 @@ body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
   opacity: 1;
 }
 
+/* ── Sidebar icon contextual animations ──────────────── */
+@keyframes sidebar-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  20% { transform: rotate(-12deg) scale(1.1); }
+  40% { transform: rotate(10deg) scale(1.1); }
+  60% { transform: rotate(-6deg) scale(1.05); }
+  80% { transform: rotate(4deg) scale(1.02); }
+}
+
+.group:hover .sidebar-icon-wiggle {
+  animation: sidebar-wiggle 0.5s ease-in-out;
+}
+
 /* ── Dashboard grid layout (react-grid-layout) ─────── */
+.dashboard-grid {
+  position: relative;
+}
+
 .dashboard-grid .react-grid-item.react-grid-placeholder {
-  background: var(--color-primary) !important;
-  opacity: 0.12 !important;
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent) !important;
+  opacity: 1 !important;
   border-radius: var(--radius-md) !important;
   border: 2px dashed var(--color-primary) !important;
   transition: all 200ms ease !important;
+  box-shadow: inset 0 0 20px color-mix(in srgb, var(--color-primary) 5%, transparent);
 }
 
 .dashboard-grid .react-grid-item {
@@ -233,20 +251,34 @@ body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
 
 .dashboard-grid .react-grid-item.react-draggable-dragging {
   z-index: 50 !important;
-  opacity: 0.85;
-  box-shadow: var(--shadow-card-hover);
+  opacity: 0.9;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px var(--color-primary);
+  border-radius: var(--radius-md);
+  transform-origin: center center;
 }
 
 .dashboard-grid .react-grid-item.resizing {
   opacity: 0.9;
+  box-shadow: 0 0 0 2px var(--color-primary);
+  border-radius: var(--radius-md);
 }
 
 .dashboard-grid .react-resizable-handle {
   background: none !important;
+  z-index: 10;
 }
 
 .dashboard-grid .react-resizable-handle::after {
   border-color: var(--color-muted-foreground) !important;
   width: 8px !important;
   height: 8px !important;
+  right: 4px !important;
+  bottom: 4px !important;
+}
+
+/* Show subtle grid guides when any widget is being dragged */
+.dashboard-grid:has(.react-draggable-dragging) .react-grid-item:not(.react-draggable-dragging):not(.react-grid-placeholder) {
+  outline: 1px dashed color-mix(in srgb, var(--color-border) 50%, transparent);
+  outline-offset: -1px;
+  border-radius: var(--radius-md);
 }
