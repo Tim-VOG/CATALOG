@@ -86,6 +86,45 @@ function fillTemplate(template, req, appName) {
 // ── Format date for display ──
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : null
 
+// ── Banner download (fetch blob → Save As dialog) ──
+function BannerDownloadButton({ url, projectName }) {
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const ext = url.split('.').pop()?.split('?')[0] || 'png'
+      const filename = `${(projectName || 'banner').replace(/\s+/g, '_')}_banner.${ext}`
+
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(a.href)
+    } catch {
+      // Fallback: open in new tab
+      window.open(url, '_blank')
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={downloading}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors border border-primary/20 rounded-lg px-2.5 py-1.5 hover:bg-primary/5 disabled:opacity-50"
+    >
+      {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+      {downloading ? 'Downloading...' : 'Download'}
+    </button>
+  )
+}
+
 // ══════════════════════════════════════════
 //  Request Info Card
 // ══════════════════════════════════════════
@@ -160,16 +199,7 @@ function RequestInfoCard({ req }) {
               <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">Banner</span>
               <div className="flex items-center gap-3">
                 <img src={req.banner_url} alt="Banner" className="h-14 rounded-lg border object-contain" />
-                <a
-                  href={req.banner_url}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors border border-primary/20 rounded-lg px-2.5 py-1.5 hover:bg-primary/5"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Download
-                </a>
+                <BannerDownloadButton url={req.banner_url} projectName={req.project_name} />
               </div>
             </div>
           </div>
