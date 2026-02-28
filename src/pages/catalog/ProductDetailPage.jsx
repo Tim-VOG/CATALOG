@@ -75,7 +75,12 @@ export function ProductDetailPage() {
     showToast(`${product.name} added to cart`)
   }
 
-  const hasIncludes = product.includes?.length > 0
+  // Normalize includes: split semicolon/comma-separated strings into individual items
+  const includesList = (product.includes || [])
+    .flatMap((item) => item.split(/[;,]/))
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const hasIncludes = includesList.length > 0
   const hasSpecs = product.specs && Object.keys(product.specs).length > 0
 
   /* ── Render ───────────────────────────────────────────────── */
@@ -131,7 +136,7 @@ export function ProductDetailPage() {
           <FadeIn delay={0.2} y={24} className="flex justify-end pt-12">
             {hasIncludes ? (
               <div className="w-full max-w-[260px]">
-                <IncludesFloatingCard includes={product.includes} />
+                <IncludesFloatingCard includes={includesList} />
               </div>
             ) : <div />}
           </FadeIn>
@@ -222,7 +227,7 @@ export function ProductDetailPage() {
 
         {hasIncludes && (
           <ScrollFadeIn>
-            <IncludesFloatingCard includes={product.includes} />
+            <IncludesFloatingCard includes={includesList} />
           </ScrollFadeIn>
         )}
       </div>
@@ -297,7 +302,7 @@ function ProductShowcase({ src, alt }) {
           <BlurImage
             src={src || 'https://via.placeholder.com/600x600?text=No+Image'}
             alt={alt}
-            containerClassName="aspect-square rounded-2xl"
+            containerClassName="aspect-square rounded-2xl bg-transparent"
             className="object-contain transition-all duration-500"
           />
         </motion.div>

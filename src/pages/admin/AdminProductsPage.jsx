@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ImageUpload } from '@/components/admin/ImageUpload'
+import { TagInput } from '@/components/ui/tag-input'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ScrollFadeIn } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
@@ -51,7 +52,8 @@ export function AdminProductsPage() {
       name: product.name, description: product.description || '',
       category_id: product.category_id, sub_type: product.sub_type || '',
       image_url: product.image_url || '', total_stock: product.total_stock,
-      includes: product.includes || [], has_accessories: product.has_accessories,
+      includes: (product.includes || []).flatMap((s) => s.split(/[;,]/).map((t) => t.trim()).filter(Boolean)),
+      has_accessories: product.has_accessories,
       has_software: product.has_software, has_subscription: product.has_subscription,
       has_apps: product.has_apps, wifi_only: product.wifi_only, printer_info: product.printer_info,
     })
@@ -253,10 +255,11 @@ export function AdminProductsPage() {
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} />
             </div>
             <div className="space-y-1">
-              <Label>Included items (comma-separated)</Label>
-              <Input
-                value={form.includes.join(', ')}
-                onChange={(e) => setForm({ ...form, includes: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })}
+              <Label>Included items</Label>
+              <TagInput
+                value={form.includes}
+                onChange={(tags) => setForm({ ...form, includes: tags })}
+                placeholder="Type item and press Enter..."
               />
             </div>
             <div className="space-y-2">
