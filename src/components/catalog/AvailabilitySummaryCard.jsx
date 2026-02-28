@@ -1,17 +1,19 @@
-import { CalendarDays, ShoppingCart, Settings2 } from 'lucide-react'
+import { useState } from 'react'
+import { CalendarDays, Maximize2, Minimize2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { AvailabilityCalendar } from '@/components/calendar/AvailabilityCalendar'
 import { cn } from '@/lib/utils'
 
 export function AvailabilitySummaryCard({
   available,
   totalStock,
-  onAddToCart,
-  onConfigure,
-  needsConfig = false,
-  disabled = false,
+  reservations = [],
+  className,
 }) {
+  const [expanded, setExpanded] = useState(false)
+
   const stockVariant = available > 1
     ? 'success'
     : available === 1
@@ -19,30 +21,18 @@ export function AvailabilitySummaryCard({
       : 'destructive'
 
   const stockLabel = available > 0
-    ? `${available} / ${totalStock} available`
-    : 'Out of stock'
-
-  const handleCTA = () => {
-    if (needsConfig) {
-      onConfigure?.()
-    } else {
-      onAddToCart?.()
-    }
-  }
-
-  const scrollToCalendar = () => {
-    document.getElementById('availability-calendar')?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
-  }
+    ? `${available} / ${totalStock}`
+    : 'Unavailable'
 
   return (
-    <Card variant="glass" spotlight className="overflow-hidden">
+    <Card variant="glass" spotlight className={cn('overflow-hidden', className)}>
       <CardContent className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">Availability</span>
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">Availability</span>
+          </div>
           <Badge variant={stockVariant} className="text-[11px]">
             {stockLabel}
           </Badge>
@@ -50,42 +40,34 @@ export function AvailabilitySummaryCard({
 
         {/* Microcopy */}
         <p className="text-xs text-muted-foreground">
-          Choose your dates in the calendar below to check availability for your period.
+          Choose your available dates to reserve
         </p>
 
-        {/* View calendar link */}
+        {/* Embedded compact calendar */}
+        <div className="border-t border-border/30 pt-3">
+          <AvailabilityCalendar
+            reservations={reservations}
+            totalStock={totalStock}
+            compact={!expanded}
+          />
+        </div>
+
+        {/* Toggle full view */}
         <button
           type="button"
-          onClick={scrollToCalendar}
-          className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+          onClick={() => setExpanded((e) => !e)}
+          className="flex items-center justify-center gap-1.5 w-full text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors pt-1"
         >
-          <CalendarDays className="h-3.5 w-3.5" />
-          View calendar
-        </button>
-
-        {/* CTA */}
-        <Button
-          className={cn(
-            'w-full gap-2 rounded-full font-semibold',
-            available > 0 && !needsConfig && 'bg-primary hover:bg-primary/90',
-          )}
-          onClick={handleCTA}
-          disabled={disabled || available <= 0}
-        >
-          {available <= 0 ? (
-            'Unavailable'
-          ) : needsConfig ? (
+          {expanded ? (
             <>
-              <Settings2 className="h-4 w-4" />
-              Configure & Reserve
+              <Minimize2 className="h-3 w-3" /> Compact view
             </>
           ) : (
             <>
-              <ShoppingCart className="h-4 w-4" />
-              Add to Cart
+              <Maximize2 className="h-3 w-3" /> Full month view
             </>
           )}
-        </Button>
+        </button>
       </CardContent>
     </Card>
   )

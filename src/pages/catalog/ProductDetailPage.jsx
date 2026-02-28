@@ -9,15 +9,15 @@ import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import {
   ArrowLeft, Check, WifiOff, AlertTriangle,
-  CalendarDays, Maximize2, Minimize2,
+  ShoppingCart, Settings2, ChevronRight, Package,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
-import { AvailabilityCalendar } from '@/components/calendar/AvailabilityCalendar'
 import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummaryCard'
 import { ProductConfigModal } from '@/components/catalog/ProductConfigModal'
 import { FadeIn, ScrollFadeIn } from '@/components/ui/motion'
@@ -33,23 +33,23 @@ export function ProductDetailPage() {
   const addItem = useCartStore((s) => s.addItem)
   const cartItems = useCartStore((s) => s.items)
   const showToast = useUIStore((s) => s.showToast)
-  const [calendarCompact, setCalendarCompact] = useState(true)
   const [showConfig, setShowConfig] = useState(false)
 
   const product = productQuery.data
 
-  // ── Loading / Error states ──────────────────────────────────
+  /* ── Loading / Error ──────────────────────────────────────── */
   if (productQuery.isLoading || productQuery.isError) {
+    return <QueryWrapper query={productQuery} skeleton={<ShowcaseSkeleton />} />
+  }
+  if (!product) {
     return (
-      <QueryWrapper
-        query={productQuery}
-        skeleton={<HeroSkeleton />}
-      />
+      <div className="text-center py-16 text-muted-foreground">
+        Product not found
+      </div>
     )
   }
-  if (!product) return <div className="text-center py-16 text-muted-foreground">Product not found</div>
 
-  // ── Derived data ────────────────────────────────────────────
+  /* ── Derived data ─────────────────────────────────────────── */
   const activeLoans = loans.filter(
     (l) => l.product_id === product.id && (l.status === 'active' || l.status === 'pending')
   )
@@ -57,7 +57,8 @@ export function ProductDetailPage() {
   const inCart = cartItems.find((c) => c.product.id === product.id)?.quantity || 0
   const available = product.total_stock - borrowed - inCart
   const hasWarnings = product.wifi_only || product.printer_info
-  const needsConfig = product.has_accessories || product.has_software || product.has_subscription || product.has_apps
+  const needsConfig =
+    product.has_accessories || product.has_software || product.has_subscription || product.has_apps
 
   const handleAdd = () => {
     if (needsConfig) {
@@ -74,181 +75,167 @@ export function ProductDetailPage() {
     showToast(`${product.name} added to cart`)
   }
 
+  const hasIncludes = product.includes?.length > 0
+  const hasSpecs = product.specs && Object.keys(product.specs).length > 0
+
+  /* ── Render ───────────────────────────────────────────────── */
   return (
-    <div className="max-w-6xl mx-auto space-y-10">
-      {/* Back button */}
-      <FadeIn>
+    <div className="relative overflow-hidden">
+      {/* ── Back button ──────────────────────────────────────── */}
+      <FadeIn className="max-w-6xl mx-auto px-4">
         <Link to="/catalog">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-2 -ml-2">
             <ArrowLeft className="h-4 w-4" />
             Back to catalog
           </Button>
         </Link>
       </FadeIn>
 
-      {/* ── HERO SECTION ─────────────────────────────────────── */}
-      <FadeIn delay={0.05} y={20}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-start">
+      {/* ══════════════════════════════════════════════════════════
+          HERO — Centered showcase with orbital floating cards
+         ══════════════════════════════════════════════════════════ */}
+      <div className="relative mt-4">
+        {/* Ambient background blobs */}
+        <motion.div
+          className="absolute top-[-15%] left-[10%] w-[420px] h-[420px] rounded-full bg-primary/[0.07] blur-[100px] pointer-events-none"
+          animate={{ x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
+          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute bottom-[5%] right-[5%] w-[350px] h-[350px] rounded-full bg-cyan-500/[0.06] blur-[90px] pointer-events-none"
+          animate={{ x: [0, -30, 15, 0], y: [0, 20, -15, 0] }}
+          transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }}
+        />
 
-          {/* ── Mobile: Title above image ──────────────────── */}
-          <div className="md:hidden space-y-2">
-            <CategoryBadge
-              name={product.category_name}
-              color={product.category_color}
-              subType={product.sub_type}
-            />
-            <h1 className="text-3xl font-display font-bold tracking-tight">{product.name}</h1>
-            {product.description && (
-              <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-                {product.description}
-              </p>
-            )}
-          </div>
+        {/* ── Centered title + description ───────────────────── */}
+        <FadeIn delay={0.05} y={16} className="text-center max-w-2xl mx-auto px-4">
+          <CategoryBadge
+            name={product.category_name}
+            color={product.category_color}
+            subType={product.sub_type}
+            className="mx-auto"
+          />
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight mt-3 leading-[1.05]">
+            {product.name}
+          </h1>
+          {product.description && (
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mt-3 max-w-lg mx-auto line-clamp-2">
+              {product.description}
+            </p>
+          )}
+        </FadeIn>
 
-          {/* ── Left: Hero Image with decorative blobs ─────── */}
-          <FadeIn delay={0.1}>
-            <div className="relative">
-              {/* Decorative gradient blobs */}
-              <motion.div
-                className="absolute -top-12 -left-12 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none"
-                animate={{
-                  x: [0, 30, -15, 0],
-                  y: [0, -20, 15, 0],
-                }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.div
-                className="absolute -bottom-8 -right-8 w-56 h-56 rounded-full bg-cyan-500/8 blur-3xl pointer-events-none"
-                animate={{
-                  x: [0, -20, 10, 0],
-                  y: [0, 15, -10, 0],
-                }}
-                transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* Image */}
-              <div className="relative group rounded-2xl overflow-hidden">
-                <BlurImage
-                  src={product.image_url || 'https://via.placeholder.com/600x450?text=No+Image'}
-                  alt={product.name}
-                  containerClassName="aspect-[4/3] rounded-2xl"
-                  className="transition-transform duration-700 group-hover:scale-105"
-                />
+        {/* ── Desktop orbital: product ALWAYS centered ────────── */}
+        <div className="hidden xl:grid xl:grid-cols-[1fr_auto_1fr] xl:gap-6 xl:items-start max-w-[1200px] mx-auto mt-10 px-4">
+          {/* LEFT — What's included (right-aligned within column) */}
+          <FadeIn delay={0.2} y={24} className="flex justify-end pt-12">
+            {hasIncludes ? (
+              <div className="w-full max-w-[260px]">
+                <IncludesFloatingCard includes={product.includes} />
               </div>
-            </div>
+            ) : <div />}
           </FadeIn>
 
-          {/* ── Right: Product info stack ──────────────────── */}
-          <div className="space-y-5">
-            {/* Desktop: Title (hidden on mobile, shown above image there) */}
-            <FadeIn delay={0.15} className="hidden md:block">
-              <div className="space-y-3">
-                <CategoryBadge
-                  name={product.category_name}
-                  color={product.category_color}
-                  subType={product.sub_type}
-                />
-                <h1 className="text-4xl lg:text-5xl font-display font-bold tracking-tight leading-[1.1]">
-                  {product.name}
-                </h1>
-                {product.description && (
-                  <p className="text-muted-foreground text-base leading-relaxed line-clamp-3 max-w-lg">
-                    {product.description}
-                  </p>
-                )}
-              </div>
-            </FadeIn>
+          {/* CENTER — Product hero image with halo (always centered) */}
+          <FadeIn delay={0.1} y={12} className="flex justify-center">
+            <ProductShowcase
+              src={product.image_url}
+              alt={product.name}
+            />
+          </FadeIn>
 
-            {/* What's included */}
-            {product.includes?.length > 0 && (
-              <FadeIn delay={0.2}>
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">What's included</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {product.includes.map((item, i) => (
-                      <span key={i} className="inline-flex items-center gap-1.5 text-xs bg-muted rounded-md px-2.5 py-1.5">
-                        <Check className="h-3 w-3 text-success" />{item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </FadeIn>
-            )}
-
-            {/* Warnings */}
-            {hasWarnings && (
-              <FadeIn delay={0.22}>
-                <div className="space-y-2 bg-warning/10 rounded-lg p-3">
-                  {product.wifi_only && (
-                    <div className="flex items-center gap-2 text-sm text-warning">
-                      <WifiOff className="h-4 w-4 shrink-0" /> WiFi only - No cellular
-                    </div>
-                  )}
-                  {product.printer_info && (
-                    <div className="flex items-center gap-2 text-sm text-warning">
-                      <AlertTriangle className="h-4 w-4 shrink-0" /> B&W Laser - Print only
-                    </div>
-                  )}
-                </div>
-              </FadeIn>
-            )}
-
-            {/* ── Availability Summary Card ────────────────── */}
-            <FadeIn delay={0.25}>
+          {/* RIGHT — Availability card (left-aligned within column) */}
+          <FadeIn delay={0.25} y={24} className="pt-6">
+            <div className="w-full max-w-[300px]">
               <AvailabilitySummaryCard
                 available={available}
                 totalStock={product.total_stock}
-                needsConfig={needsConfig}
-                onAddToCart={handleAdd}
-                onConfigure={() => setShowConfig(true)}
+                reservations={reservations}
               />
-            </FadeIn>
-          </div>
+            </div>
+          </FadeIn>
         </div>
+
+        {/* ── Mobile / Tablet: centered product only ─────────── */}
+        <div className="xl:hidden max-w-sm mx-auto mt-8 px-4">
+          <FadeIn delay={0.1}>
+            <ProductShowcase
+              src={product.image_url}
+              alt={product.name}
+            />
+          </FadeIn>
+        </div>
+      </div>
+
+      {/* ── CTA Button (centered, all breakpoints) ───────────── */}
+      <FadeIn delay={0.3} y={10} className="flex justify-center mt-8 xl:mt-10 px-4">
+        <Button
+          className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all duration-300"
+          onClick={handleAdd}
+          disabled={available <= 0}
+        >
+          {available <= 0 ? (
+            'Unavailable'
+          ) : needsConfig ? (
+            <>
+              <Settings2 className="h-5 w-5" />
+              Configure & Reserve
+              <ChevronRight className="h-4 w-4" />
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="h-5 w-5" />
+              Reserve
+              <ChevronRight className="h-4 w-4" />
+            </>
+          )}
+        </Button>
       </FadeIn>
 
-      {/* ── CALENDAR SECTION ─────────────────────────────────── */}
-      <ScrollFadeIn>
-        <div id="availability-calendar">
-          <Card variant="glass" className="overflow-hidden">
-            <CardContent className={cn('p-5', calendarCompact && 'p-4')}>
-              <AvailabilityCalendar
-                reservations={reservations}
-                totalStock={product.total_stock}
-                compact={calendarCompact}
-                headerExtra={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 gap-1.5 text-xs text-muted-foreground"
-                    onClick={() => setCalendarCompact((c) => !c)}
-                  >
-                    {calendarCompact ? (
-                      <>
-                        <Maximize2 className="h-3 w-3" /> Full view
-                      </>
-                    ) : (
-                      <>
-                        <Minimize2 className="h-3 w-3" /> Compact
-                      </>
-                    )}
-                  </Button>
-                }
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </ScrollFadeIn>
+      {/* ── Warnings ─────────────────────────────────────────── */}
+      {hasWarnings && (
+        <FadeIn delay={0.35} className="max-w-md mx-auto mt-6 px-4">
+          <div className="space-y-2 bg-warning/10 rounded-xl p-3 border border-warning/20">
+            {product.wifi_only && (
+              <div className="flex items-center gap-2 text-sm text-warning">
+                <WifiOff className="h-4 w-4 shrink-0" /> WiFi only — No cellular
+              </div>
+            )}
+            {product.printer_info && (
+              <div className="flex items-center gap-2 text-sm text-warning">
+                <AlertTriangle className="h-4 w-4 shrink-0" /> B&W Laser — Print only
+              </div>
+            )}
+          </div>
+        </FadeIn>
+      )}
 
-      {/* ── SPECIFICATIONS ────────────────────────────────────── */}
-      {product.specs && Object.keys(product.specs).length > 0 && (
+      {/* ── Mobile / Tablet cards (stacked) ─────────────────── */}
+      <div className="xl:hidden max-w-md mx-auto mt-8 px-4 space-y-4">
         <ScrollFadeIn>
+          <AvailabilitySummaryCard
+            available={available}
+            totalStock={product.total_stock}
+            reservations={reservations}
+          />
+        </ScrollFadeIn>
+
+        {hasIncludes && (
+          <ScrollFadeIn>
+            <IncludesFloatingCard includes={product.includes} />
+          </ScrollFadeIn>
+        )}
+      </div>
+
+      {/* ── Specifications ───────────────────────────────────── */}
+      {hasSpecs && (
+        <ScrollFadeIn className="max-w-2xl mx-auto mt-10 px-4">
           <Card variant="glass">
             <CardContent className="p-5">
               <h3 className="font-semibold text-base mb-3">Specifications</h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
                 {Object.entries(product.specs).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-1 border-b border-border/30 last:border-0">
+                  <div key={key} className="flex justify-between py-1.5 border-b border-border/20 last:border-0">
                     <dt className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</dt>
                     <dd className="font-medium text-right">{value}</dd>
                   </div>
@@ -259,7 +246,10 @@ export function ProductDetailPage() {
         </ScrollFadeIn>
       )}
 
-      {/* ── Config Modal ──────────────────────────────────────── */}
+      {/* bottom spacing */}
+      <div className="h-12" />
+
+      {/* ── Config Modal ─────────────────────────────────────── */}
       {showConfig && (
         <ProductConfigModal
           product={product}
@@ -273,29 +263,100 @@ export function ProductDetailPage() {
   )
 }
 
-// ── Hero Loading Skeleton ────────────────────────────────────
-function HeroSkeleton() {
+/* ═══════════════════════════════════════════════════════════════
+   LOCAL COMPONENTS
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Product image with halo bloom + pedestal reflection */
+function ProductShowcase({ src, alt }) {
   return (
-    <div className="max-w-6xl mx-auto space-y-10">
-      <Skeleton className="h-8 w-32" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-        {/* Image skeleton */}
-        <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
-        {/* Info skeleton */}
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <Skeleton className="h-5 w-20 rounded-md" />
-            <Skeleton className="h-10 w-4/5" />
-            <SkeletonText lines={2} className="max-w-md" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-7 w-20 rounded-md" />
-            <Skeleton className="h-7 w-24 rounded-md" />
-          </div>
-          <Skeleton className="h-40 w-full rounded-lg" />
-        </div>
+    <div className="relative w-full max-w-[420px]">
+      {/* Halo — radial glow behind product */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[130%] h-[130%] rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, hsl(var(--primary) / 0.10) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%)',
+        }}
+      />
+      {/* Secondary halo — cooler tone */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[110%] h-[110%] rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse, hsl(var(--accent) / 0.06) 0%, transparent 60%)',
+        }}
+      />
+      {/* Pedestal / reflection */}
+      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-[75%] h-5 bg-foreground/[0.04] rounded-[50%] blur-lg pointer-events-none" />
+
+      {/* Image */}
+      <div className="relative group">
+        <motion.div
+          whileHover={{ scale: 1.03 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        >
+          <BlurImage
+            src={src || 'https://via.placeholder.com/600x600?text=No+Image'}
+            alt={alt}
+            containerClassName="aspect-square rounded-2xl"
+            className="object-contain transition-all duration-500"
+          />
+        </motion.div>
       </div>
-      <Skeleton className="h-48 w-full rounded-lg" />
+    </div>
+  )
+}
+
+/** Floating glass card for "What's included" */
+function IncludesFloatingCard({ includes }) {
+  return (
+    <motion.div
+      animate={{ y: [0, -6, 0] }}
+      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      <Card variant="glass" spotlight className="max-w-[280px]">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Package className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">What's included</h3>
+          </div>
+          <div className="space-y-1.5">
+            {includes.map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Check className="h-3 w-3 text-success shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
+/** Loading skeleton matching the showcase layout */
+function ShowcaseSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 space-y-8">
+      <Skeleton className="h-8 w-32" />
+      {/* Title area */}
+      <div className="flex flex-col items-center space-y-3">
+        <Skeleton className="h-5 w-20 rounded-md" />
+        <Skeleton className="h-12 w-64" />
+        <SkeletonText lines={1} className="max-w-xs" />
+      </div>
+      {/* Product + side cards */}
+      <div className="hidden xl:grid xl:grid-cols-[1fr_auto_1fr] gap-6 items-center">
+        <div className="flex justify-end"><Skeleton className="h-44 w-[260px] rounded-xl" /></div>
+        <Skeleton className="aspect-square w-[420px] rounded-2xl" />
+        <Skeleton className="h-72 w-[300px] rounded-xl" />
+      </div>
+      <div className="xl:hidden flex justify-center">
+        <Skeleton className="aspect-square w-full max-w-sm rounded-2xl" />
+      </div>
+      {/* CTA */}
+      <div className="flex justify-center">
+        <Skeleton className="h-14 w-52 rounded-full" />
+      </div>
     </div>
   )
 }
