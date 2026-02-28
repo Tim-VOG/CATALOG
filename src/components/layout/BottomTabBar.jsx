@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Package, ShoppingCart, ClipboardList, User } from 'lucide-react'
+import { Package, ShoppingCart, Home, User } from 'lucide-react'
 import { useCartStore } from '@/stores/cart-store'
 import { ScalePop } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
 const tabs = [
+  { to: '/', label: 'Hub', icon: Home, exact: true },
   { to: '/catalog', label: 'Catalog', icon: Package },
   { to: '/cart', label: 'Cart', icon: ShoppingCart },
-  { to: '/requests', label: 'Requests', icon: ClipboardList },
   { to: '/profile', label: 'Profile', icon: User },
 ]
 
@@ -15,13 +15,13 @@ export function BottomTabBar() {
   const location = useLocation()
   const cartCount = useCartStore((s) => s.items.length)
 
-  const isActive = (to) => location.pathname.startsWith(to)
+  const isActive = (to, exact) => exact ? location.pathname === to : location.pathname.startsWith(to)
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-card/95 backdrop-blur-lg border-t border-primary/10 shadow-[0_-1px_3px_0_rgb(var(--color-primary)/0.06)] pb-safe">
       <div className="flex items-center justify-around h-16 px-2">
-        {tabs.map(({ to, label, icon: Icon }) => {
-          const active = isActive(to)
+        {tabs.map(({ to, label, icon: Icon, exact }) => {
+          const active = isActive(to, exact)
           const isCart = to === '/cart'
           return (
             <Link

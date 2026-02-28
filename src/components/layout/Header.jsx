@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, ShoppingCart, Settings, Menu, ClipboardList, Sun, Moon, Search, X } from 'lucide-react'
+import { Package, ShoppingCart, Settings, Menu, Home, Sun, Moon, Search, X } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
@@ -253,8 +253,8 @@ export function Header() {
   const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
 
   const navLinks = [
+    { to: '/', label: 'Hub', icon: Home, exact: true },
     { to: '/catalog', label: 'Catalog', icon: Package },
-    { to: '/requests', label: 'My Requests', icon: ClipboardList },
   ]
 
   return (
@@ -279,10 +279,10 @@ export function Header() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 ml-4">
-            {navLinks.map(({ to, label, icon: Icon }) => (
+            {navLinks.map(({ to, label, icon: Icon, exact }) => (
               <Link key={to} to={to}>
                 <Button
-                  variant={location.pathname.startsWith(to) ? 'secondary' : 'ghost'}
+                  variant={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'secondary' : 'ghost'}
                   size="sm"
                   className="gap-2"
                 >

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { Package, ShoppingCart, ClipboardList, Settings, X, LayoutDashboard, Inbox, RotateCcw, FolderTree, Sun, Moon } from 'lucide-react'
+import { Package, ShoppingCart, Home, Settings, X, LayoutDashboard, Inbox, RotateCcw, FolderTree, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
@@ -9,9 +9,9 @@ import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
 
 const userLinks = [
+  { to: '/', label: 'Hub', icon: Home, exact: true },
   { to: '/catalog', label: 'Catalog', icon: Package },
   { to: '/cart', label: 'Cart', icon: ShoppingCart },
-  { to: '/requests', label: 'My Requests', icon: ClipboardList },
 ]
 
 const adminLinks = [
