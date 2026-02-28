@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom'
 import {
   format, addDays, addMonths, subMonths, differenceInDays,
   startOfDay, startOfMonth, endOfMonth, eachDayOfInterval,
-  eachWeekOfInterval, isToday, subDays, subWeeks, addWeeks,
+  eachWeekOfInterval, isToday, subWeeks, addWeeks,
 } from 'date-fns'
 import {
   ChevronLeft, ChevronRight, CalendarRange,
-  Package, Search, Inbox, Clock, CheckCircle2, XCircle,
+  Package, Search, Inbox,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/common/UserAvatar'
+import { useBatchLoanRequestItems } from '@/hooks/use-loan-requests'
 import { cn } from '@/lib/utils'
 
 // ── Status colors for bars ──
@@ -48,7 +48,7 @@ const VIEW_MODES = [
 
 const STATUS_PILLS = ['pending', 'approved', 'picked_up', 'returned', 'completed', 'rejected']
 
-export function CatalogLoansView({ events, users }) {
+export function CatalogLoansView({ events }) {
   const [viewMode, setViewMode] = useState('1M')
   const [baseDate, setBaseDate] = useState(new Date())
   const [search, setSearch] = useState('')
@@ -152,44 +152,86 @@ export function CatalogLoansView({ events, users }) {
     let result = events.filter((ev) => {
       if (ev.type !== 'catalog') return false
       if (!ev.startDate || !ev.endDate) return false
-      // Check overlap with range
       const evStart = startOfDay(ev.startDate)
       const evEnd = startOfDay(ev.endDate)
       const rangeStart = startOfDay(startDate)
       const rangeEnd = startOfDay(endDate)
       return evStart <= rangeEnd && evEnd >= rangeStart
     })
-    if (search) {
-      const q = search.toLowerCase()
-      result = result.filter((ev) =>
-        ev.title.toLowerCase().includes(q) ||
-        ev.userName?.toLowerCase().includes(q) ||
-        ev.subtitle?.toLowerCase().includes(q)
-      )
-    }
     if (statusFilter.length > 0) {
       result = result.filter((ev) => statusFilter.includes(ev.status))
     }
     return result
-  }, [events, startDate, endDate, search, statusFilter])
+  }, [events, startDate, endDate, statusFilter])
 
-  // ── Group by project (using the request's original data) ──
-  // Each loan request is a "reservation bar" — group by project name
-  const projectRows = useMemo(() => {
+  // ── Build event lookup by request ID ──
+  const eventByRequestId = useMemo(() => {
     const map = new Map()
     for (const ev of catalogEvents) {
-      const projectKey = ev.title || 'Unknown Project'
-      if (!map.has(projectKey)) {
-        map.set(projectKey, {
-          projectName: projectKey,
-          location: ev.subtitle || '',
+      if (ev.original?.id) map.set(ev.original.id, ev)
+    }
+    return map
+  }, [catalogEvents])
+
+  // ── Fetch items for visible catalog requests ──
+  const requestIds = useMemo(
+    () => catalogEvents.map((ev) => ev.original?.id).filter(Boolean),
+    [catalogEvents],
+  )
+  const { data: rawItems = [] } = useBatchLoanRequestItems(requestIds)
+
+  // ── Merge items with request/event data and apply search ──
+  const itemEvents = useMemo(() => {
+    let merged = rawItems.map((item) => {
+      const ev = eventByRequestId.get(item.request_id)
+      return {
+        itemId: item.id,
+        productId: item.product_id,
+        productName: item.product_name || 'Unknown',
+        categoryName: item.category_name || '',
+        categoryColor: item.category_color || '#6b7280',
+        quantity: item.quantity,
+        startDate: ev?.startDate,
+        endDate: ev?.endDate,
+        status: ev?.status || 'pending',
+        userName: ev?.userName || 'Unknown',
+        userAvatar: ev?.userAvatar,
+        adminLinkTo: ev?.adminLinkTo || (ev?.original?.id ? `/admin/requests/${ev.original.id}` : '#'),
+        requestId: item.request_id,
+        projectName: ev?.title || '',
+      }
+    }).filter((item) => item.startDate && item.endDate)
+
+    if (search) {
+      const q = search.toLowerCase()
+      merged = merged.filter(
+        (item) =>
+          item.productName.toLowerCase().includes(q) ||
+          item.userName.toLowerCase().includes(q) ||
+          item.categoryName.toLowerCase().includes(q) ||
+          item.projectName.toLowerCase().includes(q),
+      )
+    }
+    return merged
+  }, [rawItems, eventByRequestId, search])
+
+  // ── Group by product ──
+  const productRows = useMemo(() => {
+    const map = new Map()
+    for (const item of itemEvents) {
+      if (!map.has(item.productId)) {
+        map.set(item.productId, {
+          productId: item.productId,
+          productName: item.productName,
+          categoryName: item.categoryName,
+          categoryColor: item.categoryColor,
           reservations: [],
         })
       }
-      map.get(projectKey).reservations.push(ev)
+      map.get(item.productId).reservations.push(item)
     }
-    return Array.from(map.values()).sort((a, b) => a.projectName.localeCompare(b.projectName))
-  }, [catalogEvents])
+    return Array.from(map.values()).sort((a, b) => a.productName.localeCompare(b.productName))
+  }, [itemEvents])
 
   // ── Bar position calculation ──
   const getBarStyle = (pickupDate, returnDate) => {
@@ -235,13 +277,15 @@ export function CatalogLoansView({ events, users }) {
     return `${(offset / totalDays) * 100}%`
   }, [viewMode, startDate])
 
-  const getRowHeight = (reservations) => Math.max(64, 14 + reservations.length * 40)
+  const getRowHeight = (reservations) => Math.max(56, 14 + reservations.length * 36)
 
   const toggleStatus = (status) => {
     setStatusFilter((prev) =>
       prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
     )
   }
+
+  const totalLoans = catalogEvents.length
 
   return (
     <div className="space-y-4">
@@ -284,7 +328,7 @@ export function CatalogLoansView({ events, users }) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search projects, users..."
+            placeholder="Search products, users..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
           />
         </div>
@@ -321,7 +365,7 @@ export function CatalogLoansView({ events, users }) {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        {catalogEvents.length} loan{catalogEvents.length !== 1 ? 's' : ''} &middot; {projectRows.length} project{projectRows.length !== 1 ? 's' : ''}
+        {totalLoans} loan{totalLoans !== 1 ? 's' : ''} &middot; {productRows.length} product{productRows.length !== 1 ? 's' : ''}
       </p>
 
       {/* Timeline */}
@@ -340,9 +384,9 @@ export function CatalogLoansView({ events, users }) {
           <div className="min-w-[800px]">
             {/* Header row */}
             <div className="flex border-b bg-muted/10 sticky top-0 z-10">
-              <div className="w-56 shrink-0 px-4 py-2.5 font-semibold text-xs text-muted-foreground uppercase tracking-wider border-r flex items-center gap-2">
+              <div className="w-64 shrink-0 px-5 py-2.5 font-semibold text-xs text-muted-foreground uppercase tracking-wider border-r flex items-center gap-2">
                 <Package className="h-3.5 w-3.5" />
-                Project
+                Product
               </div>
               <div className="flex-1 flex">
                 {columns.map((col) => (
@@ -369,31 +413,35 @@ export function CatalogLoansView({ events, users }) {
               </div>
             </div>
 
-            {/* Project rows */}
-            {projectRows.length === 0 ? (
+            {/* Product rows */}
+            {productRows.length === 0 ? (
               <div className="py-16 text-center">
                 <Inbox className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">No catalog loans in this period</p>
               </div>
             ) : (
-              projectRows.map((row, rowIndex) => {
+              productRows.map((row, rowIndex) => {
                 const rowHeight = getRowHeight(row.reservations)
                 return (
                   <div
-                    key={row.projectName}
+                    key={row.productId}
                     className={cn(
                       'flex border-b last:border-b-0 group/row hover:bg-muted/8 transition-colors',
                       rowIndex % 2 === 1 && 'bg-muted/5',
                     )}
                   >
-                    {/* Project label */}
-                    <div className="w-56 shrink-0 px-4 py-3 border-r flex flex-col justify-start gap-1">
-                      <div className="text-sm font-semibold truncate">{row.projectName}</div>
-                      {row.location && (
-                        <div className="text-[10px] text-muted-foreground truncate">{row.location}</div>
-                      )}
-                      <div className="text-[10px] text-muted-foreground/60">
-                        {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
+                    {/* Product label (like PlanningTimeline) */}
+                    <div className="w-64 shrink-0 px-5 py-3 border-r flex items-start gap-3">
+                      <div
+                        className="h-2 w-2 rounded-full mt-1.5 shrink-0"
+                        style={{ backgroundColor: row.categoryColor }}
+                      />
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold truncate">{row.productName}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">{row.categoryName}</div>
+                        <div className="text-[10px] text-muted-foreground/60 mt-0.5">
+                          {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
+                        </div>
                       </div>
                     </div>
 
@@ -409,15 +457,15 @@ export function CatalogLoansView({ events, users }) {
                         </div>
                       )}
 
-                      {/* Reservation bars */}
-                      {row.reservations.map((ev, i) => {
-                        const barStyle = getBarStyle(ev.startDate, ev.endDate)
-                        const statusColor = STATUS_COLORS[ev.status] || STATUS_COLORS.pending
+                      {/* Reservation bars — person names on bars */}
+                      {row.reservations.map((item, i) => {
+                        const barStyle = getBarStyle(item.startDate, item.endDate)
+                        const statusColor = STATUS_COLORS[item.status] || STATUS_COLORS.pending
 
                         return (
                           <Link
-                            key={ev.id}
-                            to={ev.adminLinkTo || `/admin/requests/${ev.original?.id}`}
+                            key={item.itemId}
+                            to={item.adminLinkTo}
                             className={cn(
                               'absolute h-8 rounded-lg flex items-center px-2.5 gap-1.5 text-[10px] text-white font-medium',
                               'shadow-sm transition-all duration-150 cursor-pointer hover:scale-[1.02] hover:shadow-md',
@@ -425,21 +473,21 @@ export function CatalogLoansView({ events, users }) {
                             )}
                             style={{
                               ...barStyle,
-                              top: `${8 + i * 40}px`,
+                              top: `${10 + i * 36}px`,
                             }}
-                            title={`${ev.userName || 'Unknown'} — ${ev.title}\n${format(ev.startDate, 'dd MMM')} → ${format(ev.endDate, 'dd MMM yyyy')}\nStatus: ${ev.status}`}
+                            title={`${item.userName} — ${item.productName}\n${format(item.startDate, 'dd MMM')} → ${format(item.endDate, 'dd MMM yyyy')}\nStatus: ${item.status}${item.projectName ? `\nProject: ${item.projectName}` : ''}`}
                           >
-                            {ev.userAvatar && (
+                            {item.userAvatar && (
                               <UserAvatar
-                                avatarUrl={ev.userAvatar}
-                                firstName={ev.userName?.split(' ')[0]}
-                                lastName={ev.userName?.split(' ')[1]}
+                                avatarUrl={item.userAvatar}
+                                firstName={item.userName?.split(' ')[0]}
+                                lastName={item.userName?.split(' ')[1]}
                                 size="sm"
                                 className="h-5 w-5 text-[7px] shrink-0 ring-1 ring-white/30"
                               />
                             )}
                             <span className="truncate">
-                              {ev.userName || 'Unknown'}
+                              {item.userName}
                             </span>
                           </Link>
                         )

@@ -309,27 +309,22 @@ function ProductShowcase({ src, alt }) {
 /** Floating glass card for "What's included" */
 function IncludesFloatingCard({ includes }) {
   return (
-    <motion.div
-      animate={{ y: [0, -6, 0] }}
-      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-    >
-      <Card variant="glass" spotlight className="max-w-[280px]">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Package className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold">What's included</h3>
-          </div>
-          <div className="space-y-1.5">
-            {includes.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Check className="h-3 w-3 text-success shrink-0" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+    <Card variant="glass" spotlight className="max-w-[280px]">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Package className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold">What's included</h3>
+        </div>
+        <div className="space-y-1.5">
+          {includes.map((item, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Check className="h-3 w-3 text-success shrink-0" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

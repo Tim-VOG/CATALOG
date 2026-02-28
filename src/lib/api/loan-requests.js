@@ -38,6 +38,16 @@ export const getLoanRequestItems = async (requestId) => {
   return data
 }
 
+export const getBatchLoanRequestItems = async (requestIds) => {
+  if (!requestIds.length) return []
+  const { data, error } = await supabase
+    .from('loan_request_items_with_details')
+    .select('*')
+    .in('request_id', requestIds)
+  if (error) throw error
+  return data
+}
+
 export const createLoanRequest = async ({ request, items }) => {
   // Create the request
   const { data: req, error: reqError } = await supabase

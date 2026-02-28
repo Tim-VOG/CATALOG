@@ -28,6 +28,13 @@ export const useLoanRequestItems = (requestId) =>
     enabled: !!requestId,
   })
 
+export const useBatchLoanRequestItems = (requestIds) =>
+  useQuery({
+    queryKey: ['loan-request-items', 'batch', requestIds],
+    queryFn: () => api.getBatchLoanRequestItems(requestIds),
+    enabled: requestIds.length > 0,
+  })
+
 export const useCreateLoanRequest = () => {
   const queryClient = useQueryClient()
   return useMutation({

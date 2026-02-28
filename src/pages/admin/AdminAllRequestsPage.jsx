@@ -247,7 +247,7 @@ export function AdminAllRequestsPage() {
         </TabsContent>
 
         <TabsContent value="loans" className="mt-6">
-          <CatalogLoansView events={events} users={users} />
+          <CatalogLoansView events={events} />
         </TabsContent>
       </Tabs>
 
