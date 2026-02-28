@@ -17,10 +17,11 @@ export const useItRequests = () =>
     retry: 1,
   })
 
-export const useMyItRequests = () =>
+export const useMyItRequests = (userId) =>
   useQuery({
-    queryKey: ['my-it-requests'],
-    queryFn: getMyItRequests,
+    queryKey: ['my-it-requests', userId],
+    queryFn: () => getMyItRequests(userId),
+    enabled: !!userId,
     retry: 1,
   })
 

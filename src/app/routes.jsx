@@ -37,6 +37,7 @@ import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
 import { OffboardingPage } from '@/pages/admin/offboarding/OffboardingPage'
 import { AdminOffboardingFormBuilderPage } from '@/pages/admin/AdminOffboardingFormBuilderPage'
 import { FunctionalMailboxFormPage } from '@/pages/functional-mailbox/FunctionalMailboxFormPage'
+import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
 import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
@@ -67,6 +68,7 @@ export function AppRoutes() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="it-request" element={<RequireModuleAccess moduleKey="it_form"><ItRequestFormPage /></RequireModuleAccess>} />
         <Route path="functional-mailbox" element={<RequireModuleAccess moduleKey="functional_mailbox"><FunctionalMailboxFormPage /></RequireModuleAccess>} />
+        <Route path="my-requests" element={<MyRequestsPage />} />
 
         {/* Admin routes */}
         <Route

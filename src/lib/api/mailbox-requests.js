@@ -11,10 +11,11 @@ export const getMailboxRequests = async () => {
 }
 
 // ── User: fetch own mailbox requests ──
-export const getMyMailboxRequests = async () => {
+export const getMyMailboxRequests = async (userId) => {
   const { data, error } = await supabase
     .from('mailbox_requests')
     .select('*')
+    .eq('requested_by', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data

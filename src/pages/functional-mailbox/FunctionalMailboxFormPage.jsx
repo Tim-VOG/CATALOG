@@ -35,6 +35,7 @@ const SYSTEM_FIELD_KEYS = new Set([
   'project_name', 'project_leader', 'agency', 'email_to_create',
   'who_needs_access', 'creation_date', 'display_name', 'signature_title',
   'banner_social_icons', 'links', 'more_info', 'deleted_archived',
+  'archive_date', 'deletion_date',
   'first_name', 'last_name', 'mail',
 ])
 
@@ -405,6 +406,8 @@ export function FunctionalMailboxFormPage() {
     links: '',
     more_info: '',
     deleted_archived: '',
+    archive_date: '',
+    deletion_date: '',
     first_name: '',
     last_name: '',
     mail: '',
@@ -486,6 +489,8 @@ export function FunctionalMailboxFormPage() {
         links: form.links,
         more_info: form.more_info,
         deleted_archived: form.deleted_archived,
+        archive_date: form.archive_date || null,
+        deletion_date: form.deletion_date || null,
         requested_by: user?.id,
         requested_by_name: profile ? `${profile.first_name} ${profile.last_name}` : '',
         requested_on: new Date().toISOString().split('T')[0],

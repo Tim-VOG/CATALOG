@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock } from 'lucide-react'
+import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -98,6 +98,20 @@ export function HubPage() {
       description={settings?.hub_catalog_description || 'Browse and reserve equipment for your projects. View availability and submit loan requests.'}
       color="primary"
       buttonLabel="Open Catalog"
+    />
+  )
+
+  // My Requests — always visible
+  cards.push(
+    <HubCard
+      key="my-requests"
+      to="/my-requests"
+      icon={Inbox}
+      title={settings?.hub_my_requests_title || 'My Requests'}
+      description={settings?.hub_my_requests_description || 'View all your submitted requests across every hub in one place. Track status and follow up.'}
+      color="primary"
+      buttonLabel="View Requests"
+      variant="outline"
     />
   )
 

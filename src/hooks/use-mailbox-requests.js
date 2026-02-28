@@ -17,10 +17,11 @@ export const useMailboxRequests = () =>
     retry: 1,
   })
 
-export const useMyMailboxRequests = () =>
+export const useMyMailboxRequests = (userId) =>
   useQuery({
-    queryKey: ['my-mailbox-requests'],
-    queryFn: getMyMailboxRequests,
+    queryKey: ['my-mailbox-requests', userId],
+    queryFn: () => getMyMailboxRequests(userId),
+    enabled: !!userId,
     retry: 1,
   })
 

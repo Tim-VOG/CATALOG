@@ -11,10 +11,11 @@ export const getItRequests = async () => {
 }
 
 // ── User: fetch own IT requests ──
-export const getMyItRequests = async () => {
+export const getMyItRequests = async (userId) => {
   const { data, error } = await supabase
     .from('it_requests')
     .select('*')
+    .eq('requested_by', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
