@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
-import { useThemeMode } from '@/hooks/use-theme'
 import { Package, Shield, User, FlaskConical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'
@@ -39,9 +38,39 @@ const MicrosoftIcon = () => (
 export function LoginPage() {
   const { user, signIn, signInWithMicrosoft } = useAuth()
   const { data: settings } = useAppSettings()
-  const themeMode = useThemeMode()
   const [devLoading, setDevLoading] = useState(null)
   const [devError, setDevError] = useState(null)
+
+  // ── Force light mode on login page ──
+  useEffect(() => {
+    const root = document.documentElement
+    const prevTheme = root.getAttribute('data-theme')
+    root.setAttribute('data-theme', 'light')
+
+    // Apply light CSS vars (overrides any inline dark styles from previous session)
+    const lightVars = {
+      '--color-background': '#f8fafc',
+      '--color-foreground': '#0f172a',
+      '--color-card': '#ffffff',
+      '--color-card-foreground': '#0f172a',
+      '--color-popover': '#ffffff',
+      '--color-popover-foreground': '#0f172a',
+      '--color-secondary': '#f1f5f9',
+      '--color-secondary-foreground': '#0f172a',
+      '--color-muted': '#f1f5f9',
+      '--color-muted-foreground': '#64748b',
+      '--color-border': '#e2e8f0',
+      '--color-input': '#e2e8f0',
+    }
+    for (const [prop, value] of Object.entries(lightVars)) {
+      root.style.setProperty(prop, value)
+    }
+
+    return () => {
+      // Restore previous theme; AppLayout's useTheme() will re-apply correct values
+      if (prevTheme) root.setAttribute('data-theme', prevTheme)
+    }
+  }, [])
 
   const handleDevLogin = async (account) => {
     setDevLoading(account.email)
@@ -55,9 +84,8 @@ export function LoginPage() {
     }
   }
   const appName = settings?.app_name || 'VO Gear Hub'
-  const logoUrl = themeMode === 'dark'
-    ? (settings?.logo_url_dark || settings?.logo_url)
-    : (settings?.logo_url_light || settings?.logo_url)
+  // Always use light logo on login page
+  const logoUrl = settings?.logo_url_light || settings?.logo_url
 
   if (user) return <Navigate to="/" replace />
 
