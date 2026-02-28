@@ -14,7 +14,13 @@ const TYPE_BARS = {
   mailbox: 'bg-violet-500/50',
 }
 
-export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, events, onSelect }) {
+const TYPE_TEXT = {
+  catalog: 'text-primary',
+  it: 'text-amber-500',
+  mailbox: 'text-violet-500',
+}
+
+export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, events, onSelect, showLabels = false }) {
   // Separate multi-day (bar) events from single-day (dot) events
   const { barEvents, dotEvents } = useMemo(() => {
     const bars = []
@@ -25,7 +31,6 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
       if (ev.isMultiDay) {
         bars.push(ev)
       } else {
-        // Only one dot per type
         if (!seenTypes.has(ev.type)) {
           dots.push(ev)
           seenTypes.add(ev.type)
@@ -59,8 +64,26 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
       })
   }, [barEvents, day])
 
+  // Unique events for label display on desktop
+  const labelEvents = useMemo(() => {
+    if (!showLabels) return []
+    const seen = new Set()
+    return events.filter((ev) => {
+      if (seen.has(ev.id)) return false
+      seen.add(ev.id)
+      return true
+    }).slice(0, 2)
+  }, [events, showLabels])
+
   const hasEvents = events.length > 0
-  const extraCount = events.length - (dotEvents.slice(0, 3).length + barSegments.length)
+  const uniqueCount = useMemo(() => {
+    const s = new Set()
+    for (const ev of events) s.add(ev.id)
+    return s.size
+  }, [events])
+  const mobileShown = dotEvents.slice(0, 3).length + barSegments.length
+  const extraMobile = Math.max(0, uniqueCount - mobileShown)
+  const extraDesktop = Math.max(0, uniqueCount - labelEvents.length)
 
   return (
     <button
@@ -86,42 +109,63 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
 
       {/* Event indicators */}
       <div className="flex-1 flex flex-col items-center justify-end gap-0.5 w-full mt-0.5">
-        {/* Multi-day bar segments */}
-        {barSegments.map(({ event, position }) => (
-          <div
-            key={event.id}
-            className={cn(
-              'h-1 sm:h-1.5 w-full',
-              TYPE_BARS[event.type] || 'bg-primary/50',
-              position === 'start' && 'rounded-l-full pl-0.5',
-              position === 'end' && 'rounded-r-full pr-0.5',
-              position === 'single' && 'rounded-full mx-1',
-              position === 'middle' && '',
-            )}
-          />
-        ))}
-
-        {/* Single-day dots */}
-        {dotEvents.length > 0 && (
-          <div className="flex items-center gap-0.5 mt-0.5">
-            {dotEvents.slice(0, 3).map((ev) => (
-              <span
-                key={ev.id}
-                className={cn(
-                  'h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full',
-                  TYPE_DOTS[ev.type] || 'bg-primary',
-                )}
-              />
+        {/* Desktop labels (when showLabels=true) */}
+        {showLabels && labelEvents.length > 0 && (
+          <div className="hidden sm:flex flex-col gap-px w-full">
+            {labelEvents.map((ev) => (
+              <div key={ev.id} className="flex items-center gap-0.5 px-0.5 truncate">
+                <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', TYPE_DOTS[ev.type] || 'bg-primary')} />
+                <span className={cn('text-[8px] leading-tight truncate font-medium', TYPE_TEXT[ev.type] || 'text-primary')}>
+                  {ev.title}
+                </span>
+              </div>
             ))}
+            {extraDesktop > 0 && (
+              <span className="text-[7px] text-muted-foreground/50 font-medium text-center">
+                +{extraDesktop}
+              </span>
+            )}
           </div>
         )}
 
-        {/* Extra count */}
-        {extraCount > 0 && (
-          <span className="text-[8px] text-muted-foreground font-medium leading-none">
-            +{extraCount}
-          </span>
-        )}
+        {/* Mobile: always show dots & bars (also desktop fallback when no labels) */}
+        <div className={cn(showLabels ? 'sm:hidden' : '', 'flex flex-col items-center gap-0.5 w-full')}>
+          {/* Multi-day bar segments */}
+          {barSegments.map(({ event, position }) => (
+            <div
+              key={event.id}
+              className={cn(
+                'h-1 sm:h-1.5 w-full',
+                TYPE_BARS[event.type] || 'bg-primary/50',
+                position === 'start' && 'rounded-l-full pl-0.5',
+                position === 'end' && 'rounded-r-full pr-0.5',
+                position === 'single' && 'rounded-full mx-1',
+                position === 'middle' && '',
+              )}
+            />
+          ))}
+
+          {/* Single-day dots */}
+          {dotEvents.length > 0 && (
+            <div className="flex items-center gap-0.5 mt-0.5">
+              {dotEvents.slice(0, 3).map((ev) => (
+                <span
+                  key={ev.id}
+                  className={cn(
+                    'h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full',
+                    TYPE_DOTS[ev.type] || 'bg-primary',
+                  )}
+                />
+              ))}
+            </div>
+          )}
+
+          {extraMobile > 0 && (
+            <span className="text-[8px] text-muted-foreground font-medium leading-none">
+              +{extraMobile}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   )

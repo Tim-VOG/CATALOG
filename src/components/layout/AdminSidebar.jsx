@@ -87,12 +87,26 @@ export function AdminSidebar() {
         {/* Header */}
         <div className="px-4 py-3">
           <h2 className="font-display font-semibold text-[10px] text-muted-foreground uppercase tracking-widest">
-            Administration
+            Admin
           </h2>
         </div>
 
         {/* Scrollable nav */}
         <nav className="flex-1 overflow-y-auto px-2 pb-2 space-y-4">
+          {/* All Requests overview link */}
+          <div>
+            <Link to="/admin/all-requests" className="group">
+              <Button
+                variant={isActive('/admin/all-requests') ? 'secondary' : 'ghost'}
+                className="w-full justify-start gap-2.5 h-8 text-xs"
+                size="sm"
+              >
+                <CalendarRange className={cn('h-3.5 w-3.5 transition-transform duration-200', ANIM.planning)} />
+                All Requests
+              </Button>
+            </Link>
+          </div>
+
           {sidebarSections.map((section, idx) => (
             <div key={section.label}>
               {idx > 0 && <div className="border-t border-border/30 mb-2" />}

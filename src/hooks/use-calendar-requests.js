@@ -6,10 +6,11 @@ import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import {
   parseISO, startOfMonth, endOfMonth, eachDayOfInterval, format, isValid,
+  startOfWeek, endOfWeek, addMonths,
 } from 'date-fns'
 
 // ── Safely parse a date string ──
-function safeParse(dateStr) {
+export function safeParse(dateStr) {
   if (!dateStr) return null
   try {
     const d = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr)
@@ -81,10 +82,43 @@ function normalizeEvents(loanRequests, itRequests, mailboxRequests) {
   return events
 }
 
-// ── Expand events into a date map for a given month ──
-export function expandEventsToDateMap(events, monthDate, filters) {
-  const monthStart = startOfMonth(monthDate)
-  const monthEnd = endOfMonth(monthDate)
+// ── Compute the visible date range for a view mode ──
+export function getViewRange(currentDate, viewMode) {
+  switch (viewMode) {
+    case 'day':
+      return { start: currentDate, end: currentDate }
+    case 'week': {
+      const ws = startOfWeek(currentDate, { weekStartsOn: 1 })
+      const we = endOfWeek(currentDate, { weekStartsOn: 1 })
+      return { start: ws, end: we }
+    }
+    case '3month': {
+      const s = startOfMonth(currentDate)
+      const e = endOfMonth(addMonths(currentDate, 2))
+      return { start: s, end: e }
+    }
+    case 'month':
+    default:
+      return { start: startOfMonth(currentDate), end: endOfMonth(currentDate) }
+  }
+}
+
+// ── Expand events into a date map for a given range ──
+export function expandEventsToDateMap(events, rangeStartOrDate, filtersOrEnd, maybeFilters) {
+  // Support both signatures:
+  //   (events, rangeStart, rangeEnd, filters) — new
+  //   (events, monthDate, filters)            — legacy
+  let rangeStart, rangeEnd, filters
+  if (maybeFilters !== undefined) {
+    rangeStart = rangeStartOrDate
+    rangeEnd = filtersOrEnd
+    filters = maybeFilters
+  } else {
+    rangeStart = startOfMonth(rangeStartOrDate)
+    rangeEnd = endOfMonth(rangeStartOrDate)
+    filters = filtersOrEnd
+  }
+
   const dateMap = new Map()
 
   for (const event of events) {
@@ -92,13 +126,15 @@ export function expandEventsToDateMap(events, monthDate, filters) {
     if (!filters.types.includes(event.type)) continue
     // Status filter (empty = show all)
     if (filters.statuses.length > 0 && !filters.statuses.includes(event.status)) continue
+    // User filter (admin only, empty = show all)
+    if (filters.users?.length > 0 && event.userId && !filters.users.includes(event.userId)) continue
 
     if (event.isMultiDay && event.endDate) {
-      // Expand range, clamped to visible month
-      const rangeStart = event.startDate < monthStart ? monthStart : event.startDate
-      const rangeEnd = event.endDate > monthEnd ? monthEnd : event.endDate
-      if (rangeStart <= rangeEnd) {
-        const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd })
+      // Expand range, clamped to visible range
+      const clampStart = event.startDate < rangeStart ? rangeStart : event.startDate
+      const clampEnd = event.endDate > rangeEnd ? rangeEnd : event.endDate
+      if (clampStart <= clampEnd) {
+        const days = eachDayOfInterval({ start: clampStart, end: clampEnd })
         for (const day of days) {
           const key = format(day, 'yyyy-MM-dd')
           if (!dateMap.has(key)) dateMap.set(key, [])
@@ -107,7 +143,7 @@ export function expandEventsToDateMap(events, monthDate, filters) {
       }
     } else {
       // Single-day
-      if (event.startDate >= monthStart && event.startDate <= monthEnd) {
+      if (event.startDate >= rangeStart && event.startDate <= rangeEnd) {
         const key = format(event.startDate, 'yyyy-MM-dd')
         if (!dateMap.has(key)) dateMap.set(key, [])
         dateMap.get(key).push(event)

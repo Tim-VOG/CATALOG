@@ -37,7 +37,7 @@ const gridVariants = {
   exit: (dir) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 }
 
-export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay, direction }) {
+export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay, direction, showLabels = false }) {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 
@@ -77,6 +77,7 @@ export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay,
               isSelected={selectedDay && isSameDay(date, selectedDay)}
               events={dayEvents}
               onSelect={onSelectDay}
+              showLabels={showLabels}
             />
           )
         })}

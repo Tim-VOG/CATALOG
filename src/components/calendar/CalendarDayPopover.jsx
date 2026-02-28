@@ -8,6 +8,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { UserAvatar } from '@/components/common/UserAvatar'
 import { cn } from '@/lib/utils'
 
 const TYPE_CONFIG = {
@@ -27,16 +28,18 @@ const STATUS_MAP = {
   closed: { color: 'bg-gray-500/15 text-gray-600 border-gray-500/30', icon: CheckCircle2 },
 }
 
-function EventCard({ event }) {
+function EventCard({ event, showUser }) {
   const typeCfg = TYPE_CONFIG[event.type] || TYPE_CONFIG.catalog
   const statusCfg = STATUS_MAP[event.status] || STATUS_MAP.pending
   const StatusIcon = statusCfg.icon
   const TypeIcon = typeCfg.icon
 
+  const linkTo = event.adminLinkTo || event.linkTo
+
   const content = (
     <div className={cn(
       'flex items-center gap-3 p-3 rounded-xl border border-border/50 transition-all duration-200',
-      event.linkTo && 'hover:border-primary/30 hover:bg-muted/30 cursor-pointer group'
+      linkTo && 'hover:border-primary/30 hover:bg-muted/30 cursor-pointer group'
     )}>
       <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', typeCfg.bg)}>
         <TypeIcon className={cn('h-4 w-4', typeCfg.color)} />
@@ -49,7 +52,19 @@ function EventCard({ event }) {
             {event.status}
           </Badge>
         </div>
-        <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground flex-wrap">
+          {showUser && event.userName && (
+            <span className="flex items-center gap-1.5">
+              <UserAvatar
+                avatarUrl={event.userAvatar}
+                firstName={event.userName?.split(' ')[0]}
+                lastName={event.userName?.split(' ')[1]}
+                size="sm"
+                className="h-4 w-4 text-[7px]"
+              />
+              <span className="font-medium">{event.userName}</span>
+            </span>
+          )}
           {event.isMultiDay && event.endDate && (
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -64,19 +79,19 @@ function EventCard({ event }) {
           )}
         </div>
       </div>
-      {event.linkTo && (
+      {linkTo && (
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
       )}
     </div>
   )
 
-  if (event.linkTo) {
-    return <Link to={event.linkTo}>{content}</Link>
+  if (linkTo) {
+    return <Link to={linkTo}>{content}</Link>
   }
   return content
 }
 
-export function CalendarDayPopover({ day, events, onClose }) {
+export function CalendarDayPopover({ day, events, onClose, showUser = false }) {
   if (!events.length) return null
 
   // Deduplicate events (multi-day events appear multiple times)
@@ -120,7 +135,7 @@ export function CalendarDayPopover({ day, events, onClose }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.2 }}
               >
-                <EventCard event={event} />
+                <EventCard event={event} showUser={showUser} />
               </motion.div>
             ))}
           </div>

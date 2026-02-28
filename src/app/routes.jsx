@@ -40,6 +40,7 @@ import { FunctionalMailboxFormPage } from '@/pages/functional-mailbox/Functional
 import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
 import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
+import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -80,6 +81,7 @@ export function AppRoutes() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
+          <Route path="all-requests" element={<AdminAllRequestsPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="product-options" element={<AdminProductOptionsPage />} />
           <Route path="categories" element={<AdminCategoriesPage />} />
