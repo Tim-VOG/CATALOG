@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const DAYS_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
@@ -28,7 +29,7 @@ function toDateStr(date) {
   return date.toISOString().slice(0, 10)
 }
 
-export function AvailabilityCalendar({ reservations = [], totalStock = 1 }) {
+export function AvailabilityCalendar({ reservations = [], totalStock = 1, compact = false, headerExtra }) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
@@ -82,23 +83,50 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1 }) {
     return toDateStr(date) < todayStr
   }
 
+  const dayLabels = compact ? DAYS_SHORT : DAYS
+
   return (
-    <div className="space-y-3">
+    <div className={cn('space-y-3', compact && 'space-y-1.5')}>
+      {/* Header with navigation */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={prevMonth} aria-label="Previous month">
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <span className="font-semibold text-sm">
-          {MONTHS[currentMonth]} {currentYear}
-        </span>
-        <Button variant="ghost" size="icon" onClick={nextMonth} aria-label="Next month">
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={prevMonth}
+            aria-label="Previous month"
+            className={cn(compact && 'h-7 w-7')}
+          >
+            <ChevronLeft className={cn('h-4 w-4', compact && 'h-3.5 w-3.5')} />
+          </Button>
+          <span className={cn('font-semibold', compact ? 'text-xs' : 'text-sm')}>
+            {compact
+              ? `${MONTHS[currentMonth].slice(0, 3)} ${currentYear}`
+              : `${MONTHS[currentMonth]} ${currentYear}`}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={nextMonth}
+            aria-label="Next month"
+            className={cn(compact && 'h-7 w-7')}
+          >
+            <ChevronRight className={cn('h-4 w-4', compact && 'h-3.5 w-3.5')} />
+          </Button>
+        </div>
+        {headerExtra && <div className="flex items-center">{headerExtra}</div>}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
-        {DAYS.map((d) => (
-          <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">
+      {/* Day grid */}
+      <div className={cn('grid grid-cols-7', compact ? 'gap-0.5' : 'gap-1')}>
+        {dayLabels.map((d, i) => (
+          <div
+            key={`${d}-${i}`}
+            className={cn(
+              'text-center font-medium text-muted-foreground',
+              compact ? 'text-[10px] py-0.5' : 'text-xs py-1'
+            )}
+          >
             {d}
           </div>
         ))}
@@ -113,7 +141,10 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1 }) {
             <div
               key={i}
               className={cn(
-                'aspect-square flex items-center justify-center rounded text-xs font-medium',
+                'flex items-center justify-center rounded font-medium',
+                compact
+                  ? 'h-7 w-full text-[10px]'
+                  : 'aspect-square text-xs',
                 past && 'text-muted-foreground/40',
                 !past && availability === 'available' && 'bg-success/15 text-success',
                 !past && availability === 'low' && 'bg-warning/15 text-warning',
@@ -127,15 +158,19 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1 }) {
         })}
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+      {/* Legend */}
+      <div className={cn(
+        'flex items-center justify-center text-muted-foreground',
+        compact ? 'gap-3 text-[10px]' : 'gap-4 text-xs'
+      )}>
         <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-success/50" /> Available
+          <span className={cn('rounded-full bg-success/50', compact ? 'h-1.5 w-1.5' : 'h-2.5 w-2.5')} /> Available
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-warning/50" /> Low
+          <span className={cn('rounded-full bg-warning/50', compact ? 'h-1.5 w-1.5' : 'h-2.5 w-2.5')} /> Low
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-2.5 w-2.5 rounded-full bg-destructive/50" /> Fully booked
+          <span className={cn('rounded-full bg-destructive/50', compact ? 'h-1.5 w-1.5' : 'h-2.5 w-2.5')} /> Fully booked
         </span>
       </div>
     </div>
