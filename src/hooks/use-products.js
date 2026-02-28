@@ -38,6 +38,14 @@ export const useDeleteProduct = () => {
   })
 }
 
+export const useDeleteProducts = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.deleteProducts,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  })
+}
+
 export const useProductReservations = (productId) =>
   useQuery({
     queryKey: ['product-reservations', productId],

@@ -55,6 +55,12 @@ export const deleteProduct = async (id) => {
   if (error) throw error
 }
 
+export const deleteProducts = async (ids) => {
+  if (!ids.length) return
+  const { error } = await supabase.from('products').delete().in('id', ids)
+  if (error) throw error
+}
+
 export const getProductReservations = async (productId) => {
   const { data, error } = await supabase
     .from('loan_request_items')
