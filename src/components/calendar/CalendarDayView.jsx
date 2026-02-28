@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { motion } from 'motion/react'
 import {
   Package, ClipboardList, Mail, Clock, CheckCircle2, XCircle,
-  Calendar, ChevronRight, MapPin, Inbox,
+  Calendar, ChevronRight, MapPin, Inbox, Square, CheckSquare,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +28,7 @@ const STATUS_MAP = {
   closed: { color: 'bg-gray-500/15 text-gray-600 border-gray-500/30', icon: CheckCircle2 },
 }
 
-function DayEventCard({ event, showUser }) {
+function DayEventCard({ event, showUser, selectable, isSelected, onToggleSelect }) {
   const typeCfg = TYPE_CONFIG[event.type] || TYPE_CONFIG.catalog
   const statusCfg = STATUS_MAP[event.status] || STATUS_MAP.pending
   const StatusIcon = statusCfg.icon
@@ -39,8 +39,26 @@ function DayEventCard({ event, showUser }) {
     <div className={cn(
       'flex items-center gap-3 p-4 rounded-xl border-l-[3px] border border-border/50 transition-all duration-200 bg-card/50',
       typeCfg.border,
-      linkTo && 'hover:border-primary/30 hover:bg-muted/30 cursor-pointer group'
+      linkTo && !selectable && 'hover:border-primary/30 hover:bg-muted/30 cursor-pointer group',
+      selectable && 'cursor-pointer hover:bg-muted/30',
+      isSelected && 'bg-primary/10 border-primary/30 ring-1 ring-primary/20',
     )}>
+      {selectable && (
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onToggleSelect?.(event.id)
+          }}
+          className="shrink-0"
+        >
+          {isSelected ? (
+            <CheckSquare className="h-5 w-5 text-primary" />
+          ) : (
+            <Square className="h-5 w-5 text-muted-foreground/40 hover:text-muted-foreground" />
+          )}
+        </button>
+      )}
       <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', typeCfg.bg)}>
         <TypeIcon className={cn('h-5 w-5', typeCfg.color)} />
       </div>
@@ -75,17 +93,32 @@ function DayEventCard({ event, showUser }) {
           )}
         </div>
       </div>
-      {linkTo && (
+      {linkTo && !selectable && (
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
       )}
     </div>
   )
 
+  if (selectable) {
+    return (
+      <div onClick={() => onToggleSelect?.(event.id)}>
+        {content}
+      </div>
+    )
+  }
+
   if (linkTo) return <Link to={linkTo}>{content}</Link>
   return content
 }
 
-export function CalendarDayView({ currentDate, eventsMap, showUser = false }) {
+export function CalendarDayView({
+  currentDate,
+  eventsMap,
+  showUser = false,
+  selectable = false,
+  selectedIds,
+  onToggleSelect,
+}) {
   const dateKey = format(currentDate, 'yyyy-MM-dd')
   const dayEvents = eventsMap.get(dateKey) || []
 
@@ -136,7 +169,13 @@ export function CalendarDayView({ currentDate, eventsMap, showUser = false }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.04, duration: 0.2 }}
         >
-          <DayEventCard event={event} showUser={showUser} />
+          <DayEventCard
+            event={event}
+            showUser={showUser}
+            selectable={selectable}
+            isSelected={selectedIds?.has(event.id)}
+            onToggleSelect={onToggleSelect}
+          />
         </motion.div>
       ))}
     </motion.div>

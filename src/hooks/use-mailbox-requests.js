@@ -6,6 +6,7 @@ import {
   createMailboxRequest,
   updateMailboxRequest,
   deleteMailboxRequest,
+  deleteMailboxRequests,
 } from '@/lib/api/mailbox-requests'
 
 // ── Queries ──
@@ -61,6 +62,17 @@ export const useDeleteMailboxRequest = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: deleteMailboxRequest,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['mailbox-requests'] })
+      qc.invalidateQueries({ queryKey: ['my-mailbox-requests'] })
+    },
+  })
+}
+
+export const useDeleteMailboxRequests = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteMailboxRequests,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mailbox-requests'] })
       qc.invalidateQueries({ queryKey: ['my-mailbox-requests'] })

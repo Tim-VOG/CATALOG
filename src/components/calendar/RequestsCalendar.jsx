@@ -7,7 +7,7 @@ import {
 import { AnimatePresence, motion } from 'motion/react'
 import {
   ChevronLeft, ChevronRight, CalendarDays, CalendarRange,
-  LayoutGrid, Grid3x3,
+  LayoutGrid, Grid3x3, Package, ClipboardList, Mail,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { expandEventsToDateMap, getViewRange } from '@/hooks/use-calendar-requests'
@@ -63,6 +63,10 @@ export function RequestsCalendar({
   users = [],
   showUser = false,
   storageKey = STORAGE_KEY,
+  // Selection props (admin bulk delete)
+  selectable = false,
+  selectedIds,
+  onToggleSelect,
 }) {
   const [viewMode, setViewMode] = useState(() => {
     try { return localStorage.getItem(storageKey) || 'month' } catch { return 'month' }
@@ -244,6 +248,9 @@ export function RequestsCalendar({
           currentDate={currentDate}
           eventsMap={eventsMap}
           showUser={showUser}
+          selectable={selectable}
+          selectedIds={selectedIds}
+          onToggleSelect={onToggleSelect}
         />
       )}
 
@@ -254,6 +261,9 @@ export function RequestsCalendar({
           selectedDay={selectedDay}
           onSelectDay={handleSelectDay}
           showUser={showUser}
+          selectable={selectable}
+          selectedIds={selectedIds}
+          onToggleSelect={onToggleSelect}
         />
       )}
 
@@ -281,6 +291,9 @@ export function RequestsCalendar({
                 events={selectedDayEvents}
                 onClose={() => setSelectedDay(null)}
                 showUser={showUser}
+                selectable={selectable}
+                selectedIds={selectedIds}
+                onToggleSelect={onToggleSelect}
               />
             )}
           </AnimatePresence>
@@ -299,13 +312,13 @@ export function RequestsCalendar({
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 text-[10px] text-muted-foreground/50 pt-2">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-primary" /> Catalog
+          <Package className="h-3 w-3 text-primary" /> Catalog
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-amber-500" /> IT
+          <ClipboardList className="h-3 w-3 text-amber-500" /> IT
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-violet-500" /> Mailbox
+          <Mail className="h-3 w-3 text-violet-500" /> Mailbox
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-5 rounded-full bg-primary/50" /> Multi-day

@@ -63,3 +63,12 @@ export const deleteItRequest = async (id) => {
     .eq('id', id)
   if (error) throw error
 }
+
+// ── Bulk delete IT requests ──
+export const deleteItRequests = async (ids) => {
+  const { error } = await supabase
+    .from('it_requests')
+    .delete()
+    .in('id', ids)
+  if (error) throw error
+}

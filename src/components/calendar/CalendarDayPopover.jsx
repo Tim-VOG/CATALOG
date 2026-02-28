@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { motion } from 'motion/react'
 import {
   Package, ClipboardList, Mail, Clock, CheckCircle2, XCircle,
-  Calendar, ChevronRight, X, MapPin,
+  Calendar, ChevronRight, X, MapPin, Square, CheckSquare,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +28,7 @@ const STATUS_MAP = {
   closed: { color: 'bg-gray-500/15 text-gray-600 border-gray-500/30', icon: CheckCircle2 },
 }
 
-function EventCard({ event, showUser }) {
+function EventCard({ event, showUser, selectable, isSelected, onToggleSelect }) {
   const typeCfg = TYPE_CONFIG[event.type] || TYPE_CONFIG.catalog
   const statusCfg = STATUS_MAP[event.status] || STATUS_MAP.pending
   const StatusIcon = statusCfg.icon
@@ -39,8 +39,26 @@ function EventCard({ event, showUser }) {
   const content = (
     <div className={cn(
       'flex items-center gap-3 p-3 rounded-xl border border-border/50 transition-all duration-200',
-      linkTo && 'hover:border-primary/30 hover:bg-muted/30 cursor-pointer group'
+      linkTo && !selectable && 'hover:border-primary/30 hover:bg-muted/30 cursor-pointer group',
+      selectable && 'cursor-pointer hover:bg-muted/30',
+      isSelected && 'bg-primary/10 border-primary/30 ring-1 ring-primary/20',
     )}>
+      {selectable && (
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onToggleSelect?.(event.id)
+          }}
+          className="shrink-0"
+        >
+          {isSelected ? (
+            <CheckSquare className="h-4.5 w-4.5 text-primary" />
+          ) : (
+            <Square className="h-4.5 w-4.5 text-muted-foreground/40 hover:text-muted-foreground" />
+          )}
+        </button>
+      )}
       <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', typeCfg.bg)}>
         <TypeIcon className={cn('h-4 w-4', typeCfg.color)} />
       </div>
@@ -79,11 +97,19 @@ function EventCard({ event, showUser }) {
           )}
         </div>
       </div>
-      {linkTo && (
+      {linkTo && !selectable && (
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
       )}
     </div>
   )
+
+  if (selectable) {
+    return (
+      <div onClick={() => onToggleSelect?.(event.id)}>
+        {content}
+      </div>
+    )
+  }
 
   if (linkTo) {
     return <Link to={linkTo}>{content}</Link>
@@ -91,7 +117,15 @@ function EventCard({ event, showUser }) {
   return content
 }
 
-export function CalendarDayPopover({ day, events, onClose, showUser = false }) {
+export function CalendarDayPopover({
+  day,
+  events,
+  onClose,
+  showUser = false,
+  selectable = false,
+  selectedIds,
+  onToggleSelect,
+}) {
   if (!events.length) return null
 
   // Deduplicate events (multi-day events appear multiple times)
@@ -135,7 +169,13 @@ export function CalendarDayPopover({ day, events, onClose, showUser = false }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.2 }}
               >
-                <EventCard event={event} showUser={showUser} />
+                <EventCard
+                  event={event}
+                  showUser={showUser}
+                  selectable={selectable}
+                  isSelected={selectedIds?.has(event.id)}
+                  onToggleSelect={onToggleSelect}
+                />
               </motion.div>
             ))}
           </div>

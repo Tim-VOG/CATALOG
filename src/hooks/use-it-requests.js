@@ -6,6 +6,7 @@ import {
   createItRequest,
   updateItRequest,
   deleteItRequest,
+  deleteItRequests,
 } from '@/lib/api/it-requests'
 
 // ── Queries ──
@@ -61,6 +62,17 @@ export const useDeleteItRequest = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: deleteItRequest,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['it-requests'] })
+      qc.invalidateQueries({ queryKey: ['my-it-requests'] })
+    },
+  })
+}
+
+export const useDeleteItRequests = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteItRequests,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['it-requests'] })
       qc.invalidateQueries({ queryKey: ['my-it-requests'] })

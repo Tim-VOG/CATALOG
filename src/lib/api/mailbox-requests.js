@@ -63,3 +63,12 @@ export const deleteMailboxRequest = async (id) => {
     .eq('id', id)
   if (error) throw error
 }
+
+// ── Bulk delete mailbox requests ──
+export const deleteMailboxRequests = async (ids) => {
+  const { error } = await supabase
+    .from('mailbox_requests')
+    .delete()
+    .in('id', ids)
+  if (error) throw error
+}

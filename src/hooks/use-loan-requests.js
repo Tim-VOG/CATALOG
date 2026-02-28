@@ -58,6 +58,28 @@ export const useCancelRequest = () => {
   })
 }
 
+export const useDeleteLoanRequest = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.deleteLoanRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loan-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['planning'] })
+    },
+  })
+}
+
+export const useDeleteLoanRequests = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.deleteLoanRequests,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loan-requests'] })
+      queryClient.invalidateQueries({ queryKey: ['planning'] })
+    },
+  })
+}
+
 export const useProcessReturn = () => {
   const queryClient = useQueryClient()
   return useMutation({

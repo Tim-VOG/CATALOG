@@ -1,119 +1,164 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { format } from 'date-fns'
-import { motion } from 'motion/react'
 import {
-  Package, ChevronRight, MapPin, Calendar, ArrowRight,
-  Clock, CheckCircle2, XCircle, Search, Inbox,
+  format, addDays, addMonths, subMonths, differenceInDays,
+  startOfDay, startOfMonth, endOfMonth, eachDayOfInterval,
+  eachWeekOfInterval, isToday, subDays, subWeeks, addWeeks,
+} from 'date-fns'
+import {
+  ChevronLeft, ChevronRight, CalendarRange,
+  Package, Search, Inbox, Clock, CheckCircle2, XCircle,
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { cn } from '@/lib/utils'
 
-const STATUS_MAP = {
-  pending: { color: 'bg-amber-500/15 text-amber-600 border-amber-500/30', icon: Clock, label: 'Pending' },
-  approved: { color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2, label: 'Approved' },
-  rejected: { color: 'bg-destructive/15 text-destructive border-destructive/30', icon: XCircle, label: 'Rejected' },
-  completed: { color: 'bg-primary/15 text-primary border-primary/30', icon: CheckCircle2, label: 'Completed' },
-  cancelled: { color: 'bg-gray-500/15 text-gray-500 border-gray-500/30', icon: XCircle, label: 'Cancelled' },
-  picked_up: { color: 'bg-blue-500/15 text-blue-600 border-blue-500/30', icon: Package, label: 'Picked Up' },
-  returned: { color: 'bg-cyan-500/15 text-cyan-600 border-cyan-500/30', icon: CheckCircle2, label: 'Returned' },
-  closed: { color: 'bg-gray-500/15 text-gray-600 border-gray-500/30', icon: CheckCircle2, label: 'Closed' },
+// ── Status colors for bars ──
+const STATUS_COLORS = {
+  pending: 'bg-amber-500/80 hover:bg-amber-500',
+  approved: 'bg-blue-500/80 hover:bg-blue-500',
+  reserved: 'bg-cyan-500/80 hover:bg-cyan-500',
+  picked_up: 'bg-emerald-500/80 hover:bg-emerald-500',
+  returned: 'bg-violet-500/80 hover:bg-violet-500',
+  completed: 'bg-primary/80 hover:bg-primary',
+  rejected: 'bg-red-500/80 hover:bg-red-500',
+  cancelled: 'bg-gray-400/80 hover:bg-gray-400',
+  closed: 'bg-gray-500/80 hover:bg-gray-500',
+  overdue: 'bg-red-500/80 hover:bg-red-500',
 }
+
+const STATUS_LABELS = {
+  pending: 'Pending',
+  approved: 'Approved',
+  reserved: 'Reserved',
+  picked_up: 'Picked Up',
+  returned: 'Returned',
+  completed: 'Completed',
+  rejected: 'Rejected',
+  cancelled: 'Cancelled',
+  closed: 'Closed',
+}
+
+const VIEW_MODES = [
+  { key: '1W', label: '1 Week' },
+  { key: '1M', label: '1 Month' },
+  { key: '3M', label: '3 Months' },
+]
 
 const STATUS_PILLS = ['pending', 'approved', 'picked_up', 'returned', 'completed', 'rejected']
 
-function LoanCard({ event }) {
-  const statusCfg = STATUS_MAP[event.status] || STATUS_MAP.pending
-  const StatusIcon = statusCfg.icon
-  const hasDateRange = event.startDate && event.endDate
-
-  return (
-    <Link to={event.adminLinkTo || `/admin/requests/${event.original?.id}`}>
-      <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-muted/20 transition-all duration-200 group cursor-pointer">
-        {/* User avatar */}
-        <UserAvatar
-          avatarUrl={event.userAvatar}
-          firstName={event.userName?.split(' ')[0]}
-          lastName={event.userName?.split(' ')[1]}
-          email={event.userEmail}
-          size="sm"
-          className="h-9 w-9 shrink-0"
-        />
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm truncate">{event.title}</span>
-            <Badge variant="outline" className={cn('text-[10px] gap-1', statusCfg.color)}>
-              <StatusIcon className="h-2.5 w-2.5" />
-              {statusCfg.label}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
-            <span className="font-medium">{event.userName}</span>
-            {hasDateRange && (
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3 shrink-0" />
-                {format(event.startDate, 'dd MMM yyyy')}
-                <ArrowRight className="h-2.5 w-2.5" />
-                {format(event.endDate, 'dd MMM yyyy')}
-              </span>
-            )}
-            {!hasDateRange && event.startDate && (
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {format(event.startDate, 'dd MMM yyyy')}
-              </span>
-            )}
-            {event.subtitle && (
-              <span className="flex items-center gap-1 truncate">
-                <MapPin className="h-3 w-3 shrink-0" />
-                {event.subtitle}
-              </span>
-            )}
-            {event.original?.item_count > 0 && (
-              <Badge variant="outline" className="text-[10px]">
-                <Package className="h-2.5 w-2.5 mr-1" />
-                {event.original.item_count} item{event.original.item_count !== 1 ? 's' : ''}
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {/* Date range bar */}
-        {hasDateRange && (
-          <div className="hidden md:flex flex-col items-center gap-0.5 shrink-0 w-24">
-            <span className="text-[10px] text-muted-foreground">{format(event.startDate, 'dd/MM')}</span>
-            <div className="h-1.5 w-full rounded-full bg-primary/30 overflow-hidden">
-              <div className="h-full bg-primary rounded-full" style={{ width: '100%' }} />
-            </div>
-            <span className="text-[10px] text-muted-foreground">{format(event.endDate, 'dd/MM')}</span>
-          </div>
-        )}
-
-        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
-      </div>
-    </Link>
-  )
-}
-
 export function CatalogLoansView({ events, users }) {
+  const [viewMode, setViewMode] = useState('1M')
+  const [baseDate, setBaseDate] = useState(new Date())
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState([])
-  const [userFilter, setUserFilter] = useState([])
 
-  // Only catalog events
+  // ── Compute time range ──
+  const { startDate, endDate, rangeLabel } = useMemo(() => {
+    const today = startOfDay(baseDate)
+    let start, end, label
+
+    switch (viewMode) {
+      case '1W':
+        start = startOfDay(today)
+        end = addDays(start, 6)
+        label = `${format(start, 'd MMM')} — ${format(end, 'd MMM yyyy')}`
+        break
+      case '1M':
+        start = startOfMonth(today)
+        end = endOfMonth(start)
+        label = format(start, 'MMMM yyyy')
+        break
+      case '3M':
+        start = startOfMonth(today)
+        end = addMonths(start, 3)
+        label = `${format(start, 'MMM yyyy')} — ${format(addMonths(start, 2), 'MMM yyyy')}`
+        break
+      default:
+        start = today
+        end = addDays(today, 7)
+        label = ''
+    }
+    return { startDate: start, endDate: end, rangeLabel: label }
+  }, [viewMode, baseDate])
+
+  // ── Navigation ──
+  const navigate = (direction) => {
+    setBaseDate((prev) => {
+      switch (viewMode) {
+        case '1W': return direction > 0 ? addWeeks(prev, 1) : subWeeks(prev, 1)
+        case '1M': return direction > 0 ? addMonths(prev, 1) : subMonths(prev, 1)
+        case '3M': return direction > 0 ? addMonths(prev, 3) : subMonths(prev, 3)
+        default: return prev
+      }
+    })
+  }
+
+  const goToToday = () => setBaseDate(new Date())
+
+  // ── Column headers ──
+  const { columns, cellWidth } = useMemo(() => {
+    const start = startOfDay(startDate)
+    let cols = []
+    let width
+
+    switch (viewMode) {
+      case '1W': {
+        const days = eachDayOfInterval({ start, end: addDays(start, 6) })
+        cols = days.map((d) => ({
+          key: format(d, 'yyyy-MM-dd'),
+          label: format(d, 'EEE d'),
+          date: d,
+          isToday: isToday(d),
+        }))
+        width = 'min-w-[100px]'
+        break
+      }
+      case '1M': {
+        const mEnd = endOfMonth(start)
+        const days = eachDayOfInterval({ start, end: mEnd })
+        cols = days.map((d) => ({
+          key: format(d, 'yyyy-MM-dd'),
+          label: format(d, 'd'),
+          sublabel: format(d, 'EEE'),
+          date: d,
+          isToday: isToday(d),
+          isWeekend: d.getDay() === 0 || d.getDay() === 6,
+        }))
+        width = 'min-w-[38px]'
+        break
+      }
+      case '3M': {
+        const rangeEnd = addMonths(start, 3)
+        const weeks = eachWeekOfInterval({ start, end: rangeEnd }, { weekStartsOn: 1 })
+        cols = weeks.map((w) => ({
+          key: format(w, 'yyyy-MM-dd'),
+          label: format(w, 'd MMM'),
+          date: w,
+          isToday: isToday(w),
+        }))
+        width = 'min-w-[80px]'
+        break
+      }
+      default:
+        break
+    }
+    return { columns: cols, cellWidth: width }
+  }, [viewMode, startDate])
+
+  // ── Filter catalog events that overlap the timeline ──
   const catalogEvents = useMemo(() => {
-    return events
-      .filter((ev) => ev.type === 'catalog')
-      .sort((a, b) => b.startDate - a.startDate) // newest first
-  }, [events])
-
-  // Apply filters
-  const filtered = useMemo(() => {
-    let result = catalogEvents
+    let result = events.filter((ev) => {
+      if (ev.type !== 'catalog') return false
+      if (!ev.startDate || !ev.endDate) return false
+      // Check overlap with range
+      const evStart = startOfDay(ev.startDate)
+      const evEnd = startOfDay(ev.endDate)
+      const rangeStart = startOfDay(startDate)
+      const rangeEnd = startOfDay(endDate)
+      return evStart <= rangeEnd && evEnd >= rangeStart
+    })
     if (search) {
       const q = search.toLowerCase()
       result = result.filter((ev) =>
@@ -125,11 +170,72 @@ export function CatalogLoansView({ events, users }) {
     if (statusFilter.length > 0) {
       result = result.filter((ev) => statusFilter.includes(ev.status))
     }
-    if (userFilter.length > 0) {
-      result = result.filter((ev) => userFilter.includes(ev.userId))
-    }
     return result
-  }, [catalogEvents, search, statusFilter, userFilter])
+  }, [events, startDate, endDate, search, statusFilter])
+
+  // ── Group by project (using the request's original data) ──
+  // Each loan request is a "reservation bar" — group by project name
+  const projectRows = useMemo(() => {
+    const map = new Map()
+    for (const ev of catalogEvents) {
+      const projectKey = ev.title || 'Unknown Project'
+      if (!map.has(projectKey)) {
+        map.set(projectKey, {
+          projectName: projectKey,
+          location: ev.subtitle || '',
+          reservations: [],
+        })
+      }
+      map.get(projectKey).reservations.push(ev)
+    }
+    return Array.from(map.values()).sort((a, b) => a.projectName.localeCompare(b.projectName))
+  }, [catalogEvents])
+
+  // ── Bar position calculation ──
+  const getBarStyle = (pickupDate, returnDate) => {
+    const timelineStart = startOfDay(startDate)
+    let timelineEnd
+
+    switch (viewMode) {
+      case '1W': timelineEnd = addDays(timelineStart, 7); break
+      case '1M': timelineEnd = addDays(endOfMonth(timelineStart), 1); break
+      case '3M': timelineEnd = addMonths(timelineStart, 3); break
+      default: timelineEnd = addDays(timelineStart, 7)
+    }
+
+    const totalDays = differenceInDays(timelineEnd, timelineStart) || 1
+    const pickup = startOfDay(new Date(pickupDate))
+    const returnD = startOfDay(new Date(returnDate))
+
+    const startOffset = Math.max(0, differenceInDays(pickup, timelineStart))
+    const endOffset = Math.min(totalDays, differenceInDays(returnD, timelineStart) + 1)
+
+    const left = (startOffset / totalDays) * 100
+    const width = Math.max(((endOffset - startOffset) / totalDays) * 100, 2)
+
+    return { left: `${left}%`, width: `${width}%` }
+  }
+
+  // ── Today line ──
+  const todayPosition = useMemo(() => {
+    const timelineStart = startOfDay(startDate)
+    const today = startOfDay(new Date())
+    let timelineEnd
+
+    switch (viewMode) {
+      case '1W': timelineEnd = addDays(timelineStart, 7); break
+      case '1M': timelineEnd = addDays(endOfMonth(timelineStart), 1); break
+      case '3M': timelineEnd = addMonths(timelineStart, 3); break
+      default: timelineEnd = addDays(timelineStart, 7)
+    }
+
+    const totalDays = differenceInDays(timelineEnd, timelineStart) || 1
+    const offset = differenceInDays(today, timelineStart)
+    if (offset < 0 || offset > totalDays) return null
+    return `${(offset / totalDays) * 100}%`
+  }, [viewMode, startDate])
+
+  const getRowHeight = (reservations) => Math.max(64, 14 + reservations.length * 40)
 
   const toggleStatus = (status) => {
     setStatusFilter((prev) =>
@@ -139,37 +245,68 @@ export function CatalogLoansView({ events, users }) {
 
   return (
     <div className="space-y-4">
-      {/* Search + filters */}
+      {/* Controls */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="h-8 w-8 rounded-lg">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={goToToday} className="gap-1.5 text-xs">
+            <CalendarRange className="h-3.5 w-3.5" />
+            Today
+          </Button>
+          <Button variant="outline" size="icon" onClick={() => navigate(1)} className="h-8 w-8 rounded-lg">
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <span className="text-sm font-semibold ml-2">{rangeLabel}</span>
+        </div>
+
+        <div className="flex gap-1 bg-muted/40 rounded-full p-1 border">
+          {VIEW_MODES.map(({ key, label }) => (
+            <Button
+              key={key}
+              variant={viewMode === key ? 'default' : 'ghost'}
+              size="sm"
+              className={cn('h-7 text-xs px-3 rounded-full', viewMode === key && 'shadow-sm')}
+              onClick={() => setViewMode(key)}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Search + Status Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/20 border border-border/30 flex-1">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/20 border border-border/30 flex-1 max-w-md">
           <Search className="h-4 w-4 text-muted-foreground/50" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by project, user, location..."
+            placeholder="Search projects, users..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
           />
         </div>
       </div>
 
-      {/* Status pills */}
       <div className="flex flex-wrap items-center gap-1.5">
         {STATUS_PILLS.map((status) => {
-          const cfg = STATUS_MAP[status]
           const isActive = statusFilter.includes(status)
+          const barColor = STATUS_COLORS[status] || ''
           return (
             <button
               key={status}
               onClick={() => toggleStatus(status)}
               className={cn(
-                'inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all duration-200 capitalize',
+                'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all duration-200',
                 isActive
-                  ? cn(cfg.color, 'shadow-sm')
+                  ? 'bg-foreground/10 text-foreground border-foreground/20 shadow-sm'
                   : 'bg-transparent text-muted-foreground/50 border-transparent hover:text-muted-foreground hover:bg-muted/30'
               )}
             >
-              {cfg.label}
+              <span className={cn('h-2 w-2 rounded-full', barColor.split(' ')[0])} />
+              {STATUS_LABELS[status]}
             </button>
           )
         })}
@@ -183,31 +320,138 @@ export function CatalogLoansView({ events, users }) {
         )}
       </div>
 
-      {/* Results count */}
       <p className="text-xs text-muted-foreground">
-        {filtered.length} catalog loan{filtered.length !== 1 ? 's' : ''}
+        {catalogEvents.length} loan{catalogEvents.length !== 1 ? 's' : ''} &middot; {projectRows.length} project{projectRows.length !== 1 ? 's' : ''}
       </p>
 
-      {/* Loan cards */}
-      {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-border/50 bg-card/30 p-8 text-center">
-          <Inbox className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No catalog loans found</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map((event, i) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.2 }}
-            >
-              <LoanCard event={event} />
-            </motion.div>
+      {/* Timeline */}
+      <div className="border rounded-xl overflow-hidden bg-card shadow-card">
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-2.5 border-b bg-muted/20 text-xs">
+          {Object.entries(STATUS_COLORS).filter(([k]) => ['pending', 'approved', 'picked_up', 'returned', 'completed'].includes(k)).map(([status, color]) => (
+            <div key={status} className="flex items-center gap-2">
+              <div className={cn('h-2.5 w-2.5 rounded-full', color.split(' ')[0])} />
+              <span className="text-muted-foreground font-medium">{STATUS_LABELS[status]}</span>
+            </div>
           ))}
         </div>
-      )}
+
+        <div className="overflow-x-auto">
+          <div className="min-w-[800px]">
+            {/* Header row */}
+            <div className="flex border-b bg-muted/10 sticky top-0 z-10">
+              <div className="w-56 shrink-0 px-4 py-2.5 font-semibold text-xs text-muted-foreground uppercase tracking-wider border-r flex items-center gap-2">
+                <Package className="h-3.5 w-3.5" />
+                Project
+              </div>
+              <div className="flex-1 flex">
+                {columns.map((col) => (
+                  <div
+                    key={col.key}
+                    className={cn(
+                      'flex-1 text-center text-[11px] py-2.5 border-r last:border-r-0 transition-colors',
+                      col.isToday && 'bg-primary/10 font-bold',
+                      col.isWeekend && 'bg-muted/30',
+                      cellWidth,
+                    )}
+                  >
+                    <div className={col.isToday ? 'text-primary' : 'text-muted-foreground'}>
+                      {col.label}
+                    </div>
+                    {col.sublabel && (
+                      <div className={cn(
+                        'text-[9px] mt-0.5',
+                        col.isToday ? 'text-primary/70' : 'text-muted-foreground/50'
+                      )}>{col.sublabel}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Project rows */}
+            {projectRows.length === 0 ? (
+              <div className="py-16 text-center">
+                <Inbox className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No catalog loans in this period</p>
+              </div>
+            ) : (
+              projectRows.map((row, rowIndex) => {
+                const rowHeight = getRowHeight(row.reservations)
+                return (
+                  <div
+                    key={row.projectName}
+                    className={cn(
+                      'flex border-b last:border-b-0 group/row hover:bg-muted/8 transition-colors',
+                      rowIndex % 2 === 1 && 'bg-muted/5',
+                    )}
+                  >
+                    {/* Project label */}
+                    <div className="w-56 shrink-0 px-4 py-3 border-r flex flex-col justify-start gap-1">
+                      <div className="text-sm font-semibold truncate">{row.projectName}</div>
+                      {row.location && (
+                        <div className="text-[10px] text-muted-foreground truncate">{row.location}</div>
+                      )}
+                      <div className="text-[10px] text-muted-foreground/60">
+                        {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+
+                    {/* Timeline area */}
+                    <div className="flex-1 relative" style={{ minHeight: `${rowHeight}px` }}>
+                      {/* Today line */}
+                      {todayPosition && (
+                        <div
+                          className="absolute top-0 bottom-0 w-0.5 bg-red-500/50 z-20"
+                          style={{ left: todayPosition }}
+                        >
+                          <div className="absolute -top-0 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                        </div>
+                      )}
+
+                      {/* Reservation bars */}
+                      {row.reservations.map((ev, i) => {
+                        const barStyle = getBarStyle(ev.startDate, ev.endDate)
+                        const statusColor = STATUS_COLORS[ev.status] || STATUS_COLORS.pending
+
+                        return (
+                          <Link
+                            key={ev.id}
+                            to={ev.adminLinkTo || `/admin/requests/${ev.original?.id}`}
+                            className={cn(
+                              'absolute h-8 rounded-lg flex items-center px-2.5 gap-1.5 text-[10px] text-white font-medium',
+                              'shadow-sm transition-all duration-150 cursor-pointer hover:scale-[1.02] hover:shadow-md',
+                              statusColor,
+                            )}
+                            style={{
+                              ...barStyle,
+                              top: `${8 + i * 40}px`,
+                            }}
+                            title={`${ev.userName || 'Unknown'} — ${ev.title}\n${format(ev.startDate, 'dd MMM')} → ${format(ev.endDate, 'dd MMM yyyy')}\nStatus: ${ev.status}`}
+                          >
+                            {ev.userAvatar && (
+                              <UserAvatar
+                                avatarUrl={ev.userAvatar}
+                                firstName={ev.userName?.split(' ')[0]}
+                                lastName={ev.userName?.split(' ')[1]}
+                                size="sm"
+                                className="h-5 w-5 text-[7px] shrink-0 ring-1 ring-white/30"
+                              />
+                            )}
+                            <span className="truncate">
+                              {ev.userName || 'Unknown'}
+                            </span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

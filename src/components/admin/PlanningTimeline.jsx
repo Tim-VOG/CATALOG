@@ -5,6 +5,7 @@ import {
   startOfDay, endOfMonth, eachDayOfInterval,
   eachWeekOfInterval, isToday,
 } from 'date-fns'
+import { Package } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const STATUS_COLORS = {
@@ -27,10 +28,11 @@ const STATUS_LABELS = {
  * PlanningTimeline
  * Props:
  *   items       - Array of planning items (from usePlanning)
+ *   allProducts - Optional array of all products (to show empty rows)
  *   viewMode    - '1D' | '1W' | '1M' | '3M'
  *   startDate   - Date object for the start of the visible range
  */
-export function PlanningTimeline({ items = [], viewMode, startDate }) {
+export function PlanningTimeline({ items = [], allProducts = [], viewMode, startDate }) {
   // Calculate the date columns based on view mode
   const { columns, endDate, cellWidth } = useMemo(() => {
     const start = startOfDay(startDate)
@@ -98,9 +100,11 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
     return { columns: cols, endDate: end, cellWidth: width }
   }, [viewMode, startDate])
 
-  // Group items by product
+  // Group items by product + merge with allProducts for empty rows
   const productRows = useMemo(() => {
     const map = new Map()
+
+    // First, populate from planning items (reservations)
     items.forEach((item) => {
       const key = item.product_id
       if (!map.has(key)) {
@@ -115,8 +119,25 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
       }
       map.get(key).reservations.push(item)
     })
+
+    // Then, add products with no reservations if allProducts provided
+    if (allProducts.length > 0) {
+      for (const product of allProducts) {
+        if (!map.has(product.id)) {
+          map.set(product.id, {
+            productId: product.id,
+            productName: product.name || 'Unknown',
+            categoryName: product.category_name || '',
+            categoryColor: product.category_color || '#6b7280',
+            imageUrl: product.image_url || '',
+            reservations: [],
+          })
+        }
+      }
+    }
+
     return Array.from(map.values()).sort((a, b) => a.productName.localeCompare(b.productName))
-  }, [items])
+  }, [items, allProducts])
 
   // Calculate bar position as percentage of timeline
   const getBarStyle = (pickupDate, returnDate) => {
@@ -167,7 +188,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
   // Calculate needed row height based on max stacked reservations
   const getRowHeight = (reservations) => {
     const count = reservations.length
-    return Math.max(64, 18 + count * 36)
+    return Math.max(56, 14 + count * 36)
   }
 
   return (
@@ -187,6 +208,7 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
           {/* Header row */}
           <div className="flex border-b bg-muted/10 sticky top-0 z-10">
             <div className="w-64 shrink-0 px-5 py-3 font-semibold text-xs text-muted-foreground uppercase tracking-wider border-r flex items-center gap-2">
+              <Package className="h-3.5 w-3.5" />
               Product
             </div>
             <div className="flex-1 flex">
@@ -217,11 +239,12 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
           {/* Product rows */}
           {productRows.length === 0 ? (
             <div className="py-16 text-center text-muted-foreground text-sm">
-              No reservations in this time range
+              No products found
             </div>
           ) : (
             productRows.map((row, rowIndex) => {
-              const rowHeight = getRowHeight(row.reservations)
+              const hasReservations = row.reservations.length > 0
+              const rowHeight = hasReservations ? getRowHeight(row.reservations) : 56
               return (
                 <div key={row.productId} className={cn('flex border-b last:border-b-0 group/row hover:bg-muted/8 transition-colors', rowIndex % 2 === 1 && 'bg-muted/5')}>
                   <div className="w-64 shrink-0 px-5 py-3 border-r flex items-start gap-3">
@@ -232,9 +255,11 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
                     <div className="min-w-0">
                       <div className="text-sm font-semibold truncate">{row.productName}</div>
                       <div className="text-[10px] text-muted-foreground mt-0.5">{row.categoryName}</div>
-                      <div className="text-[10px] text-muted-foreground/60 mt-0.5">
-                        {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
-                      </div>
+                      {hasReservations && (
+                        <div className="text-[10px] text-muted-foreground/60 mt-0.5">
+                          {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex-1 relative" style={{ minHeight: `${rowHeight}px` }}>
@@ -274,6 +299,13 @@ export function PlanningTimeline({ items = [], viewMode, startDate }) {
                         </Link>
                       )
                     })}
+
+                    {/* Empty state indicator for products without reservations */}
+                    {!hasReservations && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-[10px] text-muted-foreground/30 font-medium">Available</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               )

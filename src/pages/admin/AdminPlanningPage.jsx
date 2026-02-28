@@ -4,6 +4,7 @@ import {
   startOfWeek, startOfMonth, startOfDay,
 } from 'date-fns'
 import { usePlanning } from '@/hooks/use-planning'
+import { useProducts } from '@/hooks/use-products'
 import { PlanningTimeline } from '@/components/admin/PlanningTimeline'
 import { PendingExtensionsBanner } from '@/components/admin/PendingExtensionsBanner'
 import { ChevronLeft, ChevronRight, CalendarRange } from 'lucide-react'
@@ -62,10 +63,15 @@ export function AdminPlanningPage() {
     }
   }, [viewMode, baseDate])
 
-  const { data: planningItems = [], isLoading, isError } = usePlanning(
+  const { data: planningItems = [], isLoading: planningLoading, isError } = usePlanning(
     format(startDate, 'yyyy-MM-dd'),
     format(endDate, 'yyyy-MM-dd')
   )
+
+  // Always fetch products so we can show them even without reservations
+  const { data: allProducts = [], isLoading: productsLoading } = useProducts()
+
+  const isLoading = planningLoading || productsLoading
 
   const navigate = (direction) => {
     setBaseDate((prev) => {
@@ -125,15 +131,10 @@ export function AdminPlanningPage() {
           <p>Failed to load planning data. Try adjusting the date range or refreshing the page.</p>
           <Button variant="outline" size="sm" className="mt-3" onClick={goToToday}>Reset to Today</Button>
         </div>
-      ) : planningItems.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <CalendarRange className="h-10 w-10 mx-auto mb-3 opacity-40" />
-          <p className="font-medium">No reservations in this period</p>
-          <p className="text-sm mt-1">Try a different date range or view mode</p>
-        </div>
       ) : (
         <PlanningTimeline
           items={planningItems}
+          allProducts={allProducts}
           viewMode={viewMode}
           startDate={startDate}
         />

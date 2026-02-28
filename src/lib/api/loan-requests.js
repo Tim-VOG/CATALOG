@@ -88,6 +88,36 @@ export const cancelRequest = async (id) => {
   return updateRequestStatus(id, 'cancelled')
 }
 
+export const deleteLoanRequest = async (id) => {
+  // Delete items first (foreign key), then the request
+  const { error: itemsError } = await supabase
+    .from('loan_request_items')
+    .delete()
+    .eq('request_id', id)
+  if (itemsError) throw itemsError
+
+  const { error } = await supabase
+    .from('loan_requests')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
+export const deleteLoanRequests = async (ids) => {
+  // Bulk delete: items first, then requests
+  const { error: itemsError } = await supabase
+    .from('loan_request_items')
+    .delete()
+    .in('request_id', ids)
+  if (itemsError) throw itemsError
+
+  const { error } = await supabase
+    .from('loan_requests')
+    .delete()
+    .in('id', ids)
+  if (error) throw error
+}
+
 export const processReturn = async (requestId, { itemReturns, admin_notes }) => {
   // Update each item's return details
   for (const item of itemReturns) {

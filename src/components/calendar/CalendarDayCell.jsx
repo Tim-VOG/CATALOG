@@ -1,11 +1,18 @@
 import { useMemo } from 'react'
 import { isSameDay } from 'date-fns'
+import { Package, ClipboardList, Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const TYPE_DOTS = {
-  catalog: 'bg-primary',
-  it: 'bg-amber-500',
-  mailbox: 'bg-violet-500',
+const TYPE_ICONS = {
+  catalog: Package,
+  it: ClipboardList,
+  mailbox: Mail,
+}
+
+const TYPE_COLORS = {
+  catalog: 'text-primary',
+  it: 'text-amber-500',
+  mailbox: 'text-violet-500',
 }
 
 const TYPE_BARS = {
@@ -14,14 +21,8 @@ const TYPE_BARS = {
   mailbox: 'bg-violet-500/50',
 }
 
-const TYPE_TEXT = {
-  catalog: 'text-primary',
-  it: 'text-amber-500',
-  mailbox: 'text-violet-500',
-}
-
 export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, events, onSelect, showLabels = false }) {
-  // Separate multi-day (bar) events from single-day (dot) events
+  // Separate multi-day (bar) events from single-day (icon) events
   const { barEvents, dotEvents } = useMemo(() => {
     const bars = []
     const dots = []
@@ -112,14 +113,17 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
         {/* Desktop labels (when showLabels=true) */}
         {showLabels && labelEvents.length > 0 && (
           <div className="hidden sm:flex flex-col gap-px w-full">
-            {labelEvents.map((ev) => (
-              <div key={ev.id} className="flex items-center gap-0.5 px-0.5 truncate">
-                <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', TYPE_DOTS[ev.type] || 'bg-primary')} />
-                <span className={cn('text-[8px] leading-tight truncate font-medium', TYPE_TEXT[ev.type] || 'text-primary')}>
-                  {ev.title}
-                </span>
-              </div>
-            ))}
+            {labelEvents.map((ev) => {
+              const Icon = TYPE_ICONS[ev.type] || Package
+              return (
+                <div key={ev.id} className="flex items-center gap-0.5 px-0.5 truncate">
+                  <Icon className={cn('h-2.5 w-2.5 shrink-0', TYPE_COLORS[ev.type] || 'text-primary')} />
+                  <span className={cn('text-[8px] leading-tight truncate font-medium', TYPE_COLORS[ev.type] || 'text-primary')}>
+                    {ev.title}
+                  </span>
+                </div>
+              )
+            })}
             {extraDesktop > 0 && (
               <span className="text-[7px] text-muted-foreground/50 font-medium text-center">
                 +{extraDesktop}
@@ -128,7 +132,7 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
           </div>
         )}
 
-        {/* Mobile: always show dots & bars (also desktop fallback when no labels) */}
+        {/* Mobile: always show icons & bars (also desktop fallback when no labels) */}
         <div className={cn(showLabels ? 'sm:hidden' : '', 'flex flex-col items-center gap-0.5 w-full')}>
           {/* Multi-day bar segments */}
           {barSegments.map(({ event, position }) => (
@@ -145,18 +149,21 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
             />
           ))}
 
-          {/* Single-day dots */}
+          {/* Single-day type icons */}
           {dotEvents.length > 0 && (
             <div className="flex items-center gap-0.5 mt-0.5">
-              {dotEvents.slice(0, 3).map((ev) => (
-                <span
-                  key={ev.id}
-                  className={cn(
-                    'h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full',
-                    TYPE_DOTS[ev.type] || 'bg-primary',
-                  )}
-                />
-              ))}
+              {dotEvents.slice(0, 3).map((ev) => {
+                const Icon = TYPE_ICONS[ev.type] || Package
+                return (
+                  <Icon
+                    key={ev.id}
+                    className={cn(
+                      'h-2.5 w-2.5 sm:h-3 sm:w-3',
+                      TYPE_COLORS[ev.type] || 'text-primary',
+                    )}
+                  />
+                )
+              })}
             </div>
           )}
 
