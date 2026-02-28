@@ -9,7 +9,7 @@ import {
   Search, Mail, Trash2, Eye, Calendar, Building2, ArrowLeft,
   CheckCircle, XCircle, Send, Loader2, KeyRound, Clock,
   Save, FileText, ChevronDown, ChevronUp, Info, Sparkles,
-  User, Globe, Archive, AlertTriangle,
+  User, Globe, Archive, AlertTriangle, Download, Pencil, X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -153,12 +153,24 @@ function RequestInfoCard({ req }) {
           ) : null)}
         </div>
 
-        {/* Banner preview */}
+        {/* Banner preview + download */}
         {req.banner_url && (
           <div className="px-5 pb-3">
             <div className="flex items-start gap-3 text-sm">
               <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">Banner</span>
-              <img src={req.banner_url} alt="Banner" className="h-14 rounded-lg border object-contain" />
+              <div className="flex items-center gap-3">
+                <img src={req.banner_url} alt="Banner" className="h-14 rounded-lg border object-contain" />
+                <a
+                  href={req.banner_url}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors border border-primary/20 rounded-lg px-2.5 py-1.5 hover:bg-primary/5"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download
+                </a>
+              </div>
             </div>
           </div>
         )}
@@ -194,6 +206,129 @@ function RequestInfoCard({ req }) {
               {expanded ? 'Show less' : 'Show more details'}
             </button>
           </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ══════════════════════════════════════════
+//  Editable CC Emails (Who Needs Access)
+// ══════════════════════════════════════════
+function EditableCCEmails({ req, onSave }) {
+  const emails = extractEmails(req.who_needs_access)
+  const [editing, setEditing] = useState(false)
+  const [tags, setTags] = useState(emails)
+  const [inputValue, setInputValue] = useState('')
+  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  // Reset when request changes
+  useEffect(() => {
+    setTags(extractEmails(req.who_needs_access))
+    setEditing(false)
+  }, [req.who_needs_access])
+
+  const isValidEmail = (email) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
+
+  const addTag = (raw) => {
+    const email = raw.trim().toLowerCase()
+    if (!email) return
+    if (!isValidEmail(email)) { setError('Invalid email'); return }
+    if (tags.includes(email)) { setError('Already added'); return }
+    setError('')
+    setTags((prev) => [...prev, email])
+    setInputValue('')
+  }
+
+  const removeTag = (idx) => setTags((prev) => prev.filter((_, i) => i !== idx))
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
+      e.preventDefault()
+      addTag(inputValue)
+    }
+    if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+      removeTag(tags.length - 1)
+    }
+  }
+
+  const handleSave = async () => {
+    if (inputValue.trim()) addTag(inputValue)
+    setSaving(true)
+    await onSave(tags.join(', '))
+    setSaving(false)
+    setEditing(false)
+  }
+
+  if (!emails.length && !editing) {
+    return (
+      <Card variant="elevated">
+        <CardContent className="p-4 flex items-center gap-3">
+          <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground flex-1">No CC emails defined</span>
+          <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="gap-1.5 text-xs">
+            <Pencil className="h-3 w-3" /> Add
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card variant="elevated">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Mail className="h-4 w-4 text-primary" />
+            CC Recipients
+          </div>
+          {!editing && (
+            <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="gap-1.5 text-xs">
+              <Pencil className="h-3 w-3" /> Edit
+            </Button>
+          )}
+        </div>
+
+        {editing ? (
+          <div className="space-y-2">
+            <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all">
+              {tags.map((tag, idx) => (
+                <span key={tag} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
+                  {tag}
+                  <button type="button" onClick={() => removeTag(idx)} className="ml-0.5 hover:text-destructive transition-colors">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              <input
+                type="email"
+                value={inputValue}
+                onChange={(e) => { setInputValue(e.target.value); setError('') }}
+                onKeyDown={handleKeyDown}
+                onBlur={() => { if (inputValue.trim()) addTag(inputValue) }}
+                placeholder={tags.length === 0 ? 'name@company.com' : 'Add another...'}
+                className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+              />
+            </div>
+            {error && <p className="text-[11px] text-destructive">{error}</p>}
+            <div className="flex items-center gap-2 justify-end">
+              <Button variant="ghost" size="sm" onClick={() => { setEditing(false); setTags(emails); setError('') }} className="text-xs">Cancel</Button>
+              <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
+                {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                Save
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {emails.map((email) => (
+              <span key={email} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
+                <Mail className="h-3 w-3" />
+                {email}
+              </span>
+            ))}
+          </div>
         )}
       </CardContent>
     </Card>
@@ -624,6 +759,19 @@ export function AdminMailboxRequestsPage() {
 
         {/* Request info */}
         <RequestInfoCard req={selectedRequest} />
+
+        {/* Editable CC emails (Who Needs Access) */}
+        <EditableCCEmails
+          req={selectedRequest}
+          onSave={async (newEmails) => {
+            try {
+              await updateRequest.mutateAsync({ id: selectedRequest.id, updates: { who_needs_access: newEmails } })
+              showToast('CC emails updated')
+            } catch (err) {
+              showToast(err.message || 'Update failed', 'error')
+            }
+          }}
+        />
 
         {/* Status actions */}
         {selectedRequest.status === 'pending' && (

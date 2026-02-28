@@ -71,6 +71,107 @@ function evaluateCondition(field, formValues) {
   }
 }
 
+// ── Email tags field ──
+function EmailTagsField({ value, onChange, placeholder }) {
+  const [inputValue, setInputValue] = useState('')
+  const [error, setError] = useState('')
+
+  // Parse comma-separated string to array
+  const tags = value ? value.split(',').map((t) => t.trim()).filter(Boolean) : []
+
+  const isValidEmail = (email) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
+
+  const addTag = (raw) => {
+    const email = raw.trim().toLowerCase()
+    if (!email) return
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    if (tags.includes(email)) {
+      setError('Email already added')
+      return
+    }
+    setError('')
+    const updated = [...tags, email]
+    onChange(updated.join(', '))
+    setInputValue('')
+  }
+
+  const removeTag = (idx) => {
+    const updated = tags.filter((_, i) => i !== idx)
+    onChange(updated.join(', '))
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
+      e.preventDefault()
+      addTag(inputValue)
+    }
+    if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+      removeTag(tags.length - 1)
+    }
+  }
+
+  const handlePaste = (e) => {
+    e.preventDefault()
+    const text = e.clipboardData.getData('text')
+    // Split by comma, semicolon, newline, or space
+    const emails = text.split(/[,;\n\s]+/).filter(Boolean)
+    const valid = []
+    for (const email of emails) {
+      const trimmed = email.trim().toLowerCase()
+      if (isValidEmail(trimmed) && !tags.includes(trimmed) && !valid.includes(trimmed)) {
+        valid.push(trimmed)
+      }
+    }
+    if (valid.length > 0) {
+      onChange([...tags, ...valid].join(', '))
+      setInputValue('')
+      setError('')
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all">
+        {tags.map((tag, idx) => (
+          <span
+            key={tag}
+            className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium"
+          >
+            <Mail className="h-3 w-3 shrink-0" />
+            {tag}
+            <button
+              type="button"
+              onClick={() => removeTag(idx)}
+              className="ml-0.5 hover:text-destructive transition-colors"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        ))}
+        <input
+          type="email"
+          value={inputValue}
+          onChange={(e) => { setInputValue(e.target.value); setError('') }}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          onBlur={() => { if (inputValue.trim()) addTag(inputValue) }}
+          placeholder={tags.length === 0 ? (placeholder || 'name@company.com') : 'Add another...'}
+          className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+        />
+      </div>
+      {error && (
+        <p className="text-[11px] text-destructive">{error}</p>
+      )}
+      <p className="text-[10px] text-muted-foreground">
+        Press <kbd className="bg-muted px-1 py-0.5 rounded text-[9px] font-mono">Enter</kbd> or <kbd className="bg-muted px-1 py-0.5 rounded text-[9px] font-mono">,</kbd> to add. You can also paste multiple emails.
+      </p>
+    </div>
+  )
+}
+
 // ── File upload field ──
 function FileUploadField({ value, onChange, helpText }) {
   const fileInputRef = useRef(null)
@@ -235,6 +336,15 @@ function DynamicField({ field, value, onChange }) {
           value={value || ''}
           onChange={onChange}
           helpText={field.help_text}
+        />
+      )
+
+    case 'email_tags':
+      return (
+        <EmailTagsField
+          value={value || ''}
+          onChange={onChange}
+          placeholder={field.placeholder}
         />
       )
 

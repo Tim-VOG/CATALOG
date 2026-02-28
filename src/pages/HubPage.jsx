@@ -101,19 +101,21 @@ export function HubPage() {
     />
   )
 
-  // My Requests — always visible
-  cards.push(
-    <HubCard
-      key="my-requests"
-      to="/my-requests"
-      icon={Inbox}
-      title={settings?.hub_my_requests_title || 'My Requests'}
-      description={settings?.hub_my_requests_description || 'View all your submitted requests across every hub in one place. Track status and follow up.'}
-      color="primary"
-      buttonLabel="View Requests"
-      variant="outline"
-    />
-  )
+  // My Requests — visible to non-admin users only
+  if (!isAdmin) {
+    cards.push(
+      <HubCard
+        key="my-requests"
+        to="/my-requests"
+        icon={Inbox}
+        title={settings?.hub_my_requests_title || 'My Requests'}
+        description={settings?.hub_my_requests_description || 'View all your submitted requests across every hub in one place. Track status and follow up.'}
+        color="primary"
+        buttonLabel="View Requests"
+        variant="outline"
+      />
+    )
+  }
 
   // Onboarding Hub — admin only
   if (hasOnboarding && isAdmin) {

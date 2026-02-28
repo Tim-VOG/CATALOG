@@ -39,6 +39,7 @@ const FIELD_TYPES = [
   { value: 'checkbox', label: 'Checkbox' },
   { value: 'toggle', label: 'Toggle' },
   { value: 'file', label: 'File Upload' },
+  { value: 'email_tags', label: 'Email Tags' },
 ]
 
 const STEPS = [
@@ -66,6 +67,7 @@ const TYPE_COLORS = {
   checkbox: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
   toggle: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
   file: 'bg-rose-500/15 text-rose-600 border-rose-500/30',
+  email_tags: 'bg-cyan-500/15 text-cyan-600 border-cyan-500/30',
 }
 
 const STEP_COLORS = {
