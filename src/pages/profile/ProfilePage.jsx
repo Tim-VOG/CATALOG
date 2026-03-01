@@ -99,7 +99,7 @@ export function ProfilePage() {
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Profile</h1>
         <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -108,7 +108,8 @@ export function ProfilePage() {
       </div>
 
       {/* Header card */}
-      <Card variant="elevated">
+      <Card variant="elevated" className="overflow-hidden relative">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <CardContent className="p-6">
           <div className="flex items-start gap-5">
             {/* Avatar with upload overlay */}

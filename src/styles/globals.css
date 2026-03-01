@@ -46,6 +46,18 @@
   --font-display: 'Space Grotesk Variable', sans-serif;
   --font-body: 'DM Sans Variable', sans-serif;
   --font-sans: 'DM Sans Variable', sans-serif;
+
+  /* ── Enhanced shadows ────────────────────────────────── */
+  --shadow-glow-primary: 0 0 20px rgba(249, 115, 22, 0.15), 0 0 60px rgba(249, 115, 22, 0.05);
+  --shadow-glow-accent: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 60px rgba(6, 182, 212, 0.05);
+  --shadow-elevated: 0 20px 60px rgba(6, 16, 88, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 24px 80px rgba(6, 16, 88, 0.20), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* ── Easing curves ───────────────────────────────────── */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 /* ── Light theme overrides ─────────────────────────────── */
@@ -159,6 +171,47 @@ body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+/* Skeleton wave variant — more organic sweep */
+@keyframes skeleton-wave {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.skeleton-wave {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-muted);
+}
+.skeleton-wave::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-muted-foreground) 8%, transparent) 40%,
+    color-mix(in srgb, var(--color-muted-foreground) 12%, transparent) 50%,
+    color-mix(in srgb, var(--color-muted-foreground) 8%, transparent) 60%,
+    transparent 100%
+  );
+  animation: skeleton-wave 1.8s ease-in-out infinite;
+}
+
+/* Skeleton shine variant — bright sweep */
+@keyframes skeleton-shine {
+  0% { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+.skeleton-shine {
+  background: linear-gradient(
+    110deg,
+    var(--color-muted) 30%,
+    color-mix(in srgb, var(--color-muted-foreground) 18%, var(--color-muted)) 38%,
+    var(--color-muted) 46%
+  );
+  background-size: 300% 100%;
+  animation: skeleton-shine 2.2s linear infinite;
+}
+
 /* Smooth animated focus ring */
 *:focus-visible {
   outline: none;
@@ -225,5 +278,137 @@ body, .bg-card, .bg-background, .bg-muted, .bg-popover, .border-border {
 
 .group:hover .sidebar-icon-wiggle {
   animation: sidebar-wiggle 0.5s ease-in-out;
+}
+
+/* ── Glass morphism panel ──────────────────────────────── */
+.glass-panel {
+  background: color-mix(in srgb, var(--color-card) 70%, transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+}
+
+/* ── Gradient border via mask ──────────────────────────── */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--color-primary)/0.4, var(--color-accent)/0.4);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Animated gradient text ────────────────────────────── */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(270deg, var(--color-primary), var(--color-accent), var(--color-primary));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* ── Pulse ring for interactive elements ───────────────── */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.pulse-ring {
+  position: relative;
+}
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--color-primary);
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ── Float animation for decorative elements ───────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 7s ease-in-out 1s infinite;
+}
+
+.animate-float-slow {
+  animation: float 8s ease-in-out 2s infinite;
+}
+
+/* ── Mesh gradient backgrounds ─────────────────────────── */
+.bg-mesh-gradient {
+  background:
+    radial-gradient(at 20% 30%, color-mix(in srgb, var(--color-primary) 8%, transparent) 0%, transparent 50%),
+    radial-gradient(at 80% 10%, color-mix(in srgb, var(--color-accent) 6%, transparent) 0%, transparent 50%),
+    radial-gradient(at 50% 80%, color-mix(in srgb, var(--color-primary) 5%, transparent) 0%, transparent 50%);
+}
+
+/* ── Gradient surface for cards ────────────────────────── */
+.bg-gradient-surface {
+  background: linear-gradient(
+    180deg,
+    var(--color-card) 0%,
+    color-mix(in srgb, var(--color-card) 92%, var(--color-primary)) 100%
+  );
+}
+
+/* ── Dot grid pattern (decorative) ─────────────────────── */
+.bg-dot-grid {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-border) 40%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* ── Smooth scroll (Lenis) ─────────────────────────────── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── Navigation progress bar ───────────────────────────── */
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%) scaleX(0.3); }
+  40% { transform: translateX(0%) scaleX(0.4); }
+  100% { transform: translateX(100%) scaleX(0.3); }
+}
+
+.animate-progress-indeterminate {
+  animation: progress-indeterminate 1.5s var(--ease-smooth) infinite;
+  transform-origin: left center;
 }
 

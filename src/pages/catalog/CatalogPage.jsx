@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { CompactDateBar } from '@/components/catalog/CompactDateBar'
-import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
+import { AnimateList, AnimateListItem, ScrollFadeIn, ScrollReveal } from '@/components/ui/motion'
 import { Package } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
@@ -82,18 +82,18 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Equipment Catalog</h1>
+      {/* Header with gradient accent */}
+      <ScrollReveal direction="down">
+        <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-gradient-primary">Equipment Catalog</h1>
         <p className="text-muted-foreground mt-1">Browse and reserve equipment for your projects</p>
         <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{ originX: 0 }}
         />
-      </div>
+      </ScrollReveal>
 
       {/* Compact date bar */}
       <CompactDateBar
@@ -103,7 +103,12 @@ export function CatalogPage() {
       />
 
       {/* Category filters — animated pills */}
-      <div className="flex flex-wrap gap-2">
+      <motion.div
+        className="flex flex-wrap gap-2"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+      >
         {[{ id: 'all', name: 'All' }, ...categories].map((c) => {
           const isActive = selectedCategory === c.name
           return (
@@ -112,7 +117,7 @@ export function CatalogPage() {
               type="button"
               onClick={() => setSelectedCategory(c.name)}
               className={cn(
-                'relative px-3 py-1.5 text-sm font-medium rounded-full transition-colors',
+                'relative px-4 py-1.5 text-sm font-medium rounded-full transition-colors',
                 isActive
                   ? 'text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -121,7 +126,7 @@ export function CatalogPage() {
               {isActive && (
                 <motion.span
                   layoutId="category-pill"
-                  className="absolute inset-0 rounded-full bg-primary"
+                  className="absolute inset-0 rounded-full bg-primary shadow-glow-primary"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
@@ -129,7 +134,7 @@ export function CatalogPage() {
             </button>
           )
         })}
-      </div>
+      </motion.div>
 
       {/* Product grid */}
       {filtered.length === 0 ? (

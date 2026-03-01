@@ -1,11 +1,14 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { motion } from 'motion/react'
 import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
-  Settings, UserMinus,
+  Settings, UserMinus, ChevronsLeft,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 // ── Contextual hover animations per icon ──
@@ -75,6 +78,7 @@ const sidebarSections = [
 
 export function AdminSidebar() {
   const location = useLocation()
+  const [collapsed, setCollapsed] = useState(false)
 
   const isActive = (to, exact) => {
     if (exact) return location.pathname === to
@@ -82,49 +86,84 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="hidden lg:block py-3 pl-3 shrink-0 self-start">
-      <div className="w-56 rounded-2xl bg-card/90 backdrop-blur-sm border border-border/40 shadow-card flex flex-col max-h-[calc(100vh-5.5rem)] overflow-hidden">
+    <motion.aside
+      className="hidden lg:block py-3 pl-3 shrink-0 self-start"
+      animate={{ width: collapsed ? 76 : 240 }}
+      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
+      <div className={cn(
+        'rounded-2xl bg-card/90 backdrop-blur-sm border border-border/40 shadow-card flex flex-col max-h-[calc(100vh-5.5rem)] overflow-hidden',
+        'bg-gradient-surface',
+      )}>
         {/* Header */}
-        <div className="px-4 py-3">
-          <h2 className="font-display font-semibold text-[10px] text-muted-foreground uppercase tracking-widest">
-            Admin
-          </h2>
+        <div className="px-4 py-3 flex items-center justify-between">
+          {!collapsed && (
+            <motion.h2
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="font-display font-semibold text-[10px] text-muted-foreground uppercase tracking-widest"
+            >
+              Admin
+            </motion.h2>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn('h-7 w-7 shrink-0', collapsed && 'mx-auto')}
+            onClick={() => setCollapsed(!collapsed)}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <motion.div
+              animate={{ rotate: collapsed ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChevronsLeft className="h-3.5 w-3.5 text-muted-foreground" />
+            </motion.div>
+          </Button>
         </div>
 
         {/* Scrollable nav */}
         <nav className="flex-1 overflow-y-auto px-2 pb-2 space-y-4">
           {/* All Requests overview link */}
           <div>
-            <Link to="/admin/all-requests" className="group">
-              <Button
-                variant={isActive('/admin/all-requests') ? 'secondary' : 'ghost'}
-                className="w-full justify-start gap-2.5 h-8 text-xs"
-                size="sm"
-              >
-                <CalendarRange className={cn('h-3.5 w-3.5 transition-transform duration-200', ANIM.planning)} />
-                All Requests
-              </Button>
-            </Link>
+            <SidebarLink
+              to="/admin/all-requests"
+              label="All Requests"
+              icon={CalendarRange}
+              anim={ANIM.planning}
+              active={isActive('/admin/all-requests')}
+              collapsed={collapsed}
+            />
           </div>
 
           {sidebarSections.map((section, idx) => (
             <div key={section.label}>
-              {idx > 0 && <div className="border-t border-border/30 mb-2" />}
-              <h3 className="px-2.5 mb-1 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-                {section.label}
-              </h3>
+              {idx > 0 && (
+                <div className="mx-2 mb-2">
+                  <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
+                </div>
+              )}
+              {!collapsed && (
+                <motion.h3
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="px-2.5 mb-1 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest"
+                >
+                  {section.label}
+                </motion.h3>
+              )}
               <div className="space-y-0.5">
-                {section.links.map(({ to, label, icon: Icon, exact, anim }) => (
-                  <Link key={to} to={to} className="group">
-                    <Button
-                      variant={isActive(to, exact) ? 'secondary' : 'ghost'}
-                      className="w-full justify-start gap-2.5 h-8 text-xs"
-                      size="sm"
-                    >
-                      <Icon className={cn('h-3.5 w-3.5 transition-transform duration-200', anim)} />
-                      {label}
-                    </Button>
-                  </Link>
+                {section.links.map(({ to, label, icon, exact, anim }) => (
+                  <SidebarLink
+                    key={to}
+                    to={to}
+                    label={label}
+                    icon={icon}
+                    anim={anim}
+                    active={isActive(to, exact)}
+                    collapsed={collapsed}
+                  />
                 ))}
               </div>
             </div>
@@ -133,14 +172,54 @@ export function AdminSidebar() {
 
         {/* Back link */}
         <div className="px-2 py-2 border-t border-border/30">
-          <Link to="/" className="group">
-            <Button variant="ghost" className="w-full justify-start gap-2.5 h-8 text-xs" size="sm">
-              <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-1" />
-              Back to Hub
-            </Button>
-          </Link>
+          <SidebarLink
+            to="/"
+            label="Back to Hub"
+            icon={ArrowLeft}
+            anim="group-hover:-translate-x-1"
+            active={false}
+            collapsed={collapsed}
+          />
         </div>
       </div>
-    </aside>
+    </motion.aside>
   )
+}
+
+function SidebarLink({ to, label, icon: Icon, anim, active, collapsed }) {
+  const content = (
+    <Link to={to} className="group relative block">
+      <Button
+        variant={active ? 'secondary' : 'ghost'}
+        className={cn(
+          'w-full h-8 text-xs relative z-10',
+          collapsed ? 'justify-center px-0' : 'justify-start gap-2.5',
+        )}
+        size="sm"
+      >
+        <Icon className={cn('h-3.5 w-3.5 shrink-0 transition-transform duration-200', anim)} />
+        {!collapsed && <span className="truncate">{label}</span>}
+      </Button>
+      {active && (
+        <motion.div
+          layoutId="sidebar-active-indicator"
+          className="absolute left-0 top-1 bottom-1 w-[3px] rounded-full bg-primary"
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        />
+      )}
+    </Link>
+  )
+
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={8}>
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return content
 }

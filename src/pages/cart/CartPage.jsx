@@ -53,7 +53,7 @@ export function CartPage() {
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Your Cart</h1>
         <p className="text-muted-foreground mt-1">{items.length} item{items.length > 1 ? 's' : ''}</p>
         <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -172,12 +172,12 @@ export function CartPage() {
       </Card>
 
       <div className="sticky bottom-20 md:bottom-0 z-10">
-        <Card className="bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+        <Card className="bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 shadow-float border-border/50">
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground mb-4 max-md:hidden">
               Requesting as: <strong>{profile?.first_name} {profile?.last_name}</strong> ({user?.email})
             </p>
-            <Button className="w-full gap-2" size="lg" disabled={!canProceed} onClick={() => navigate('/checkout')}>
+            <Button variant="gradient" className="w-full gap-2" size="lg" disabled={!canProceed} onClick={() => navigate('/checkout')}>
               Continue to Project Form
               <ArrowRight className="h-4 w-4" />
             </Button>

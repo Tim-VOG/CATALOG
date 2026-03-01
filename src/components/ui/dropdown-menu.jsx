@@ -106,12 +106,12 @@ function DropdownMenuContent({ className, align = 'end', children, ...props }) {
           ref={contentRef}
           role="menu"
           aria-orientation="vertical"
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
+          initial={{ opacity: 0, scale: 0.95, y: -6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -6 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
           className={cn(
-            'absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+            'absolute z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border/50 bg-popover/95 backdrop-blur-md p-1 text-popover-foreground shadow-float',
             align === 'end' ? 'right-0' : 'left-0',
             'top-full mt-1',
             className
@@ -145,8 +145,9 @@ function DropdownMenuItem({ className, children, onClick, disabled, ...props }) 
       tabIndex={disabled ? -1 : 0}
       aria-disabled={disabled || undefined}
       className={cn(
-        'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
-        'hover:bg-muted focus:bg-muted focus-visible:ring-1 focus-visible:ring-ring',
+        'relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-none',
+        'transition-colors duration-150',
+        'hover:bg-muted/80 focus:bg-muted/80 focus-visible:ring-1 focus-visible:ring-ring',
         disabled && 'pointer-events-none opacity-50',
         className
       )}
@@ -160,11 +161,17 @@ function DropdownMenuItem({ className, children, onClick, disabled, ...props }) 
 }
 
 function DropdownMenuSeparator({ className, ...props }) {
-  return <div role="separator" className={cn('-mx-1 my-1 h-px bg-border', className)} {...props} />
+  return (
+    <div
+      role="separator"
+      className={cn('-mx-1 my-1 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent', className)}
+      {...props}
+    />
+  )
 }
 
 function DropdownMenuLabel({ className, ...props }) {
-  return <div className={cn('px-2 py-1.5 text-sm font-semibold', className)} {...props} />
+  return <div className={cn('px-2 py-1.5 text-xs font-semibold text-muted-foreground', className)} {...props} />
 }
 
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel }

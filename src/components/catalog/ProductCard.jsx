@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Check, WifiOff, AlertTriangle } from 'lucide-react'
+import { motion } from 'motion/react'
+import { Plus, Check, WifiOff, AlertTriangle, ShoppingCart } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
@@ -30,10 +31,10 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
   return (
     <>
       <Card spotlight={!isUnavailable} className={cn(
-        'overflow-hidden group transition-all duration-200 h-full flex flex-col',
+        'overflow-hidden group transition-all duration-300 h-full flex flex-col',
         isUnavailable
           ? 'opacity-50 grayscale'
-          : 'hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50 active:scale-[0.98]'
+          : 'hover:-translate-y-1.5 hover:shadow-elevated hover:border-primary/30 active:scale-[0.98]'
       )}>
         <Link to={`/catalog/${product.id}`}>
           <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -41,20 +42,42 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
               src={product.image_url || 'https://via.placeholder.com/400x250?text=No+Image'}
               alt={product.name}
               className={cn(
-                'transition-transform duration-300',
-                !isUnavailable && 'group-hover:scale-105'
+                'transition-transform duration-500',
+                !isUnavailable && 'group-hover:scale-110'
               )}
             />
-            {/* Subtle gradient overlay for text legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
             <CategoryBadge
               className="absolute top-3 left-3"
               name={product.category_name}
               color={product.category_color}
               subType={product.sub_type}
             />
+
+            {/* Quick add button revealed on hover */}
+            {!isUnavailable && (
+              <motion.div
+                className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                initial={false}
+              >
+                <Button
+                  size="sm"
+                  className="rounded-full shadow-float gap-1.5 h-8 text-xs"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleAdd()
+                  }}
+                >
+                  <ShoppingCart className="h-3 w-3" />
+                  Quick Add
+                </Button>
+              </motion.div>
+            )}
+
             {isUnavailable && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+              <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
                 <span className="text-sm font-semibold text-destructive bg-background/80 px-3 py-1 rounded-full">
                   Unavailable
                 </span>
@@ -74,7 +97,7 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           {product.includes?.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {product.includes.map((item, i) => (
-                <span key={i} className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted rounded px-2 py-0.5">
+                <span key={i} className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted/80 rounded-full px-2 py-0.5">
                   <Check className="h-3 w-3 text-success" />
                   {item}
                 </span>
@@ -94,20 +117,20 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-2 border-t mt-auto">
+          <div className="flex items-center justify-between pt-3 border-t border-border/30 mt-auto">
             <div className="text-sm">
               <span
                 className={cn(
-                  'font-bold',
+                  'font-bold text-base',
                   available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
                 )}
               >
                 {Math.max(available, 0)}
               </span>
-              <span className="text-muted-foreground"> / {product.total_stock} available</span>
+              <span className="text-muted-foreground text-xs"> / {product.total_stock}</span>
             </div>
-            <Button size="sm" onClick={handleAdd} disabled={isUnavailable}>
-              <Plus className="h-4 w-4" />
+            <Button size="sm" onClick={handleAdd} disabled={isUnavailable} className="gap-1.5">
+              <Plus className="h-3.5 w-3.5" />
               {needsConfig ? 'Configure' : 'Add'}
             </Button>
           </div>

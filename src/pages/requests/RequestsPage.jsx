@@ -22,7 +22,7 @@ const formatDate = (d) =>
 function RequestCard({ req }) {
   return (
     <Link to={`/requests/${req.id}`}>
-      <Card className="hover:-translate-y-0.5 hover:shadow-md hover:border-primary/50 transition-all duration-200 cursor-pointer">
+      <Card className="hover:-translate-y-1 hover:shadow-elevated hover:border-primary/30 transition-all duration-300 cursor-pointer">
         <CardContent className="pt-6">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2 flex-1 min-w-0">
@@ -136,7 +136,7 @@ export function RequestsPage() {
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">My Requests</h1>
         <p className="text-muted-foreground mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} total</p>
         <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}

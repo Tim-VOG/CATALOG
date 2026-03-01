@@ -98,18 +98,18 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
     <AnimatePresence>
       {open && (
         <>
-          {/* Overlay */}
+          {/* Overlay with glass blur */}
           <motion.div
             key="dialog-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 bg-black/80"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             onClick={() => onOpenChange?.(false)}
             aria-hidden="true"
           />
-          {/* Content */}
+          {/* Content with spring animation */}
           <motion.div
             key="dialog-content"
             ref={(node) => {
@@ -121,14 +121,23 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descId}
-            initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
-            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
-            exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-50%' }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 0.92, y: '-48%', x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.95, y: '-48%', x: '-50%' }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 28,
+              mass: 0.8,
+            }}
             className={cn(
-              'fixed left-1/2 top-1/2 z-50 grid w-full gap-4 border bg-card p-6 shadow-lg max-h-[85vh] overflow-y-auto',
+              'fixed left-1/2 top-1/2 z-50 grid w-full gap-4 p-6 max-h-[85vh] overflow-y-auto',
+              'bg-card border border-border/50 shadow-float',
+              'rounded-xl',
+              // Gradient top accent
+              'before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/40 before:to-transparent',
               DIALOG_SIZES[size] || DIALOG_SIZES.default,
-              'rounded-lg max-sm:max-w-none max-sm:h-full max-sm:max-h-full max-sm:rounded-none',
+              'max-sm:max-w-none max-sm:h-full max-sm:max-h-full max-sm:rounded-none',
               className
             )}
             onClick={(e) => e.stopPropagation()}
@@ -138,13 +147,16 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
             <DialogIdContext.Provider value={{ titleId, descId }}>
               {children}
             </DialogIdContext.Provider>
-            <button
-              className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              className="absolute right-4 top-4 rounded-full p-1 opacity-60 transition-opacity hover:opacity-100 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => onOpenChange?.(false)}
               aria-label="Close"
             >
               <X className="h-4 w-4" />
-            </button>
+            </motion.button>
           </motion.div>
         </>
       )}

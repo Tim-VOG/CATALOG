@@ -20,7 +20,7 @@ import { BlurImage } from '@/components/common/BlurImage'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummaryCard'
 import { ProductConfigModal } from '@/components/catalog/ProductConfigModal'
-import { FadeIn, ScrollFadeIn } from '@/components/ui/motion'
+import { FadeIn, ScrollFadeIn, ScrollReveal } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
@@ -175,7 +175,8 @@ export function ProductDetailPage() {
       {/* ── CTA Button (centered, all breakpoints) ───────────── */}
       <FadeIn delay={0.3} y={10} className="flex justify-center mt-8 xl:mt-10 px-4">
         <Button
-          className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all duration-300"
+          variant="gradient"
+          className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
           onClick={handleAdd}
           disabled={available <= 0}
         >
@@ -234,10 +235,10 @@ export function ProductDetailPage() {
 
       {/* ── Specifications ───────────────────────────────────── */}
       {hasSpecs && (
-        <ScrollFadeIn className="max-w-2xl mx-auto mt-10 px-4">
+        <ScrollReveal className="max-w-2xl mx-auto mt-10 px-4">
           <Card variant="glass">
             <CardContent className="p-5">
-              <h3 className="font-semibold text-base mb-3">Specifications</h3>
+              <h3 className="font-display font-semibold text-base mb-3">Specifications</h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
                 {Object.entries(product.specs).map(([key, value]) => (
                   <div key={key} className="flex justify-between py-1.5 border-b border-border/20 last:border-0">
@@ -248,7 +249,7 @@ export function ProductDetailPage() {
               </dl>
             </CardContent>
           </Card>
-        </ScrollFadeIn>
+        </ScrollReveal>
       )}
 
       {/* bottom spacing */}

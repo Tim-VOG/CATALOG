@@ -7,6 +7,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 const userLinks = [
   { to: '/', label: 'Hub', icon: Home, exact: true },
@@ -22,8 +23,17 @@ const adminLinks = [
   { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
 ]
 
+const linkVariants = {
+  hidden: { opacity: 0, x: -16 },
+  visible: (i) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: 0.05 + i * 0.04, duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+}
+
 export function MobileNav() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, profile } = useAuth()
   const location = useLocation()
   const cartCount = useCartStore((s) => s.items.length)
   const mobileNavOpen = useUIStore((s) => s.mobileNavOpen)
@@ -35,11 +45,14 @@ export function MobileNav() {
   const appName = settings?.app_name || 'VO Gear Hub'
   const logoUrl = settings?.logo_url
   const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
+  const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : ''
 
   const isActive = (to, exact) => {
     if (exact) return location.pathname === to
     return location.pathname.startsWith(to)
   }
+
+  let linkIndex = 0
 
   return (
     <AnimatePresence>
@@ -51,8 +64,8 @@ export function MobileNav() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 bg-black/60 z-40"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={toggleMobileNav}
           />
 
@@ -62,10 +75,11 @@ export function MobileNav() {
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed inset-y-0 left-0 w-72 bg-card border-r z-50 flex flex-col"
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed inset-y-0 left-0 w-72 glass-panel bg-card/95 border-r z-50 flex flex-col shadow-float"
           >
-            <div className="flex items-center justify-between p-4 border-b">
+            {/* Header with logo */}
+            <div className="flex items-center justify-between p-4 border-b border-border/30">
               <div className="flex items-center gap-2 text-primary">
                 {logoUrl ? (
                   <img src={logoUrl} alt={appName} className="h-6 w-auto object-contain" />
@@ -82,49 +96,82 @@ export function MobileNav() {
               </Button>
             </div>
 
-            <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-              {userLinks.map(({ to, label, icon: Icon }) => (
-                <Link key={to} to={to} onClick={toggleMobileNav}>
-                  <Button
-                    variant={isActive(to) ? 'secondary' : 'ghost'}
-                    className="w-full justify-start gap-3"
-                    size="sm"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {label}
-                    {to === '/cart' && cartCount > 0 && (
-                      <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-              ))}
+            {/* User greeting */}
+            {userName && (
+              <div className="px-4 py-3 border-b border-border/20 bg-mesh-gradient">
+                <p className="text-xs text-muted-foreground">Welcome back,</p>
+                <p className="text-sm font-semibold truncate">{userName}</p>
+              </div>
+            )}
 
-              {isAdmin && (
-                <>
-                  <div className="my-2 border-t" />
-                  <p className="px-3 py-1 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
-                    Admin
-                  </p>
-                  {adminLinks.map(({ to, label, icon: Icon, exact }) => (
-                    <Link key={to} to={to} onClick={toggleMobileNav}>
+            {/* Navigation */}
+            <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+              {userLinks.map(({ to, label, icon: Icon }) => {
+                const i = linkIndex++
+                return (
+                  <motion.div
+                    key={to}
+                    custom={i}
+                    initial="hidden"
+                    animate="visible"
+                    variants={linkVariants}
+                  >
+                    <Link to={to} onClick={toggleMobileNav}>
                       <Button
-                        variant={isActive(to, exact) ? 'secondary' : 'ghost'}
+                        variant={isActive(to) ? 'secondary' : 'ghost'}
                         className="w-full justify-start gap-3"
                         size="sm"
                       >
                         <Icon className="h-4 w-4" />
                         {label}
+                        {to === '/cart' && cartCount > 0 && (
+                          <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                            {cartCount}
+                          </span>
+                        )}
                       </Button>
                     </Link>
-                  ))}
+                  </motion.div>
+                )
+              })}
+
+              {isAdmin && (
+                <>
+                  <div className="my-2 mx-2">
+                    <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
+                  </div>
+                  <p className="px-3 py-1 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                    Admin
+                  </p>
+                  {adminLinks.map(({ to, label, icon: Icon, exact }) => {
+                    const i = linkIndex++
+                    return (
+                      <motion.div
+                        key={to}
+                        custom={i}
+                        initial="hidden"
+                        animate="visible"
+                        variants={linkVariants}
+                      >
+                        <Link to={to} onClick={toggleMobileNav}>
+                          <Button
+                            variant={isActive(to, exact) ? 'secondary' : 'ghost'}
+                            className="w-full justify-start gap-3"
+                            size="sm"
+                          >
+                            <Icon className="h-4 w-4" />
+                            {label}
+                          </Button>
+                        </Link>
+                      </motion.div>
+                    )
+                  })}
                 </>
               )}
             </nav>
 
             {/* Theme toggle at bottom */}
-            <div className="p-3 border-t">
+            <div className="p-3 border-t border-border/30">
               <Button
                 variant="ghost"
                 size="sm"

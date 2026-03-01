@@ -254,7 +254,7 @@ export function CheckoutPage() {
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Checkout</h1>
         <p className="text-muted-foreground mt-1">Complete your equipment request</p>
         <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
+          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -283,9 +283,9 @@ export function CheckoutPage() {
               {label}
             </span>
             {i < STEPS.length - 1 && (
-              <div className="w-8 sm:w-12 h-px bg-border shrink-0 overflow-hidden relative">
+              <div className="w-8 sm:w-12 h-0.5 bg-border/50 shrink-0 overflow-hidden relative rounded-full">
                 <motion.div
-                  className="absolute inset-y-0 left-0 w-full bg-primary"
+                  className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-primary to-accent rounded-full"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: step > i ? 1 : 0 }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -513,7 +513,7 @@ export function CheckoutPage() {
                   <Button type="button" variant="outline" className="gap-2" onClick={() => setStep(0)}>
                     <ArrowLeft className="h-4 w-4" /> Edit Details
                   </Button>
-                  <Button type="submit" className="gap-2" disabled={createRequest.isPending}>
+                  <Button type="submit" variant="gradient" className="gap-2" disabled={createRequest.isPending}>
                     <Send className="h-4 w-4" />
                     {createRequest.isPending ? 'Submitting...' : 'Submit Request'}
                   </Button>
