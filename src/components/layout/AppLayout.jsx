@@ -10,13 +10,11 @@ import { PageTransition } from '@/components/ui/motion'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
 import { useTheme, useThemeMode } from '@/hooks/use-theme'
-import { useScrollToTop } from '@/hooks/use-smooth-scroll'
 
 export function AppLayout() {
   useTheme()
   const location = useLocation()
   const themeMode = useThemeMode()
-  const scrollToTop = useScrollToTop()
   const prevPath = useRef(location.pathname)
 
   // Detect navigation direction (forward vs back)
@@ -27,8 +25,8 @@ export function AppLayout() {
     const isBack = location.pathname.split('/').length < prevPath.current.split('/').length
     direction.current = isBack ? 'back' : 'forward'
     prevPath.current = location.pathname
-    scrollToTop()
-  }, [location.pathname, scrollToTop])
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
 
   return (
     <LiveRegionProvider>

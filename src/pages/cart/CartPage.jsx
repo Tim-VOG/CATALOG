@@ -5,6 +5,7 @@ import { useReservationsInRange } from '@/hooks/use-products'
 import { useProducts } from '@/hooks/use-products'
 import { useAuth } from '@/lib/auth'
 import { ShoppingCart, Minus, Plus, Trash2, CalendarRange, ArrowRight, ArrowLeft } from 'lucide-react'
+import { DeviceIconInline } from '@/components/common/DeviceIcon'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -133,11 +134,12 @@ export function CartPage() {
                       className="relative bg-card md:!transform-none"
                     >
                       <div className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                        <div className="h-16 w-16 rounded-md overflow-hidden bg-muted shrink-0">
-                          <img
-                            src={item.product.image_url}
-                            alt={item.product.name}
-                            className="h-full w-full object-cover"
+                        <div className="shrink-0 flex items-center justify-center">
+                          <DeviceIconInline
+                            name={item.product.name}
+                            category={item.product.category_name}
+                            subType={item.product.sub_type}
+                            className="h-12 w-12 !rounded-xl"
                           />
                         </div>
                         <div className="flex-1 min-w-0">

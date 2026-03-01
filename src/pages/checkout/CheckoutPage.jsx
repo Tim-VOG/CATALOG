@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/EmptyState'
-import { BlurImage } from '@/components/common/BlurImage'
+import { DeviceIconInline } from '@/components/common/DeviceIcon'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { cn } from '@/lib/utils'
 
@@ -449,11 +449,12 @@ export function CheckoutPage() {
               <CardContent className="px-6 pb-6 space-y-3">
                 {items.map((item) => (
                   <div key={item.product.id} className="flex items-start gap-4 p-3 rounded-xl bg-muted/30 border border-border/50">
-                    <div className="h-14 w-14 rounded-lg overflow-hidden shrink-0">
-                      <BlurImage
-                        src={item.product.image_url || 'https://via.placeholder.com/56'}
-                        alt={item.product.name}
-                        containerClassName="h-14 w-14"
+                    <div className="shrink-0 flex items-center justify-center">
+                      <DeviceIconInline
+                        name={item.product.name}
+                        category={item.product.category_name}
+                        subType={item.product.sub_type}
+                        className="h-12 w-12 !rounded-xl"
                       />
                     </div>
                     <div className="flex-1 min-w-0">

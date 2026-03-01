@@ -11,7 +11,7 @@ import { useProductSearch } from '@/hooks/use-product-search'
 import { Button } from '@/components/ui/button'
 import { ScalePop } from '@/components/ui/motion'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
-import { BlurImage } from '@/components/common/BlurImage'
+import { DeviceIconInline } from '@/components/common/DeviceIcon'
 import { UserMenu } from './UserMenu'
 import { NotificationBell } from './NotificationBell'
 import { cn } from '@/lib/utils'
@@ -133,19 +133,12 @@ function HeaderSearch() {
               onClick={() => handleSelect(product)}
               onMouseEnter={() => setSelectedIndex(i)}
             >
-              <div className="h-9 w-9 rounded-lg overflow-hidden bg-muted shrink-0">
-                {product.image_url ? (
-                  <BlurImage
-                    src={product.image_url}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center">
-                    <Package className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
+              <DeviceIconInline
+                name={product.name}
+                category={product.category_name}
+                subType={product.sub_type}
+                className="shrink-0"
+              />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium truncate">{product.name}</div>
                 <div className="text-xs text-muted-foreground truncate">{product.category_name}</div>

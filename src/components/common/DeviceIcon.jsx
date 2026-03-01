@@ -1,0 +1,230 @@
+import { motion } from 'motion/react'
+import {
+  Laptop,
+  Smartphone,
+  Tablet,
+  Monitor,
+  Headphones,
+  Camera,
+  Mic,
+  Printer,
+  Wifi,
+  HardDrive,
+  Keyboard,
+  Mouse,
+  Tv,
+  Speaker,
+  Watch,
+  Gamepad2,
+  Cpu,
+  Router,
+  Usb,
+  Cable,
+  Package,
+  Projector,
+  MonitorSmartphone,
+  ScanLine,
+  Dock,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+/**
+ * Gradient presets for each icon — gives each device a distinctive look
+ */
+const GRADIENTS = {
+  laptop:      { from: 'from-blue-500/20',   to: 'to-cyan-400/10',    icon: 'text-blue-400',    glow: 'shadow-blue-500/10' },
+  phone:       { from: 'from-violet-500/20',  to: 'to-fuchsia-400/10', icon: 'text-violet-400',  glow: 'shadow-violet-500/10' },
+  tablet:      { from: 'from-indigo-500/20',  to: 'to-blue-400/10',    icon: 'text-indigo-400',  glow: 'shadow-indigo-500/10' },
+  monitor:     { from: 'from-emerald-500/20', to: 'to-teal-400/10',    icon: 'text-emerald-400', glow: 'shadow-emerald-500/10' },
+  headphones:  { from: 'from-purple-500/20',  to: 'to-pink-400/10',    icon: 'text-purple-400',  glow: 'shadow-purple-500/10' },
+  camera:      { from: 'from-rose-500/20',    to: 'to-orange-400/10',  icon: 'text-rose-400',    glow: 'shadow-rose-500/10' },
+  mic:         { from: 'from-amber-500/20',   to: 'to-yellow-400/10',  icon: 'text-amber-400',   glow: 'shadow-amber-500/10' },
+  printer:     { from: 'from-slate-500/20',   to: 'to-gray-400/10',    icon: 'text-slate-400',   glow: 'shadow-slate-500/10' },
+  keyboard:    { from: 'from-zinc-500/20',    to: 'to-neutral-400/10', icon: 'text-zinc-400',    glow: 'shadow-zinc-500/10' },
+  mouse:       { from: 'from-sky-500/20',     to: 'to-blue-400/10',    icon: 'text-sky-400',     glow: 'shadow-sky-500/10' },
+  speaker:     { from: 'from-orange-500/20',  to: 'to-red-400/10',     icon: 'text-orange-400',  glow: 'shadow-orange-500/10' },
+  tv:          { from: 'from-cyan-500/20',    to: 'to-teal-400/10',    icon: 'text-cyan-400',    glow: 'shadow-cyan-500/10' },
+  network:     { from: 'from-green-500/20',   to: 'to-emerald-400/10', icon: 'text-green-400',   glow: 'shadow-green-500/10' },
+  storage:     { from: 'from-teal-500/20',    to: 'to-cyan-400/10',    icon: 'text-teal-400',    glow: 'shadow-teal-500/10' },
+  projector:   { from: 'from-pink-500/20',    to: 'to-rose-400/10',    icon: 'text-pink-400',    glow: 'shadow-pink-500/10' },
+  accessory:   { from: 'from-primary/20',     to: 'to-accent/10',      icon: 'text-primary',     glow: 'shadow-primary/10' },
+  default:     { from: 'from-primary/20',     to: 'to-accent/10',      icon: 'text-primary',     glow: 'shadow-primary/10' },
+}
+
+/**
+ * Match a product name + category to the right icon and gradient.
+ * Uses fuzzy keyword matching.
+ */
+function resolveDevice(name = '', category = '', subType = '') {
+  const text = `${name} ${category} ${subType}`.toLowerCase()
+
+  // Order matters — more specific matches first
+  if (/macbook|laptop|notebook|thinkpad|surface\s*(pro|laptop|book)|dell\s*(xps|latitude|inspiron)|hp\s*(elite|probook|pavilion|envy)|lenovo/.test(text))
+    return { Icon: Laptop, gradient: GRADIENTS.laptop, key: 'laptop' }
+
+  if (/iphone|smartphone|galaxy|pixel|android|phone|mobile|oneplus/.test(text))
+    return { Icon: Smartphone, gradient: GRADIENTS.phone, key: 'phone' }
+
+  if (/ipad|tablet|surface\s*go|galaxy\s*tab/.test(text))
+    return { Icon: Tablet, gradient: GRADIENTS.tablet, key: 'tablet' }
+
+  if (/imac|thunderbolt\s*display|studio\s*display|monitor|display|screen/.test(text))
+    return { Icon: Monitor, gradient: GRADIENTS.monitor, key: 'monitor' }
+
+  if (/headphone|headset|earphone|earbud|airpod|earpod|beats/.test(text))
+    return { Icon: Headphones, gradient: GRADIENTS.headphones, key: 'headphones' }
+
+  if (/camera|webcam|gopro|dslr|mirrorless|canon|nikon|sony\s*(a7|zv|fx)/.test(text))
+    return { Icon: Camera, gradient: GRADIENTS.camera, key: 'camera' }
+
+  if (/micro(phone)?|mic\b|rode|shure|blue\s*yeti|audio\s*interface/.test(text))
+    return { Icon: Mic, gradient: GRADIENTS.mic, key: 'mic' }
+
+  if (/printer|scanner|scan|copier|mfp|multifunction/.test(text))
+    return { Icon: Printer, gradient: GRADIENTS.printer, key: 'printer' }
+
+  if (/projector|beamer|epson|benq|optoma/.test(text))
+    return { Icon: Projector, gradient: GRADIENTS.projector, key: 'projector' }
+
+  if (/keyboard|keychron|mechanical\s*kb/.test(text))
+    return { Icon: Keyboard, gradient: GRADIENTS.keyboard, key: 'keyboard' }
+
+  if (/mouse|trackpad|trackball|logitech\s*(mx|g)/.test(text))
+    return { Icon: Mouse, gradient: GRADIENTS.mouse, key: 'mouse' }
+
+  if (/speaker|soundbar|bose|sonos|jbl|marshall/.test(text))
+    return { Icon: Speaker, gradient: GRADIENTS.speaker, key: 'speaker' }
+
+  if (/television|tv\b|apple\s*tv|chromecast|streaming/.test(text))
+    return { Icon: Tv, gradient: GRADIENTS.tv, key: 'tv' }
+
+  if (/watch|smartwatch|apple\s*watch|wearable/.test(text))
+    return { Icon: Watch, gradient: GRADIENTS.phone, key: 'watch' }
+
+  if (/router|access\s*point|switch|network|ethernet|wifi\s*(adapter|dongle)/.test(text))
+    return { Icon: Router, gradient: GRADIENTS.network, key: 'network' }
+
+  if (/hard\s*drive|ssd|nas|storage|usb\s*(drive|stick)|flash\s*drive|external\s*drive/.test(text))
+    return { Icon: HardDrive, gradient: GRADIENTS.storage, key: 'storage' }
+
+  if (/dock|docking|hub|usb-c\s*hub|thunderbolt\s*(dock|hub)/.test(text))
+    return { Icon: Dock || Cable, gradient: GRADIENTS.accessory, key: 'dock' }
+
+  if (/cable|adapter|charger|dongle|converter/.test(text))
+    return { Icon: Cable, gradient: GRADIENTS.accessory, key: 'cable' }
+
+  if (/game|controller|console|playstation|xbox|nintendo/.test(text))
+    return { Icon: Gamepad2, gradient: GRADIENTS.speaker, key: 'game' }
+
+  if (/cpu|processor|server|raspberry|mini\s*pc|mac\s*mini|mac\s*studio|mac\s*pro/.test(text))
+    return { Icon: Cpu, gradient: GRADIENTS.storage, key: 'cpu' }
+
+  // Fallback by category name alone
+  if (/communication/.test(text))
+    return { Icon: MonitorSmartphone, gradient: GRADIENTS.phone, key: 'communication' }
+
+  if (/audio|video|av\b/.test(text))
+    return { Icon: Headphones, gradient: GRADIENTS.headphones, key: 'av' }
+
+  if (/accessori?e?s?|peripheral/.test(text))
+    return { Icon: Usb, gradient: GRADIENTS.accessory, key: 'accessory' }
+
+  // Default
+  return { Icon: Package, gradient: GRADIENTS.default, key: 'default' }
+}
+
+/**
+ * DeviceIcon — renders a beautiful gradient-backed icon for a device.
+ *
+ * @param {string} name - Product name
+ * @param {string} category - Category name
+ * @param {string} subType - Sub-type
+ * @param {'sm' | 'md' | 'lg' | 'xl'} size - Icon size
+ * @param {boolean} animated - Enable hover animation
+ * @param {string} className - Additional classes
+ */
+export function DeviceIcon({
+  name = '',
+  category = '',
+  subType = '',
+  size = 'md',
+  animated = true,
+  className,
+}) {
+  const { Icon, gradient, key } = resolveDevice(name, category, subType)
+
+  const sizeMap = {
+    sm: { container: 'h-10 w-10', icon: 'h-5 w-5', ring: 'h-12 w-12' },
+    md: { container: 'h-16 w-16', icon: 'h-7 w-7', ring: 'h-20 w-20' },
+    lg: { container: 'h-24 w-24', icon: 'h-10 w-10', ring: 'h-28 w-28' },
+    xl: { container: 'h-32 w-32', icon: 'h-14 w-14', ring: 'h-36 w-36' },
+  }
+
+  const s = sizeMap[size] || sizeMap.md
+
+  const Wrapper = animated ? motion.div : 'div'
+  const wrapperProps = animated
+    ? {
+        whileHover: { scale: 1.08, rotate: -3 },
+        transition: { type: 'spring', stiffness: 300, damping: 20 },
+      }
+    : {}
+
+  return (
+    <Wrapper
+      className={cn('relative inline-flex items-center justify-center', className)}
+      {...wrapperProps}
+    >
+      {/* Outer glow ring */}
+      <div
+        className={cn(
+          'absolute rounded-full bg-gradient-to-br opacity-40 blur-md',
+          gradient.from,
+          gradient.to,
+          s.ring
+        )}
+      />
+
+      {/* Main circle */}
+      <div
+        className={cn(
+          'relative rounded-2xl bg-gradient-to-br flex items-center justify-center',
+          'border border-white/[0.08] backdrop-blur-sm',
+          `shadow-lg ${gradient.glow}`,
+          gradient.from,
+          gradient.to,
+          s.container,
+        )}
+      >
+        {/* Inner shine */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.06] to-transparent pointer-events-none" />
+
+        <Icon className={cn('relative', gradient.icon, s.icon)} strokeWidth={1.5} />
+      </div>
+    </Wrapper>
+  )
+}
+
+/**
+ * DeviceIconInline — smaller inline version for lists, tables, etc.
+ */
+export function DeviceIconInline({ name = '', category = '', subType = '', className }) {
+  const { Icon, gradient } = resolveDevice(name, category, subType)
+
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br',
+        gradient.from,
+        gradient.to,
+        'border border-white/[0.06]',
+        className,
+      )}
+    >
+      <Icon className={cn('h-4 w-4', gradient.icon)} strokeWidth={1.5} />
+    </span>
+  )
+}
+
+// Re-export for external use
+DeviceIcon.resolve = resolveDevice
