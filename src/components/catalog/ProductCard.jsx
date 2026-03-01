@@ -1,5 +1,4 @@
-import { useState, createElement } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { motion } from 'motion/react'
 import { Check, WifiOff, AlertTriangle, ChevronRight, Settings2, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -7,6 +6,14 @@ import { DeviceIcon } from '@/components/common/DeviceIcon'
 import { ProductConfigModal } from './ProductConfigModal'
 import { APPLE_DEVICE_ICONS } from '@/lib/apple-device-icons'
 import { cn } from '@/lib/utils'
+
+/** Map icon_size → Tailwind class for the floating icon on the card */
+const CARD_ICON_SIZES = {
+  sm: 'h-8 w-8',
+  md: 'h-12 w-12',
+  lg: 'h-16 w-16',
+  xl: 'h-20 w-20',
+}
 
 export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, productOptions, reservedQty = 0, datesSelected = false, showAvailability = true, showIncludes = true }) {
   const [showConfig, setShowConfig] = useState(false)
@@ -42,6 +49,14 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
   const iconColorStyle = ds.icon_color ? { color: ds.icon_color } : {}
   const hasCustomIconColor = !!ds.icon_color
 
+  // Icon size from display_settings (default 'md')
+  const iconSizeClass = CARD_ICON_SIZES[ds.icon_size] || CARD_ICON_SIZES.md
+
+  // Icon offset (pixel-precise positioning)
+  const iconOffsetStyle = (ds.icon_offset_x || ds.icon_offset_y)
+    ? { transform: `translate(${ds.icon_offset_x || 0}px, ${ds.icon_offset_y || 0}px)` }
+    : {}
+
   const handleAdd = (e) => {
     e?.preventDefault?.()
     e?.stopPropagation?.()
@@ -58,7 +73,7 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
     <>
       <div className="relative group h-full flex flex-col pt-10">
         {/* Floating bare icon — overlaps above the card, no background */}
-        <Link to={`/catalog/${product.id}`} className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10" style={iconOffsetStyle}>
           <motion.div
             whileHover={!isUnavailable ? { scale: 1.15, y: -4 } : undefined}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -68,23 +83,23 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
               <img
                 src={ds.custom_image_url}
                 alt={product.name}
-                className="h-12 w-12 object-contain drop-shadow-md"
+                className={cn(iconSizeClass, 'object-contain drop-shadow-md')}
               />
             ) : isAppleSvg ? (
               <div
-                className={cn('h-12 w-12 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                className={cn(iconSizeClass, 'drop-shadow-md', !hasCustomIconColor && gradient.icon)}
                 style={iconColorStyle}
                 dangerouslySetInnerHTML={{ __html: APPLE_DEVICE_ICONS[ds.icon_name].svg }}
               />
             ) : (
               <EffectiveIcon
-                className={cn('h-12 w-12 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                className={cn(iconSizeClass, 'drop-shadow-md', !hasCustomIconColor && gradient.icon)}
                 style={iconColorStyle}
                 strokeWidth={1.5}
               />
             )}
           </motion.div>
-        </Link>
+        </div>
 
         {/* Card body — gradient bg matching icon color, no border, shadow */}
         <div
@@ -133,11 +148,9 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           </div>
 
           {/* Title */}
-          <Link to={`/catalog/${product.id}`}>
-            <h3 className="font-display font-semibold text-[15px] leading-snug hover:text-primary transition-colors line-clamp-2">
-              {product.name}
-            </h3>
-          </Link>
+          <h3 className="font-display font-semibold text-[15px] leading-snug line-clamp-2">
+            {product.name}
+          </h3>
 
           {/* Description */}
           {product.description && (

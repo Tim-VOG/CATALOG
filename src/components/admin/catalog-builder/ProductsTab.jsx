@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
-  Search, Plus, Pencil, Trash2, Save, RotateCcw, X,
+  Search, Plus, Trash2, Save, RotateCcw, X,
   Package, Palette, FileText, Image, Tag, Check,
-  ChevronRight, CheckSquare, AlertTriangle, Eye,
+  CheckSquare, Eye, Move, Maximize2,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,12 +12,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useDeleteProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { useUIStore } from '@/stores/ui-store'
 import { DeviceIconInline } from '@/components/common/DeviceIcon'
-import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { ImageUpload } from '@/components/admin/ImageUpload'
 import { TagInput } from '@/components/ui/tag-input'
 import { IconPicker } from './IconPicker'
@@ -92,7 +90,7 @@ export function ProductsTab() {
 
   // Initialize editor when selecting a DIFFERENT product (not on data refetch)
   useEffect(() => {
-    if (isCreating) return // Don't override create form
+    if (isCreating) return
     if (!selectedId || selectedId === loadedIdRef.current) return
     const product = products.find((p) => p.id === selectedId)
     if (!product) return
@@ -188,7 +186,6 @@ export function ProductsTab() {
         loadedIdRef.current = null
         if (created?.id) setSelectedId(created.id)
       } else if (selectedId) {
-        // Single combined update — all fields at once
         await updateProduct.mutateAsync({
           id: selectedId,
           ...form,
@@ -409,6 +406,9 @@ export function ProductsTab() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  {dirty && (
+                    <span className="text-[10px] text-warning font-medium">Unsaved changes</span>
+                  )}
                   {!isCreating && (
                     <Button
                       variant="ghost"
@@ -462,7 +462,7 @@ export function ProductsTab() {
               </div>
 
               {/* Editor content + preview */}
-              <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
+              <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
                 {/* Form area */}
                 <div className="space-y-4 min-w-0">
                   {editorTab === 'details' && (
@@ -546,7 +546,7 @@ export function ProductsTab() {
 /* ── Details Form ────────────────────────────────────────── */
 function DetailsForm({ form, updateForm, categories, suggestions }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className="text-xs">Name *</Label>
@@ -665,10 +665,10 @@ function DetailsForm({ form, updateForm, categories, suggestions }) {
   )
 }
 
-/* ── Visual Form ─────────────────────────────────────────── */
+/* ── Visual Form — Redesigned with proper spacing ────────── */
 function VisualForm({ ds, updateField, onReset }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">Customize how this product appears in the catalog</p>
         <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={onReset}>
@@ -676,31 +676,35 @@ function VisualForm({ ds, updateField, onReset }) {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Icon */}
-        <Card>
-          <CardContent className="p-3 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <Palette className="h-3.5 w-3.5" /> Icon
-            </div>
-            <IconPicker
-              value={ds.icon_name || ''}
-              onChange={(v) => updateField('icon_name', v)}
-              iconColor={ds.icon_color}
-            />
-            <div className="space-y-1">
-              <Label className="text-[10px]">Icon Color</Label>
+      {/* ── Section 1: Icon ─────────────────────────────── */}
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground border-b border-border/20 pb-2">
+            <Palette className="h-3.5 w-3.5" /> Icon
+          </div>
+
+          <IconPicker
+            value={ds.icon_name || ''}
+            onChange={(v) => updateField('icon_name', v)}
+            iconColor={ds.icon_color}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] text-muted-foreground">Icon Color</Label>
               <ColorPickerPopover
                 value={ds.icon_color || ''}
                 onChange={(v) => updateField('icon_color', v)}
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-[10px]">Icon Size</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Maximize2 className="h-3 w-3" /> Size
+              </Label>
               <Select
                 value={ds.icon_size || 'md'}
-                onChange={(e) => updateField('icon_size', e.target.value === 'md' ? '' : e.target.value)}
-                className="h-7 text-xs"
+                onChange={(e) => updateField('icon_size', e.target.value)}
+                className="h-8 text-xs"
               >
                 <option value="sm">Small</option>
                 <option value="md">Medium (default)</option>
@@ -708,96 +712,160 @@ function VisualForm({ ds, updateField, onReset }) {
                 <option value="xl">Extra Large</option>
               </Select>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Colors */}
-        <Card>
-          <CardContent className="p-3 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <Palette className="h-3.5 w-3.5" /> Colors & Gradient
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px]">Card Background</Label>
-              <ColorPickerPopover
-                value={ds.card_bg || ''}
-                onChange={(v) => updateField('card_bg', v)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px]">Gradient</Label>
-              <GradientPicker
-                from={ds.gradient_from || ''}
-                to={ds.gradient_to || ''}
-                onChangeFrom={(v) => updateField('gradient_from', v)}
-                onChangeTo={(v) => updateField('gradient_to', v)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Image */}
-        <Card>
-          <CardContent className="p-3 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <Image className="h-3.5 w-3.5" /> Custom Image
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px]">Image URL</Label>
-              <Input
-                value={ds.custom_image_url || ''}
-                onChange={(e) => updateField('custom_image_url', e.target.value)}
-                placeholder="https://... or upload in Asset Library"
-                className="h-7 text-xs"
-              />
-            </div>
-            {ds.custom_image_url && (
-              <div className="flex items-center gap-2">
-                <img
-                  src={ds.custom_image_url}
-                  alt="Preview"
-                  className="h-12 w-12 object-contain rounded-lg border border-border/30"
+          {/* Icon Position — pixel-precise offset */}
+          <div className="space-y-2">
+            <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Move className="h-3 w-3" /> Icon Position Offset (px)
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground font-mono">X</span>
+                  <span className="text-[10px] text-foreground font-mono font-medium">{ds.icon_offset_x || 0}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={-50}
+                  max={50}
+                  value={ds.icon_offset_x || 0}
+                  onChange={(e) => updateField('icon_offset_x', parseInt(e.target.value) || 0)}
+                  className="w-full h-1.5 rounded-full appearance-none bg-muted cursor-pointer accent-primary"
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={() => updateField('custom_image_url', '')}
-                >
-                  Remove
-                </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Badge */}
-        <Card>
-          <CardContent className="p-3 space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <Tag className="h-3.5 w-3.5" /> Badge
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground font-mono">Y</span>
+                  <span className="text-[10px] text-foreground font-mono font-medium">{ds.icon_offset_y || 0}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={-50}
+                  max={50}
+                  value={ds.icon_offset_y || 0}
+                  onChange={(e) => updateField('icon_offset_y', parseInt(e.target.value) || 0)}
+                  className="w-full h-1.5 rounded-full appearance-none bg-muted cursor-pointer accent-primary"
+                />
+              </div>
             </div>
-            <div className="space-y-1">
-              <Label className="text-[10px]">Badge Text</Label>
+            {(ds.icon_offset_x || ds.icon_offset_y) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-[10px] px-2"
+                onClick={() => { updateField('icon_offset_x', 0); updateField('icon_offset_y', 0) }}
+              >
+                Reset position
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Section 2: Colors & Gradient ────────────────── */}
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground border-b border-border/20 pb-2">
+            <Palette className="h-3.5 w-3.5" /> Colors & Gradient
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] text-muted-foreground">Card Background</Label>
+            <ColorPickerPopover
+              value={ds.card_bg || ''}
+              onChange={(v) => updateField('card_bg', v)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] text-muted-foreground">Gradient</Label>
+            <GradientPicker
+              from={ds.gradient_from || ''}
+              to={ds.gradient_to || ''}
+              onChangeFrom={(v) => updateField('gradient_from', v)}
+              onChangeTo={(v) => updateField('gradient_to', v)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Section 3: Custom Image ─────────────────────── */}
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground border-b border-border/20 pb-2">
+            <Image className="h-3.5 w-3.5" /> Custom Image
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] text-muted-foreground">Image URL (replaces icon)</Label>
+            <Input
+              value={ds.custom_image_url || ''}
+              onChange={(e) => updateField('custom_image_url', e.target.value)}
+              placeholder="https://... or upload in Asset Library"
+              className="h-8 text-xs"
+            />
+          </div>
+          {ds.custom_image_url && (
+            <div className="flex items-center gap-3">
+              <img
+                src={ds.custom_image_url}
+                alt="Preview"
+                className="h-14 w-14 object-contain rounded-lg border border-border/30 bg-muted/20 p-1"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => updateField('custom_image_url', '')}
+              >
+                Remove
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Section 4: Badge ────────────────────────────── */}
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground border-b border-border/20 pb-2">
+            <Tag className="h-3.5 w-3.5" /> Badge
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] text-muted-foreground">Badge Text</Label>
               <Input
                 value={ds.badge_text || ''}
                 onChange={(e) => updateField('badge_text', e.target.value)}
                 placeholder="e.g. New, Popular, Pro"
-                className="h-7 text-xs"
+                className="h-8 text-xs"
               />
             </div>
             {ds.badge_text && (
-              <div className="space-y-1">
-                <Label className="text-[10px]">Badge Color</Label>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] text-muted-foreground">Badge Color</Label>
                 <ColorPickerPopover
                   value={ds.badge_color || '#f97316'}
                   onChange={(v) => updateField('badge_color', v)}
                 />
               </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+          {ds.badge_text && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-muted-foreground">Preview:</span>
+              <span
+                className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full text-white"
+                style={{ background: ds.badge_color || '#f97316' }}
+              >
+                {ds.badge_text}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

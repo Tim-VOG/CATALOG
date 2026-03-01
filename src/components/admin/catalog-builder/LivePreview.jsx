@@ -1,13 +1,19 @@
-import { useMemo } from 'react'
 import { DeviceIcon } from '@/components/common/DeviceIcon'
 import { Check, Eye } from 'lucide-react'
 import { APPLE_DEVICE_ICONS } from '@/lib/apple-device-icons'
 import { cn } from '@/lib/utils'
 
+/** Map icon_size → Tailwind class for the preview floating icon */
+const PREVIEW_ICON_SIZES = {
+  sm: 'h-10 w-10',
+  md: 'h-16 w-16',
+  lg: 'h-20 w-20',
+  xl: 'h-24 w-24',
+}
+
 /**
  * LivePreview — Real-time preview of how a product card will look
  * with the current display_settings being edited.
- * Enlarged version with better visual fidelity.
  */
 export function LivePreview({ product, displaySettings }) {
   const ds = displaySettings || {}
@@ -32,9 +38,17 @@ export function LivePreview({ product, displaySettings }) {
   const iconColorStyle = ds.icon_color ? { color: ds.icon_color } : {}
   const hasCustomIconColor = !!ds.icon_color
 
+  // Icon size from display_settings
+  const iconSizeClass = PREVIEW_ICON_SIZES[ds.icon_size] || PREVIEW_ICON_SIZES.md
+
+  // Icon offset (pixel-precise positioning)
+  const iconOffsetStyle = (ds.icon_offset_x || ds.icon_offset_y)
+    ? { transform: `translate(${ds.icon_offset_x || 0}px, ${ds.icon_offset_y || 0}px)` }
+    : {}
+
   if (!product) {
     return (
-      <div className="rounded-xl border border-dashed border-border/40 bg-muted/10 p-8 flex flex-col items-center justify-center text-center min-h-[300px]">
+      <div className="rounded-xl border border-dashed border-border/40 bg-muted/10 p-8 flex flex-col items-center justify-center text-center min-h-[280px]">
         <Eye className="h-8 w-8 text-muted-foreground/20 mb-3" />
         <p className="text-sm text-muted-foreground">Select a product to preview</p>
         <p className="text-[10px] text-muted-foreground/50 mt-1">Changes appear here in real-time</p>
@@ -43,33 +57,33 @@ export function LivePreview({ product, displaySettings }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Eye className="h-3.5 w-3.5 text-muted-foreground" />
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Live Preview</h3>
       </div>
 
-      {/* Card preview — full size */}
-      <div className="bg-muted/10 rounded-xl border border-border/30 p-6 flex justify-center">
-        <div className="w-full max-w-[300px]">
+      {/* Card preview */}
+      <div className="bg-muted/10 rounded-xl border border-border/30 p-5 flex justify-center">
+        <div className="w-full max-w-[280px]">
           <div className="relative pt-12">
             {/* Floating icon */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10" style={iconOffsetStyle}>
               {ds.custom_image_url ? (
                 <img
                   src={ds.custom_image_url}
                   alt={product.name}
-                  className="h-16 w-16 object-contain drop-shadow-md"
+                  className={cn(iconSizeClass, 'object-contain drop-shadow-md')}
                 />
               ) : isAppleSvg ? (
                 <div
-                  className={cn('h-16 w-16 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                  className={cn(iconSizeClass, 'drop-shadow-md', !hasCustomIconColor && gradient.icon)}
                   style={iconColorStyle}
                   dangerouslySetInnerHTML={{ __html: APPLE_DEVICE_ICONS[ds.icon_name].svg }}
                 />
               ) : (
                 <EffectiveIcon
-                  className={cn('h-16 w-16 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                  className={cn(iconSizeClass, 'drop-shadow-md', !hasCustomIconColor && gradient.icon)}
                   style={iconColorStyle}
                   strokeWidth={1.5}
                 />
@@ -136,6 +150,8 @@ export function LivePreview({ product, displaySettings }) {
         <p className="font-medium text-muted-foreground mb-1">Active customizations:</p>
         {ds.icon_name && <p>Icon: <span className="font-mono text-foreground">{ds.icon_name}</span></p>}
         {ds.icon_color && <p>Icon color: <span className="font-mono text-foreground">{ds.icon_color}</span></p>}
+        {ds.icon_size && ds.icon_size !== 'md' && <p>Icon size: <span className="font-mono text-foreground">{ds.icon_size}</span></p>}
+        {(ds.icon_offset_x || ds.icon_offset_y) && <p>Icon offset: <span className="font-mono text-foreground">{ds.icon_offset_x || 0}px, {ds.icon_offset_y || 0}px</span></p>}
         {ds.gradient_from && <p>Gradient: <span className="font-mono text-foreground">{ds.gradient_from} → {ds.gradient_to}</span></p>}
         {ds.card_bg && <p>Card BG: <span className="font-mono text-foreground">{ds.card_bg}</span></p>}
         {ds.badge_text && <p>Badge: <span className="font-mono text-foreground">{ds.badge_text}</span></p>}

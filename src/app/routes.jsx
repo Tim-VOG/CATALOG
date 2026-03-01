@@ -8,7 +8,7 @@ import { HubPage } from '@/pages/HubPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
 import { CatalogPage } from '@/pages/catalog/CatalogPage'
-import { ProductDetailPage } from '@/pages/catalog/ProductDetailPage'
+// ProductDetailPage removed — product details are now managed in the Catalog Manager
 import { CartPage } from '@/pages/cart/CartPage'
 import { CheckoutPage } from '@/pages/checkout/CheckoutPage'
 import { RequestsPage } from '@/pages/requests/RequestsPage'
@@ -61,7 +61,7 @@ export function AppRoutes() {
       >
         <Route index element={<HubPage />} />
         <Route path="catalog" element={<CatalogPage />} />
-        <Route path="catalog/:productId" element={<ProductDetailPage />} />
+        <Route path="catalog/:productId" element={<Navigate to="/catalog" replace />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="requests" element={<RequestsPage />} />
@@ -83,8 +83,8 @@ export function AppRoutes() {
           <Route index element={<AdminDashboardPage />} />
           <Route path="all-requests" element={<AdminAllRequestsPage />} />
           <Route path="products" element={<Navigate to="/admin/catalog-builder?tab=products" replace />} />
-          <Route path="product-options" element={<Navigate to="/admin/catalog-builder?tab=options" replace />} />
-          <Route path="categories" element={<Navigate to="/admin/catalog-builder?tab=categories" replace />} />
+          <Route path="product-options" element={<Navigate to="/admin/catalog-builder?tab=config" replace />} />
+          <Route path="categories" element={<Navigate to="/admin/catalog-builder?tab=config" replace />} />
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
           <Route path="new-request" element={<AdminNewRequestPage />} />
