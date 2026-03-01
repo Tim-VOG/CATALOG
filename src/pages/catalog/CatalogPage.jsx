@@ -97,7 +97,7 @@ export function CatalogPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-16">
       {/* ── Hero Section ────────────────────────────────────── */}
       <ScrollReveal direction="down">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-muted/60 via-card/40 to-muted/30 border border-border/30 p-6 sm:p-8">

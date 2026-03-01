@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import {
-  LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
+  LayoutDashboard, Inbox, RotateCcw,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
-  SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
+  FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
   Settings, UserMinus, ChevronsLeft, LayoutGrid,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -14,9 +14,6 @@ import { cn } from '@/lib/utils'
 // ── Contextual hover animations per icon ──
 const ANIM = {
   dashboard:    'group-hover:scale-110',
-  products:     'group-hover:scale-110 group-hover:-translate-y-0.5',
-  options:      'group-hover:translate-x-0.5 group-hover:scale-105',
-  categories:   'group-hover:scale-110 group-hover:rotate-3',
   requests:     'group-hover:scale-110 group-hover:translate-y-0.5',
   newRequest:   'group-hover:scale-115 group-hover:rotate-12',
   planning:     'group-hover:scale-110 group-hover:-rotate-3',
@@ -39,10 +36,7 @@ const sidebarSections = [
     label: 'Catalog',
     links: [
       { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, anim: ANIM.dashboard },
-      { to: '/admin/products', label: 'Products', icon: Package, anim: ANIM.products },
-      { to: '/admin/catalog-builder', label: 'Catalog Builder', icon: LayoutGrid, anim: ANIM.catalogBuilder },
-      { to: '/admin/product-options', label: 'Product Options', icon: SlidersHorizontal, anim: ANIM.options },
-      { to: '/admin/categories', label: 'Categories', icon: FolderTree, anim: ANIM.categories },
+      { to: '/admin/catalog-builder', label: 'Catalog Manager', icon: LayoutGrid, anim: ANIM.catalogBuilder },
       { to: '/admin/requests', label: 'Requests', icon: Inbox, anim: ANIM.requests },
       { to: '/admin/new-request', label: 'New Request', icon: FilePlus2, anim: ANIM.newRequest },
       { to: '/admin/planning', label: 'Planning', icon: CalendarRange, anim: ANIM.planning },

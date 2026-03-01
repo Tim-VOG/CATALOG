@@ -1,15 +1,13 @@
 import { useMemo } from 'react'
 import { DeviceIcon } from '@/components/common/DeviceIcon'
-import { Check } from 'lucide-react'
+import { Check, Eye } from 'lucide-react'
 import { APPLE_DEVICE_ICONS } from '@/lib/apple-device-icons'
 import { cn } from '@/lib/utils'
 
 /**
  * LivePreview — Real-time preview of how a product card will look
  * with the current display_settings being edited.
- *
- * @param {object} product - Product data
- * @param {object} displaySettings - Current display_settings being edited
+ * Enlarged version with better visual fidelity.
  */
 export function LivePreview({ product, displaySettings }) {
   const ds = displaySettings || {}
@@ -19,7 +17,6 @@ export function LivePreview({ product, displaySettings }) {
     product?.sub_type || ''
   )
 
-  // Determine custom styles
   const hasCustomCardBg = !!ds.card_bg
   const hasCustomGradient = ds.gradient_from || ds.gradient_to
   const useCustomStyle = hasCustomCardBg || hasCustomGradient
@@ -37,37 +34,42 @@ export function LivePreview({ product, displaySettings }) {
 
   if (!product) {
     return (
-      <div className="flex items-center justify-center h-64 bg-muted/20 rounded-xl border border-dashed border-border/40">
+      <div className="rounded-xl border border-dashed border-border/40 bg-muted/10 p-8 flex flex-col items-center justify-center text-center min-h-[300px]">
+        <Eye className="h-8 w-8 text-muted-foreground/20 mb-3" />
         <p className="text-sm text-muted-foreground">Select a product to preview</p>
+        <p className="text-[10px] text-muted-foreground/50 mt-1">Changes appear here in real-time</p>
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Live Preview</h3>
+      <div className="flex items-center gap-2">
+        <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Live Preview</h3>
+      </div>
 
-      {/* Scaled card preview */}
+      {/* Card preview — full size */}
       <div className="bg-muted/10 rounded-xl border border-border/30 p-6 flex justify-center">
-        <div className="w-[240px]">
-          <div className="relative pt-10">
+        <div className="w-full max-w-[300px]">
+          <div className="relative pt-12">
             {/* Floating icon */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
               {ds.custom_image_url ? (
                 <img
                   src={ds.custom_image_url}
                   alt={product.name}
-                  className="h-12 w-12 object-contain drop-shadow-md"
+                  className="h-16 w-16 object-contain drop-shadow-md"
                 />
               ) : isAppleSvg ? (
                 <div
-                  className={cn('h-12 w-12 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                  className={cn('h-16 w-16 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
                   style={iconColorStyle}
                   dangerouslySetInnerHTML={{ __html: APPLE_DEVICE_ICONS[ds.icon_name].svg }}
                 />
               ) : (
                 <EffectiveIcon
-                  className={cn('h-12 w-12 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                  className={cn('h-16 w-16 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
                   style={iconColorStyle}
                   strokeWidth={1.5}
                 />
@@ -77,7 +79,7 @@ export function LivePreview({ product, displaySettings }) {
             {/* Card body */}
             <div
               className={cn(
-                'relative rounded-2xl pt-10 pb-4 px-4',
+                'relative rounded-2xl pt-12 pb-5 px-5',
                 !useCustomStyle && 'bg-gradient-to-br',
                 !useCustomStyle && gradient.cardBg,
                 'shadow-[0_2px_20px_-4px_rgba(0,0,0,0.12)]'
@@ -87,7 +89,7 @@ export function LivePreview({ product, displaySettings }) {
               {/* Badge */}
               {ds.badge_text && (
                 <span
-                  className="absolute top-2 right-2 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full text-white"
+                  className="absolute top-3 right-3 text-[9px] font-bold uppercase px-2 py-0.5 rounded-full text-white"
                   style={{ background: ds.badge_color || '#f97316' }}
                 >
                   {ds.badge_text}
@@ -95,30 +97,30 @@ export function LivePreview({ product, displaySettings }) {
               )}
 
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
                   {product.category_name}
                 </span>
-                <div className="flex items-center gap-1 text-[9px] font-bold text-success">
-                  <span className="h-1 w-1 rounded-full bg-success animate-pulse" />
+                <div className="flex items-center gap-1 text-[10px] font-bold text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
                   {product.total_stock}/{product.total_stock}
                 </div>
               </div>
 
-              <h3 className="font-display font-semibold text-[13px] leading-snug line-clamp-2">
+              <h3 className="font-display font-semibold text-sm leading-snug line-clamp-2">
                 {product.name}
               </h3>
 
               {product.description && (
-                <p className="text-[10px] text-muted-foreground/70 line-clamp-2 mt-1">
+                <p className="text-[11px] text-muted-foreground/70 line-clamp-2 mt-1.5">
                   {product.description}
                 </p>
               )}
 
               {product.includes?.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {product.includes.slice(0, 2).map((item, i) => (
-                    <span key={i} className="inline-flex items-center gap-0.5 text-[8px] text-muted-foreground bg-background/60 rounded-full px-1.5 py-0.5">
-                      <Check className="h-2 w-2 text-success/70" />
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {product.includes.slice(0, 3).map((item, i) => (
+                    <span key={i} className="inline-flex items-center gap-0.5 text-[9px] text-muted-foreground bg-background/60 rounded-full px-2 py-0.5">
+                      <Check className="h-2.5 w-2.5 text-success/70" />
                       {item}
                     </span>
                   ))}
@@ -130,7 +132,8 @@ export function LivePreview({ product, displaySettings }) {
       </div>
 
       {/* Settings summary */}
-      <div className="text-[10px] text-muted-foreground space-y-0.5 px-1">
+      <div className="text-[10px] text-muted-foreground space-y-0.5 bg-muted/10 rounded-lg p-3">
+        <p className="font-medium text-muted-foreground mb-1">Active customizations:</p>
         {ds.icon_name && <p>Icon: <span className="font-mono text-foreground">{ds.icon_name}</span></p>}
         {ds.icon_color && <p>Icon color: <span className="font-mono text-foreground">{ds.icon_color}</span></p>}
         {ds.gradient_from && <p>Gradient: <span className="font-mono text-foreground">{ds.gradient_from} → {ds.gradient_to}</span></p>}

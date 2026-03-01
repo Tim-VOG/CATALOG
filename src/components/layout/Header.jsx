@@ -291,8 +291,8 @@ export function Header() {
     <motion.header
       className={cn(
         'sticky top-0 z-40 border-b border-primary/10',
-        'bg-card/80 backdrop-blur-xl backdrop-saturate-150',
-        'supports-[backdrop-filter]:bg-card/60',
+        'bg-card/95 backdrop-blur-xl backdrop-saturate-150',
+        'supports-[backdrop-filter]:bg-card/80',
         'shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)]',
         'after:absolute after:bottom-0 after:inset-x-0 after:h-px',
         'after:bg-gradient-to-r after:from-transparent after:via-primary/20 after:to-transparent',

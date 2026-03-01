@@ -14,8 +14,8 @@ import { CheckoutPage } from '@/pages/checkout/CheckoutPage'
 import { RequestsPage } from '@/pages/requests/RequestsPage'
 import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
-import { AdminProductsPage } from '@/pages/admin/AdminProductsPage'
-import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
+// AdminProductsPage, AdminCategoriesPage, AdminProductOptionsPage are now
+// integrated into AdminCatalogBuilderPage — old routes redirect there
 import { AdminRequestsPage } from '@/pages/admin/AdminRequestsPage'
 import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
 import { AdminReturnsPage } from '@/pages/admin/AdminReturnsPage'
@@ -24,7 +24,6 @@ import { AdminDesignPage } from '@/pages/admin/AdminDesignPage'
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
 import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
-import { AdminProductOptionsPage } from '@/pages/admin/AdminProductOptionsPage'
 import { AdminNewRequestPage } from '@/pages/admin/AdminNewRequestPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
@@ -83,9 +82,9 @@ export function AppRoutes() {
         >
           <Route index element={<AdminDashboardPage />} />
           <Route path="all-requests" element={<AdminAllRequestsPage />} />
-          <Route path="products" element={<AdminProductsPage />} />
-          <Route path="product-options" element={<AdminProductOptionsPage />} />
-          <Route path="categories" element={<AdminCategoriesPage />} />
+          <Route path="products" element={<Navigate to="/admin/catalog-builder?tab=products" replace />} />
+          <Route path="product-options" element={<Navigate to="/admin/catalog-builder?tab=options" replace />} />
+          <Route path="categories" element={<Navigate to="/admin/catalog-builder?tab=categories" replace />} />
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
           <Route path="new-request" element={<AdminNewRequestPage />} />
