@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
-  Settings, UserMinus, ChevronsLeft,
+  Settings, UserMinus, ChevronsLeft, LayoutGrid,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
@@ -23,6 +23,7 @@ const ANIM = {
   returns:      'group-hover:rotate-[-360deg] duration-500',
   users:        'group-hover:scale-110',
   comms:        'sidebar-icon-wiggle',
+  catalogBuilder: 'group-hover:scale-110 group-hover:rotate-3',
   design:       'group-hover:rotate-[-20deg] group-hover:scale-110',
   recipients:   'group-hover:scale-115 group-hover:-translate-y-0.5',
   compose:      'group-hover:translate-x-0.5 group-hover:rotate-[-8deg]',
@@ -39,6 +40,7 @@ const sidebarSections = [
     links: [
       { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, anim: ANIM.dashboard },
       { to: '/admin/products', label: 'Products', icon: Package, anim: ANIM.products },
+      { to: '/admin/catalog-builder', label: 'Catalog Builder', icon: LayoutGrid, anim: ANIM.catalogBuilder },
       { to: '/admin/product-options', label: 'Product Options', icon: SlidersHorizontal, anim: ANIM.options },
       { to: '/admin/categories', label: 'Categories', icon: FolderTree, anim: ANIM.categories },
       { to: '/admin/requests', label: 'Requests', icon: Inbox, anim: ANIM.requests },

@@ -81,7 +81,8 @@ export function ProductDetailPage() {
     .map((s) => s.trim())
     .filter(Boolean)
   const hasIncludes = includesList.length > 0
-  const hasSpecs = product.specs && Object.keys(product.specs).length > 0
+  const specs = product.specs || []
+  const hasSpecs = Array.isArray(specs) ? specs.length > 0 : Object.keys(specs).length > 0
 
   /* ── Render ─────────────────────────────────────────── */
   return (
@@ -147,6 +148,7 @@ export function ProductDetailPage() {
               name={product.name}
               category={product.category_name}
               subType={product.sub_type}
+              displaySettings={product.display_settings}
             />
           </FadeIn>
 
@@ -169,6 +171,7 @@ export function ProductDetailPage() {
               name={product.name}
               category={product.category_name}
               subType={product.sub_type}
+              displaySettings={product.display_settings}
             />
           </FadeIn>
         </div>
@@ -242,10 +245,10 @@ export function ProductDetailPage() {
             <CardContent className="p-5">
               <h3 className="font-display font-semibold text-base mb-3">Specifications</h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                {Object.entries(product.specs).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-1.5 border-b border-border/20 last:border-0">
-                    <dt className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</dt>
-                    <dd className="font-medium text-right">{value}</dd>
+                {(Array.isArray(specs) ? specs : Object.entries(specs).map(([k, v]) => ({ label: k, value: v }))).map((spec, idx) => (
+                  <div key={spec.label || idx} className="flex justify-between py-1.5 border-b border-border/20 last:border-0">
+                    <dt className="text-muted-foreground capitalize">{(spec.label || '').replace(/_/g, ' ')}</dt>
+                    <dd className="font-medium text-right">{spec.value}</dd>
                   </div>
                 ))}
               </dl>
@@ -275,7 +278,7 @@ export function ProductDetailPage() {
    ═══════════════════════════════════════════════════════════ */
 
 /** Product showcase with large device icon + ambient halos */
-function ProductShowcase({ name, category, subType }) {
+function ProductShowcase({ name, category, subType, displaySettings }) {
   return (
     <div className="relative w-full max-w-[420px] flex items-center justify-center py-8">
       {/* Halo */}
@@ -305,6 +308,7 @@ function ProductShowcase({ name, category, subType }) {
           subType={subType}
           size="xl"
           animated={false}
+          displaySettings={displaySettings}
         />
       </motion.div>
     </div>

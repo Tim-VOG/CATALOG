@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useState, createElement } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { Check, WifiOff, AlertTriangle, ChevronRight, Settings2, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DeviceIcon } from '@/components/common/DeviceIcon'
 import { ProductConfigModal } from './ProductConfigModal'
+import { APPLE_DEVICE_ICONS } from '@/lib/apple-device-icons'
 import { cn } from '@/lib/utils'
 
-export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, productOptions, reservedQty = 0, datesSelected = false }) {
+export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, productOptions, reservedQty = 0, datesSelected = false, showAvailability = true, showIncludes = true }) {
   const [showConfig, setShowConfig] = useState(false)
 
   const inCart = cart.find((c) => c.product.id === product.id)?.quantity || 0
@@ -15,8 +16,31 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
   const needsConfig = product.has_accessories || product.has_software || product.has_subscription || product.has_apps
   const isUnavailable = available <= 0
 
+  // Display settings from DB (visual builder)
+  const ds = product.display_settings || {}
+
   // Resolve device type for icon color + card background
   const { Icon, gradient } = DeviceIcon.resolve(product.name, product.category_name, product.sub_type)
+
+  // Custom icon: check for apple SVG, custom lucide, or auto
+  const hasCustomIcon = !!ds.icon_name
+  const isAppleSvg = hasCustomIcon && !!APPLE_DEVICE_ICONS[ds.icon_name]
+  const customLucideIcon = hasCustomIcon && !isAppleSvg ? DeviceIcon.resolveLucideIcon(ds.icon_name) : null
+  const EffectiveIcon = customLucideIcon || Icon
+
+  // Custom card background (inline style for runtime hex values)
+  const hasCustomCardBg = !!ds.card_bg
+  const hasCustomGradient = ds.gradient_from || ds.gradient_to
+  const cardBgStyle = hasCustomCardBg
+    ? { background: ds.card_bg }
+    : hasCustomGradient
+      ? { background: `linear-gradient(to bottom right, ${ds.gradient_from || 'transparent'}12, ${ds.gradient_to || 'transparent'}08)` }
+      : {}
+  const useCustomCardStyle = hasCustomCardBg || hasCustomGradient
+
+  // Custom icon color
+  const iconColorStyle = ds.icon_color ? { color: ds.icon_color } : {}
+  const hasCustomIconColor = !!ds.icon_color
 
   const handleAdd = (e) => {
     e?.preventDefault?.()
@@ -40,21 +64,51 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className={cn(isUnavailable && 'opacity-40 grayscale')}
           >
-            <Icon className={cn('h-12 w-12 drop-shadow-md', gradient.icon)} strokeWidth={1.5} />
+            {ds.custom_image_url ? (
+              <img
+                src={ds.custom_image_url}
+                alt={product.name}
+                className="h-12 w-12 object-contain drop-shadow-md"
+              />
+            ) : isAppleSvg ? (
+              <div
+                className={cn('h-12 w-12 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                style={iconColorStyle}
+                dangerouslySetInnerHTML={{ __html: APPLE_DEVICE_ICONS[ds.icon_name].svg }}
+              />
+            ) : (
+              <EffectiveIcon
+                className={cn('h-12 w-12 drop-shadow-md', !hasCustomIconColor && gradient.icon)}
+                style={iconColorStyle}
+                strokeWidth={1.5}
+              />
+            )}
           </motion.div>
         </Link>
 
         {/* Card body — gradient bg matching icon color, no border, shadow */}
         <div
           className={cn(
-            'relative rounded-2xl bg-gradient-to-br pt-10 pb-5 px-5 flex-1 flex flex-col',
-            gradient.cardBg,
+            'relative rounded-2xl pt-10 pb-5 px-5 flex-1 flex flex-col',
+            !useCustomCardStyle && 'bg-gradient-to-br',
+            !useCustomCardStyle && gradient.cardBg,
             'shadow-[0_2px_20px_-4px_rgba(0,0,0,0.12)] transition-all duration-300',
             isUnavailable
               ? 'opacity-60'
               : 'hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.2)] hover:-translate-y-1'
           )}
+          style={useCustomCardStyle ? cardBgStyle : undefined}
         >
+          {/* Badge from display settings */}
+          {ds.badge_text && (
+            <span
+              className="absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full text-white"
+              style={{ background: ds.badge_color || '#f97316' }}
+            >
+              {ds.badge_text}
+            </span>
+          )}
+
           {/* Category + Availability — top row */}
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
@@ -62,18 +116,20 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
               {product.sub_type && <span className="text-muted-foreground/50"> · {product.sub_type}</span>}
             </span>
 
-            <div
-              className={cn(
-                'flex items-center gap-1.5 text-[10px] font-bold',
-                available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
-              )}
-            >
-              <span className={cn(
-                'h-1.5 w-1.5 rounded-full animate-pulse',
-                available > 3 ? 'bg-success' : available > 0 ? 'bg-warning' : 'bg-destructive'
-              )} />
-              {available > 0 ? `${Math.max(available, 0)} / ${product.total_stock}` : 'Unavailable'}
-            </div>
+            {showAvailability && (
+              <div
+                className={cn(
+                  'flex items-center gap-1.5 text-[10px] font-bold',
+                  available > 3 ? 'text-success' : available > 0 ? 'text-warning' : 'text-destructive'
+                )}
+              >
+                <span className={cn(
+                  'h-1.5 w-1.5 rounded-full animate-pulse',
+                  available > 3 ? 'bg-success' : available > 0 ? 'bg-warning' : 'bg-destructive'
+                )} />
+                {available > 0 ? `${Math.max(available, 0)} / ${product.total_stock}` : 'Unavailable'}
+              </div>
+            )}
           </div>
 
           {/* Title */}
@@ -94,7 +150,7 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           <div className="flex-1 min-h-3" />
 
           {/* Includes chips */}
-          {product.includes?.length > 0 && (
+          {showIncludes && product.includes?.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-3">
               {product.includes.slice(0, 3).map((item, i) => (
                 <span key={i} className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground bg-background/60 rounded-full px-2 py-0.5">

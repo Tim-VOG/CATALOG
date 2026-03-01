@@ -6,6 +6,7 @@ import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import { useProductOptions } from '@/hooks/use-product-options'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
+import { useAppSettings } from '@/hooks/use-settings'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { CompactDateBar } from '@/components/catalog/CompactDateBar'
 import { ScrollReveal, CountUp, DynamicsItem } from '@/components/ui/motion'
@@ -25,6 +26,8 @@ export function CatalogPage() {
   const { data: categories = [] } = useCategories()
   const { data: subscriptionPlans = [] } = useSubscriptionPlans()
   const { data: productOptions = [] } = useProductOptions()
+  const { data: appSettings } = useAppSettings()
+  const cs = appSettings?.catalog_settings || {}
 
   // Dates from cart store
   const startDate = useCartStore((s) => s.startDate)
@@ -116,10 +119,10 @@ export function CatalogPage() {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-gradient-primary">
-                  Equipment Catalog
+                  {cs.hero_title || 'Equipment Catalog'}
                 </h1>
                 <p className="text-muted-foreground mt-1.5 text-sm sm:text-base max-w-lg">
-                  Browse and reserve equipment for your projects
+                  {cs.hero_subtitle || 'Browse and reserve equipment for your projects'}
                 </p>
                 <motion.div
                   className="mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-primary to-accent"
@@ -277,7 +280,10 @@ export function CatalogPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+            className={cn(
+              'grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+              (cs.cards_per_row === 5) ? 'xl:grid-cols-5' : (cs.cards_per_row === 3) ? 'xl:grid-cols-3' : 'xl:grid-cols-4'
+            )}
           >
             {filtered.map((product, i) => (
               <DynamicsItem key={product.id} index={i} className="h-full">
@@ -289,6 +295,8 @@ export function CatalogPage() {
                   productOptions={productOptions}
                   reservedQty={reservedByProduct[product.id] || 0}
                   datesSelected={datesSelected}
+                  showAvailability={cs.show_availability_badge !== false}
+                  showIncludes={cs.show_includes_chips !== false}
                 />
               </DynamicsItem>
             ))}

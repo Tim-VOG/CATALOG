@@ -1,3 +1,4 @@
+import { createElement } from 'react'
 import { motion } from 'motion/react'
 import {
   Laptop,
@@ -26,12 +27,15 @@ import {
   ScanLine,
   Dock,
 } from 'lucide-react'
+import { icons as lucideIcons } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { APPLE_DEVICE_ICONS } from '@/lib/apple-device-icons'
 
 /**
- * Gradient presets for each icon — gives each device a distinctive look
+ * Gradient presets for each icon — gives each device a distinctive look.
+ * Exported so other components (ColorPickerPopover, etc.) can reuse them.
  */
-const GRADIENTS = {
+export const GRADIENTS = {
   laptop:      { from: 'from-blue-500/20',   to: 'to-cyan-400/10',    icon: 'text-blue-400',    glow: 'shadow-blue-500/10',    cardBg: 'from-blue-500/[0.07] to-cyan-400/[0.03]' },
   phone:       { from: 'from-violet-500/20',  to: 'to-fuchsia-400/10', icon: 'text-violet-400',  glow: 'shadow-violet-500/10',  cardBg: 'from-violet-500/[0.07] to-fuchsia-400/[0.03]' },
   tablet:      { from: 'from-indigo-500/20',  to: 'to-blue-400/10',    icon: 'text-indigo-400',  glow: 'shadow-indigo-500/10',  cardBg: 'from-indigo-500/[0.07] to-blue-400/[0.03]' },
@@ -49,6 +53,27 @@ const GRADIENTS = {
   projector:   { from: 'from-pink-500/20',    to: 'to-rose-400/10',    icon: 'text-pink-400',    glow: 'shadow-pink-500/10',    cardBg: 'from-pink-500/[0.07] to-rose-400/[0.03]' },
   accessory:   { from: 'from-primary/20',     to: 'to-accent/10',      icon: 'text-primary',     glow: 'shadow-primary/10',     cardBg: 'from-primary/[0.07] to-accent/[0.03]' },
   default:     { from: 'from-primary/20',     to: 'to-accent/10',      icon: 'text-primary',     glow: 'shadow-primary/10',     cardBg: 'from-primary/[0.07] to-accent/[0.03]' },
+}
+
+/**
+ * Convert a kebab-case icon name to PascalCase for lucide-react lookup.
+ * E.g., "hard-drive" → "HardDrive"
+ */
+function toPascalCase(str) {
+  return str.replace(/(^|-)(\w)/g, (_, __, c) => c.toUpperCase())
+}
+
+/**
+ * Resolve a lucide icon component from an icon name string.
+ * Supports both kebab-case ("hard-drive") and PascalCase ("HardDrive").
+ */
+function resolveLucideIcon(iconName) {
+  if (!iconName) return null
+  // Try direct PascalCase lookup
+  if (lucideIcons[iconName]) return lucideIcons[iconName]
+  // Try converting from kebab-case
+  const pascal = toPascalCase(iconName)
+  return lucideIcons[pascal] || null
 }
 
 /**
@@ -142,6 +167,7 @@ function resolveDevice(name = '', category = '', subType = '') {
  * @param {'sm' | 'md' | 'lg' | 'xl'} size - Icon size
  * @param {boolean} animated - Enable hover animation
  * @param {string} className - Additional classes
+ * @param {object} displaySettings - Custom display overrides from DB { icon_name, icon_color, gradient_from, gradient_to, custom_image_url, icon_size }
  */
 export function DeviceIcon({
   name = '',
@@ -150,17 +176,60 @@ export function DeviceIcon({
   size = 'md',
   animated = true,
   className,
+  displaySettings,
 }) {
-  const { Icon, gradient, key } = resolveDevice(name, category, subType)
+  const ds = displaySettings || {}
+  const { Icon: AutoIcon, gradient: autoGradient, key } = resolveDevice(name, category, subType)
 
-  const sizeMap = {
-    sm: { container: 'h-10 w-10', icon: 'h-5 w-5', ring: 'h-12 w-12' },
-    md: { container: 'h-16 w-16', icon: 'h-7 w-7', ring: 'h-20 w-20' },
-    lg: { container: 'h-24 w-24', icon: 'h-10 w-10', ring: 'h-28 w-28' },
-    xl: { container: 'h-32 w-32', icon: 'h-14 w-14', ring: 'h-36 w-36' },
+  // Override size from display settings
+  const effectiveSize = ds.icon_size || size
+
+  // Resolve icon: custom icon_name > auto-detected
+  let IconComponent = AutoIcon
+  let isAppleSvg = false
+  let appleSvgContent = null
+
+  if (ds.icon_name) {
+    // Check if it's an Apple device icon key
+    if (APPLE_DEVICE_ICONS[ds.icon_name]) {
+      isAppleSvg = true
+      appleSvgContent = APPLE_DEVICE_ICONS[ds.icon_name].svg
+    } else {
+      // Try lucide-react icon
+      const resolved = resolveLucideIcon(ds.icon_name)
+      if (resolved) IconComponent = resolved
+    }
   }
 
-  const s = sizeMap[size] || sizeMap.md
+  // Custom image overrides everything
+  const hasCustomImage = !!ds.custom_image_url
+
+  // Build gradient — use custom colors if provided, else auto
+  const hasCustomGradient = ds.gradient_from || ds.gradient_to
+  const gradient = autoGradient
+
+  // Inline styles for custom colors (Tailwind JIT can't handle runtime hex values)
+  const customIconStyle = ds.icon_color ? { color: ds.icon_color } : {}
+  const customGradientStyle = hasCustomGradient
+    ? {
+        background: `linear-gradient(to bottom right, ${ds.gradient_from || 'transparent'}, ${ds.gradient_to || 'transparent'})`,
+      }
+    : {}
+  const customCardBgStyle = ds.card_bg ? { background: ds.card_bg } : {}
+  const customGlowStyle = hasCustomGradient
+    ? {
+        background: `linear-gradient(to bottom right, ${ds.gradient_from || 'transparent'}66, ${ds.gradient_to || 'transparent'}33)`,
+      }
+    : {}
+
+  const sizeMap = {
+    sm: { container: 'h-10 w-10', icon: 'h-5 w-5', ring: 'h-12 w-12', imgSize: 32 },
+    md: { container: 'h-16 w-16', icon: 'h-7 w-7', ring: 'h-20 w-20', imgSize: 48 },
+    lg: { container: 'h-24 w-24', icon: 'h-10 w-10', ring: 'h-28 w-28', imgSize: 64 },
+    xl: { container: 'h-32 w-32', icon: 'h-14 w-14', ring: 'h-36 w-36', imgSize: 80 },
+  }
+
+  const s = sizeMap[effectiveSize] || sizeMap.md
 
   const Wrapper = animated ? motion.div : 'div'
   const wrapperProps = animated
@@ -178,28 +247,52 @@ export function DeviceIcon({
       {/* Outer glow ring */}
       <div
         className={cn(
-          'absolute rounded-full bg-gradient-to-br opacity-40 blur-md',
-          gradient.from,
-          gradient.to,
+          'absolute rounded-full opacity-40 blur-md',
+          !hasCustomGradient && 'bg-gradient-to-br',
+          !hasCustomGradient && gradient.from,
+          !hasCustomGradient && gradient.to,
           s.ring
         )}
+        style={hasCustomGradient ? customGlowStyle : undefined}
       />
 
       {/* Main circle */}
       <div
         className={cn(
-          'relative rounded-2xl bg-gradient-to-br flex items-center justify-center',
+          'relative rounded-2xl flex items-center justify-center',
           'border border-white/[0.08] backdrop-blur-sm',
-          `shadow-lg ${gradient.glow}`,
-          gradient.from,
-          gradient.to,
+          !hasCustomGradient && 'bg-gradient-to-br',
+          !hasCustomGradient && `shadow-lg ${gradient.glow}`,
+          !hasCustomGradient && gradient.from,
+          !hasCustomGradient && gradient.to,
           s.container,
         )}
+        style={hasCustomGradient ? { ...customGradientStyle, boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' } : undefined}
       >
         {/* Inner shine */}
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.06] to-transparent pointer-events-none" />
 
-        <Icon className={cn('relative', gradient.icon, s.icon)} strokeWidth={1.5} />
+        {/* Render: custom image > apple SVG > lucide icon */}
+        {hasCustomImage ? (
+          <img
+            src={ds.custom_image_url}
+            alt=""
+            className={cn('relative object-contain', s.icon)}
+            style={{ width: s.imgSize, height: s.imgSize }}
+          />
+        ) : isAppleSvg ? (
+          <div
+            className={cn('relative', s.icon, !ds.icon_color && gradient.icon)}
+            style={customIconStyle}
+            dangerouslySetInnerHTML={{ __html: appleSvgContent }}
+          />
+        ) : (
+          <IconComponent
+            className={cn('relative', !ds.icon_color && gradient.icon, s.icon)}
+            style={customIconStyle}
+            strokeWidth={1.5}
+          />
+        )}
       </div>
     </Wrapper>
   )
@@ -208,23 +301,62 @@ export function DeviceIcon({
 /**
  * DeviceIconInline — smaller inline version for lists, tables, etc.
  */
-export function DeviceIconInline({ name = '', category = '', subType = '', className }) {
-  const { Icon, gradient } = resolveDevice(name, category, subType)
+export function DeviceIconInline({ name = '', category = '', subType = '', className, displaySettings }) {
+  const ds = displaySettings || {}
+  const { Icon: AutoIcon, gradient } = resolveDevice(name, category, subType)
+
+  let IconComponent = AutoIcon
+  let isAppleSvg = false
+  let appleSvgContent = null
+
+  if (ds.icon_name) {
+    if (APPLE_DEVICE_ICONS[ds.icon_name]) {
+      isAppleSvg = true
+      appleSvgContent = APPLE_DEVICE_ICONS[ds.icon_name].svg
+    } else {
+      const resolved = resolveLucideIcon(ds.icon_name)
+      if (resolved) IconComponent = resolved
+    }
+  }
+
+  const hasCustomImage = !!ds.custom_image_url
+  const hasCustomGradient = ds.gradient_from || ds.gradient_to
+  const customIconStyle = ds.icon_color ? { color: ds.icon_color } : {}
+  const customGradientStyle = hasCustomGradient
+    ? { background: `linear-gradient(to bottom right, ${ds.gradient_from || 'transparent'}, ${ds.gradient_to || 'transparent'})` }
+    : {}
 
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br',
-        gradient.from,
-        gradient.to,
+        'inline-flex items-center justify-center h-8 w-8 rounded-lg',
+        !hasCustomGradient && 'bg-gradient-to-br',
+        !hasCustomGradient && gradient.from,
+        !hasCustomGradient && gradient.to,
         'border border-white/[0.06]',
         className,
       )}
+      style={hasCustomGradient ? customGradientStyle : undefined}
     >
-      <Icon className={cn('h-4 w-4', gradient.icon)} strokeWidth={1.5} />
+      {hasCustomImage ? (
+        <img src={ds.custom_image_url} alt="" className="h-4 w-4 object-contain" />
+      ) : isAppleSvg ? (
+        <div
+          className={cn('h-4 w-4', !ds.icon_color && gradient.icon)}
+          style={customIconStyle}
+          dangerouslySetInnerHTML={{ __html: appleSvgContent }}
+        />
+      ) : (
+        <IconComponent
+          className={cn('h-4 w-4', !ds.icon_color && gradient.icon)}
+          style={customIconStyle}
+          strokeWidth={1.5}
+        />
+      )}
     </span>
   )
 }
 
 // Re-export for external use
 DeviceIcon.resolve = resolveDevice
+DeviceIcon.resolveLucideIcon = resolveLucideIcon

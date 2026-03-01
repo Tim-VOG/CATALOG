@@ -41,6 +41,7 @@ import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
 import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
+import { AdminCatalogBuilderPage } from '@/pages/admin/AdminCatalogBuilderPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -90,6 +91,7 @@ export function AppRoutes() {
           <Route path="new-request" element={<AdminNewRequestPage />} />
           <Route path="returns" element={<AdminReturnsPage />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="catalog-builder" element={<AdminCatalogBuilderPage />} />
           <Route path="design" element={<AdminDesignPage />} />
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
           <Route path="planning" element={<AdminPlanningPage />} />
