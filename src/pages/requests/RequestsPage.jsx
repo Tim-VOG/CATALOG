@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
+import { DynamicsItem } from '@/components/ui/motion'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { ClipboardList, Calendar, MapPin, ChevronRight, Clock, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
@@ -190,9 +191,11 @@ export function RequestsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {currentList.map((req) => (
-            <RequestCard key={req.id} req={req} />
+        <div className="space-y-4">
+          {currentList.map((req, i) => (
+            <DynamicsItem key={req.id} index={i}>
+              <RequestCard req={req} />
+            </DynamicsItem>
           ))}
         </div>
       )}

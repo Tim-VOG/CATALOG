@@ -20,7 +20,7 @@ import { DeviceIcon } from '@/components/common/DeviceIcon'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummaryCard'
 import { ProductConfigModal } from '@/components/catalog/ProductConfigModal'
-import { FadeIn, ScrollFadeIn, ScrollReveal } from '@/components/ui/motion'
+import { FadeIn, ScrollFadeIn, ScrollReveal, DynamicsItem } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
@@ -220,18 +220,18 @@ export function ProductDetailPage() {
 
       {/* ── Mobile cards ─────────────────────────────────── */}
       <div className="xl:hidden max-w-md mx-auto mt-8 px-4 space-y-4">
-        <ScrollFadeIn>
+        <DynamicsItem index={0}>
           <AvailabilitySummaryCard
             available={available}
             totalStock={product.total_stock}
             reservations={reservations}
           />
-        </ScrollFadeIn>
+        </DynamicsItem>
 
         {hasIncludes && (
-          <ScrollFadeIn>
+          <DynamicsItem index={1}>
             <IncludesFloatingCard includes={includesList} />
-          </ScrollFadeIn>
+          </DynamicsItem>
         )}
       </div>
 

@@ -6,7 +6,7 @@ import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, I
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ScrollReveal, StaggerReveal } from '@/components/ui/motion'
+import { ScrollReveal, DynamicsItem } from '@/components/ui/motion'
 import { motion } from 'motion/react'
 
 function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel, variant = 'default' }) {
@@ -197,12 +197,13 @@ export function HubPage() {
         />
       </ScrollReveal>
 
-      <StaggerReveal
-        className={`grid grid-cols-1 ${gridCols} gap-5 relative`}
-        stagger={0.1}
-      >
-        {cards}
-      </StaggerReveal>
+      <div className={`grid grid-cols-1 ${gridCols} gap-5 relative`}>
+        {cards.map((card, i) => (
+          <DynamicsItem key={card.key} index={i}>
+            {card}
+          </DynamicsItem>
+        ))}
+      </div>
     </div>
   )
 }

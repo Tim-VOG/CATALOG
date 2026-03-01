@@ -317,6 +317,23 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     .map((b, i) => buildBlockMjml(b, language, vars, i, enabledBlocks.length))
     .filter(Boolean)
 
+  // Extract custom branding from salutation block options
+  const salutationBlock = blocksConfig.find((b) => b.block_key === 'salutation')
+  const salutationOpts = salutationBlock?.options || {}
+  const closingBlock = blocksConfig.find((b) => b.block_key === 'closing')
+  const closingOpts = closingBlock?.options || {}
+
+  const headerTitle = salutationOpts.header_title || 'VO IT HUB'
+  const headerSubtitle = language === 'fr'
+    ? (salutationOpts.header_subtitle_fr || 'Votre guide d\'int\u00e9gration chez VO Group')
+    : (salutationOpts.header_subtitle_en || 'Your onboarding guide at VO Group')
+  const footerLabel = language === 'fr'
+    ? (salutationOpts.footer_text_fr || 'Plateforme IT interne')
+    : (salutationOpts.footer_text_en || 'Internal IT Platform')
+  const autoNotice = language === 'fr'
+    ? (closingOpts.auto_notice_fr || `Cet email a \u00e9t\u00e9 envoy\u00e9 automatiquement depuis ${headerTitle}`)
+    : (closingOpts.auto_notice_en || `This email was sent automatically from ${headerTitle}`)
+
   const welcomeTitle = language === 'fr'
     ? `Bienvenue ${vars.first_name} !`
     : `Welcome ${vars.first_name}!`
@@ -346,13 +363,13 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
       <mj-column padding="0">
         <mj-divider border-color="#f97316" border-width="3px" padding="0" width="100%" />
         <mj-text padding="28px 32px 0 32px" font-size="11px" font-weight="700" color="#f97316" letter-spacing="2px">
-          VO GEAR HUB
+          ${escapeHtml(headerTitle)}
         </mj-text>
         <mj-text padding="8px 32px 4px 32px" font-size="26px" font-weight="800" color="#1e293b" line-height="1.2">
           ${escapeHtml(welcomeTitle)}
         </mj-text>
         <mj-text padding="0 32px 0 32px" font-size="12px" color="#94a3b8">
-          ${language === 'fr' ? 'Votre guide d\'int\u00e9gration chez VO Group' : 'Your onboarding guide at VO Group'}
+          ${escapeHtml(headerSubtitle)}
         </mj-text>
         <mj-divider border-color="#f97316" border-width="3px" padding="16px 32px 0 32px" width="60px" />
       </mj-column>
@@ -370,10 +387,10 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     <mj-section background-color="#f8fafc" border-radius="0 0 16px 16px" padding="0 32px 28px 32px">
       <mj-column>
         <mj-text align="center" font-size="12px" color="#94a3b8" padding="0 0 4px 0">
-          <span style="color:#f97316;font-weight:700;">VO</span> Gear Hub &mdash; ${language === 'fr' ? 'Plateforme IT interne' : 'Internal IT Platform'}
+          <span style="color:#f97316;font-weight:700;">${escapeHtml(headerTitle.split(' ')[0] || 'VO')}</span> ${escapeHtml(headerTitle.split(' ').slice(1).join(' ') || 'IT HUB')} &mdash; ${escapeHtml(footerLabel)}
         </mj-text>
         <mj-text align="center" font-size="10px" color="#cbd5e1" padding="0">
-          ${language === 'fr' ? 'Cet email a \u00e9t\u00e9 envoy\u00e9 automatiquement depuis VO Gear Hub' : 'This email was sent automatically from VO Gear Hub'}
+          ${escapeHtml(autoNotice)}
         </mj-text>
       </mj-column>
     </mj-section>

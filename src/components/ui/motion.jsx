@@ -433,6 +433,64 @@ const PressScale = React.forwardRef(
 )
 PressScale.displayName = 'PressScale'
 
+// ── DynamicsItem ─────────────────────────────────────────
+// UICollectionView/UIDynamics-inspired scroll item with per-item spring physics.
+// Each item has unique spring characteristics (stiffness, damping, mass)
+// creating a cascading wave effect — like iOS UIAttachmentBehavior with
+// varying attachment strengths. Items spring into view with natural physics.
+function DynamicsItem({ children, className, index = 0, once = true, ...props }) {
+  const ref = React.useRef(null)
+  const isInView = useInView(ref, { once, margin: '50px 0px -60px 0px' })
+
+  // Per-item spring variation — mimics UIDynamics spring attachment behavior
+  // Different items settle at different rates creating a natural cascade
+  const springConfig = React.useMemo(() => {
+    const variant = index % 6
+    return {
+      stiffness: 100 + variant * 15,           // 100–175
+      damping: 12 + (index % 4) * 2,           // 12–18
+      mass: 0.7 + (index % 3) * 0.15,          // 0.7–1.0
+    }
+  }, [index])
+
+  const targetY = useMotionValue(50)
+  const targetScale = useMotionValue(0.92)
+  const targetOpacity = useMotionValue(0)
+  const rotateDir = index % 2 === 0 ? 1 : -1
+  const targetRotate = useMotionValue(2 * rotateDir)
+
+  React.useEffect(() => {
+    if (isInView) {
+      targetY.set(0)
+      targetScale.set(1)
+      targetOpacity.set(1)
+      targetRotate.set(0)
+    }
+  }, [isInView, targetY, targetScale, targetOpacity, targetRotate])
+
+  const y = useSpring(targetY, springConfig)
+  const scale = useSpring(targetScale, {
+    stiffness: springConfig.stiffness + 40,
+    damping: springConfig.damping + 5,
+  })
+  const opacity = useSpring(targetOpacity, { stiffness: 200, damping: 25 })
+  const rotate = useSpring(targetRotate, {
+    stiffness: Math.max(springConfig.stiffness - 20, 60),
+    damping: springConfig.damping + 8,
+  })
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ y, scale, opacity, rotate }}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 // ── Fade overlay ──────────────────────────────────────────
 // Pour les overlays de dialog / dropdown.
 const FadeOverlay = React.forwardRef(
@@ -473,4 +531,6 @@ export {
   Magnetic,
   CountUp,
   TextReveal,
+  // UIDynamics-style primitives
+  DynamicsItem,
 }

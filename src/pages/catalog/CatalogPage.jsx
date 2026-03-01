@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { CompactDateBar } from '@/components/catalog/CompactDateBar'
-import { ScrollReveal, CountUp } from '@/components/ui/motion'
+import { ScrollReveal, CountUp, DynamicsItem } from '@/components/ui/motion'
 import { Package, Search, Layers, Box } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
@@ -280,17 +280,7 @@ export function CatalogPage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
           >
             {filtered.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.35,
-                  delay: Math.min(i * 0.05, 0.4),
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                className="h-full"
-              >
+              <DynamicsItem key={product.id} index={i} className="h-full">
                 <ProductCard
                   product={product}
                   cart={cartItems}
@@ -300,7 +290,7 @@ export function CatalogPage() {
                   reservedQty={reservedByProduct[product.id] || 0}
                   datesSelected={datesSelected}
                 />
-              </motion.div>
+              </DynamicsItem>
             ))}
           </motion.div>
         )}
@@ -326,7 +316,7 @@ function StatChip({ icon: Icon, label, value, gradient, iconColor }) {
       </div>
       <div>
         <div className="text-lg font-bold tabular-nums text-foreground">
-          <CountUp to={value} />
+          <CountUp value={value} />
         </div>
         <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</div>
       </div>

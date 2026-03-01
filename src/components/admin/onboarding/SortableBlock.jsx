@@ -41,6 +41,92 @@ function BlockOptions({ blockKey, options, onChange }) {
   const update = (key, value) => onChange({ ...options, [key]: value })
 
   switch (blockKey) {
+    case 'salutation':
+      return (
+        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Header Branding</Label>
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <Label className="text-xs">Header title</Label>
+              <Input
+                value={options.header_title || ''}
+                onChange={(e) => update('header_title', e.target.value)}
+                placeholder="VO IT HUB"
+                className="text-sm"
+              />
+              <p className="text-[10px] text-muted-foreground/50">Appears at the top of the email (e.g. "VO IT HUB")</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Subtitle FR</Label>
+                <Input
+                  value={options.header_subtitle_fr || ''}
+                  onChange={(e) => update('header_subtitle_fr', e.target.value)}
+                  placeholder="Votre guide d'intégration chez VO Group"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Subtitle EN</Label>
+                <Input
+                  value={options.header_subtitle_en || ''}
+                  onChange={(e) => update('header_subtitle_en', e.target.value)}
+                  placeholder="Your onboarding guide at VO Group"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Footer text FR</Label>
+                <Input
+                  value={options.footer_text_fr || ''}
+                  onChange={(e) => update('footer_text_fr', e.target.value)}
+                  placeholder="Plateforme IT interne"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Footer text EN</Label>
+                <Input
+                  value={options.footer_text_en || ''}
+                  onChange={(e) => update('footer_text_en', e.target.value)}
+                  placeholder="Internal IT Platform"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+
+    case 'closing':
+      return (
+        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Footer Branding</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Auto-send notice FR</Label>
+              <Input
+                value={options.auto_notice_fr || ''}
+                onChange={(e) => update('auto_notice_fr', e.target.value)}
+                placeholder="Cet email a été envoyé automatiquement"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Auto-send notice EN</Label>
+              <Input
+                value={options.auto_notice_en || ''}
+                onChange={(e) => update('auto_notice_en', e.target.value)}
+                placeholder="This email was sent automatically"
+                className="text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      )
+
     case 'cta_link':
       return (
         <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
