@@ -311,20 +311,13 @@ export function Header() {
 
           <Link to="/" className="flex items-center gap-2.5 text-primary group">
             {logoUrl ? (
-              <motion.img
+              <img
                 src={logoUrl}
                 alt={appName}
                 className="h-7 w-auto object-contain"
-                whileHover={{ rotate: [0, -5, 5, 0] }}
-                transition={{ duration: 0.4 }}
               />
             ) : (
-              <motion.div
-                whileHover={{ rotate: [0, -8, 8, 0] }}
-                transition={{ duration: 0.4 }}
-              >
-                <Package className="h-6 w-6" />
-              </motion.div>
+              <Package className="h-6 w-6" />
             )}
             <div className="hidden sm:flex flex-col leading-tight">
               <span className="font-display text-lg font-bold">{appName}</span>

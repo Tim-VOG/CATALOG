@@ -2,6 +2,13 @@
  * Build MJML markup from blocks config + recipient data.
  * This produces a rich, modular email with card-based blocks,
  * colored accents, and visual hierarchy.
+ *
+ * All text and branding is customizable from the admin UI:
+ * - Welcome title, header title, subtitle, footer text → salutation block options
+ * - Accent color → salutation block options
+ * - Auto-send notice → closing block options
+ * - Per-block section labels → each block's section_label_fr / section_label_en options
+ * - Block content → each block's content_fr / content_en
  */
 
 function escapeHtml(str) {
@@ -52,7 +59,7 @@ function textToHtml(text) {
     .join('\n')
 }
 
-// Block visual config: emoji icon + accent color
+// Block visual config: emoji icon + accent color + default labels
 const BLOCK_THEME = {
   salutation:      { emoji: '&#x1F44B;', color: '#22c55e', label_fr: 'Bienvenue',          label_en: 'Welcome' },
   email_info:      { emoji: '&#x1F4E7;', color: '#3b82f6', label_fr: 'Email',              label_en: 'Email' },
@@ -68,6 +75,21 @@ const BLOCK_THEME = {
   closing:         { emoji: '&#x2728;',  color: '#14b8a6', label_fr: 'Conclusion',          label_en: 'Closing' },
 }
 
+/**
+ * Resolve the section label for a block — allows per-block override from block options
+ */
+function getSectionLabel(block, language) {
+  const opts = block.options || {}
+  const theme = BLOCK_THEME[block.block_key] || { label_fr: 'Bloc', label_en: 'Block' }
+
+  // Per-block override from admin UI
+  if (language === 'fr' && opts.section_label_fr) return opts.section_label_fr
+  if (language === 'en' && opts.section_label_en) return opts.section_label_en
+
+  // Default from theme
+  return language === 'fr' ? theme.label_fr : theme.label_en
+}
+
 function buildBlockMjml(block, language, vars, index, totalEnabled) {
   const content = language === 'fr' ? block.content_fr : block.content_en
   if (!content) return ''
@@ -75,7 +97,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   const rendered = substituteVars(content, vars)
   const opts = block.options || {}
   const theme = BLOCK_THEME[block.block_key] || { emoji: '&#x1F4DD;', color: '#64748b', label_fr: 'Bloc', label_en: 'Block' }
-  const sectionLabel = language === 'fr' ? theme.label_fr : theme.label_en
+  const sectionLabel = getSectionLabel(block, language)
 
   // Special handling: salutation block — hero greeting, no card wrapper
   if (block.block_key === 'salutation') {
@@ -334,9 +356,14 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     ? (closingOpts.auto_notice_fr || `Cet email a \u00e9t\u00e9 envoy\u00e9 automatiquement depuis ${headerTitle}`)
     : (closingOpts.auto_notice_en || `This email was sent automatically from ${headerTitle}`)
 
-  const welcomeTitle = language === 'fr'
-    ? `Bienvenue ${vars.first_name} !`
-    : `Welcome ${vars.first_name}!`
+  // Customizable accent color (defaults to orange #f97316)
+  const accentColor = salutationOpts.accent_color || '#f97316'
+
+  // Customizable welcome title with variable substitution
+  const welcomeTitlePattern = language === 'fr'
+    ? (salutationOpts.welcome_title_fr || 'Bienvenue {{first_name}} !')
+    : (salutationOpts.welcome_title_en || 'Welcome {{first_name}}!')
+  const welcomeTitle = substituteVars(welcomeTitlePattern, vars)
 
   return `<mjml>
   <mj-head>
@@ -361,8 +388,8 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     <!-- Header banner -->
     <mj-section background-color="#ffffff" border-radius="16px 16px 0 0" padding="0">
       <mj-column padding="0">
-        <mj-divider border-color="#f97316" border-width="3px" padding="0" width="100%" />
-        <mj-text padding="28px 32px 0 32px" font-size="11px" font-weight="700" color="#f97316" letter-spacing="2px">
+        <mj-divider border-color="${accentColor}" border-width="3px" padding="0" width="100%" />
+        <mj-text padding="28px 32px 0 32px" font-size="11px" font-weight="700" color="${accentColor}" letter-spacing="2px">
           ${escapeHtml(headerTitle)}
         </mj-text>
         <mj-text padding="8px 32px 4px 32px" font-size="26px" font-weight="800" color="#1e293b" line-height="1.2">
@@ -371,7 +398,7 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
         <mj-text padding="0 32px 0 32px" font-size="12px" color="#94a3b8">
           ${escapeHtml(headerSubtitle)}
         </mj-text>
-        <mj-divider border-color="#f97316" border-width="3px" padding="16px 32px 0 32px" width="60px" />
+        <mj-divider border-color="${accentColor}" border-width="3px" padding="16px 32px 0 32px" width="60px" />
       </mj-column>
     </mj-section>
 
@@ -387,7 +414,7 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient) {
     <mj-section background-color="#f8fafc" border-radius="0 0 16px 16px" padding="0 32px 28px 32px">
       <mj-column>
         <mj-text align="center" font-size="12px" color="#94a3b8" padding="0 0 4px 0">
-          <span style="color:#f97316;font-weight:700;">${escapeHtml(headerTitle.split(' ')[0] || 'VO')}</span> ${escapeHtml(headerTitle.split(' ').slice(1).join(' ') || 'IT HUB')} &mdash; ${escapeHtml(footerLabel)}
+          <span style="color:${accentColor};font-weight:700;">${escapeHtml(headerTitle.split(' ')[0] || 'VO')}</span> ${escapeHtml(headerTitle.split(' ').slice(1).join(' ') || 'IT HUB')} &mdash; ${escapeHtml(footerLabel)}
         </mj-text>
         <mj-text align="center" font-size="10px" color="#cbd5e1" padding="0">
           ${escapeHtml(autoNotice)}

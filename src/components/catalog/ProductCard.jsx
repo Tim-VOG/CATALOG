@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { Plus, Check, WifiOff, AlertTriangle, ChevronRight, Settings2 } from 'lucide-react'
+import { Check, WifiOff, AlertTriangle, ChevronRight, Settings2, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DeviceIcon } from '@/components/common/DeviceIcon'
 import { ProductConfigModal } from './ProductConfigModal'
@@ -14,6 +14,9 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
   const available = product.total_stock - reservedQty - inCart
   const needsConfig = product.has_accessories || product.has_software || product.has_subscription || product.has_apps
   const isUnavailable = available <= 0
+
+  // Resolve device type for icon color + card background
+  const { Icon, gradient } = DeviceIcon.resolve(product.name, product.category_name, product.sub_type)
 
   const handleAdd = (e) => {
     e?.preventDefault?.()
@@ -29,32 +32,27 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
 
   return (
     <>
-      <div className="relative group pt-12">
-        {/* Floating icon — overlaps above the card */}
+      <div className="relative group h-full flex flex-col pt-10">
+        {/* Floating bare icon — overlaps above the card, no background */}
         <Link to={`/catalog/${product.id}`} className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
           <motion.div
-            whileHover={!isUnavailable ? { scale: 1.1, y: -4 } : undefined}
+            whileHover={!isUnavailable ? { scale: 1.15, y: -4 } : undefined}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className={cn(isUnavailable && 'opacity-40 grayscale')}
           >
-            <DeviceIcon
-              name={product.name}
-              category={product.category_name}
-              subType={product.sub_type}
-              size="lg"
-              animated={false}
-            />
+            <Icon className={cn('h-12 w-12 drop-shadow-md', gradient.icon)} strokeWidth={1.5} />
           </motion.div>
         </Link>
 
-        {/* Card body — no border, subtle shadow */}
+        {/* Card body — gradient bg matching icon color, no border, shadow */}
         <div
           className={cn(
-            'relative rounded-2xl bg-card pt-16 pb-5 px-5',
-            'shadow-[0_2px_20px_-4px_rgba(0,0,0,0.15)] transition-all duration-300',
+            'relative rounded-2xl bg-gradient-to-br pt-10 pb-5 px-5 flex-1 flex flex-col',
+            gradient.cardBg,
+            'shadow-[0_2px_20px_-4px_rgba(0,0,0,0.12)] transition-all duration-300',
             isUnavailable
               ? 'opacity-60'
-              : 'hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.25)] hover:-translate-y-1'
+              : 'hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.2)] hover:-translate-y-1'
           )}
         >
           {/* Category + Availability — top row */}
@@ -92,11 +90,14 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
             </p>
           )}
 
+          {/* Spacer to push bottom content down */}
+          <div className="flex-1 min-h-3" />
+
           {/* Includes chips */}
           {product.includes?.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-3">
               {product.includes.slice(0, 3).map((item, i) => (
-                <span key={i} className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
+                <span key={i} className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground bg-background/60 rounded-full px-2 py-0.5">
                   <Check className="h-2.5 w-2.5 text-success/70" />
                   {item}
                 </span>
@@ -133,7 +134,7 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           )}
         </div>
 
-        {/* Action button — floating at bottom-right, overlapping the card */}
+        {/* Unified action button — floating at bottom-right, overlapping the card */}
         {!isUnavailable && (
           <motion.div
             className="absolute -bottom-3 right-4 z-10"
@@ -143,14 +144,14 @@ export function ProductCard({ product, cart, onAddToCart, subscriptionPlans, pro
           >
             <Button
               size="sm"
-              variant={needsConfig ? 'outline' : 'gradient'}
-              className="rounded-full shadow-lg gap-1.5 h-8 text-xs px-4 border-background/50"
+              variant="gradient"
+              className="rounded-full shadow-lg gap-1.5 h-8 text-xs px-4"
               onClick={handleAdd}
             >
               {needsConfig ? (
-                <><Settings2 className="h-3 w-3" /> Configure</>
+                <><Settings2 className="h-3 w-3" /> Configure <ChevronRight className="h-3 w-3 -mr-1" /></>
               ) : (
-                <><Plus className="h-3.5 w-3.5" /> Add</>
+                <><ShoppingCart className="h-3 w-3" /> Reserve <ChevronRight className="h-3 w-3 -mr-1" /></>
               )}
             </Button>
           </motion.div>

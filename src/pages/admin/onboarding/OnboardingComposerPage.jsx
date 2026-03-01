@@ -166,6 +166,8 @@ export function OnboardingComposerPage() {
       } else {
         const created = await createEmail.mutateAsync(payload)
         setEmailDbId(created.id)
+        // Navigate to the edit URL so a page refresh preserves the saved draft
+        navigate(`/admin/onboarding/compose/${created.id}`, { replace: true })
         showToast('Draft created')
       }
     } catch (err) {
