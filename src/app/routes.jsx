@@ -8,14 +8,14 @@ import { HubPage } from '@/pages/HubPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
 import { CatalogPage } from '@/pages/catalog/CatalogPage'
-// ProductDetailPage removed — product details are now managed in the Catalog Manager
+import { ProductDetailPage } from '@/pages/catalog/ProductDetailPage'
 import { CartPage } from '@/pages/cart/CartPage'
 import { CheckoutPage } from '@/pages/checkout/CheckoutPage'
 import { RequestsPage } from '@/pages/requests/RequestsPage'
 import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
-// AdminProductsPage, AdminCategoriesPage, AdminProductOptionsPage are now
-// integrated into AdminCatalogBuilderPage — old routes redirect there
+import { AdminProductsPage } from '@/pages/admin/AdminProductsPage'
+import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
 import { AdminRequestsPage } from '@/pages/admin/AdminRequestsPage'
 import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
 import { AdminReturnsPage } from '@/pages/admin/AdminReturnsPage'
@@ -24,6 +24,7 @@ import { AdminDesignPage } from '@/pages/admin/AdminDesignPage'
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
 import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
+import { AdminProductOptionsPage } from '@/pages/admin/AdminProductOptionsPage'
 import { AdminNewRequestPage } from '@/pages/admin/AdminNewRequestPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
@@ -40,7 +41,6 @@ import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
 import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
-import { AdminCatalogBuilderPage } from '@/pages/admin/AdminCatalogBuilderPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -61,7 +61,7 @@ export function AppRoutes() {
       >
         <Route index element={<HubPage />} />
         <Route path="catalog" element={<CatalogPage />} />
-        <Route path="catalog/:productId" element={<Navigate to="/catalog" replace />} />
+        <Route path="catalog/:productId" element={<ProductDetailPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="requests" element={<RequestsPage />} />
@@ -82,15 +82,14 @@ export function AppRoutes() {
         >
           <Route index element={<AdminDashboardPage />} />
           <Route path="all-requests" element={<AdminAllRequestsPage />} />
-          <Route path="products" element={<Navigate to="/admin/catalog-builder?tab=products" replace />} />
-          <Route path="product-options" element={<Navigate to="/admin/catalog-builder?tab=config" replace />} />
-          <Route path="categories" element={<Navigate to="/admin/catalog-builder?tab=config" replace />} />
+          <Route path="products" element={<AdminProductsPage />} />
+          <Route path="product-options" element={<AdminProductOptionsPage />} />
+          <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
           <Route path="new-request" element={<AdminNewRequestPage />} />
           <Route path="returns" element={<AdminReturnsPage />} />
           <Route path="users" element={<AdminUsersPage />} />
-          <Route path="catalog-builder" element={<AdminCatalogBuilderPage />} />
           <Route path="design" element={<AdminDesignPage />} />
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
           <Route path="planning" element={<AdminPlanningPage />} />

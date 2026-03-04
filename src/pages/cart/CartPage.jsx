@@ -5,7 +5,6 @@ import { useReservationsInRange } from '@/hooks/use-products'
 import { useProducts } from '@/hooks/use-products'
 import { useAuth } from '@/lib/auth'
 import { ShoppingCart, Minus, Plus, Trash2, CalendarRange, ArrowRight, ArrowLeft } from 'lucide-react'
-import { DeviceIconInline } from '@/components/common/DeviceIcon'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -54,7 +53,7 @@ export function CartPage() {
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Your Cart</h1>
         <p className="text-muted-foreground mt-1">{items.length} item{items.length > 1 ? 's' : ''}</p>
         <motion.div
-          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -134,12 +133,11 @@ export function CartPage() {
                       className="relative bg-card md:!transform-none"
                     >
                       <div className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                        <div className="shrink-0 flex items-center justify-center">
-                          <DeviceIconInline
-                            name={item.product.name}
-                            category={item.product.category_name}
-                            subType={item.product.sub_type}
-                            className="h-12 w-12 !rounded-xl"
+                        <div className="h-16 w-16 rounded-md overflow-hidden bg-muted shrink-0">
+                          <img
+                            src={item.product.image_url}
+                            alt={item.product.name}
+                            className="h-full w-full object-cover"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -174,12 +172,12 @@ export function CartPage() {
       </Card>
 
       <div className="sticky bottom-20 md:bottom-0 z-10">
-        <Card className="bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 shadow-float border-border/50">
+        <Card className="bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground mb-4 max-md:hidden">
               Requesting as: <strong>{profile?.first_name} {profile?.last_name}</strong> ({user?.email})
             </p>
-            <Button variant="gradient" className="w-full gap-2" size="lg" disabled={!canProceed} onClick={() => navigate('/checkout')}>
+            <Button className="w-full gap-2" size="lg" disabled={!canProceed} onClick={() => navigate('/checkout')}>
               Continue to Project Form
               <ArrowRight className="h-4 w-4" />
             </Button>

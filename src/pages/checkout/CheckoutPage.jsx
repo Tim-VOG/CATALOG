@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/common/EmptyState'
-import { DeviceIconInline } from '@/components/common/DeviceIcon'
+import { BlurImage } from '@/components/common/BlurImage'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { cn } from '@/lib/utils'
 
@@ -254,7 +254,7 @@ export function CheckoutPage() {
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Checkout</h1>
         <p className="text-muted-foreground mt-1">Complete your equipment request</p>
         <motion.div
-          className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
+          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -283,9 +283,9 @@ export function CheckoutPage() {
               {label}
             </span>
             {i < STEPS.length - 1 && (
-              <div className="w-8 sm:w-12 h-0.5 bg-border/50 shrink-0 overflow-hidden relative rounded-full">
+              <div className="w-8 sm:w-12 h-px bg-border shrink-0 overflow-hidden relative">
                 <motion.div
-                  className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-primary to-accent rounded-full"
+                  className="absolute inset-y-0 left-0 w-full bg-primary"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: step > i ? 1 : 0 }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -449,12 +449,11 @@ export function CheckoutPage() {
               <CardContent className="px-6 pb-6 space-y-3">
                 {items.map((item) => (
                   <div key={item.product.id} className="flex items-start gap-4 p-3 rounded-xl bg-muted/30 border border-border/50">
-                    <div className="shrink-0 flex items-center justify-center">
-                      <DeviceIconInline
-                        name={item.product.name}
-                        category={item.product.category_name}
-                        subType={item.product.sub_type}
-                        className="h-12 w-12 !rounded-xl"
+                    <div className="h-14 w-14 rounded-lg overflow-hidden shrink-0">
+                      <BlurImage
+                        src={item.product.image_url || 'https://via.placeholder.com/56'}
+                        alt={item.product.name}
+                        containerClassName="h-14 w-14"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -514,7 +513,7 @@ export function CheckoutPage() {
                   <Button type="button" variant="outline" className="gap-2" onClick={() => setStep(0)}>
                     <ArrowLeft className="h-4 w-4" /> Edit Details
                   </Button>
-                  <Button type="submit" variant="gradient" className="gap-2" disabled={createRequest.isPending}>
+                  <Button type="submit" className="gap-2" disabled={createRequest.isPending}>
                     <Send className="h-4 w-4" />
                     {createRequest.isPending ? 'Submitting...' : 'Submit Request'}
                   </Button>

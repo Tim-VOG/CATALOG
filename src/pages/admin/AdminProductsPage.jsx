@@ -5,7 +5,7 @@ import { useCategories } from '@/hooks/use-categories'
 import { Plus, Pencil, Trash2, Search, Package, Box, Layers, AlertTriangle, CheckSquare, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
-import { DeviceIconInline } from '@/components/common/DeviceIcon'
+import { BlurImage } from '@/components/common/BlurImage'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -245,14 +245,14 @@ export function AdminProductsPage() {
                     isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
                   )}
                 >
-                  {/* Icon header */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-b from-muted/40 to-transparent flex items-center justify-center">
-                    <DeviceIconInline
-                      name={p.name}
-                      category={p.category_name}
-                      subType={p.sub_type}
-                      className="h-14 w-14 !rounded-xl"
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    <BlurImage
+                      src={p.image_url || 'https://via.placeholder.com/400x300?text=No+Image'}
+                      alt={p.name}
+                      className="transition-transform duration-300 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                     <CategoryBadge
                       className="absolute top-2.5 left-2.5"
                       name={p.category_name}

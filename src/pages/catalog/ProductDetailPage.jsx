@@ -16,11 +16,11 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
-import { DeviceIcon } from '@/components/common/DeviceIcon'
+import { BlurImage } from '@/components/common/BlurImage'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummaryCard'
 import { ProductConfigModal } from '@/components/catalog/ProductConfigModal'
-import { FadeIn, ScrollFadeIn, ScrollReveal, DynamicsItem } from '@/components/ui/motion'
+import { FadeIn, ScrollFadeIn } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
@@ -37,7 +37,7 @@ export function ProductDetailPage() {
 
   const product = productQuery.data
 
-  /* ── Loading / Error ──────────────────────────────────── */
+  /* ── Loading / Error ──────────────────────────────────────── */
   if (productQuery.isLoading || productQuery.isError) {
     return <QueryWrapper query={productQuery} skeleton={<ShowcaseSkeleton />} />
   }
@@ -49,7 +49,7 @@ export function ProductDetailPage() {
     )
   }
 
-  /* ── Derived data ─────────────────────────────────────── */
+  /* ── Derived data ─────────────────────────────────────────── */
   const activeLoans = loans.filter(
     (l) => l.product_id === product.id && (l.status === 'active' || l.status === 'pending')
   )
@@ -75,19 +75,18 @@ export function ProductDetailPage() {
     showToast(`${product.name} added to cart`)
   }
 
-  // Normalize includes
+  // Normalize includes: split semicolon/comma-separated strings into individual items
   const includesList = (product.includes || [])
     .flatMap((item) => item.split(/[;,]/))
     .map((s) => s.trim())
     .filter(Boolean)
   const hasIncludes = includesList.length > 0
-  const specs = product.specs || []
-  const hasSpecs = Array.isArray(specs) ? specs.length > 0 : Object.keys(specs).length > 0
+  const hasSpecs = product.specs && Object.keys(product.specs).length > 0
 
-  /* ── Render ─────────────────────────────────────────── */
+  /* ── Render ───────────────────────────────────────────────── */
   return (
     <div className="relative overflow-hidden">
-      {/* ── Back button ──────────────────────────────────── */}
+      {/* ── Back button ──────────────────────────────────────── */}
       <FadeIn className="max-w-6xl mx-auto px-4">
         <Link to="/catalog">
           <Button variant="ghost" size="sm" className="gap-2 -ml-2">
@@ -97,9 +96,9 @@ export function ProductDetailPage() {
         </Link>
       </FadeIn>
 
-      {/* ══════════════════════════════════════════════════════
-          HERO — Centered showcase with device icon
-         ══════════════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════════════
+          HERO — Centered showcase with orbital floating cards
+         ══════════════════════════════════════════════════════════ */}
       <div className="relative mt-4">
         {/* Ambient background blobs */}
         <motion.div
@@ -113,7 +112,7 @@ export function ProductDetailPage() {
           transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }}
         />
 
-        {/* ── Centered title + description ───────────────── */}
+        {/* ── Centered title + description ───────────────────── */}
         <FadeIn delay={0.05} y={16} className="text-center max-w-2xl mx-auto px-4">
           <CategoryBadge
             name={product.category_name}
@@ -131,9 +130,9 @@ export function ProductDetailPage() {
           )}
         </FadeIn>
 
-        {/* ── Desktop: icon + side cards ──────────────────── */}
+        {/* ── Desktop orbital: product ALWAYS centered ────────── */}
         <div className="hidden xl:grid xl:grid-cols-[1fr_auto_1fr] xl:gap-6 xl:items-start max-w-[1200px] mx-auto mt-10 px-4">
-          {/* LEFT — What's included */}
+          {/* LEFT — What's included (right-aligned within column) */}
           <FadeIn delay={0.2} y={24} className="flex justify-end pt-12">
             {hasIncludes ? (
               <div className="w-full max-w-[260px]">
@@ -142,17 +141,15 @@ export function ProductDetailPage() {
             ) : <div />}
           </FadeIn>
 
-          {/* CENTER — Device icon */}
+          {/* CENTER — Product hero image with halo (always centered) */}
           <FadeIn delay={0.1} y={12} className="flex justify-center">
             <ProductShowcase
-              name={product.name}
-              category={product.category_name}
-              subType={product.sub_type}
-              displaySettings={product.display_settings}
+              src={product.image_url}
+              alt={product.name}
             />
           </FadeIn>
 
-          {/* RIGHT — Availability */}
+          {/* RIGHT — Availability card (left-aligned within column) */}
           <FadeIn delay={0.25} y={24} className="pt-6">
             <div className="w-full max-w-[300px]">
               <AvailabilitySummaryCard
@@ -164,24 +161,21 @@ export function ProductDetailPage() {
           </FadeIn>
         </div>
 
-        {/* ── Mobile / Tablet ────────────────────────────── */}
+        {/* ── Mobile / Tablet: centered product only ─────────── */}
         <div className="xl:hidden max-w-sm mx-auto mt-8 px-4">
           <FadeIn delay={0.1}>
             <ProductShowcase
-              name={product.name}
-              category={product.category_name}
-              subType={product.sub_type}
-              displaySettings={product.display_settings}
+              src={product.image_url}
+              alt={product.name}
             />
           </FadeIn>
         </div>
       </div>
 
-      {/* ── CTA Button ────────────────────────────────────── */}
+      {/* ── CTA Button (centered, all breakpoints) ───────────── */}
       <FadeIn delay={0.3} y={10} className="flex justify-center mt-8 xl:mt-10 px-4">
         <Button
-          variant="gradient"
-          className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+          className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all duration-300"
           onClick={handleAdd}
           disabled={available <= 0}
         >
@@ -203,7 +197,7 @@ export function ProductDetailPage() {
         </Button>
       </FadeIn>
 
-      {/* ── Warnings ─────────────────────────────────────── */}
+      {/* ── Warnings ─────────────────────────────────────────── */}
       {hasWarnings && (
         <FadeIn delay={0.35} className="max-w-md mx-auto mt-6 px-4">
           <div className="space-y-2 bg-warning/10 rounded-xl p-3 border border-warning/20">
@@ -221,45 +215,46 @@ export function ProductDetailPage() {
         </FadeIn>
       )}
 
-      {/* ── Mobile cards ─────────────────────────────────── */}
+      {/* ── Mobile / Tablet cards (stacked) ─────────────────── */}
       <div className="xl:hidden max-w-md mx-auto mt-8 px-4 space-y-4">
-        <DynamicsItem index={0}>
+        <ScrollFadeIn>
           <AvailabilitySummaryCard
             available={available}
             totalStock={product.total_stock}
             reservations={reservations}
           />
-        </DynamicsItem>
+        </ScrollFadeIn>
 
         {hasIncludes && (
-          <DynamicsItem index={1}>
+          <ScrollFadeIn>
             <IncludesFloatingCard includes={includesList} />
-          </DynamicsItem>
+          </ScrollFadeIn>
         )}
       </div>
 
-      {/* ── Specifications ────────────────────────────────── */}
+      {/* ── Specifications ───────────────────────────────────── */}
       {hasSpecs && (
-        <ScrollReveal className="max-w-2xl mx-auto mt-10 px-4">
+        <ScrollFadeIn className="max-w-2xl mx-auto mt-10 px-4">
           <Card variant="glass">
             <CardContent className="p-5">
-              <h3 className="font-display font-semibold text-base mb-3">Specifications</h3>
+              <h3 className="font-semibold text-base mb-3">Specifications</h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                {(Array.isArray(specs) ? specs : Object.entries(specs).map(([k, v]) => ({ label: k, value: v }))).map((spec, idx) => (
-                  <div key={spec.label || idx} className="flex justify-between py-1.5 border-b border-border/20 last:border-0">
-                    <dt className="text-muted-foreground capitalize">{(spec.label || '').replace(/_/g, ' ')}</dt>
-                    <dd className="font-medium text-right">{spec.value}</dd>
+                {Object.entries(product.specs).map(([key, value]) => (
+                  <div key={key} className="flex justify-between py-1.5 border-b border-border/20 last:border-0">
+                    <dt className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</dt>
+                    <dd className="font-medium text-right">{value}</dd>
                   </div>
                 ))}
               </dl>
             </CardContent>
           </Card>
-        </ScrollReveal>
+        </ScrollFadeIn>
       )}
 
+      {/* bottom spacing */}
       <div className="h-12" />
 
-      {/* ── Config Modal ─────────────────────────────────── */}
+      {/* ── Config Modal ─────────────────────────────────────── */}
       {showConfig && (
         <ProductConfigModal
           product={product}
@@ -273,44 +268,45 @@ export function ProductDetailPage() {
   )
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    LOCAL COMPONENTS
-   ═══════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 
-/** Product showcase with large device icon + ambient halos */
-function ProductShowcase({ name, category, subType, displaySettings }) {
+/** Product image with halo bloom + pedestal reflection */
+function ProductShowcase({ src, alt }) {
   return (
-    <div className="relative w-full max-w-[420px] flex items-center justify-center py-8">
-      {/* Halo */}
+    <div className="relative w-full max-w-[420px]">
+      {/* Halo — radial glow behind product */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[130%] h-[130%] rounded-full pointer-events-none"
         style={{
           background: 'radial-gradient(circle, hsl(var(--primary) / 0.10) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%)',
         }}
       />
+      {/* Secondary halo — cooler tone */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[110%] h-[110%] rounded-full pointer-events-none"
         style={{
           background: 'radial-gradient(ellipse, hsl(var(--accent) / 0.06) 0%, transparent 60%)',
         }}
       />
-      {/* Pedestal */}
+      {/* Pedestal / reflection */}
       <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-[75%] h-5 bg-foreground/[0.04] rounded-[50%] blur-lg pointer-events-none" />
 
-      {/* Icon */}
-      <motion.div
-        whileHover={{ scale: 1.05, rotate: -2 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      >
-        <DeviceIcon
-          name={name}
-          category={category}
-          subType={subType}
-          size="xl"
-          animated={false}
-          displaySettings={displaySettings}
-        />
-      </motion.div>
+      {/* Image */}
+      <div className="relative group">
+        <motion.div
+          whileHover={{ scale: 1.03 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        >
+          <BlurImage
+            src={src || 'https://via.placeholder.com/600x600?text=No+Image'}
+            alt={alt}
+            containerClassName="aspect-square rounded-2xl bg-transparent"
+            className="object-contain transition-all duration-500"
+          />
+        </motion.div>
+      </div>
     </div>
   )
 }
@@ -337,24 +333,27 @@ function IncludesFloatingCard({ includes }) {
   )
 }
 
-/** Loading skeleton */
+/** Loading skeleton matching the showcase layout */
 function ShowcaseSkeleton() {
   return (
     <div className="max-w-6xl mx-auto px-4 space-y-8">
       <Skeleton className="h-8 w-32" />
+      {/* Title area */}
       <div className="flex flex-col items-center space-y-3">
         <Skeleton className="h-5 w-20 rounded-md" />
         <Skeleton className="h-12 w-64" />
         <SkeletonText lines={1} className="max-w-xs" />
       </div>
+      {/* Product + side cards */}
       <div className="hidden xl:grid xl:grid-cols-[1fr_auto_1fr] gap-6 items-center">
         <div className="flex justify-end"><Skeleton className="h-44 w-[260px] rounded-xl" /></div>
-        <Skeleton className="h-36 w-36 rounded-2xl" />
+        <Skeleton className="aspect-square w-[420px] rounded-2xl" />
         <Skeleton className="h-72 w-[300px] rounded-xl" />
       </div>
       <div className="xl:hidden flex justify-center">
-        <Skeleton className="h-36 w-36 rounded-2xl" />
+        <Skeleton className="aspect-square w-full max-w-sm rounded-2xl" />
       </div>
+      {/* CTA */}
       <div className="flex justify-center">
         <Skeleton className="h-14 w-52 rounded-full" />
       </div>
