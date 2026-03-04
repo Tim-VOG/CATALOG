@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 
 /**
@@ -27,9 +28,15 @@ export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobi
           </TableHeader>
           <TableBody>
             {data.map((item, i) => (
-              <TableRow key={keyExtractor(item)}>
+              <motion.tr
+                key={keyExtractor(item)}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: Math.min(i * 0.03, 0.3) }}
+                className="border-b border-border/30 transition-colors duration-200 hover:bg-muted/40"
+              >
                 {renderRow(item, i)}
-              </TableRow>
+              </motion.tr>
             ))}
           </TableBody>
         </Table>
@@ -38,9 +45,14 @@ export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobi
       {/* Mobile card list */}
       <div className="md:hidden space-y-3">
         {data.map((item, i) => (
-          <div key={keyExtractor(item)}>
+          <motion.div
+            key={keyExtractor(item)}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, delay: Math.min(i * 0.04, 0.3) }}
+          >
             {renderMobileCard(item, i)}
-          </div>
+          </motion.div>
         ))}
       </div>
     </>

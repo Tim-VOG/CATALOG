@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform } from 'motion/react'
+import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform, useScroll } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 // ── FadeIn ────────────────────────────────────────────────
@@ -99,14 +99,15 @@ const AnimateListItem = React.forwardRef(
 AnimateListItem.displayName = 'AnimateListItem'
 
 // ── PageTransition ────────────────────────────────────────
-// Wrapper pour transitions entre routes.
-function PageTransition({ children, className }) {
+// Wrapper pour transitions entre routes. Supporte direction forward/back.
+function PageTransition({ children, className, direction = 'forward' }) {
+  const yOffset = direction === 'back' ? -8 : 8
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      initial={{ opacity: 0, y: yOffset, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      exit={{ opacity: 0, y: -yOffset, filter: 'blur(4px)' }}
+      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={className}
     >
       {children}
@@ -137,8 +138,247 @@ const ScrollFadeIn = React.forwardRef(
 )
 ScrollFadeIn.displayName = 'ScrollFadeIn'
 
-// ── AnimatedCounter ──────────────────────────────────────
-// Spring-driven number counter that animates from 0 to value.
+// ── ScrollReveal ─────────────────────────────────────────
+// Configurable scroll-triggered animation with direction, distance, scale, rotate.
+const REVEAL_DIRECTIONS = {
+  up: { y: 30 },
+  down: { y: -30 },
+  left: { x: -40 },
+  right: { x: 40 },
+}
+
+const ScrollReveal = React.forwardRef(
+  ({
+    children,
+    className,
+    direction = 'up',
+    distance,
+    delay = 0,
+    duration = 0.6,
+    scale = 1,
+    rotate = 0,
+    once = true,
+    margin = '-80px',
+    ...props
+  }, ref) => {
+    const innerRef = React.useRef(null)
+    const combinedRef = ref || innerRef
+    const isInView = useInView(combinedRef, { once, margin })
+
+    const directionOffset = REVEAL_DIRECTIONS[direction] || REVEAL_DIRECTIONS.up
+    const initialState = {
+      opacity: 0,
+      ...directionOffset,
+      ...(distance != null && direction === 'up' && { y: distance }),
+      ...(distance != null && direction === 'down' && { y: -distance }),
+      ...(distance != null && direction === 'left' && { x: -distance }),
+      ...(distance != null && direction === 'right' && { x: distance }),
+      ...(scale !== 1 && { scale }),
+      ...(rotate !== 0 && { rotate }),
+    }
+
+    return (
+      <motion.div
+        ref={combinedRef}
+        initial={initialState}
+        animate={isInView ? { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 } : initialState}
+        transition={{
+          duration,
+          delay,
+          ease: [0.25, 0.46, 0.45, 0.94],
+        }}
+        className={className}
+        {...props}
+      >
+        {children}
+      </motion.div>
+    )
+  },
+)
+ScrollReveal.displayName = 'ScrollReveal'
+
+// ── StaggerReveal ────────────────────────────────────────
+// Container that staggers its children's reveal on scroll.
+function StaggerReveal({
+  children,
+  className,
+  stagger = 0.08,
+  direction = 'up',
+  duration = 0.5,
+  margin = '-60px',
+  ...props
+}) {
+  const ref = React.useRef(null)
+  const isInView = useInView(ref, { once: true, margin })
+
+  const dirOffset = REVEAL_DIRECTIONS[direction] || REVEAL_DIRECTIONS.up
+
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={isInView ? 'visible' : 'hidden'}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: stagger } },
+      }}
+      className={className}
+      {...props}
+    >
+      {React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child
+        return (
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, ...dirOffset },
+              visible: {
+                opacity: 1,
+                x: 0,
+                y: 0,
+                transition: { duration, ease: [0.25, 0.46, 0.45, 0.94] },
+              },
+            }}
+          >
+            {child}
+          </motion.div>
+        )
+      })}
+    </motion.div>
+  )
+}
+
+// ── ParallaxLayer ────────────────────────────────────────
+// Scroll-linked parallax effect. speed < 1 = slower, > 1 = faster.
+function ParallaxLayer({ children, className, speed = 0.5, ...props }) {
+  const ref = React.useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], [speed * -60, speed * 60])
+
+  return (
+    <motion.div ref={ref} style={{ y }} className={className} {...props}>
+      {children}
+    </motion.div>
+  )
+}
+
+// ── Magnetic ─────────────────────────────────────────────
+// Wrapper that subtly follows cursor on hover. For buttons, icons.
+function Magnetic({ children, className, strength = 0.3, ...props }) {
+  const ref = React.useRef(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const smoothX = useSpring(x, { stiffness: 300, damping: 20 })
+  const smoothY = useSpring(y, { stiffness: 300, damping: 20 })
+
+  const handleMouseMove = React.useCallback((e) => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    x.set((e.clientX - centerX) * strength)
+    y.set((e.clientY - centerY) * strength)
+  }, [x, y, strength])
+
+  const handleMouseLeave = React.useCallback(() => {
+    x.set(0)
+    y.set(0)
+  }, [x, y])
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ x: smoothX, y: smoothY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// ── CountUp ──────────────────────────────────────────────
+// Enhanced animated counter with formatting (separators, prefix, suffix).
+function CountUp({
+  value,
+  duration = 1.2,
+  className,
+  prefix = '',
+  suffix = '',
+  separator = ',',
+  decimals = 0,
+}) {
+  const ref = React.useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-40px' })
+  const motionValue = useMotionValue(0)
+  const springValue = useSpring(motionValue, { duration: duration * 1000 })
+  const display = useTransform(springValue, (v) => {
+    const fixed = v.toFixed(decimals)
+    if (!separator) return `${prefix}${fixed}${suffix}`
+    const [int, dec] = fixed.split('.')
+    const formatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+    return `${prefix}${formatted}${dec ? `.${dec}` : ''}${suffix}`
+  })
+  const [displayValue, setDisplayValue] = React.useState(`${prefix}0${suffix}`)
+
+  React.useEffect(() => {
+    if (isInView) motionValue.set(value)
+  }, [value, motionValue, isInView])
+
+  React.useEffect(() => {
+    const unsubscribe = display.on('change', (v) => setDisplayValue(v))
+    return unsubscribe
+  }, [display])
+
+  return <span ref={ref} className={className}>{displayValue}</span>
+}
+
+// ── TextReveal ───────────────────────────────────────────
+// Text that reveals word by word on scroll.
+function TextReveal({ text, className, stagger = 0.04, ...props }) {
+  const ref = React.useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-60px' })
+
+  const words = text.split(' ')
+
+  return (
+    <motion.span
+      ref={ref}
+      initial="hidden"
+      animate={isInView ? 'visible' : 'hidden'}
+      variants={{ visible: { transition: { staggerChildren: stagger } } }}
+      className={className}
+      {...props}
+    >
+      {words.map((word, i) => (
+        <motion.span
+          key={`${word}-${i}`}
+          className="inline-block mr-[0.25em]"
+          variants={{
+            hidden: { opacity: 0, y: 12, filter: 'blur(4px)' },
+            visible: {
+              opacity: 1,
+              y: 0,
+              filter: 'blur(0px)',
+              transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+            },
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.span>
+  )
+}
+
+// ── AnimatedCounter (legacy, kept for backward compat) ───
 function AnimatedCounter({ value, duration = 1.2, className }) {
   const motionValue = useMotionValue(0)
   const springValue = useSpring(motionValue, { duration: duration * 1000 })
@@ -193,6 +433,64 @@ const PressScale = React.forwardRef(
 )
 PressScale.displayName = 'PressScale'
 
+// ── DynamicsItem ─────────────────────────────────────────
+// UICollectionView/UIDynamics-inspired scroll item with per-item spring physics.
+// Each item has unique spring characteristics (stiffness, damping, mass)
+// creating a cascading wave effect — like iOS UIAttachmentBehavior with
+// varying attachment strengths. Items spring into view with natural physics.
+function DynamicsItem({ children, className, index = 0, once = true, ...props }) {
+  const ref = React.useRef(null)
+  const isInView = useInView(ref, { once, margin: '50px 0px -60px 0px' })
+
+  // Per-item spring variation — mimics UIDynamics spring attachment behavior
+  // Different items settle at different rates creating a natural cascade
+  const springConfig = React.useMemo(() => {
+    const variant = index % 6
+    return {
+      stiffness: 100 + variant * 15,           // 100–175
+      damping: 12 + (index % 4) * 2,           // 12–18
+      mass: 0.7 + (index % 3) * 0.15,          // 0.7–1.0
+    }
+  }, [index])
+
+  const targetY = useMotionValue(50)
+  const targetScale = useMotionValue(0.92)
+  const targetOpacity = useMotionValue(0)
+  const rotateDir = index % 2 === 0 ? 1 : -1
+  const targetRotate = useMotionValue(2 * rotateDir)
+
+  React.useEffect(() => {
+    if (isInView) {
+      targetY.set(0)
+      targetScale.set(1)
+      targetOpacity.set(1)
+      targetRotate.set(0)
+    }
+  }, [isInView, targetY, targetScale, targetOpacity, targetRotate])
+
+  const y = useSpring(targetY, springConfig)
+  const scale = useSpring(targetScale, {
+    stiffness: springConfig.stiffness + 40,
+    damping: springConfig.damping + 5,
+  })
+  const opacity = useSpring(targetOpacity, { stiffness: 200, damping: 25 })
+  const rotate = useSpring(targetRotate, {
+    stiffness: Math.max(springConfig.stiffness - 20, 60),
+    damping: springConfig.damping + 8,
+  })
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ y, scale, opacity, rotate }}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 // ── Fade overlay ──────────────────────────────────────────
 // Pour les overlays de dialog / dropdown.
 const FadeOverlay = React.forwardRef(
@@ -211,7 +509,10 @@ const FadeOverlay = React.forwardRef(
 FadeOverlay.displayName = 'FadeOverlay'
 
 export {
+  // Core re-exports
   AnimatePresence,
+  motion,
+  // Original primitives
   FadeIn,
   SlideIn,
   ScaleIn,
@@ -223,4 +524,13 @@ export {
   AnimatedCounter,
   ScalePop,
   PressScale,
+  // New v2 primitives
+  ScrollReveal,
+  StaggerReveal,
+  ParallaxLayer,
+  Magnetic,
+  CountUp,
+  TextReveal,
+  // UIDynamics-style primitives
+  DynamicsItem,
 }

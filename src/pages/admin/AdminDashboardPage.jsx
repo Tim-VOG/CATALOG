@@ -50,13 +50,17 @@ const fadeUp = (delay = 0) => ({
 function StatWidget({ label, value, icon: Icon, color, borderColor, bgColor, link }) {
   return (
     <Link to={link} className="block h-full group">
-      <Card variant="elevated" hoverable className={cn('h-full border-l-4', borderColor)}>
-        <CardContent className="px-5 py-5">
+      <Card variant="elevated" hoverable className={cn('h-full border-l-4 overflow-hidden', borderColor)}>
+        <CardContent className="px-5 py-5 relative">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
-            <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110', bgColor)}>
+            <motion.div
+              whileHover={{ scale: 1.15, rotate: -5 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              className={cn('h-9 w-9 rounded-xl flex items-center justify-center', bgColor)}
+            >
               <Icon className={cn('h-4 w-4', color)} />
-            </div>
+            </motion.div>
           </div>
           <AnimatedCounter value={value} className={cn('text-3xl font-display font-bold tracking-tight', color)} />
         </CardContent>
@@ -93,10 +97,11 @@ function ListWidget({ title, icon: Icon, iconColor, iconBg, headerRight, emptyIc
 // ── Chart widget wrapper ──
 function ChartWidget({ title, icon: Icon, children }) {
   return (
-    <Card variant="elevated" className="h-full flex flex-col overflow-hidden">
+    <Card variant="elevated" className="h-full flex flex-col overflow-hidden relative">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       <div className="flex items-center px-5 pt-4 pb-2">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-primary/10">
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
             <Icon className="h-4 w-4 text-primary" />
           </div>
           <CardTitle className="text-base font-semibold">{title}</CardTitle>

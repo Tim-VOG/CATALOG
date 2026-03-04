@@ -13,6 +13,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 2,
       refetchOnWindowFocus: false,
+      refetchOnMount: 'always',
+      retry: 1,
     },
   },
 })
@@ -22,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+            <App />
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

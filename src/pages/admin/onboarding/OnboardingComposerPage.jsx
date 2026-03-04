@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useOnboardingRecipients, useOnboardingBlockTemplates, useOnboardingEmail, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
 import { sendEmail } from '@/lib/api/send-email'
@@ -53,6 +53,9 @@ export function OnboardingComposerPage() {
   const [language, setLanguage] = useState('fr')
   const [subject, setSubject] = useState('')
   const [blocksConfig, setBlocksConfig] = useState([])
+  const blocksRef = useRef(blocksConfig)
+  // Keep ref in sync with state (solves closure/stale state issues in save handler)
+  useEffect(() => { blocksRef.current = blocksConfig }, [blocksConfig])
   const [emailDbId, setEmailDbId] = useState(emailId || null)
   const [saving, setSaving] = useState(false)
   const [sending, setSending] = useState(false)
@@ -145,13 +148,15 @@ export function OnboardingComposerPage() {
     setSaving(true)
     try {
       const recipient = selectedRecipient
+      // Use ref to always get the latest blocks (avoids stale closure after DnD reorder)
+      const currentBlocks = blocksRef.current
       const payload = {
         recipient_id: recipientId,
         recipient_name: `${recipient.first_name} ${recipient.last_name}`,
         recipient_email: recipient.email,
         language,
         subject: subject || `Welcome to VO Group, ${recipient.first_name}!`,
-        blocks_config: blocksConfig,
+        blocks_config: currentBlocks,
         status: 'draft',
         created_by: user?.id,
       }
@@ -161,6 +166,8 @@ export function OnboardingComposerPage() {
       } else {
         const created = await createEmail.mutateAsync(payload)
         setEmailDbId(created.id)
+        // Navigate to the edit URL so a page refresh preserves the saved draft
+        navigate(`/admin/onboarding/compose/${created.id}`, { replace: true })
         showToast('Draft created')
       }
     } catch (err) {

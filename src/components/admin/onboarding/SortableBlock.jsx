@@ -36,154 +36,335 @@ const BLOCK_COLORS = {
 
 const DEFAULT_COLOR = { bg: 'bg-muted/20', border: 'border-l-muted-foreground', text: 'text-muted-foreground', accent: '#64748b' }
 
+// Blocks that display a section label in the email (all except salutation and closing)
+const BLOCKS_WITH_SECTION_LABEL = [
+  'email_info', 'building_info', 'it_security', 'email_signature',
+  'sharepoint', 'teams', 'wifi', 'image_rights', 'faq_it', 'cta_link',
+]
+
+// Generic section label override — shown for every block that has a visible section header
+function SectionLabelOptions({ blockKey, options, update }) {
+  if (!BLOCKS_WITH_SECTION_LABEL.includes(blockKey)) return null
+  return (
+    <div className="space-y-2 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Section Label Override</Label>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs">Label FR</Label>
+          <Input
+            value={options.section_label_fr || ''}
+            onChange={(e) => update('section_label_fr', e.target.value)}
+            placeholder="Default from template"
+            className="text-sm"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Label EN</Label>
+          <Input
+            value={options.section_label_en || ''}
+            onChange={(e) => update('section_label_en', e.target.value)}
+            placeholder="Default from template"
+            className="text-sm"
+          />
+        </div>
+      </div>
+      <p className="text-[10px] text-muted-foreground/50">Leave empty to use the default section label</p>
+    </div>
+  )
+}
+
 // Block-specific option fields
 function BlockOptions({ blockKey, options, onChange }) {
   const update = (key, value) => onChange({ ...options, [key]: value })
 
+  // Render specific options + generic section label options
+  const sectionLabel = <SectionLabelOptions blockKey={blockKey} options={options} update={update} />
+
   switch (blockKey) {
-    case 'cta_link':
+    case 'salutation':
       return (
         <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Button Settings</Label>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Header Branding</Label>
           <div className="space-y-2">
             <div className="space-y-1">
-              <Label className="text-xs">Button URL</Label>
+              <Label className="text-xs">Header title</Label>
               <Input
-                value={options.url || ''}
-                onChange={(e) => update('url', e.target.value)}
-                placeholder="https://..."
+                value={options.header_title || ''}
+                onChange={(e) => update('header_title', e.target.value)}
+                placeholder="VO IT HUB"
                 className="text-sm"
               />
+              <p className="text-[10px] text-muted-foreground/50">Appears at the top of the email (e.g. "VO IT HUB")</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Label FR</Label>
+                <Label className="text-xs">Welcome title FR</Label>
                 <Input
-                  value={options.label_fr || ''}
-                  onChange={(e) => update('label_fr', e.target.value)}
-                  placeholder="Acceder"
+                  value={options.welcome_title_fr || ''}
+                  onChange={(e) => update('welcome_title_fr', e.target.value)}
+                  placeholder="Bienvenue {{first_name}} !"
                   className="text-sm"
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Label EN</Label>
+                <Label className="text-xs">Welcome title EN</Label>
                 <Input
-                  value={options.label_en || ''}
-                  onChange={(e) => update('label_en', e.target.value)}
-                  placeholder="Access"
+                  value={options.welcome_title_en || ''}
+                  onChange={(e) => update('welcome_title_en', e.target.value)}
+                  placeholder="Welcome {{first_name}}!"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground/50">Use {"{{first_name}}"}, {"{{last_name}}"}, etc. for dynamic values</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Subtitle FR</Label>
+                <Input
+                  value={options.header_subtitle_fr || ''}
+                  onChange={(e) => update('header_subtitle_fr', e.target.value)}
+                  placeholder="Votre guide d'int&eacute;gration chez VO Group"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Subtitle EN</Label>
+                <Input
+                  value={options.header_subtitle_en || ''}
+                  onChange={(e) => update('header_subtitle_en', e.target.value)}
+                  placeholder="Your onboarding guide at VO Group"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Accent color</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={options.accent_color || '#f97316'}
+                  onChange={(e) => update('accent_color', e.target.value)}
+                  className="h-8 w-12 rounded border border-border cursor-pointer"
+                />
+                <Input
+                  value={options.accent_color || ''}
+                  onChange={(e) => update('accent_color', e.target.value)}
+                  placeholder="#f97316"
+                  className="text-sm flex-1 font-mono"
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground/50">Used for the header stripe, title accents, and footer branding</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Footer text FR</Label>
+                <Input
+                  value={options.footer_text_fr || ''}
+                  onChange={(e) => update('footer_text_fr', e.target.value)}
+                  placeholder="Plateforme IT interne"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Footer text EN</Label>
+                <Input
+                  value={options.footer_text_en || ''}
+                  onChange={(e) => update('footer_text_en', e.target.value)}
+                  placeholder="Internal IT Platform"
                   className="text-sm"
                 />
               </div>
             </div>
           </div>
         </div>
+      )
+
+    case 'closing':
+      return (
+        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Footer Branding</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Auto-send notice FR</Label>
+              <Input
+                value={options.auto_notice_fr || ''}
+                onChange={(e) => update('auto_notice_fr', e.target.value)}
+                placeholder="Cet email a &eacute;t&eacute; envoy&eacute; automatiquement"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Auto-send notice EN</Label>
+              <Input
+                value={options.auto_notice_en || ''}
+                onChange={(e) => update('auto_notice_en', e.target.value)}
+                placeholder="This email was sent automatically"
+                className="text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      )
+
+    case 'cta_link':
+      return (
+        <>
+          <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Button Settings</Label>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Button URL</Label>
+                <Input
+                  value={options.url || ''}
+                  onChange={(e) => update('url', e.target.value)}
+                  placeholder="https://..."
+                  className="text-sm"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Label FR</Label>
+                  <Input
+                    value={options.label_fr || ''}
+                    onChange={(e) => update('label_fr', e.target.value)}
+                    placeholder="Acceder"
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Label EN</Label>
+                  <Input
+                    value={options.label_en || ''}
+                    onChange={(e) => update('label_en', e.target.value)}
+                    placeholder="Access"
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {sectionLabel}
+        </>
       )
 
     case 'sharepoint':
     case 'teams':
       return (
-        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Link Settings</Label>
-          <div className="space-y-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Link URL</Label>
-              <Input
-                value={options.url || ''}
-                onChange={(e) => update('url', e.target.value)}
-                placeholder="https://..."
-                className="text-sm"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+        <>
+          <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Link Settings</Label>
+            <div className="space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs">Button label FR</Label>
+                <Label className="text-xs">Link URL</Label>
                 <Input
-                  value={options.label_fr || ''}
-                  onChange={(e) => update('label_fr', e.target.value)}
+                  value={options.url || ''}
+                  onChange={(e) => update('url', e.target.value)}
+                  placeholder="https://..."
                   className="text-sm"
                 />
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Button label EN</Label>
-                <Input
-                  value={options.label_en || ''}
-                  onChange={(e) => update('label_en', e.target.value)}
-                  className="text-sm"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Button label FR</Label>
+                  <Input
+                    value={options.label_fr || ''}
+                    onChange={(e) => update('label_fr', e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Button label EN</Label>
+                  <Input
+                    value={options.label_en || ''}
+                    onChange={(e) => update('label_en', e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+          {sectionLabel}
+        </>
       )
 
     case 'wifi':
       return (
-        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Network Settings</Label>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Network name</Label>
-              <Input
-                value={options.network_name || ''}
-                onChange={(e) => update('network_name', e.target.value)}
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Guest network</Label>
-              <Input
-                value={options.guest_network || ''}
-                onChange={(e) => update('guest_network', e.target.value)}
-                className="text-sm"
-              />
+        <>
+          <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Network Settings</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Network name</Label>
+                <Input
+                  value={options.network_name || ''}
+                  onChange={(e) => update('network_name', e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Guest network</Label>
+                <Input
+                  value={options.guest_network || ''}
+                  onChange={(e) => update('guest_network', e.target.value)}
+                  className="text-sm"
+                />
+              </div>
             </div>
           </div>
-        </div>
+          {sectionLabel}
+        </>
       )
 
     case 'building_info':
       return (
-        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Building Details</Label>
-          <div className="space-y-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Building address</Label>
-              <Input
-                value={options.building_address || ''}
-                onChange={(e) => update('building_address', e.target.value)}
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Reception phone</Label>
-              <Input
-                value={options.reception_phone || ''}
-                onChange={(e) => update('reception_phone', e.target.value)}
-                className="text-sm"
-              />
+        <>
+          <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Building Details</Label>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Building address</Label>
+                <Input
+                  value={options.building_address || ''}
+                  onChange={(e) => update('building_address', e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Reception phone</Label>
+                <Input
+                  value={options.reception_phone || ''}
+                  onChange={(e) => update('reception_phone', e.target.value)}
+                  className="text-sm"
+                />
+              </div>
             </div>
           </div>
-        </div>
+          {sectionLabel}
+        </>
       )
 
     case 'faq_it':
       return (
-        <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Support Settings</Label>
-          <div className="space-y-1">
-            <Label className="text-xs">IT support email</Label>
-            <Input
-              value={options.support_email || ''}
-              onChange={(e) => update('support_email', e.target.value)}
-              placeholder="it-support@vo-group.be"
-              className="text-sm"
-            />
+        <>
+          <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Support Settings</Label>
+            <div className="space-y-1">
+              <Label className="text-xs">IT support email</Label>
+              <Input
+                value={options.support_email || ''}
+                onChange={(e) => update('support_email', e.target.value)}
+                placeholder="it-support@vo-group.be"
+                className="text-sm"
+              />
+            </div>
           </div>
-        </div>
+          {sectionLabel}
+        </>
       )
 
     default:
-      return null
+      // For blocks with no specific options, still show section label override if applicable
+      return sectionLabel
   }
 }
 

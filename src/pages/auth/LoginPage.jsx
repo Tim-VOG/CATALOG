@@ -91,9 +91,12 @@ export function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4 bg-background overflow-hidden">
+      {/* Dot grid background */}
+      <div className="absolute inset-0 bg-dot-grid opacity-30 pointer-events-none" />
+
       {/* Animated gradient blobs */}
       <motion.div
-        className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary/15 blur-3xl"
+        className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-primary/12 blur-[120px]"
         animate={{
           x: [0, 80, -40, 0],
           y: [0, -60, 40, 0],
@@ -101,12 +104,33 @@ export function LoginPage() {
         transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-accent/15 blur-3xl"
+        className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-accent/12 blur-[100px]"
         animate={{
           x: [0, -60, 40, 0],
           y: [0, 50, -30, 0],
         }}
         transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {/* Third blob for richer bg */}
+      <motion.div
+        className="absolute top-[30%] right-[20%] w-[300px] h-[300px] rounded-full bg-violet-500/8 blur-[80px]"
+        animate={{
+          x: [0, 30, -20, 0],
+          y: [0, -40, 20, 0],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Floating geometric decorations */}
+      <motion.div
+        className="absolute top-[15%] right-[15%] w-16 h-16 border border-primary/15 rounded-xl pointer-events-none"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+      />
+      <motion.div
+        className="absolute bottom-[20%] left-[12%] w-10 h-10 border border-accent/15 rounded-full pointer-events-none"
+        animate={{ y: [0, -15, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
       />
 
       {/* Card with glass effect and entry animation */}
@@ -116,7 +140,10 @@ export function LoginPage() {
         transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.1 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card variant="glass" className="backdrop-saturate-150">
+        <Card variant="glass" tilt className="backdrop-saturate-150 overflow-hidden">
+          {/* Gradient top accent */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
           <CardHeader className="text-center pb-2">
             {/* Logo / icon with breathing animation */}
             <motion.div
@@ -127,7 +154,7 @@ export function LoginPage() {
               {logoUrl ? (
                 <img src={logoUrl} alt={appName} className="h-14 w-auto object-contain" />
               ) : (
-                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 text-primary">
+                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 text-primary shadow-glow-primary">
                   <Package className="h-8 w-8" />
                 </div>
               )}
@@ -163,7 +190,8 @@ export function LoginPage() {
               transition={{ delay: 0.6, duration: 0.4 }}
             >
               <Button
-                className="w-full gap-3 h-12 text-base font-medium"
+                variant="gradient"
+                className="w-full gap-3 h-12 text-base font-medium rounded-xl"
                 onClick={() => signInWithMicrosoft?.()}
               >
                 <MicrosoftIcon />
@@ -190,7 +218,7 @@ export function LoginPage() {
               >
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
+                    <span className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
                   </div>
                   <div className="relative flex justify-center text-xs">
                     <span className="bg-card px-3 text-muted-foreground/50 flex items-center gap-1.5">
@@ -204,17 +232,19 @@ export function LoginPage() {
                   {DEV_ACCOUNTS.map((account) => {
                     const Icon = account.icon
                     return (
-                      <button
+                      <motion.button
                         key={account.email}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => handleDevLogin(account)}
                         disabled={devLoading !== null}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 ${account.bg}`}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 ${account.bg}`}
                       >
                         <Icon className={`h-4 w-4 ${account.color}`} />
                         <span className="text-foreground">
                           {devLoading === account.email ? 'Signing in...' : account.label}
                         </span>
-                      </button>
+                      </motion.button>
                     )
                   })}
                 </div>
