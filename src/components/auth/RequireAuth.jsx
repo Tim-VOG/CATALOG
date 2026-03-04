@@ -1,16 +1,13 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { PageLoading } from '@/components/common/LoadingSpinner'
 
 export function RequireAuth({ children }) {
   const { user, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    )
+    return <PageLoading />
   }
 
   if (!user) {

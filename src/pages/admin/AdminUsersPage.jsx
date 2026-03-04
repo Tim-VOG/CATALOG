@@ -103,7 +103,7 @@ export function AdminUsersPage() {
 
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles({ search: search.trim() || undefined, role: roleFilter })
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
-  const { data: invitations = [], isLoading: invitationsLoading } = useInvitations('pending')
+  const { data: invitations = [] } = useInvitations('pending')
   const cancelInvitation = useDeleteInvitation()
 
   const updateProfile = useUpdateProfile()
@@ -208,7 +208,7 @@ export function AdminUsersPage() {
     }
   }
 
-  if (profilesLoading || accessLoading || invitationsLoading) return <PageLoading />
+  if (profilesLoading || accessLoading) return <PageLoading />
 
   return (
     <div className="space-y-6">

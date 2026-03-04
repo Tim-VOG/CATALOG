@@ -5,6 +5,7 @@ export const useInvitations = (status = 'pending') =>
   useQuery({
     queryKey: ['invitations', status],
     queryFn: () => getInvitations(status),
+    retry: false, // Don't retry if table doesn't exist yet
   })
 
 export const useCreateInvitation = () => {

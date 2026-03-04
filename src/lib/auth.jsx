@@ -1,5 +1,5 @@
 // Authentication Context
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from './supabase'
 import { getProfile, updateProfile } from './api/profiles'
 import { getInvitationByEmail, acceptInvitation } from './api/invitations'
@@ -13,6 +13,32 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const invitationCheckedRef = useRef(false)
+
+  // Background invitation check — runs after page is already loaded
+  // so it never blocks the loading state
+  const checkInvitation = useCallback(async (profileData) => {
+    if (!profileData?.email || invitationCheckedRef.current) return
+    invitationCheckedRef.current = true
+    try {
+      const invitation = await getInvitationByEmail(profileData.email)
+      if (invitation) {
+        const modules = ['onboarding', 'it_form', 'functional_mailbox', 'offboarding']
+        await Promise.all(
+          modules.map((key) => upsertModuleAccess(profileData.id, key, true))
+        )
+        if (invitation.business_unit && !profileData.business_unit) {
+          await updateProfile(profileData.id, { business_unit: invitation.business_unit })
+        }
+        await acceptInvitation(invitation.id)
+        const refreshed = await getProfile(profileData.id)
+        setProfile(refreshed)
+      }
+    } catch (invErr) {
+      // Silently ignore — table may not exist yet or network issue
+      console.warn('[Auth] Invitation check skipped:', invErr?.message)
+    }
+  }, [])
 
   // Load profile — extracted so we can call it from multiple places
   // Also performs client-side name extraction if profile names are empty
@@ -45,30 +71,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       setProfile(profileData)
-
-      // Check for pending invitation and auto-grant all module access
-      if (profileData?.email) {
-        try {
-          const invitation = await getInvitationByEmail(profileData.email)
-          if (invitation) {
-            const modules = ['onboarding', 'it_form', 'functional_mailbox', 'offboarding']
-            await Promise.all(
-              modules.map((key) => upsertModuleAccess(profileData.id, key, true))
-            )
-            if (invitation.business_unit && !profileData.business_unit) {
-              await updateProfile(profileData.id, { business_unit: invitation.business_unit })
-            }
-            await acceptInvitation(invitation.id)
-            // Reload profile to reflect business_unit change
-            const refreshed = await getProfile(profileData.id)
-            setProfile(refreshed)
-            return refreshed
-          }
-        } catch (invErr) {
-          console.warn('[Auth] Invitation check failed:', invErr?.message)
-        }
-      }
-
       return profileData
     } catch (err) {
       console.error('[Auth] Error loading profile:', err?.message || err)
@@ -111,10 +113,12 @@ export const AuthProvider = ({ children }) => {
         // has fully committed its internal auth state
         setTimeout(async () => {
           if (!mounted) return
-          await loadProfile(currentUser.id)
+          const profileData = await loadProfile(currentUser.id)
           if (mounted) {
             setLoading(false)
             clearTimeout(timeout)
+            // Background invitation check — never blocks page loading
+            if (profileData) checkInvitation(profileData)
           }
         }, 0)
       }
@@ -125,7 +129,7 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(timeout)
       subscription.unsubscribe()
     }
-  }, [loadProfile])
+  }, [loadProfile, checkInvitation])
 
   const refreshUserProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession()
