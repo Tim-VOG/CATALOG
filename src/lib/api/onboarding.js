@@ -100,3 +100,25 @@ export const deleteOnboardingEmail = async (id) => {
     .eq('id', id)
   if (error) throw error
 }
+
+// ── Save Block Template Defaults ──
+
+export const saveBlockTemplateDefaults = async (blocksConfig) => {
+  // Batch-update each block template with current content, options, enabled state, and sort order
+  const updates = blocksConfig.map((block, index) => ({
+    block_key: block.block_key,
+    default_content_fr: block.content_fr,
+    default_content_en: block.content_en,
+    default_options: block.options || {},
+    default_enabled: block.enabled ?? true,
+    sort_order: index + 1,
+  }))
+
+  // Upsert all blocks by block_key
+  const { data, error } = await supabase
+    .from('onboarding_block_templates')
+    .upsert(updates, { onConflict: 'block_key' })
+    .select()
+  if (error) throw error
+  return data
+}

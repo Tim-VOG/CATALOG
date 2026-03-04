@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth'
 import {
   Search, Trash2,
   Package, UserPlus, ClipboardList, Mail, UserMinus,
-  Check, Loader2, ShieldCheck, Clock, X, Send,
+  Check, Loader2, ShieldCheck, Clock, X, Send, Pencil,
 } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
@@ -100,6 +100,7 @@ export function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [buFilter, setBuFilter] = useState('all')
   const [inviteOpen, setInviteOpen] = useState(false)
+  const [editingInvitation, setEditingInvitation] = useState(null)
 
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles({ search: search.trim() || undefined, role: roleFilter })
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
@@ -254,28 +255,48 @@ export function AdminUsersPage() {
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {invitations.map((inv) => (
-              <div
-                key={inv.id}
-                className="flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-sm"
-              >
-                <span className="text-foreground">
-                  {inv.first_name || inv.last_name
-                    ? `${inv.first_name} ${inv.last_name}`.trim()
-                    : inv.email}
-                </span>
-                {(inv.first_name || inv.last_name) && (
-                  <span className="text-muted-foreground text-xs">{inv.email}</span>
-                )}
-                <button
-                  onClick={() => handleCancelInvitation(inv)}
-                  className="ml-1 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
-                  title="Cancel invitation"
+            {invitations.map((inv) => {
+              const isSent = !!inv.email_sent_at
+              return (
+                <div
+                  key={inv.id}
+                  className="flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-sm"
                 >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
+                  <span className="text-foreground">
+                    {inv.first_name || inv.last_name
+                      ? `${inv.first_name} ${inv.last_name}`.trim()
+                      : inv.email}
+                  </span>
+                  {(inv.first_name || inv.last_name) && (
+                    <span className="text-muted-foreground text-xs">{inv.email}</span>
+                  )}
+                  {isSent ? (
+                    <Badge className="bg-green-500/20 text-green-400 text-[10px]">Sent</Badge>
+                  ) : (
+                    <Badge className="bg-muted text-muted-foreground text-[10px]">Draft</Badge>
+                  )}
+                  {!isSent && (
+                    <button
+                      onClick={() => {
+                        setEditingInvitation(inv)
+                        setInviteOpen(true)
+                      }}
+                      className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                      title="Edit draft"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleCancelInvitation(inv)}
+                    className="text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
+                    title="Cancel invitation"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
@@ -509,7 +530,14 @@ export function AdminUsersPage() {
         </DialogContent>
       </Dialog>
       {/* Invite user dialog */}
-      <InviteUserDialog open={inviteOpen} onOpenChange={setInviteOpen} />
+      <InviteUserDialog
+        open={inviteOpen}
+        onOpenChange={(open) => {
+          setInviteOpen(open)
+          if (!open) setEditingInvitation(null)
+        }}
+        invitation={editingInvitation}
+      />
     </div>
   )
 }

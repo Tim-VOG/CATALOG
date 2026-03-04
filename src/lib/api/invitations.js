@@ -15,10 +15,24 @@ export const getInvitations = async (status = 'pending') => {
   return data
 }
 
-export const createInvitation = async ({ email, first_name, last_name, business_unit, invited_by }) => {
+export const createInvitation = async ({ email, first_name, last_name, business_unit, invited_by, email_subject, email_body }) => {
+  const row = { email: email.toLowerCase().trim(), first_name, last_name, business_unit, invited_by }
+  if (email_subject) row.email_subject = email_subject
+  if (email_body) row.email_body = email_body
   const { data, error } = await supabase
     .from('user_invitations')
-    .insert({ email: email.toLowerCase().trim(), first_name, last_name, business_unit, invited_by })
+    .insert(row)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const updateInvitation = async (id, updates) => {
+  const { data, error } = await supabase
+    .from('user_invitations')
+    .update(updates)
+    .eq('id', id)
     .select()
     .single()
   if (error) throw error

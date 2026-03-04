@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getInvitations, createInvitation, deleteInvitation } from '@/lib/api/invitations'
+import { getInvitations, createInvitation, updateInvitation, deleteInvitation } from '@/lib/api/invitations'
 
 export const useInvitations = (status = 'pending') =>
   useQuery({
@@ -12,6 +12,14 @@ export const useCreateInvitation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: createInvitation,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invitations'] }),
+  })
+}
+
+export const useUpdateInvitation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...updates }) => updateInvitation(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invitations'] }),
   })
 }
