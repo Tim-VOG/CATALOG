@@ -2,6 +2,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from './supabase'
 import { getProfile, updateProfile } from './api/profiles'
+import { getInvitationByEmail, acceptInvitation } from './api/invitations'
+import { upsertModuleAccess } from './api/module-access'
 
 const AuthContext = createContext({})
 
@@ -43,6 +45,30 @@ export const AuthProvider = ({ children }) => {
       }
 
       setProfile(profileData)
+
+      // Check for pending invitation and auto-grant all module access
+      if (profileData?.email) {
+        try {
+          const invitation = await getInvitationByEmail(profileData.email)
+          if (invitation) {
+            const modules = ['onboarding', 'it_form', 'functional_mailbox', 'offboarding']
+            await Promise.all(
+              modules.map((key) => upsertModuleAccess(profileData.id, key, true))
+            )
+            if (invitation.business_unit && !profileData.business_unit) {
+              await updateProfile(profileData.id, { business_unit: invitation.business_unit })
+            }
+            await acceptInvitation(invitation.id)
+            // Reload profile to reflect business_unit change
+            const refreshed = await getProfile(profileData.id)
+            setProfile(refreshed)
+            return refreshed
+          }
+        } catch (invErr) {
+          console.warn('[Auth] Invitation check failed:', invErr?.message)
+        }
+      }
+
       return profileData
     } catch (err) {
       console.error('[Auth] Error loading profile:', err?.message || err)

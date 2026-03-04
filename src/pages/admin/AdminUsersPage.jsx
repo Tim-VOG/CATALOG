@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useProfiles, useUpdateProfile, useUpdateProfileRole, useToggleProfileActive, useDeleteProfile } from '@/hooks/use-profiles'
 import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-access'
+import { useInvitations, useDeleteInvitation } from '@/hooks/use-invitations'
 import { useAuth } from '@/lib/auth'
 import {
   Search, Trash2,
   Package, UserPlus, ClipboardList, Mail, UserMinus,
-  Check, Loader2, ShieldCheck,
+  Check, Loader2, ShieldCheck, Clock, X, Send,
 } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { InviteUserDialog } from '@/components/admin/InviteUserDialog'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
@@ -97,9 +99,12 @@ export function AdminUsersPage() {
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [buFilter, setBuFilter] = useState('all')
+  const [inviteOpen, setInviteOpen] = useState(false)
 
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles({ search: search.trim() || undefined, role: roleFilter })
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
+  const { data: invitations = [], isLoading: invitationsLoading } = useInvitations('pending')
+  const cancelInvitation = useDeleteInvitation()
 
   const updateProfile = useUpdateProfile()
   const updateRole = useUpdateProfileRole()
@@ -194,7 +199,16 @@ export function AdminUsersPage() {
 
   /* ---------- render ---------- */
 
-  if (profilesLoading || accessLoading) return <PageLoading />
+  const handleCancelInvitation = async (inv) => {
+    try {
+      await cancelInvitation.mutateAsync(inv.id)
+      showToast('Invitation cancelled')
+    } catch (err) {
+      showToast(err.message || 'Failed to cancel invitation', 'error')
+    }
+  }
+
+  if (profilesLoading || accessLoading || invitationsLoading) return <PageLoading />
 
   return (
     <div className="space-y-6">
@@ -202,7 +216,12 @@ export function AdminUsersPage() {
       <AdminPageHeader
         title="Users"
         description={`${filtered.length} user${filtered.length !== 1 ? 's' : ''}`}
-      />
+      >
+        <Button onClick={() => setInviteOpen(true)} size="sm">
+          <Send className="h-4 w-4 mr-2" />
+          Invite User
+        </Button>
+      </AdminPageHeader>
 
       {/* Module legend */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -224,6 +243,42 @@ export function AdminUsersPage() {
           <span>Admin (full access)</span>
         </div>
       </div>
+
+      {/* Pending invitations banner */}
+      {invitations.length > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="h-4 w-4 text-amber-500" />
+            <span className="text-sm font-medium text-amber-400">
+              Pending Invitations ({invitations.length})
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {invitations.map((inv) => (
+              <div
+                key={inv.id}
+                className="flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-sm"
+              >
+                <span className="text-foreground">
+                  {inv.first_name || inv.last_name
+                    ? `${inv.first_name} ${inv.last_name}`.trim()
+                    : inv.email}
+                </span>
+                {(inv.first_name || inv.last_name) && (
+                  <span className="text-muted-foreground text-xs">{inv.email}</span>
+                )}
+                <button
+                  onClick={() => handleCancelInvitation(inv)}
+                  className="ml-1 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
+                  title="Cancel invitation"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Search + filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
@@ -453,6 +508,8 @@ export function AdminUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Invite user dialog */}
+      <InviteUserDialog open={inviteOpen} onOpenChange={setInviteOpen} />
     </div>
   )
 }
