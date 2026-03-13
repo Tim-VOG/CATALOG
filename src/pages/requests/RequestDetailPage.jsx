@@ -13,6 +13,11 @@ import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { ExtensionRequestDialog } from '@/components/requests/ExtensionRequestDialog'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -70,7 +75,6 @@ export function RequestDetailPage() {
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
   const handleCancel = async () => {
-    if (!confirm('Cancel this request?')) return
     try {
       await cancelRequest.mutateAsync(request.id)
       showToast('Request cancelled')
@@ -119,9 +123,27 @@ export function RequestDetailPage() {
             </Button>
           )}
           {canCancel && (
-            <Button variant="destructive" size="sm" className="gap-2" onClick={handleCancel}>
-              <XCircle className="h-4 w-4" /> Cancel
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="gap-2">
+                  <XCircle className="h-4 w-4" /> Cancel
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel this request?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. Your equipment request will be cancelled.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep request</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCancel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Yes, cancel request
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>

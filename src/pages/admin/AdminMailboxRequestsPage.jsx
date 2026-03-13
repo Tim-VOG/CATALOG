@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useMailboxRequests, useUpdateMailboxRequest, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
+import { formatDate, formatDateTime } from '@/lib/utils/format-date'
 import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
@@ -83,8 +84,7 @@ function fillTemplate(template, req, appName) {
     .replace(/\{\{app_name\}\}/g, appName)
 }
 
-// ── Format date for display ──
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : null
+const fmtDate = (d) => formatDate(d) || null
 
 // ── Banner download (fetch blob → Save As dialog) ──
 function BannerDownloadButton({ url, projectName }) {
@@ -150,7 +150,7 @@ function RequestInfoCard({ req }) {
     ['Deletion Date', fmtDate(req.deletion_date)],
     ['Requested By', req.requested_by_name],
     ['Requester Email', req.requester_email],
-    ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
+    ['Submitted', formatDateTime(req.created_at)],
     ['1Password Link', req.onepassword_link],
   ].filter(([, v]) => v)
 

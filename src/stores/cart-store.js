@@ -14,10 +14,20 @@ export const useCartStore = create(
         const items = get().items
         const existing = items.find((i) => i.product.id === product.id)
         if (existing) {
+          // Deep merge options — arrays are concatenated (deduplicated), scalars are replaced
+          const mergedOptions = { ...existing.options }
+          for (const [key, value] of Object.entries(options)) {
+            if (Array.isArray(value) && Array.isArray(mergedOptions[key])) {
+              const combined = [...mergedOptions[key], ...value]
+              mergedOptions[key] = [...new Set(combined.map(v => typeof v === 'object' ? JSON.stringify(v) : v))].map(v => { try { return JSON.parse(v) } catch { return v } })
+            } else {
+              mergedOptions[key] = value
+            }
+          }
           set({
             items: items.map((i) =>
               i.product.id === product.id
-                ? { ...i, quantity: i.quantity + quantity, options: { ...i.options, ...options } }
+                ? { ...i, quantity: i.quantity + quantity, options: mergedOptions }
                 : i
             ),
           })

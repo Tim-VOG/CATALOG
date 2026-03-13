@@ -138,27 +138,6 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    if (error) throw error
-    return data
-  }
-
-  const signUp = async (email, password, metadata = {}) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata
-      }
-    })
-    if (error) throw error
-    return data
-  }
-
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -178,11 +157,6 @@ export const AuthProvider = ({ children }) => {
     if (error) throw error
   }
 
-  const resetPassword = async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email)
-    if (error) throw error
-  }
-
   const isAdmin = profile?.role === 'admin'
 
   const value = {
@@ -190,11 +164,8 @@ export const AuthProvider = ({ children }) => {
     profile,
     loading,
     isAdmin,
-    signIn,
-    signUp,
     signOut,
     signInWithMicrosoft,
-    resetPassword,
     refreshProfile: refreshUserProfile
   }
 

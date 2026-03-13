@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { motion } from 'motion/react'
 import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
@@ -9,7 +10,8 @@ import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { CompactDateBar } from '@/components/catalog/CompactDateBar'
 import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
-import { Package } from 'lucide-react'
+import { Package, Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
@@ -17,7 +19,9 @@ import { useAnnounce } from '@/components/common/LiveRegion'
 import { cn } from '@/lib/utils'
 
 export function CatalogPage() {
+  usePageTitle('Catalog')
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const productsQuery = useProducts()
   const products = productsQuery.data || []
@@ -46,7 +50,10 @@ export function CatalogPage() {
   const filtered = products.filter((p) => {
     const matchesCategory =
       selectedCategory === 'All' || p.category_name === selectedCategory
-    return matchesCategory
+    const matchesSearch = !searchQuery ||
+      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesCategory && matchesSearch
   })
 
   const handleAddToCart = (product, qty, options) => {
@@ -101,6 +108,17 @@ export function CatalogPage() {
         endDate={endDate}
         onChange={handleDatesChange}
       />
+
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search equipment..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9 max-w-sm"
+        />
+      </div>
 
       {/* Category filters — animated pills */}
       <div className="flex flex-wrap gap-2">

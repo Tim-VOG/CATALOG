@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { updateProfile } from '@/lib/api/profiles'
@@ -22,6 +23,7 @@ const MAX_AVATAR_SIZE = 2 * 1024 * 1024 // 2MB
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export function ProfilePage() {
+  usePageTitle('Profile')
   const { user, profile, loading, refreshProfile } = useAuth()
   const { data: requests = [] } = useMyLoanRequests(user?.id)
   const showToast = useUIStore((s) => s.showToast)

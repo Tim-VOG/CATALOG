@@ -225,11 +225,14 @@ export function CheckoutPage() {
       clearCart()
       showToast('Request submitted successfully!')
 
-      // Send emails (fire and forget — don't block navigation)
-      sendCheckoutEmails({
+      // Send emails and report failures
+      const emailResult = await sendCheckoutEmails({
         fieldValues, items, startDate, endDate,
         profile, user, settings, locations, ccEmails,
       })
+      if (!emailResult.success) {
+        showToast('Request submitted but some emails failed to send', 'error')
+      }
 
       navigate('/requests')
     } catch (err) {

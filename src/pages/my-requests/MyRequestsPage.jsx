@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { motion } from 'motion/react'
 import { Inbox, ArrowRight, CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -46,6 +47,7 @@ function CalendarSkeleton() {
 
 // ── Main Page ──
 export function MyRequestsPage() {
+  usePageTitle('My Requests')
   const { events, isLoading, counts, hasCatalog, hasItForm, hasMailbox } = useCalendarRequests()
 
   const totalCount = events.length

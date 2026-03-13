@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
+import { formatDate, formatDateTime } from '@/lib/utils/format-date'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { useUIStore } from '@/stores/ui-store'
 import {
@@ -118,7 +119,7 @@ export function AdminItRequestsPage() {
                       {req.start_date && (
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(req.start_date).toLocaleDateString('fr-FR')}
+                          {formatDate(req.start_date)}
                         </span>
                       )}
                       {req.needs_computer ? (
@@ -136,7 +137,7 @@ export function AdminItRequestsPage() {
                     </div>
                     {req.requested_by_name && (
                       <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-                        Requested by {req.requested_by_name} &middot; {new Date(req.created_at).toLocaleDateString('fr-FR')}
+                        Requested by {req.requested_by_name} &middot; {formatDate(req.created_at)}
                       </p>
                     )}
                   </div>
@@ -193,15 +194,15 @@ export function AdminItRequestsPage() {
                 ['Corporate Email', detailRequest.generated_email],
                 ['Personal Email', detailRequest.personal_email],
                 ['Signature Title', detailRequest.signature_title],
-                ['Starting Date', detailRequest.start_date ? new Date(detailRequest.start_date).toLocaleDateString('fr-FR') : null],
-                ['Leaving Date', detailRequest.leaving_date ? new Date(detailRequest.leaving_date).toLocaleDateString('fr-FR') : null],
+                ['Starting Date', detailRequest.start_date ? formatDate(detailRequest.start_date) : null],
+                ['Leaving Date', detailRequest.leaving_date ? formatDate(detailRequest.leaving_date) : null],
                 ['Computer', detailRequest.needs_computer ? 'Yes' : 'No'],
                 ['Access Needed', detailRequest.access_needs?.join(', ')],
                 ['SharePoint URL', detailRequest.sharepoint_url],
                 ['Listing', detailRequest.listing],
-                ['Listing Date', detailRequest.listing_date ? new Date(detailRequest.listing_date).toLocaleDateString('fr-FR') : null],
+                ['Listing Date', detailRequest.listing_date ? formatDate(detailRequest.listing_date) : null],
                 ['Requested By', detailRequest.requested_by_name],
-                ['Submitted', new Date(detailRequest.created_at).toLocaleString('fr-FR')],
+                ['Submitted', formatDateTime(detailRequest.created_at)],
               ].map(([label, value]) => value ? (
                 <div key={label} className="flex items-start gap-3 text-sm">
                   <span className="font-semibold text-muted-foreground w-32 shrink-0">{label}</span>

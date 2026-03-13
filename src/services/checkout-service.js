@@ -86,11 +86,12 @@ export function buildLoanRequestPayload({ user, fieldValues, activeFields, items
 }
 
 /**
- * Send post-checkout emails (fire-and-forget).
+ * Send post-checkout emails with error reporting.
  * 1) Order confirmation to the user
  * 2) Admin notification to configured recipients
+ * Returns { success, errors } so callers can show feedback.
  */
-export function sendCheckoutEmails({
+export async function sendCheckoutEmails({
   fieldValues,
   items,
   startDate,
@@ -120,10 +121,12 @@ export function sendCheckoutEmails({
     options: i.options || {},
   }))
 
+  const errors = []
+
   // 1) User confirmation email
-  getEmailTemplateByKey('order_confirmation')
-    .then(async (template) => {
-      if (!template || !template.is_active) return
+  try {
+    const template = await getEmailTemplateByKey('order_confirmation')
+    if (template && template.is_active) {
       const requestData = {
         user_first_name: profile?.first_name || '',
         user_last_name: profile?.last_name || '',
@@ -136,39 +139,46 @@ export function sendCheckoutEmails({
         custom_fields: fieldValues,
       }
       const draft = generateStatusEmailDraft({ template, request: requestData, items: itemData, appName, logoUrl, tagline, logoHeight })
-      if (!draft.to) return
-      const result = await sendEmail({ to: draft.to, cc: validCcEmails.length > 0 ? validCcEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
-      if (!result.success) console.error('[order_confirmation] Send failed:', result.error)
-    })
-    .catch((err) => console.error('[order_confirmation] Error:', err))
+      if (draft.to) {
+        const result = await sendEmail({ to: draft.to, cc: validCcEmails.length > 0 ? validCcEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+        if (!result.success) errors.push('Confirmation email failed to send')
+      }
+    }
+  } catch (err) {
+    errors.push('Confirmation email failed to send')
+  }
 
   // 2) Admin notification email
-  const detailsCard = generateDetailsCard({
-    project_name: fieldValues.project_name || '',
-    pickup_date: formatDate(startDate),
-    return_date: formatDate(endDate),
-  })
-  const adminItemsHtml = generateItemsHtml(itemData)
-  const adminBody = wrapEmailHtml(
-    `New equipment request submitted by <strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong>.\n\n` +
-    detailsCard + '\n\n' +
-    adminItemsHtml,
-    { appName, logoUrl, tagline, logoHeight }
-  )
+  try {
+    const detailsCard = generateDetailsCard({
+      project_name: fieldValues.project_name || '',
+      pickup_date: formatDate(startDate),
+      return_date: formatDate(endDate),
+    })
+    const adminItemsHtml = generateItemsHtml(itemData)
+    const adminBody = wrapEmailHtml(
+      `New equipment request submitted by <strong style="color:#f1f5f9;">${escapeHtml(requesterName)}</strong>.\n\n` +
+      detailsCard + '\n\n' +
+      adminItemsHtml,
+      { appName, logoUrl, tagline, logoHeight }
+    )
 
-  getNotificationRecipients()
-    .then(async (recipients) => {
-      const adminEmails = (recipients || [])
-        .filter((r) => r.is_active && r.notify_on_new_request)
-        .map((r) => r.email)
-      if (adminEmails.length === 0) return
+    const recipients = await getNotificationRecipients()
+    const adminEmails = (recipients || [])
+      .filter((r) => r.is_active && r.notify_on_new_request)
+      .map((r) => r.email)
+    if (adminEmails.length > 0) {
       const result = await sendEmail({
         to: adminEmails,
         subject: `[${appName}] New request: ${fieldValues.project_name || 'Equipment request'} — by ${requesterName}`,
         body: adminBody,
         isHtml: true,
       })
-      if (!result.success) console.error('[admin notification] Send failed:', result.error)
-    })
-    .catch((err) => console.error('[admin notification] Error:', err))
+      if (!result.success) errors.push('Admin notification email failed to send')
+    }
+  } catch (err) {
+    errors.push('Admin notification email failed to send')
+  }
+
+  return { success: errors.length === 0, errors }
 }

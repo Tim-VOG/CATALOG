@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useItRequests } from '@/hooks/use-it-requests'
+import { formatDate } from '@/lib/utils/format-date'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { useUIStore } from '@/stores/ui-store'
 import {
@@ -48,7 +49,7 @@ function VariableMappingCard({ itRequest }) {
                 <span className="text-foreground flex items-center gap-1.5">
                   <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
                   {itField === 'start_date'
-                    ? new Date(value).toLocaleDateString('fr-FR')
+                    ? formatDate(value)
                     : value}
                 </span>
               ) : (
@@ -179,7 +180,7 @@ export function OnboardingVariablesPage() {
                         {req.start_date && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-2.5 w-2.5" />
-                            {new Date(req.start_date).toLocaleDateString('fr-FR')}
+                            {formatDate(req.start_date)}
                           </span>
                         )}
                       </div>

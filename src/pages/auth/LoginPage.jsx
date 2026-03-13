@@ -1,30 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, Shield, User, FlaskConical } from 'lucide-react'
+import { Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'
-
-const DEV_ACCOUNTS = [
-  {
-    label: 'Admin',
-    email: 'admin@equiplend.test',
-    password: 'admin123',
-    icon: Shield,
-    color: 'text-amber-500',
-    bg: 'bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20',
-  },
-  {
-    label: 'User',
-    email: 'testuser@vogroup.test',
-    password: 'testuser123',
-    icon: User,
-    color: 'text-cyan-500',
-    bg: 'bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20',
-  },
-]
 
 const MicrosoftIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 21 21">
@@ -36,10 +17,8 @@ const MicrosoftIcon = () => (
 )
 
 export function LoginPage() {
-  const { user, signIn, signInWithMicrosoft } = useAuth()
+  const { user, signInWithMicrosoft } = useAuth()
   const { data: settings } = useAppSettings()
-  const [devLoading, setDevLoading] = useState(null)
-  const [devError, setDevError] = useState(null)
 
   // ── Force light mode on login page ──
   useEffect(() => {
@@ -47,7 +26,6 @@ export function LoginPage() {
     const prevTheme = root.getAttribute('data-theme')
     root.setAttribute('data-theme', 'light')
 
-    // Apply light CSS vars (overrides any inline dark styles from previous session)
     const lightVars = {
       '--color-background': '#f8fafc',
       '--color-foreground': '#0f172a',
@@ -67,24 +45,11 @@ export function LoginPage() {
     }
 
     return () => {
-      // Restore previous theme; AppLayout's useTheme() will re-apply correct values
       if (prevTheme) root.setAttribute('data-theme', prevTheme)
     }
   }, [])
 
-  const handleDevLogin = async (account) => {
-    setDevLoading(account.email)
-    setDevError(null)
-    try {
-      await signIn(account.email, account.password)
-    } catch (err) {
-      console.error('[Dev Login]', err)
-      setDevError(err.message || 'Login failed')
-      setDevLoading(null)
-    }
-  }
   const appName = settings?.app_name || 'VO Gear Hub'
-  // Always use light logo on login page
   const logoUrl = settings?.logo_url_light || settings?.logo_url
 
   if (user) return <Navigate to="/" replace />
@@ -111,7 +76,6 @@ export function LoginPage() {
         }}
         transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
       />
-      {/* Third blob for richer bg */}
       <motion.div
         className="absolute top-[30%] right-[20%] w-[300px] h-[300px] rounded-full bg-violet-500/8 blur-[80px]"
         animate={{
@@ -145,7 +109,6 @@ export function LoginPage() {
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
           <CardHeader className="text-center pb-2">
-            {/* Logo / icon with breathing animation */}
             <motion.div
               className="flex justify-center mb-5"
               animate={{ scale: [1, 1.05, 1] }}
@@ -207,53 +170,6 @@ export function LoginPage() {
             >
               Works with existing and new Microsoft accounts
             </motion.p>
-
-            {/* Dev login — local test accounts */}
-            {import.meta.env.DEV && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.4 }}
-                className="pt-3"
-              >
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-                  </div>
-                  <div className="relative flex justify-center text-xs">
-                    <span className="bg-card px-3 text-muted-foreground/50 flex items-center gap-1.5">
-                      <FlaskConical className="h-3 w-3" />
-                      Dev accounts
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  {DEV_ACCOUNTS.map((account) => {
-                    const Icon = account.icon
-                    return (
-                      <motion.button
-                        key={account.email}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleDevLogin(account)}
-                        disabled={devLoading !== null}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 ${account.bg}`}
-                      >
-                        <Icon className={`h-4 w-4 ${account.color}`} />
-                        <span className="text-foreground">
-                          {devLoading === account.email ? 'Signing in...' : account.label}
-                        </span>
-                      </motion.button>
-                    )
-                  })}
-                </div>
-
-                {devError && (
-                  <p className="text-center text-xs text-destructive mt-2">{devError}</p>
-                )}
-              </motion.div>
-            )}
           </CardContent>
         </Card>
       </motion.div>

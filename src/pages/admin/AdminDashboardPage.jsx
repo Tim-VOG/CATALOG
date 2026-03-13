@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { format, addDays, differenceInDays, startOfDay } from 'date-fns'
@@ -252,6 +253,7 @@ function TimelineWidget({ requests }) {
 }
 
 export function AdminDashboardPage() {
+  usePageTitle('Dashboard')
   const { data: requests = [], isLoading: requestsLoading } = useLoanRequests()
   const { data: products = [], isLoading: productsLoading } = useProducts()
   const { isVisible, toggleWidget, resetWidgets, allWidgets } = useDashboardWidgets()

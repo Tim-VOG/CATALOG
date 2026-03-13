@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { useCartStore } from '@/stores/cart-store'
 import { LogOut, User } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,14 @@ import {
 
 export function UserMenu() {
   const { user, profile, signOut } = useAuth()
+  const clearCart = useCartStore((s) => s.clearCart)
+  const navigate = useNavigate()
+
+  const handleSignOut = async () => {
+    clearCart()
+    await signOut()
+    navigate('/login', { replace: true })
+  }
 
   const displayName = profile
     ? (`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || user?.email)
@@ -47,7 +56,7 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={signOut}>
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           Sign out
         </DropdownMenuItem>

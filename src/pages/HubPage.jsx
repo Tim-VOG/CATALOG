@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
 import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox } from 'lucide-react'
@@ -65,6 +66,7 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
 }
 
 export function HubPage() {
+  usePageTitle('Home')
   const { isAdmin } = useAuth()
   const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
   const { hasAccess: hasItForm } = useHasModuleAccess('it_form')

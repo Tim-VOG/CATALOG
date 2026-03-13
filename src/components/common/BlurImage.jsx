@@ -24,6 +24,9 @@ export function BlurImage({ src, alt, className, containerClassName, ...props })
       <img
         src={src}
         alt={alt}
+        loading="lazy"
+        width={props.width || 400}
+        height={props.height || 300}
         onLoad={() => setLoaded(true)}
         onError={() => setErrored(true)}
         className={cn(

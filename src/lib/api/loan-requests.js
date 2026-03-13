@@ -4,6 +4,7 @@ export const getLoanRequests = async () => {
   const { data, error } = await supabase
     .from('loan_requests_with_details')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
@@ -14,6 +15,7 @@ export const getMyLoanRequests = async (userId) => {
     .from('loan_requests_with_details')
     .select('*')
     .eq('user_id', userId)
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
@@ -68,7 +70,12 @@ export const createLoanRequest = async ({ request, items }) => {
   const { error: itemsError } = await supabase
     .from('loan_request_items')
     .insert(itemRows)
-  if (itemsError) throw itemsError
+
+  // Rollback: if items fail, delete the orphaned request
+  if (itemsError) {
+    await supabase.from('loan_requests').delete().eq('id', req.id)
+    throw itemsError
+  }
 
   return req
 }
@@ -99,31 +106,19 @@ export const cancelRequest = async (id) => {
 }
 
 export const deleteLoanRequest = async (id) => {
-  // Delete items first (foreign key), then the request
-  const { error: itemsError } = await supabase
-    .from('loan_request_items')
-    .delete()
-    .eq('request_id', id)
-  if (itemsError) throw itemsError
-
+  // Soft-delete: mark as deleted instead of removing from database
   const { error } = await supabase
     .from('loan_requests')
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw error
 }
 
 export const deleteLoanRequests = async (ids) => {
-  // Bulk delete: items first, then requests
-  const { error: itemsError } = await supabase
-    .from('loan_request_items')
-    .delete()
-    .in('request_id', ids)
-  if (itemsError) throw itemsError
-
+  // Soft-delete: mark as deleted instead of removing from database
   const { error } = await supabase
     .from('loan_requests')
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .in('id', ids)
   if (error) throw error
 }

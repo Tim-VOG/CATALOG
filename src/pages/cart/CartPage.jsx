@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { motion, AnimatePresence } from 'motion/react'
 import { useCartStore } from '@/stores/cart-store'
 import { useReservationsInRange } from '@/hooks/use-products'
@@ -11,6 +12,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { cn } from '@/lib/utils'
 
 export function CartPage() {
+  usePageTitle('Cart')
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const { items, startDate, endDate, updateQuantity, removeItem } = useCartStore()
