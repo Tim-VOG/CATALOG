@@ -181,7 +181,7 @@ export function LoginPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
             >
-              Sign in with your Microsoft account to access the equipment lending 
+              Sign in with your Microsoft account to access the equipment lending platform
             </motion.p>
 
             <motion.div
