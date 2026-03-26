@@ -1,10 +1,11 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   QrCode, Plus, Pencil, Trash2, Search, Download, Eye, EyeOff,
   Package, Layers, Copy, Check, Printer
 } from 'lucide-react'
 import QRCodeLib from 'qrcode'
+import { generateBrandedQR, printBrandedQRCodes } from '@/lib/qr-branded'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -166,11 +167,7 @@ export function AdminQRCodesPage() {
 
   const downloadQR = async (code, label) => {
     try {
-      const url = await QRCodeLib.toDataURL(code, {
-        width: 400,
-        margin: 2,
-        color: { dark: '#000000', light: '#ffffff' },
-      })
+      const url = await generateBrandedQR(code, { size: 400, label: label || code })
       const a = document.createElement('a')
       a.href = url
       a.download = `qr-${label || code}.png`
@@ -181,34 +178,9 @@ export function AdminQRCodesPage() {
   }
 
   const printQRCodes = async (codes) => {
-    const images = await Promise.all(
-      codes.map(async (qr) => {
-        const url = await QRCodeLib.toDataURL(qr.code, { width: 200, margin: 1 })
-        return { url, label: qr.label || qr.product_name, code: qr.code }
-      })
+    await printBrandedQRCodes(
+      codes.map(qr => ({ code: qr.code, label: qr.label || qr.product_name }))
     )
-    const win = window.open('', '_blank')
-    win.document.write(`
-      <html><head><title>QR Codes</title>
-      <style>
-        body { font-family: sans-serif; display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
-        .qr-card { text-align: center; border: 1px solid #ddd; padding: 12px; border-radius: 8px; width: 220px; }
-        .qr-card img { width: 180px; height: 180px; }
-        .qr-label { font-weight: bold; margin-top: 8px; font-size: 14px; }
-        .qr-code { color: #666; font-size: 11px; margin-top: 4px; font-family: monospace; }
-        @media print { body { gap: 10px; padding: 10px; } .qr-card { break-inside: avoid; } }
-      </style></head><body>
-      ${images.map(img => `
-        <div class="qr-card">
-          <img src="${img.url}" />
-          <div class="qr-label">${img.label}</div>
-          <div class="qr-code">${img.code}</div>
-        </div>
-      `).join('')}
-      </body></html>
-    `)
-    win.document.close()
-    setTimeout(() => win.print(), 500)
   }
 
   const copyCode = (code) => {

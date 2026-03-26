@@ -3,10 +3,10 @@ import { motion } from 'motion/react'
 import { useProduct, useProductReservations } from '@/hooks/use-products'
 import { useQRCodes } from '@/hooks/use-qr-codes'
 import { useAuth } from '@/lib/auth'
-import QRCodeLib from 'qrcode'
+import { printBrandedQRCodes } from '@/lib/qr-branded'
 import {
   ArrowLeft, Check, WifiOff, AlertTriangle,
-  QrCode, Package, Printer,
+  QrCode, Package, Printer, CalendarPlus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -31,19 +31,9 @@ export function ProductDetailPage() {
 
   const handlePrintQR = async () => {
     if (!productQRCodes.length) return
-    const images = await Promise.all(
-      productQRCodes.map(async (qr) => {
-        const url = await QRCodeLib.toDataURL(qr.code, { width: 200, margin: 1 })
-        return { url, label: qr.label || product?.name, code: qr.code }
-      })
+    await printBrandedQRCodes(
+      productQRCodes.map(qr => ({ code: qr.code, label: qr.label || product?.name }))
     )
-    const win = window.open('', '_blank')
-    win.document.write(`<html><head><title>QR - ${product?.name}</title>
-      <style>body{font-family:sans-serif;display:flex;flex-wrap:wrap;gap:16px;padding:20px}.card{text-align:center;border:1px solid #ddd;padding:12px;border-radius:8px;width:200px}.card img{width:160px;height:160px}.label{font-weight:700;margin-top:8px;font-size:13px}.code{color:#666;font-size:10px;margin-top:4px;font-family:monospace}@media print{body{gap:8px;padding:10px}.card{break-inside:avoid}}</style></head><body>
-      ${images.map(img => `<div class="card"><img src="${img.url}"/><div class="label">${img.label}</div><div class="code">${img.code}</div></div>`).join('')}
-    </body></html>`)
-    win.document.close()
-    setTimeout(() => win.print(), 500)
   }
 
   if (productQuery.isLoading || productQuery.isError) {
@@ -147,6 +137,12 @@ export function ProductDetailPage() {
           >
             <QrCode className="h-5 w-5" />
             Scan QR to Take or Return
+          </Button>
+        </Link>
+        <Link to={`/catalog/${productId}/reserve`}>
+          <Button variant="outline" className="rounded-full h-12 sm:h-14 px-6 gap-2">
+            <CalendarPlus className="h-4 w-4" />
+            Reserve for Later
           </Button>
         </Link>
         {isAdmin && productQRCodes.length > 0 && (

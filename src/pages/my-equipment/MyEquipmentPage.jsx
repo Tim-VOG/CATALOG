@@ -4,10 +4,12 @@ import { motion } from 'motion/react'
 import { format } from 'date-fns'
 import {
   Package, QrCode, ArrowRight, AlertTriangle, Clock,
-  CheckCircle2, Layers,
+  CheckCircle2, Layers, ShieldAlert,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useScanLogs } from '@/hooks/use-qr-codes'
+import { useReportLost } from '@/hooks/use-qr-reservations'
+import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -19,6 +21,7 @@ import { cn } from '@/lib/utils'
 export function MyEquipmentPage() {
   const { user } = useAuth()
   const { data: allLogs = [], isLoading } = useScanLogs({ limit: 200 })
+  const reportLost = useReportLost()
 
   // Filter: only this user's takes that haven't been deposited
   const myActiveLoans = useMemo(() => {
@@ -147,6 +150,29 @@ export function MyEquipmentPage() {
                           <p className="text-xs text-muted-foreground mt-1">
                             Taken: {format(new Date(loan.pickup_date + 'T12:00:00'), 'MMM d, yyyy')}
                           </p>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        {!loan.is_lost && (
+                          <button
+                            onClick={() => {
+                              if (!confirm('Report this item as lost?')) return
+                              reportLost.mutateAsync({ scanLogId: loan.id, notes: 'Reported lost by user' })
+                                .then(() => toast.success('Item reported as lost. The admin has been notified.'))
+                                .catch(() => toast.error('Failed to report'))
+                            }}
+                            className="text-[10px] text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors"
+                          >
+                            <ShieldAlert className="h-3 w-3" />
+                            Report lost
+                          </button>
+                        )}
+                        {loan.is_lost && (
+                          <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/30 text-[10px]">
+                            <ShieldAlert className="h-3 w-3 mr-1" /> Reported lost
+                          </Badge>
                         )}
                       </div>
 

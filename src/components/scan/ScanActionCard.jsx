@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import {
   ArrowDownToLine, ArrowUpFromLine, Package, Layers, AlertTriangle,
-  CheckCircle2, XCircle, Calendar, ArrowRight
+  CheckCircle2, XCircle, Calendar, ArrowRight, Bell
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -18,7 +18,7 @@ const QUICK_DURATIONS = [
   { label: '1 month', days: 30 },
 ]
 
-export function ScanActionCard({ qrData, onAction, loading, result }) {
+export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitlist, waitlistJoined }) {
   const [step, setStep] = useState('choose') // 'choose' | 'dates'
   const [pickupDate, setPickupDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [returnDate, setReturnDate] = useState('')
@@ -123,9 +123,21 @@ export function ScanActionCard({ qrData, onAction, loading, result }) {
               Take
             </Button>
             {qrData.product_stock <= 0 && (
-              <p className="text-xs text-destructive text-center mt-1.5 flex items-center justify-center gap-1">
-                <AlertTriangle className="h-3 w-3" /> Out of stock
-              </p>
+              <div className="text-center mt-1.5">
+                <p className="text-xs text-destructive flex items-center justify-center gap-1 mb-1">
+                  <AlertTriangle className="h-3 w-3" /> Out of stock
+                </p>
+                {onJoinWaitlist && !waitlistJoined && (
+                  <button onClick={onJoinWaitlist} className="text-[10px] text-primary hover:underline flex items-center justify-center gap-1 mx-auto">
+                    <Bell className="h-3 w-3" /> Notify me when available
+                  </button>
+                )}
+                {waitlistJoined && (
+                  <p className="text-[10px] text-success flex items-center justify-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" /> You'll be notified
+                  </p>
+                )}
+              </div>
             )}
           </motion.div>
 

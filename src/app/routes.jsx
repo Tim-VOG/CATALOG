@@ -44,6 +44,7 @@ import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
 import { AdminQRTestPage } from '@/pages/admin/AdminQRTestPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
+import { ReservePage } from '@/pages/catalog/ReservePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
 import { MyEquipmentPage } from '@/pages/my-equipment/MyEquipmentPage'
@@ -66,6 +67,7 @@ export function AppRoutes() {
         <Route index element={<HubPage />} />
         <Route path="catalog" element={<CatalogPage />} />
         <Route path="catalog/:productId" element={<ProductDetailPage />} />
+        <Route path="catalog/:productId/reserve" element={<ReservePage />} />
         <Route path="requests" element={<RequestsPage />} />
         <Route path="requests/:requestId" element={<RequestDetailPage />} />
         <Route path="profile" element={<ProfilePage />} />

@@ -7,18 +7,22 @@ import { Card } from '@/components/ui/card'
 import { QRScanner } from '@/components/scan/QRScanner'
 import { ScanActionCard } from '@/components/scan/ScanActionCard'
 import { useQRCodeByCode, useProcessQRScan } from '@/hooks/use-qr-codes'
+import { useJoinWaitlist } from '@/hooks/use-qr-reservations'
 import { useAuth } from '@/lib/auth'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
 export function ScanPage() {
   const { user, profile } = useAuth()
   const [scannedCode, setScannedCode] = useState(null)
+  const [waitlistJoined, setWaitlistJoined] = useState(false)
   const [manualCode, setManualCode] = useState('')
   const [showManual, setShowManual] = useState(false)
   const [result, setResult] = useState(null)
   const [scanning, setScanning] = useState(true)
 
   const { data: qrData, isLoading: loadingQR } = useQRCodeByCode(scannedCode)
+  const joinWaitlist = useJoinWaitlist()
   const scanMutation = useProcessQRScan()
 
   const handleScan = useCallback((code) => {
@@ -179,6 +183,22 @@ export function ScanPage() {
                   onAction={handleAction}
                   loading={scanMutation.isPending}
                   result={result}
+                  waitlistJoined={waitlistJoined}
+                  onJoinWaitlist={async () => {
+                    try {
+                      const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
+                      await joinWaitlist.mutateAsync({
+                        productId: qrData.product_id,
+                        userId: user?.id,
+                        userEmail: user?.email,
+                        userName: userName || user?.email,
+                      })
+                      setWaitlistJoined(true)
+                      toast.success('You will be notified when this item is available')
+                    } catch {
+                      toast.error('Could not join waitlist')
+                    }
+                  }}
                 />
               )}
 
