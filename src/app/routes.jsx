@@ -41,8 +41,11 @@ import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
 import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
+import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
+import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { ScanPage } from '@/pages/scan/ScanPage'
 
 export function AppRoutes() {
   return (
@@ -70,6 +73,7 @@ export function AppRoutes() {
         <Route path="it-request" element={<RequireModuleAccess moduleKey="it_form"><ItRequestFormPage /></RequireModuleAccess>} />
         <Route path="functional-mailbox" element={<RequireModuleAccess moduleKey="functional_mailbox"><FunctionalMailboxFormPage /></RequireModuleAccess>} />
         <Route path="my-requests" element={<MyRequestsPage />} />
+        <Route path="scan" element={<ScanPage />} />
 
         {/* Admin routes */}
         <Route
@@ -105,6 +109,8 @@ export function AppRoutes() {
           <Route path="offboarding-form-builder" element={<AdminOffboardingFormBuilderPage />} />
           <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
           <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
+          <Route path="qr-codes" element={<AdminQRCodesPage />} />
+          <Route path="scan-logs" element={<AdminScanLogsPage />} />
           {/* Redirect old module-access route to users page */}
           <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
         </Route>
