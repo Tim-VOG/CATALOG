@@ -1,7 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { Package, ShoppingCart, Home, Settings, X, LayoutDashboard, Inbox, RotateCcw, FolderTree, Sun, Moon } from 'lucide-react'
+import {
+  Package, ShoppingCart, Home, Settings, X, LayoutDashboard, Inbox,
+  RotateCcw, FolderTree, Sun, Moon, QrCode, UserPlus, Mail,
+  ClipboardList, UserMinus,
+} from 'lucide-react'
 import { useAuth } from '@/lib/auth'
+import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
@@ -11,7 +16,8 @@ import { cn } from '@/lib/utils'
 
 const userLinks = [
   { to: '/', label: 'Hub', icon: Home, exact: true },
-  { to: '/catalog', label: 'Catalog', icon: Package },
+  { to: '/catalog', label: 'Equipment Catalog', icon: Package },
+  { to: '/scan', label: 'QR Scan', icon: QrCode },
   { to: '/cart', label: 'Cart', icon: ShoppingCart },
 ]
 
@@ -21,6 +27,7 @@ const adminLinks = [
   { to: '/admin/categories', label: 'Categories', icon: FolderTree },
   { to: '/admin/requests', label: 'Requests', icon: Inbox },
   { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
+  { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
 ]
 
 const linkVariants = {
@@ -34,6 +41,10 @@ const linkVariants = {
 
 export function MobileNav() {
   const { isAdmin, profile } = useAuth()
+  const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
+  const { hasAccess: hasItForm } = useHasModuleAccess('it_form')
+  const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
+  const { hasAccess: hasOffboarding } = useHasModuleAccess('offboarding')
   const location = useLocation()
   const cartCount = useCartStore((s) => s.items.length)
   const mobileNavOpen = useUIStore((s) => s.mobileNavOpen)
@@ -50,6 +61,21 @@ export function MobileNav() {
   const isActive = (to, exact) => {
     if (exact) return location.pathname === to
     return location.pathname.startsWith(to)
+  }
+
+  // Build module links dynamically
+  const moduleLinks = []
+  if (hasOnboarding && isAdmin) {
+    moduleLinks.push({ to: '/admin/onboarding', label: 'Onboarding Staff', icon: UserPlus })
+  }
+  if (hasItForm) {
+    moduleLinks.push({ to: '/it-request', label: 'IT Onboarding Request', icon: ClipboardList })
+  }
+  if (hasMailbox) {
+    moduleLinks.push({ to: '/functional-mailbox', label: 'Functional Mailbox', icon: Mail })
+  }
+  if (hasOffboarding && isAdmin) {
+    moduleLinks.push({ to: '/admin/offboarding', label: 'Offboarding', icon: UserMinus })
   }
 
   let linkIndex = 0
@@ -134,6 +160,41 @@ export function MobileNav() {
                   </motion.div>
                 )
               })}
+
+              {/* Module links */}
+              {moduleLinks.length > 0 && (
+                <>
+                  <div className="my-2 mx-2">
+                    <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
+                  </div>
+                  <p className="px-3 py-1 text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                    Services
+                  </p>
+                  {moduleLinks.map(({ to, label, icon: Icon }) => {
+                    const i = linkIndex++
+                    return (
+                      <motion.div
+                        key={to}
+                        custom={i}
+                        initial="hidden"
+                        animate="visible"
+                        variants={linkVariants}
+                      >
+                        <Link to={to} onClick={toggleMobileNav}>
+                          <Button
+                            variant={isActive(to) ? 'secondary' : 'ghost'}
+                            className="w-full justify-start gap-3"
+                            size="sm"
+                          >
+                            <Icon className="h-4 w-4" />
+                            {label}
+                          </Button>
+                        </Link>
+                      </motion.div>
+                    )
+                  })}
+                </>
+              )}
 
               {isAdmin && (
                 <>

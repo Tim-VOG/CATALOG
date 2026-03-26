@@ -255,6 +255,7 @@ export function Header() {
   const navLinks = [
     { to: '/', label: 'Hub', icon: Home, exact: true },
     { to: '/catalog', label: 'Catalog', icon: Package },
+    { to: '/scan', label: 'Scan', icon: QrCode },
   ]
 
   return (

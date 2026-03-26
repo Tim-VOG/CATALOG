@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
-  Settings, UserMinus, QrCode, ScrollText,
+  Settings, UserMinus, QrCode, ScrollText, FlaskConical,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -30,6 +30,7 @@ const ANIM = {
   mailbox:      'sidebar-icon-wiggle',
   qrCodes:      'group-hover:scale-110 group-hover:rotate-12',
   scanLogs:     'group-hover:scale-110 group-hover:-translate-y-0.5',
+  qrTest:       'group-hover:scale-110 group-hover:rotate-[-8deg]',
 }
 
 const sidebarSections = [
@@ -54,6 +55,7 @@ const sidebarSections = [
     links: [
       { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode, anim: ANIM.qrCodes },
       { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText, anim: ANIM.scanLogs },
+      { to: '/admin/qr-test', label: 'Test Lab', icon: FlaskConical, anim: ANIM.qrTest },
     ],
   },
   {

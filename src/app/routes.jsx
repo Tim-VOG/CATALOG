@@ -43,6 +43,7 @@ import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuild
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
 import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
+import { AdminQRTestPage } from '@/pages/admin/AdminQRTestPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
@@ -111,6 +112,7 @@ export function AppRoutes() {
           <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
           <Route path="qr-codes" element={<AdminQRCodesPage />} />
           <Route path="scan-logs" element={<AdminScanLogsPage />} />
+          <Route path="qr-test" element={<AdminQRTestPage />} />
           {/* Redirect old module-access route to users page */}
           <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
         </Route>
