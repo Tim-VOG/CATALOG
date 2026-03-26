@@ -18,17 +18,18 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
-// All the test QR codes from the seed data
+// All the test QR codes from the seed data (VO- convention)
 const TEST_CODES = [
-  { code: 'EQ-IPHONE20-001', label: 'iPhone 20 Pro Max #1', hasKit: true },
-  { code: 'EQ-IPHONE15-001', label: 'iPhone 15 Pro #1', hasKit: true },
-  { code: 'EQ-ROUTER5G-001', label: '5G Router #1', hasKit: true },
-  { code: 'EQ-MACPRO14-001', label: 'MacBook Pro 14" #1', hasKit: true },
-  { code: 'EQ-DELL5540-001', label: 'Dell Latitude 5540 #1', hasKit: true },
-  { code: 'EQ-SCREEN27-001', label: 'Dell 27" Monitor #1', hasKit: true },
-  { code: 'EQ-IPADPRO-001', label: 'iPad Pro 11" #1', hasKit: true },
-  { code: 'EQ-PRINTER-001', label: 'HP LaserJet Pro #1', hasKit: false },
-  { code: 'EQ-CLICKER-001', label: 'Presentation Clicker #1', hasKit: false },
+  { code: 'VO-IPHONE20-001', label: 'iPhone 20 #1', hasKit: true },
+  { code: 'VO-IPHONE20PROMAX-001', label: 'iPhone 20 Pro Max #1', hasKit: true },
+  { code: 'VO-IPHONE15PRO-001', label: 'iPhone 15 Pro #1', hasKit: true },
+  { code: 'VO-ROUTER5G-001', label: '5G Router #1', hasKit: true },
+  { code: 'VO-MACBOOKPRO14-001', label: 'MacBook Pro 14" #1', hasKit: true },
+  { code: 'VO-DELLLATITUDE-001', label: 'Dell Latitude 5540 #1', hasKit: true },
+  { code: 'VO-DELLMONITOR27-001', label: 'Dell 27" Monitor #1', hasKit: true },
+  { code: 'VO-IPADPRO11-001', label: 'iPad Pro 11" #1', hasKit: true },
+  { code: 'VO-HPLASERJET-001', label: 'HP LaserJet Pro #1', hasKit: false },
+  { code: 'VO-CLICKER-001', label: 'Presentation Clicker #1', hasKit: false },
 ]
 
 export function AdminQRTestPage() {

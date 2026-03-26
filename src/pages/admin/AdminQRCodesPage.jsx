@@ -40,7 +40,7 @@ export function AdminQRCodesPage() {
   const [kitForm, setKitForm] = useState(emptyKitForm)
   const [bulkProductId, setBulkProductId] = useState('')
   const [bulkCount, setBulkCount] = useState(5)
-  const [bulkPrefix, setBulkPrefix] = useState('EQ')
+  const [bulkPrefix, setBulkPrefix] = useState('VO')
   const [copiedId, setCopiedId] = useState(null)
 
   const { data: qrCodes, isLoading: loadingCodes } = useQRCodes({ search })
@@ -59,7 +59,7 @@ export function AdminQRCodesPage() {
 
   const openNewQR = () => {
     setEditing(null)
-    setForm({ ...emptyQRForm, code: generateCode('EQ') })
+    setForm({ ...emptyQRForm, code: generateCode('VO') })
     setShowDialog(true)
   }
 
@@ -500,7 +500,7 @@ export function AdminQRCodesPage() {
             </div>
             <div>
               <Label>Prefix</Label>
-              <Input value={bulkPrefix} onChange={(e) => setBulkPrefix(e.target.value)} placeholder="EQ" />
+              <Input value={bulkPrefix} onChange={(e) => setBulkPrefix(e.target.value)} placeholder="VO" />
             </div>
             <div>
               <Label>Number of codes</Label>
@@ -624,7 +624,7 @@ export function AdminQRCodesPage() {
 
 // ── Helpers ──
 
-function generateCode(prefix = 'EQ') {
+function generateCode(prefix = 'VO') {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   let code = ''
   for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)]
