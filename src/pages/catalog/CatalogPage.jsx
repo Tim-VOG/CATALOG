@@ -2,18 +2,15 @@ import { useState, useMemo } from 'react'
 import { motion } from 'motion/react'
 import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
-import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
-import { useProductOptions } from '@/hooks/use-product-options'
-import { useCartStore } from '@/stores/cart-store'
-import { useUIStore } from '@/stores/ui-store'
 import { ProductCard } from '@/components/catalog/ProductCard'
-import { CompactDateBar } from '@/components/catalog/CompactDateBar'
 import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
-import { Package } from 'lucide-react'
+import { Package, QrCode } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
-import { useAnnounce } from '@/components/common/LiveRegion'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
 export function CatalogPage() {
@@ -22,42 +19,14 @@ export function CatalogPage() {
   const productsQuery = useProducts()
   const products = productsQuery.data || []
   const { data: categories = [] } = useCategories()
-  const { data: subscriptionPlans = [] } = useSubscriptionPlans()
-  const { data: productOptions = [] } = useProductOptions()
 
-  // Dates from cart store — persisted & shared with cart/checkout
-  const startDate = useCartStore((s) => s.startDate)
-  const endDate = useCartStore((s) => s.endDate)
-  const setDates = useCartStore((s) => s.setDates)
-  const addItem = useCartStore((s) => s.addItem)
-  const cartItems = useCartStore((s) => s.items)
-  const showToast = useUIStore((s) => s.showToast)
-  const announce = useAnnounce()
-
-  // Today's date for fallback availability
+  // Today's date for availability
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
-  const datesSelected = !!(startDate && endDate)
-
-  // Fetch reservations overlapping the selected date range (or today if no dates selected)
-  const queryStart = datesSelected ? startDate : today
-  const queryEnd = datesSelected ? endDate : today
-  const { data: reservedByProduct = {} } = useReservationsInRange(queryStart, queryEnd)
+  const { data: reservedByProduct = {} } = useReservationsInRange(today, today)
 
   const filtered = products.filter((p) => {
-    const matchesCategory =
-      selectedCategory === 'All' || p.category_name === selectedCategory
-    return matchesCategory
+    return selectedCategory === 'All' || p.category_name === selectedCategory
   })
-
-  const handleAddToCart = (product, qty, options) => {
-    addItem(product, qty, options)
-    showToast(`${product.name} added to cart`)
-    announce(`${product.name} added to cart`)
-  }
-
-  const handleDatesChange = (start, end) => {
-    setDates(start, end)
-  }
 
   if (productsQuery.isLoading || productsQuery.isError) {
     return (
@@ -85,7 +54,7 @@ export function CatalogPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Equipment Catalog</h1>
-        <p className="text-muted-foreground mt-1">Browse and reserve equipment for your projects</p>
+        <p className="text-muted-foreground mt-1">View available equipment and stock levels</p>
         <motion.div
           className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
           initial={{ scaleX: 0 }}
@@ -95,14 +64,28 @@ export function CatalogPage() {
         />
       </div>
 
-      {/* Compact date bar */}
-      <CompactDateBar
-        startDate={startDate}
-        endDate={endDate}
-        onChange={handleDatesChange}
-      />
+      {/* QR scan prompt */}
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <QrCode className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Need to take or return equipment?</p>
+              <p className="text-xs text-muted-foreground">Scan the QR code on the item to update stock automatically.</p>
+            </div>
+          </div>
+          <Link to="/scan">
+            <Button size="sm" className="gap-2 shrink-0">
+              <QrCode className="h-3.5 w-3.5" />
+              Scan QR
+            </Button>
+          </Link>
+        </div>
+      </Card>
 
-      {/* Category filters — animated pills */}
+      {/* Category filters */}
       <div className="flex flex-wrap gap-2">
         {[{ id: 'all', name: 'All' }, ...categories].map((c) => {
           const isActive = selectedCategory === c.name
@@ -148,12 +131,7 @@ export function CatalogPage() {
               <AnimateListItem key={product.id} className="h-full">
                 <ProductCard
                   product={product}
-                  cart={cartItems}
-                  onAddToCart={handleAddToCart}
-                  subscriptionPlans={subscriptionPlans}
-                  productOptions={productOptions}
                   reservedQty={reservedByProduct[product.id] || 0}
-                  datesSelected={datesSelected}
                 />
               </AnimateListItem>
             ))}

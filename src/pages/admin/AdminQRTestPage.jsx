@@ -74,6 +74,7 @@ export function AdminQRTestPage() {
         userId: user?.id,
         userEmail: user?.email,
         userName: userName || user?.email,
+        notes: action === 'take' ? 'Test from QR Test Lab' : undefined,
       })
       setResult(response)
       refetchLogs()
