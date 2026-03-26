@@ -1,9 +1,12 @@
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useProduct, useProductReservations } from '@/hooks/use-products'
+import { useQRCodes } from '@/hooks/use-qr-codes'
+import { useAuth } from '@/lib/auth'
+import { printBrandedQRCodes } from '@/lib/qr-branded'
 import {
   ArrowLeft, Check, WifiOff, AlertTriangle,
-  QrCode, Package,
+  QrCode, Package, Printer, CalendarPlus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -19,8 +22,19 @@ export function ProductDetailPage() {
   const { productId } = useParams()
   const productQuery = useProduct(productId)
   const { data: reservations = [] } = useProductReservations(productId)
+  const { data: qrCodes = [] } = useQRCodes()
+  const { isAdmin } = useAuth()
 
   const product = productQuery.data
+
+  const productQRCodes = qrCodes.filter(qr => qr.product_id === productId)
+
+  const handlePrintQR = async () => {
+    if (!productQRCodes.length) return
+    await printBrandedQRCodes(
+      productQRCodes.map(qr => ({ code: qr.code, label: qr.label || product?.name }))
+    )
+  }
 
   if (productQuery.isLoading || productQuery.isError) {
     return <QueryWrapper query={productQuery} skeleton={<ShowcaseSkeleton />} />
@@ -115,8 +129,8 @@ export function ProductDetailPage() {
         </div>
       </div>
 
-      {/* QR Scan CTA */}
-      <FadeIn delay={0.3} y={10} className="flex justify-center mt-8 xl:mt-10 px-4">
+      {/* QR Scan CTA + Print QR */}
+      <FadeIn delay={0.3} y={10} className="flex justify-center gap-3 mt-8 xl:mt-10 px-4">
         <Link to="/scan">
           <Button
             className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all duration-300"
@@ -125,6 +139,22 @@ export function ProductDetailPage() {
             Scan QR to Take or Return
           </Button>
         </Link>
+        <Link to={`/catalog/${productId}/reserve`}>
+          <Button variant="outline" className="rounded-full h-12 sm:h-14 px-6 gap-2">
+            <CalendarPlus className="h-4 w-4" />
+            Reserve for Later
+          </Button>
+        </Link>
+        {isAdmin && productQRCodes.length > 0 && (
+          <Button
+            variant="outline"
+            className="rounded-full h-12 sm:h-14 px-6 gap-2"
+            onClick={handlePrintQR}
+          >
+            <Printer className="h-4 w-4" />
+            Print QR
+          </Button>
+        )}
       </FadeIn>
 
       {/* Warnings */}

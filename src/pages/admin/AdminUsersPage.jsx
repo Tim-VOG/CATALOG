@@ -3,6 +3,7 @@ import { useProfiles, useUpdateProfile, useUpdateProfileRole, useToggleProfileAc
 import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-access'
 import { useInvitations, useDeleteInvitation } from '@/hooks/use-invitations'
 import { useAuth } from '@/lib/auth'
+import { useScanLogs } from '@/hooks/use-qr-codes'
 import {
   Search, Trash2,
   Package, UserPlus, ClipboardList, Mail, UserMinus,
@@ -105,6 +106,23 @@ export function AdminUsersPage() {
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles({ search: search.trim() || undefined, role: roleFilter })
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
   const { data: invitations = [] } = useInvitations('pending')
+  const { data: scanLogs = [] } = useScanLogs({ limit: 500 })
+
+  // Count active loans per user (takes - deposits)
+  const userLoanCounts = useMemo(() => {
+    const counts = {}
+    for (const log of scanLogs) {
+      if (!log.user_id) continue
+      if (!counts[log.user_id]) counts[log.user_id] = { takes: 0, deposits: 0 }
+      if (log.action === 'take') counts[log.user_id].takes++
+      else counts[log.user_id].deposits++
+    }
+    const result = {}
+    for (const [uid, c] of Object.entries(counts)) {
+      result[uid] = { active: Math.max(0, c.takes - c.deposits), total: c.takes }
+    }
+    return result
+  }, [scanLogs])
   const cancelInvitation = useDeleteInvitation()
 
   const updateProfile = useUpdateProfile()
@@ -350,6 +368,7 @@ export function AdminUsersPage() {
               <TableHead className="w-[180px]">Business Unit</TableHead>
               <TableHead className="w-[110px]">Role</TableHead>
               <TableHead className="w-[100px]">Status</TableHead>
+              <TableHead className="w-[80px] text-center">Loans</TableHead>
               <TableHead>Permissions</TableHead>
               <TableHead className="w-[60px]" />
             </TableRow>
@@ -440,6 +459,20 @@ export function AdminUsersPage() {
                         )}
                       </Button>
                     )}
+                  </TableCell>
+
+                  {/* Loans */}
+                  <TableCell className="text-center">
+                    {(() => {
+                      const stats = userLoanCounts[p.id]
+                      if (!stats || stats.total === 0) return <span className="text-xs text-muted-foreground">—</span>
+                      return (
+                        <div className="text-xs">
+                          <span className="font-bold">{stats.active}</span>
+                          <span className="text-muted-foreground">/{stats.total}</span>
+                        </div>
+                      )
+                    })()}
                   </TableCell>
 
                   {/* Permissions */}

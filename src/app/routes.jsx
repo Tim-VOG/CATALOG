@@ -9,8 +9,7 @@ import { LoginPage } from '@/pages/auth/LoginPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
 import { CatalogPage } from '@/pages/catalog/CatalogPage'
 import { ProductDetailPage } from '@/pages/catalog/ProductDetailPage'
-import { CartPage } from '@/pages/cart/CartPage'
-import { CheckoutPage } from '@/pages/checkout/CheckoutPage'
+// Cart and Checkout removed — all equipment actions go through QR scan
 import { RequestsPage } from '@/pages/requests/RequestsPage'
 import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
@@ -45,8 +44,10 @@ import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
 import { AdminQRTestPage } from '@/pages/admin/AdminQRTestPage'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
+import { ReservePage } from '@/pages/catalog/ReservePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
+import { MyEquipmentPage } from '@/pages/my-equipment/MyEquipmentPage'
 
 export function AppRoutes() {
   return (
@@ -66,8 +67,7 @@ export function AppRoutes() {
         <Route index element={<HubPage />} />
         <Route path="catalog" element={<CatalogPage />} />
         <Route path="catalog/:productId" element={<ProductDetailPage />} />
-        <Route path="cart" element={<CartPage />} />
-        <Route path="checkout" element={<CheckoutPage />} />
+        <Route path="catalog/:productId/reserve" element={<ReservePage />} />
         <Route path="requests" element={<RequestsPage />} />
         <Route path="requests/:requestId" element={<RequestDetailPage />} />
         <Route path="profile" element={<ProfilePage />} />
@@ -75,6 +75,7 @@ export function AppRoutes() {
         <Route path="functional-mailbox" element={<RequireModuleAccess moduleKey="functional_mailbox"><FunctionalMailboxFormPage /></RequireModuleAccess>} />
         <Route path="my-requests" element={<MyRequestsPage />} />
         <Route path="scan" element={<ScanPage />} />
+        <Route path="my-equipment" element={<MyEquipmentPage />} />
 
         {/* Admin routes */}
         <Route
