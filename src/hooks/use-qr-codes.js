@@ -1,0 +1,124 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import * as api from '@/lib/api/qr-codes'
+
+// ── QR Codes ──────────────────────────────────────────
+
+export const useQRCodes = (filters = {}) =>
+  useQuery({
+    queryKey: ['qr-codes', filters],
+    queryFn: () => api.getQRCodes(filters),
+  })
+
+export const useQRCode = (id) =>
+  useQuery({
+    queryKey: ['qr-codes', id],
+    queryFn: () => api.getQRCode(id),
+    enabled: !!id,
+  })
+
+export const useQRCodeByCode = (code) =>
+  useQuery({
+    queryKey: ['qr-codes', 'by-code', code],
+    queryFn: () => api.getQRCodeByCode(code),
+    enabled: !!code,
+  })
+
+export const useCreateQRCode = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.createQRCode,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
+  })
+}
+
+export const useCreateQRCodes = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.createQRCodes,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
+  })
+}
+
+export const useUpdateQRCode = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...data }) => api.updateQRCode(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
+  })
+}
+
+export const useDeleteQRCode = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.deleteQRCode,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
+  })
+}
+
+// ── QR Kits ──────────────────────────────────────────
+
+export const useQRKits = () =>
+  useQuery({
+    queryKey: ['qr-kits'],
+    queryFn: api.getQRKits,
+  })
+
+export const useQRKit = (id) =>
+  useQuery({
+    queryKey: ['qr-kits', id],
+    queryFn: () => api.getQRKit(id),
+    enabled: !!id,
+  })
+
+export const useCreateQRKit = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.createQRKit,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-kits'] }),
+  })
+}
+
+export const useUpdateQRKit = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...data }) => api.updateQRKit(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-kits'] }),
+  })
+}
+
+export const useDeleteQRKit = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.deleteQRKit,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-kits'] }),
+  })
+}
+
+// ── Scan ──────────────────────────────────────────────
+
+export const useProcessQRScan = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.processQRScan,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['qr-codes'] })
+      queryClient.invalidateQueries({ queryKey: ['qr-scan-logs'] })
+    },
+  })
+}
+
+// ── Scan Logs ──────────────────────────────────────────
+
+export const useScanLogs = (filters = {}) =>
+  useQuery({
+    queryKey: ['qr-scan-logs', filters],
+    queryFn: () => api.getScanLogs(filters),
+  })
+
+export const useScanLogsForProduct = (productId) =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'product', productId],
+    queryFn: () => api.getScanLogsForProduct(productId),
+    enabled: !!productId,
+  })

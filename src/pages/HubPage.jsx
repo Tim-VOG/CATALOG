@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox } from 'lucide-react'
+import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox, QrCode } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -89,6 +89,20 @@ export function HubPage() {
       description={settings?.hub_catalog_description || 'Browse and reserve equipment for your projects. View availability and submit loan requests.'}
       color="primary"
       buttonLabel="Open Catalog"
+    />
+  )
+
+  // QR Scan — always visible
+  cards.push(
+    <HubCard
+      key="scan"
+      to="/scan"
+      icon={QrCode}
+      title="QR Scan"
+      description="Scan equipment QR codes to quickly take or deposit items. Stock updates automatically."
+      color="cyan"
+      buttonLabel="Start Scanning"
+      variant="outline"
     />
   )
 

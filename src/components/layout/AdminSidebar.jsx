@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
-  Settings, UserMinus,
+  Settings, UserMinus, QrCode, ScrollText,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -28,6 +28,8 @@ const ANIM = {
   formBuild:    'group-hover:rotate-180 duration-300',
   offboarding:  'group-hover:scale-110 group-hover:translate-y-0.5',
   mailbox:      'sidebar-icon-wiggle',
+  qrCodes:      'group-hover:scale-110 group-hover:rotate-12',
+  scanLogs:     'group-hover:scale-110 group-hover:-translate-y-0.5',
 }
 
 const sidebarSections = [
@@ -45,6 +47,13 @@ const sidebarSections = [
       { to: '/admin/users', label: 'Users', icon: Users, anim: ANIM.users },
       { to: '/admin/email-templates', label: 'Communications', icon: Mail, anim: ANIM.comms },
       { to: '/admin/design', label: 'Design', icon: Palette, anim: ANIM.design },
+    ],
+  },
+  {
+    label: 'QR Inventory',
+    links: [
+      { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode, anim: ANIM.qrCodes },
+      { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText, anim: ANIM.scanLogs },
     ],
   },
   {
