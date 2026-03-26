@@ -168,7 +168,7 @@ export const deleteQRKit = async (id) => {
 
 // ── QR Scan ──────────────────────────────────────────
 
-export const processQRScan = async ({ code, action, userId, userEmail, userName, notes }) => {
+export const processQRScan = async ({ code, action, userId, userEmail, userName, notes, pickupDate, expectedReturnDate }) => {
   const { data, error } = await supabase.rpc('process_qr_scan', {
     p_qr_code: code,
     p_action: action,
@@ -176,6 +176,8 @@ export const processQRScan = async ({ code, action, userId, userEmail, userName,
     p_user_email: userEmail || null,
     p_user_name: userName || null,
     p_notes: notes || null,
+    p_pickup_date: pickupDate || null,
+    p_expected_return_date: expectedReturnDate || null,
   })
   if (error) throw error
   return data

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, ShoppingCart, Settings, Menu, Home, Sun, Moon, Search, X, QrCode } from 'lucide-react'
+import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
-import { useCartStore } from '@/stores/cart-store'
+
 import { useUIStore } from '@/stores/ui-store'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
@@ -240,7 +240,6 @@ function HeaderSearch() {
 export function Header() {
   const { isAdmin } = useAuth()
   const location = useLocation()
-  const cartCount = useCartStore((s) => s.items.length)
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
   const { data: settings } = useAppSettings()
   const themeMode = useThemeMode()
@@ -318,23 +317,6 @@ export function Header() {
         <div className="flex items-center gap-1 shrink-0">
           <NotificationBell />
 
-          {/* QR Scan shortcut */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link to="/scan">
-                <Button
-                  variant={location.pathname === '/scan' ? 'secondary' : 'ghost'}
-                  size="icon"
-                  className="h-9 w-9"
-                >
-                  <QrCode className="h-4 w-4" />
-                  <span className="sr-only">QR Scan</span>
-                </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>QR Scan</TooltipContent>
-          </Tooltip>
-
           {/* Theme toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -359,31 +341,6 @@ export function Header() {
             </TooltipContent>
           </Tooltip>
 
-          {/* Cart — hidden on mobile (bottom tab bar handles it) */}
-          <div className="max-md:hidden">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/cart">
-                  <Button
-                    variant={location.pathname === '/cart' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    className="relative h-9 w-9"
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                        {cartCount}
-                      </span>
-                    )}
-                    <span className="sr-only">Cart</span>
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                {cartCount > 0 ? `Cart (${cartCount})` : 'Cart'}
-              </TooltipContent>
-            </Tooltip>
-          </div>
           <UserMenu />
         </div>
       </div>

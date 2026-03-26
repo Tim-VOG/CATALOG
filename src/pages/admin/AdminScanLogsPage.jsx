@@ -133,7 +133,7 @@ export function AdminScanLogsPage() {
                           <span className="text-xs text-accent">Kit: {log.kit_name}</span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <User className="h-3 w-3" />
                           {log.user_name || log.user_email || 'Unknown'}
@@ -144,6 +144,23 @@ export function AdminScanLogsPage() {
                         </span>
                         <span className="font-mono text-[10px]">{log.qr_code}</span>
                       </div>
+                      {log.action === 'take' && log.pickup_date && (
+                        <div className="flex items-center gap-2 mt-1 text-[11px]">
+                          <span className="text-muted-foreground">
+                            Pickup: <strong className="text-foreground">{format(new Date(log.pickup_date + 'T12:00:00'), 'MMM d')}</strong>
+                          </span>
+                          {log.expected_return_date && (
+                            <span className="text-muted-foreground">
+                              → Return: <strong className="text-foreground">{format(new Date(log.expected_return_date + 'T12:00:00'), 'MMM d')}</strong>
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {log.action === 'deposit' && log.actual_return_date && (
+                        <div className="text-[11px] text-muted-foreground mt-1">
+                          Returned: <strong className="text-foreground">{format(new Date(log.actual_return_date + 'T12:00:00'), 'MMM d, yyyy')}</strong>
+                        </div>
+                      )}
                     </div>
 
                     {/* Stock change */}

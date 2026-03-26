@@ -45,12 +45,12 @@ export function ScanPage() {
         userId: user?.id,
         userEmail: user?.email,
         userName: userName || user?.email,
-        notes: extra.returnDate ? `Return by: ${extra.returnDate}` : undefined,
+        pickupDate: extra.pickupDate || null,
+        expectedReturnDate: extra.returnDate || null,
       })
-      // Attach return date to response for display
-      if (extra.returnDate) {
-        response.return_date = extra.returnDate
-      }
+      // Attach dates to response for display
+      if (extra.pickupDate) response.pickupDate = extra.pickupDate
+      if (extra.returnDate) response.returnDate = extra.returnDate
       setResult(response)
     } catch (err) {
       setResult({ success: false, error: err.message || 'An error occurred' })
