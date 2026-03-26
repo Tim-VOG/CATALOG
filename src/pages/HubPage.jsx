@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox, QrCode } from 'lucide-react'
+import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox, QrCode, Smartphone } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -102,6 +102,20 @@ export function HubPage() {
       description="Scan equipment QR codes to quickly take or deposit items. Stock updates automatically."
       color="cyan"
       buttonLabel="Start Scanning"
+      variant="outline"
+    />
+  )
+
+  // My Equipment — always visible
+  cards.push(
+    <HubCard
+      key="my-equipment"
+      to="/my-equipment"
+      icon={Smartphone}
+      title="My Equipment"
+      description="View equipment currently in your possession. Track return dates and overdue items."
+      color="amber"
+      buttonLabel="View My Items"
       variant="outline"
     />
   )

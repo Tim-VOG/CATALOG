@@ -13,7 +13,7 @@ const ALL_WIDGETS = {
   'active-loans':     { label: 'Active Loans List',  group: 'lists',  defaultVisible: true },
   'recent-requests':  { label: 'Recent Requests',    group: 'lists',  defaultVisible: true },
   'overdue-returns':  { label: 'Overdue Returns',    group: 'lists',  defaultVisible: false },
-  'low-stock':        { label: 'Low Stock Alert',    group: 'lists',  defaultVisible: false },
+  'low-stock':        { label: 'Low Stock Alert',    group: 'lists',  defaultVisible: true },
   'qr-usage':         { label: 'QR Usage by Category', group: 'charts', defaultVisible: true },
   'qr-overdue':       { label: 'Overdue Equipment',  group: 'lists',  defaultVisible: true },
 }

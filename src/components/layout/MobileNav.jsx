@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   Package, Home, X, LayoutDashboard, Inbox,
-  RotateCcw, FolderTree, Sun, Moon, QrCode, UserPlus, Mail,
-  ClipboardList, UserMinus, ScrollText, FlaskConical,
+  RotateCcw, Sun, Moon, QrCode, UserPlus, Mail,
+  ClipboardList, UserMinus, ScrollText, FlaskConical, Smartphone,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
@@ -15,8 +15,9 @@ import { cn } from '@/lib/utils'
 
 const mainLinks = [
   { to: '/', label: 'Hub', icon: Home, exact: true },
-  { to: '/catalog', label: 'Equipment Catalog', icon: Package },
+  { to: '/catalog', label: 'Catalog', icon: Package },
   { to: '/scan', label: 'QR Scan', icon: QrCode },
+  { to: '/my-equipment', label: 'My Equipment', icon: Smartphone },
 ]
 
 const adminLinks = [

@@ -28,6 +28,20 @@ export function QRScanner({ onScan, scanning = true }) {
             aspectRatio: 1,
           },
           (decodedText) => {
+            // Haptic feedback on successful scan
+            if (navigator.vibrate) navigator.vibrate(100)
+            // Short beep sound
+            try {
+              const ctx = new (window.AudioContext || window.webkitAudioContext)()
+              const osc = ctx.createOscillator()
+              const gain = ctx.createGain()
+              osc.connect(gain)
+              gain.connect(ctx.destination)
+              osc.frequency.value = 880
+              gain.gain.value = 0.15
+              osc.start()
+              osc.stop(ctx.currentTime + 0.1)
+            } catch {}
             onScan(decodedText)
           },
           () => {} // ignore errors during scanning
