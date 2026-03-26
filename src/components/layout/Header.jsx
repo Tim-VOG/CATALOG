@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, ShoppingCart, Settings, Menu, Home, Sun, Moon, Search, X } from 'lucide-react'
+import { Package, ShoppingCart, Settings, Menu, Home, Sun, Moon, Search, X, QrCode } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
@@ -316,6 +316,23 @@ export function Header() {
         {/* ── Right zone: actions ──────────────────── */}
         <div className="flex items-center gap-1 shrink-0">
           <NotificationBell />
+
+          {/* QR Scan shortcut */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link to="/scan">
+                <Button
+                  variant={location.pathname === '/scan' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-9 w-9"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span className="sr-only">QR Scan</span>
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>QR Scan</TooltipContent>
+          </Tooltip>
 
           {/* Theme toggle */}
           <Tooltip>

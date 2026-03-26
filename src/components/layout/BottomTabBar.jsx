@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { Package, ShoppingCart, Home, User } from 'lucide-react'
+import { Package, ShoppingCart, Home, User, QrCode } from 'lucide-react'
 import { useCartStore } from '@/stores/cart-store'
 import { ScalePop } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 const tabs = [
   { to: '/', label: 'Hub', icon: Home, exact: true },
   { to: '/catalog', label: 'Catalog', icon: Package },
+  { to: '/scan', label: 'Scan', icon: QrCode },
   { to: '/cart', label: 'Cart', icon: ShoppingCart },
   { to: '/profile', label: 'Profile', icon: User },
 ]
