@@ -168,7 +168,7 @@ export const deleteQRKit = async (id) => {
 
 // ── QR Scan ──────────────────────────────────────────
 
-export const processQRScan = async ({ code, action, userId, userEmail, userName, notes }) => {
+export const processQRScan = async ({ code, action, userId, userEmail, userName, notes, pickupDate, expectedReturnDate }) => {
   const { data, error } = await supabase.rpc('process_qr_scan', {
     p_qr_code: code,
     p_action: action,
@@ -176,6 +176,8 @@ export const processQRScan = async ({ code, action, userId, userEmail, userName,
     p_user_email: userEmail || null,
     p_user_name: userName || null,
     p_notes: notes || null,
+    p_pickup_date: pickupDate || null,
+    p_expected_return_date: expectedReturnDate || null,
   })
   if (error) throw error
   return data
@@ -212,4 +214,51 @@ export const getScanLogsForProduct = async (productId) => {
     .limit(50)
   if (error) throw error
   return data
+}
+
+// Get overdue equipment (taken but not returned past expected_return_date)
+export const getOverdueScans = async () => {
+  const today = new Date().toISOString().split('T')[0]
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('action', 'take')
+    .lt('expected_return_date', today)
+    .not('expected_return_date', 'is', null)
+    .order('expected_return_date', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+// Get equipment due for return tomorrow (for reminder emails)
+export const getUpcomingReturns = async () => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('action', 'take')
+    .eq('expected_return_date', tomorrowStr)
+    .not('expected_return_date', 'is', null)
+  if (error) throw error
+  return data
+}
+
+// Get scan stats grouped by category (for dashboard chart)
+export const getScanStatsByCategory = async () => {
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('category_name, action')
+  if (error) throw error
+
+  // Aggregate: { categoryName: { takes: N, deposits: N } }
+  const stats = {}
+  for (const row of data || []) {
+    const cat = row.category_name || 'Unknown'
+    if (!stats[cat]) stats[cat] = { takes: 0, deposits: 0 }
+    if (row.action === 'take') stats[cat].takes++
+    else stats[cat].deposits++
+  }
+  return stats
 }

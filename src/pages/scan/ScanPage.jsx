@@ -22,7 +22,7 @@ export function ScanPage() {
   const scanMutation = useProcessQRScan()
 
   const handleScan = useCallback((code) => {
-    if (scannedCode) return // Prevent duplicate scans
+    if (scannedCode) return
     setScanning(false)
     setScannedCode(code)
     setResult(null)
@@ -36,7 +36,7 @@ export function ScanPage() {
     setResult(null)
   }
 
-  const handleAction = async (action) => {
+  const handleAction = async (action, extra = {}) => {
     try {
       const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
       const response = await scanMutation.mutateAsync({
@@ -45,7 +45,12 @@ export function ScanPage() {
         userId: user?.id,
         userEmail: user?.email,
         userName: userName || user?.email,
+        pickupDate: extra.pickupDate || null,
+        expectedReturnDate: extra.returnDate || null,
       })
+      // Attach dates to response for display
+      if (extra.pickupDate) response.pickupDate = extra.pickupDate
+      if (extra.returnDate) response.returnDate = extra.returnDate
       setResult(response)
     } catch (err) {
       setResult({ success: false, error: err.message || 'An error occurred' })
@@ -74,7 +79,7 @@ export function ScanPage() {
             <QrCode className="h-5 w-5 text-primary" />
             <h1 className="font-display font-bold text-lg">QR Scan</h1>
           </div>
-          <div className="w-20" /> {/* Spacer for centering */}
+          <div className="w-20" />
         </div>
       </div>
 
@@ -89,12 +94,10 @@ export function ScanPage() {
               exit={{ opacity: 0 }}
               className="space-y-4"
             >
-              {/* Camera scanner */}
               {!showManual && (
                 <QRScanner onScan={handleScan} scanning={scanning} />
               )}
 
-              {/* Manual entry toggle */}
               <div className="max-w-sm mx-auto">
                 <Button
                   variant="ghost"
@@ -127,7 +130,6 @@ export function ScanPage() {
                 )}
               </div>
 
-              {/* Instructions */}
               <div className="max-w-sm mx-auto">
                 <Card className="p-4 bg-muted/50">
                   <p className="text-sm text-muted-foreground text-center">
@@ -145,7 +147,6 @@ export function ScanPage() {
               exit={{ opacity: 0 }}
               className="space-y-4"
             >
-              {/* Loading state */}
               {loadingQR && (
                 <div className="max-w-sm mx-auto text-center py-12">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
@@ -153,7 +154,6 @@ export function ScanPage() {
                 </div>
               )}
 
-              {/* QR code not found */}
               {!loadingQR && !qrData && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -173,7 +173,6 @@ export function ScanPage() {
                 </motion.div>
               )}
 
-              {/* Action card */}
               {!loadingQR && qrData && (
                 <ScanActionCard
                   qrData={qrData}
@@ -183,7 +182,6 @@ export function ScanPage() {
                 />
               )}
 
-              {/* Scan again button */}
               <div className="max-w-sm mx-auto">
                 <Button
                   variant="outline"

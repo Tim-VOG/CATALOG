@@ -122,3 +122,21 @@ export const useScanLogsForProduct = (productId) =>
     queryFn: () => api.getScanLogsForProduct(productId),
     enabled: !!productId,
   })
+
+export const useOverdueScans = () =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'overdue'],
+    queryFn: api.getOverdueScans,
+  })
+
+export const useUpcomingReturns = () =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'upcoming-returns'],
+    queryFn: api.getUpcomingReturns,
+  })
+
+export const useScanStatsByCategory = () =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'stats-by-category'],
+    queryFn: api.getScanStatsByCategory,
+  })

@@ -5,9 +5,12 @@ import { format, addDays, differenceInDays, startOfDay } from 'date-fns'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useProducts } from '@/hooks/use-products'
 import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets'
+import { useOverdueScans, useScanStatsByCategory, useUpcomingReturns } from '@/hooks/use-qr-codes'
 import { RequestsChart } from '@/components/admin/dashboard/RequestsChart'
 import { CategoryChart } from '@/components/admin/dashboard/CategoryChart'
 import { LoansChart } from '@/components/admin/dashboard/LoansChart'
+import { QRUsageChart } from '@/components/admin/dashboard/QRUsageChart'
+import { sendEmail } from '@/lib/api/send-email'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,7 +21,7 @@ import {
   Inbox, PackageCheck, AlertTriangle, PackageX,
   ArrowRight, CalendarRange, Box, TrendingDown,
   LayoutGrid, BarChart3, PieChart, Activity,
-  Eye, EyeOff, RotateCcw, Calendar,
+  Eye, EyeOff, RotateCcw, Calendar, QrCode, Bell, Send,
 } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
@@ -37,6 +40,8 @@ const WIDGET_ICONS = {
   'recent-requests': Inbox,
   'overdue-returns': AlertTriangle,
   'low-stock': TrendingDown,
+  'qr-usage': QrCode,
+  'qr-overdue': Bell,
 }
 
 // Staggered entrance animation factory
@@ -254,8 +259,12 @@ function TimelineWidget({ requests }) {
 export function AdminDashboardPage() {
   const { data: requests = [], isLoading: requestsLoading } = useLoanRequests()
   const { data: products = [], isLoading: productsLoading } = useProducts()
+  const { data: overdueScans = [] } = useOverdueScans()
+  const { data: upcomingReturns = [] } = useUpcomingReturns()
+  const { data: scanStats } = useScanStatsByCategory()
   const { isVisible, toggleWidget, resetWidgets, allWidgets } = useDashboardWidgets()
   const [showCustomize, setShowCustomize] = useState(false)
+  const [sendingReminders, setSendingReminders] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -510,7 +519,89 @@ export function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ── Row 5: Loan Activity Chart (full width) ── */}
+        {/* ── Row 5: QR Usage + Overdue Equipment ── */}
+        {(isVisible('qr-usage') || isVisible('qr-overdue')) && (
+          <div className={cn(
+            'grid gap-4',
+            isVisible('qr-usage') && isVisible('qr-overdue') ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
+          )}>
+            {isVisible('qr-usage') && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
+                <ChartWidget title="QR Scan Usage by Category" icon={QrCode}>
+                  <QRUsageChart stats={scanStats} />
+                </ChartWidget>
+              </motion.div>
+            )}
+            {isVisible('qr-overdue') && (
+              <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
+                <ListWidget
+                  title={`Overdue Equipment (${overdueScans.length})`}
+                  icon={Bell}
+                  iconColor="text-destructive"
+                  iconBg="bg-destructive/10"
+                  emptyIcon={Bell}
+                  emptyText="No overdue equipment — all returned on time!"
+                  borderClass={overdueScans.length > 0 ? 'border-destructive/30' : ''}
+                  headerRight={
+                    upcomingReturns.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-[10px] h-6 px-2 gap-1 text-primary"
+                        disabled={sendingReminders}
+                        onClick={async () => {
+                          setSendingReminders(true)
+                          let sent = 0
+                          for (const scan of upcomingReturns) {
+                            if (scan.user_email) {
+                              await sendEmail({
+                                to: scan.user_email,
+                                subject: `Reminder: ${scan.product_name} due tomorrow`,
+                                body: `<p>Hi ${scan.user_name || 'there'},</p><p>This is a friendly reminder that <strong>${scan.product_name}</strong> is due for return tomorrow (${scan.expected_return_date}).</p><p>Please return it to the IT desk.</p><p>Thank you!</p>`,
+                              })
+                              sent++
+                            }
+                          }
+                          setSendingReminders(false)
+                          alert(`${sent} reminder${sent !== 1 ? 's' : ''} sent!`)
+                        }}
+                      >
+                        <Send className="h-3 w-3" />
+                        Send reminders ({upcomingReturns.length})
+                      </Button>
+                    )
+                  }
+                >
+                  {overdueScans.length > 0 && (
+                    <div className="space-y-1">
+                      {overdueScans.slice(0, 8).map((scan) => {
+                        const daysOverdue = Math.floor((new Date() - new Date(scan.expected_return_date + 'T12:00:00')) / (1000 * 60 * 60 * 24))
+                        return (
+                          <div key={scan.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
+                            <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                              <AlertTriangle className="h-4 w-4 text-destructive" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{scan.product_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {scan.user_name || scan.user_email} · Due {scan.expected_return_date}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30 shrink-0">
+                              {daysOverdue}d overdue
+                            </Badge>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </ListWidget>
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* ── Row 6: Loan Activity Chart (full width) ── */}
         {hasChartLoans && (
           <motion.div {...fadeUp(nextDelay())} className="h-[320px]">
             <ChartWidget title="Loan Activity" icon={Activity}>
