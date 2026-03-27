@@ -278,7 +278,6 @@ export function Header() {
               { to: '/', label: 'Hub', icon: Home, exact: true },
               { to: '/catalog', label: 'Catalog', icon: Package },
               { to: '/scan', label: 'Scan', icon: QrCode },
-              { to: '/profile', label: 'Profile', icon: User },
             ].map(({ to, label, icon: Icon, exact }) => (
               <Link key={to} to={to}>
                 <Button
