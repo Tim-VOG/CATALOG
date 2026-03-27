@@ -1,248 +1,606 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'motion/react'
-import { UserPlus, ArrowLeft, CheckCircle2, Monitor, Laptop, HelpCircle } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
+import { useCreateItRequest } from '@/hooks/use-it-requests'
+import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
+import { useUIStore } from '@/stores/ui-store'
+import { motion, AnimatePresence } from 'motion/react'
+import {
+  User, Calendar, Shield, Globe, CheckCircle,
+  ArrowRight, ArrowLeft, Send, Loader2, UserPlus,
+} from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent } from '@/components/ui/card'
-import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 
-const BUSINESS_UNITS = [
-  'VO GROUP', 'THE LITTLE VOICE', 'VO EVENT', 'VO CONSULTING',
-  'VO PRODUCTION', 'VO STUDIOS', 'KRAFTHAUS',
+// ── Constants ──
+const PROFILES = ['FREELANCE', 'EMPLOYEE', 'TRAINEE', 'STUDENT', 'INTRAMUROS', 'CDD']
+const COMPANIES = [
+  'AOP', 'MAX', 'MIT', 'SIGN BRUSSELS', 'VO EVENT',
+  'VO GROUP', 'VO LAB', 'THE LITTLE VOICE', 'VO EUROPE',
+]
+const LANGUAGES = ['EN', 'FR', 'NL']
+const ACCESS_OPTIONS = [
+  'TLO - Timesheet Only', 'TLO - PM', 'TLO',
+  'TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL',
+]
+const SUBSCRIBE_OPTIONS = [
+  'Distribution List', 'Internal Newsletter', 'ALL VO', 'VO EU ALL',
 ]
 
-const EQUIPMENT_OPTIONS = [
-  { value: 'mac', label: 'Mac', icon: Laptop },
-  { value: 'windows', label: 'Windows', icon: Monitor },
-  { value: 'other', label: 'Other', icon: HelpCircle },
+// ── Step definitions ──
+const ALL_STEPS = [
+  { id: 'identity', label: 'Identity', icon: User },
+  { id: 'vo_europe', label: 'VO Europe', icon: Globe },
+  { id: 'dates', label: 'Dates', icon: Calendar },
+  { id: 'access', label: 'Access', icon: Shield },
+  { id: 'requester', label: 'Requester', icon: UserPlus },
+  { id: 'review', label: 'Review', icon: CheckCircle },
 ]
 
+// ── Step progress bar ──
+function StepProgress({ currentStep, steps }) {
+  return (
+    <div className="flex items-center gap-1 mb-8">
+      {steps.map((step, idx) => {
+        const Icon = step.icon
+        const isActive = idx === currentStep
+        const isDone = idx < currentStep
+        return (
+          <div key={step.id} className="flex items-center flex-1 last:flex-none">
+            <div className="flex flex-col items-center gap-1.5 relative">
+              <div
+                className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-110'
+                    : isDone
+                    ? 'bg-primary/20 text-primary'
+                    : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                {isDone ? <CheckCircle className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+              </div>
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+            {idx < steps.length - 1 && (
+              <div
+                className={`flex-1 h-0.5 mx-2 mt-[-18px] rounded-full transition-colors duration-300 ${
+                  isDone ? 'bg-primary/40' : 'bg-muted'
+                }`}
+              />
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Multi-select field ──
+function MultiSelectField({ options, value, onChange }) {
+  const selected = Array.isArray(value) ? value : []
+  const toggle = (opt) => {
+    if (selected.includes(opt)) {
+      onChange(selected.filter((s) => s !== opt))
+    } else {
+      onChange([...selected, opt])
+    }
+  }
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {options.map((opt) => {
+        const checked = selected.includes(opt)
+        return (
+          <label
+            key={opt}
+            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              checked
+                ? 'border-primary/40 bg-primary/5'
+                : 'border-border hover:border-muted-foreground/30'
+            }`}
+          >
+            <Checkbox checked={checked} onCheckedChange={() => toggle(opt)} />
+            <span className="text-sm font-medium">{opt}</span>
+          </label>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Step: Identity ──
+function StepIdentity({ form, update }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          Name <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          value={form.name}
+          onChange={(e) => update('name', e.target.value)}
+          placeholder="Who is joining?"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>
+          Profile <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Select value={form.profile} onChange={(e) => update('profile', e.target.value)}>
+          <option value="">Select...</option>
+          {PROFILES.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label>
+          Company <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Select value={form.company} onChange={(e) => update('company', e.target.value)}>
+          <option value="">Select...</option>
+          {COMPANIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label>Signing off as</Label>
+        <Input
+          value={form.signing_off_as}
+          onChange={(e) => update('signing_off_as', e.target.value)}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── Step: VO Europe (conditional) ──
+function StepVoEurope({ form, update }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          Project Name / Mission <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          value={form.project_name}
+          onChange={(e) => update('project_name', e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>
+          Mail to be created <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          value={form.mail_to_create}
+          onChange={(e) => update('mail_to_create', e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>
+          Language <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Select value={form.language} onChange={(e) => update('language', e.target.value)}>
+          <option value="">Select...</option>
+          {LANGUAGES.map((l) => (
+            <option key={l} value={l}>{l}</option>
+          ))}
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label>
+          Country Based <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          value={form.country_based}
+          onChange={(e) => update('country_based', e.target.value)}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── Step: Dates ──
+function StepDates({ form, update }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          First Day <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          type="date"
+          value={form.first_day}
+          onChange={(e) => update('first_day', e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>Last Day</Label>
+        <Input
+          type="date"
+          value={form.last_day}
+          onChange={(e) => update('last_day', e.target.value)}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── Step: Access ──
+function StepAccess({ form, update }) {
+  const showFolders = Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
+
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>What Access</Label>
+        <MultiSelectField
+          options={ACCESS_OPTIONS}
+          value={form.what_access}
+          onChange={(val) => update('what_access', val)}
+        />
+      </div>
+      {showFolders && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="space-y-2"
+        >
+          <Label>Which folders?</Label>
+          <Input
+            value={form.which_folders}
+            onChange={(e) => update('which_folders', e.target.value)}
+            placeholder="https:// SharePoint URL"
+          />
+        </motion.div>
+      )}
+      <div className="space-y-2">
+        <Label>Subscribe to</Label>
+        <MultiSelectField
+          options={SUBSCRIBE_OPTIONS}
+          value={form.subscribe_to}
+          onChange={(val) => update('subscribe_to', val)}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── Step: Requester ──
+function StepRequester({ form, update }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>Requested On</Label>
+        <Input
+          type="date"
+          value={form.requested_on}
+          onChange={(e) => update('requested_on', e.target.value)}
+        />
+        <p className="text-[11px] text-muted-foreground">Auto-filled with today's date</p>
+      </div>
+      <div className="space-y-2">
+        <Label>Requested By</Label>
+        <Input
+          value={form.requested_by}
+          onChange={(e) => update('requested_by', e.target.value)}
+        />
+        <p className="text-[11px] text-muted-foreground">Auto-filled from your profile</p>
+      </div>
+    </div>
+  )
+}
+
+// ── Step: Review ──
+function StepReview({ form, activeSteps }) {
+  const isVoEurope = form.company === 'VO EUROPE'
+
+  const fields = [
+    { label: 'Name', value: form.name },
+    { label: 'Profile', value: form.profile },
+    { label: 'Company', value: form.company },
+    { label: 'Signing off as', value: form.signing_off_as },
+    ...(isVoEurope
+      ? [
+          { label: 'Project Name / Mission', value: form.project_name },
+          { label: 'Mail to be created', value: form.mail_to_create },
+          { label: 'Language', value: form.language },
+          { label: 'Country Based', value: form.country_based },
+        ]
+      : []),
+    { label: 'First Day', value: form.first_day },
+    { label: 'Last Day', value: form.last_day },
+    { label: 'What Access', value: Array.isArray(form.what_access) ? form.what_access.join(', ') : '' },
+    ...(Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
+      ? [{ label: 'Which folders?', value: form.which_folders }]
+      : []),
+    { label: 'Subscribe to', value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
+    { label: 'Requested On', value: form.requested_on },
+    { label: 'Requested By', value: form.requested_by },
+  ]
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Please review the information below before submitting.
+      </p>
+      <div className="rounded-xl border bg-card overflow-hidden">
+        {fields.map(({ label, value }, idx) => (
+          <div
+            key={label}
+            className={`flex items-start gap-4 px-5 py-3 ${
+              idx < fields.length - 1 ? 'border-b border-border/50' : ''
+            }`}
+          >
+            <span className="text-xs font-semibold text-muted-foreground w-36 shrink-0 pt-0.5 uppercase tracking-wider">
+              {label}
+            </span>
+            <span className="text-sm text-foreground break-all">
+              {value || '—'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Main page ──
 export function OnboardingRequestPage() {
-  const { user, profile } = useAuth()
   const navigate = useNavigate()
+  const { user, profile } = useAuth()
+  const showToast = useUIStore((s) => s.showToast)
+
+  const [currentStep, setCurrentStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
-  const [success, setSuccess] = useState(false)
 
   const [form, setForm] = useState({
-    new_employee_name: '',
-    new_employee_email: '',
-    department: '',
-    business_unit: '',
-    start_date: '',
-    job_title: '',
-    manager_name: '',
-    needs_equipment: null, // null | true | false
-    equipment_type: '',    // 'mac' | 'windows' | 'other'
-    equipment_other: '',
-    notes: '',
+    // Identity
+    name: '',
+    profile: '',
+    company: '',
+    signing_off_as: '',
+    // VO Europe
+    project_name: '',
+    mail_to_create: '',
+    language: '',
+    country_based: '',
+    // Dates
+    first_day: '',
+    last_day: '',
+    // Access
+    what_access: [],
+    which_folders: '',
+    subscribe_to: [],
+    // Requester
+    requested_on: new Date().toISOString().split('T')[0],
+    requested_by: '',
   })
 
-  const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
+  const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
 
-  const canSubmit = form.new_employee_name && form.new_employee_email && form.start_date && form.business_unit
+  // Auto-fill requester fields from profile
+  useEffect(() => {
+    if (profile) {
+      const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
+      setForm((prev) => ({
+        ...prev,
+        requested_by: prev.requested_by || fullName,
+      }))
+    }
+  }, [profile])
+
+  // Determine active steps — skip VO Europe when company is not VO EUROPE
+  const activeSteps = useMemo(() => {
+    return ALL_STEPS.filter((s) => {
+      if (s.id === 'vo_europe') return form.company === 'VO EUROPE'
+      return true
+    })
+  }, [form.company])
+
+  // Clamp current step if steps change (e.g. VO Europe removed)
+  useEffect(() => {
+    if (currentStep >= activeSteps.length) {
+      setCurrentStep(activeSteps.length - 1)
+    }
+  }, [activeSteps, currentStep])
+
+  // Validation per step
+  const canGoNext = () => {
+    const step = activeSteps[currentStep]
+    if (!step) return true
+
+    switch (step.id) {
+      case 'identity':
+        return !!(form.name && form.profile && form.company)
+      case 'vo_europe':
+        return !!(form.project_name && form.mail_to_create && form.language && form.country_based)
+      case 'dates':
+        return !!form.first_day
+      case 'access':
+      case 'requester':
+      case 'review':
+        return true
+      default:
+        return true
+    }
+  }
 
   const handleSubmit = async () => {
-    if (!canSubmit) return
     setSubmitting(true)
     try {
       const submitterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
 
-      // Split name into first/last
-      const nameParts = form.new_employee_name.trim().split(/\s+/)
-      const firstName = nameParts[0] || ''
-      const lastName = nameParts.slice(1).join(' ') || ''
-
-      // 1. Create onboarding recipient directly (appears in Recipients page)
-      const { error: recipientError } = await supabase.from('onboarding_recipients').insert({
-        first_name: firstName,
-        last_name: lastName,
-        email: form.new_employee_email,
-        team: form.business_unit,
-        department: form.department || '',
-        start_date: form.start_date || null,
-        language: 'en',
+      // 1. Create it_request
+      const { error: reqError } = await supabase.from('it_requests').insert({
+        type: 'onboarding',
+        requester_id: user.id,
+        requester_email: user.email,
+        requester_name: submitterName,
+        data: { ...form, submitted_at: new Date().toISOString() },
+        status: 'pending',
       })
-      if (recipientError) throw recipientError
+      if (reqError) throw reqError
 
-      // 2. Also save to it_requests for tracking (non-blocking)
+      // 2. Create onboarding recipient (non-blocking)
       try {
-        await supabase.from('it_requests').insert({
-          type: 'onboarding',
-          requester_id: user.id,
-          requester_email: user.email,
-          requester_name: submitterName,
-          data: { ...form, submitted_at: new Date().toISOString() },
-          status: 'pending',
+        const nameParts = form.name.trim().split(/\s+/)
+        await createOnboardingRecipient({
+          first_name: nameParts[0] || '',
+          last_name: nameParts.slice(1).join(' ') || '',
+          email: form.mail_to_create || '',
+          team: form.company || '',
+          department: '',
+          start_date: form.first_day || null,
+          language: form.language || 'en',
         })
-      } catch {} // Non-blocking — recipient is the important part
+      } catch {}
 
-      // Send notification email to admins
+      // 3. Notify admin
       sendEmail({
         to: 'admin@vo-group.be',
-        subject: `New Onboarding Request: ${form.new_employee_name}`,
+        subject: `New Onboarding Request: ${form.name}`,
         body: `<p><strong>${submitterName}</strong> submitted an onboarding request:</p>
           <ul>
-            <li><strong>New employee:</strong> ${form.new_employee_name}</li>
-            <li><strong>Email:</strong> ${form.new_employee_email}</li>
-            <li><strong>Start date:</strong> ${form.start_date}</li>
-            <li><strong>Department:</strong> ${form.department || '—'}</li>
-            <li><strong>Business unit:</strong> ${form.business_unit}</li>
-            <li><strong>Equipment:</strong> ${form.needs_equipment ? (form.equipment_type === 'other' ? form.equipment_other : form.equipment_type) : 'No'}</li>
-          </ul>
-          ${form.notes ? `<p><strong>Notes:</strong> ${form.notes}</p>` : ''}`,
+            <li><strong>Name:</strong> ${form.name}</li>
+            <li><strong>Profile:</strong> ${form.profile}</li>
+            <li><strong>Company:</strong> ${form.company}</li>
+            <li><strong>First Day:</strong> ${form.first_day}</li>
+            <li><strong>Last Day:</strong> ${form.last_day || '—'}</li>
+            <li><strong>Access:</strong> ${Array.isArray(form.what_access) ? form.what_access.join(', ') : '—'}</li>
+            <li><strong>Subscribe to:</strong> ${Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '—'}</li>
+          </ul>`,
       })
 
-      setSuccess(true)
-      toast.success('Onboarding request submitted!')
+      navigate('/')
+      setTimeout(() => showToast('Onboarding request submitted successfully!'), 100)
     } catch (err) {
-      toast.error(err.message || 'Failed to submit')
+      showToast(err.message || 'Failed to submit request', 'error')
     }
     setSubmitting(false)
   }
 
-  if (success) {
-    return (
-      <div className="max-w-md mx-auto py-12 px-4">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-          <Card className="p-6 text-center border-2 border-success/30 bg-success/5">
-            <CheckCircle2 className="h-14 w-14 mx-auto text-success mb-3" />
-            <h2 className="text-xl font-display font-bold">Request Submitted!</h2>
-            <p className="text-muted-foreground text-sm mt-2">
-              The onboarding request for <strong>{form.new_employee_name}</strong> has been sent to the admin team.
-            </p>
-            <div className="flex gap-3 justify-center mt-5">
-              <Link to="/"><Button variant="outline">Back to Hub</Button></Link>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
-    )
-  }
+  const currentStepDef = activeSteps[currentStep]
+  const isReview = currentStepDef?.id === 'review'
 
   return (
-    <div className="max-w-lg mx-auto py-6 px-4 space-y-6">
-      <Link to="/"><Button variant="ghost" size="sm" className="gap-2 -ml-2"><ArrowLeft className="h-4 w-4" /> Back</Button></Link>
+    <div className="max-w-2xl mx-auto py-10 px-4">
+      {/* Header */}
+      <motion.div
+        className="text-center mb-8"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Badge variant="outline" className="mb-3 text-xs">
+          Onboarding
+        </Badge>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
+          New Onboarding Request
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Submit an IT onboarding request for a new team member
+        </p>
+      </motion.div>
 
-      <div>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-            <UserPlus className="h-5 w-5 text-cyan-500" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-display font-bold">Onboarding Request</h1>
-            <p className="text-sm text-muted-foreground">Request IT setup for a new team member</p>
-          </div>
-        </div>
-      </div>
+      {/* Step progress */}
+      <StepProgress currentStep={currentStep} steps={activeSteps} />
 
-      <Card className="p-5 space-y-4">
-        {/* Employee info */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Full name *</Label>
-            <Input value={form.new_employee_name} onChange={e => update('new_employee_name', e.target.value)} placeholder="John Doe" />
+      {/* Step content */}
+      <Card variant="elevated" className="mb-6">
+        <CardContent className="p-6 sm:p-8">
+          <div className="flex items-center gap-2 mb-6">
+            {(() => {
+              const StepIcon = currentStepDef.icon
+              return <StepIcon className="h-5 w-5 text-primary" />
+            })()}
+            <h2 className="text-lg font-display font-bold">
+              {currentStepDef.label}
+            </h2>
+            <span className="text-xs text-muted-foreground ml-auto">
+              Step {currentStep + 1} of {activeSteps.length}
+            </span>
           </div>
-          <div>
-            <Label>Email *</Label>
-            <Input type="email" value={form.new_employee_email} onChange={e => update('new_employee_email', e.target.value)} placeholder="john@vo-group.be" />
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Start date *</Label>
-            <input type="date" value={form.start_date} onChange={e => update('start_date', e.target.value)}
-              className="w-full h-10 px-3 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10" />
-          </div>
-          <div>
-            <Label>Job title</Label>
-            <Input value={form.job_title} onChange={e => update('job_title', e.target.value)} placeholder="Designer" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Business unit *</Label>
-            <Select value={form.business_unit} onChange={e => update('business_unit', e.target.value)}>
-              <option value="">Select...</option>
-              {BUSINESS_UNITS.map(bu => <option key={bu} value={bu}>{bu}</option>)}
-            </Select>
-          </div>
-          <div>
-            <Label>Department</Label>
-            <Input value={form.department} onChange={e => update('department', e.target.value)} placeholder="Marketing" />
-          </div>
-        </div>
-
-        <div>
-          <Label>Manager name</Label>
-          <Input value={form.manager_name} onChange={e => update('manager_name', e.target.value)} placeholder="Jane Smith" />
-        </div>
-
-        {/* Equipment question */}
-        <div className="border-t border-border/30 pt-4">
-          <Label className="text-sm font-semibold">Does this person need IT equipment?</Label>
-          <div className="flex gap-3 mt-2">
-            <Button
-              variant={form.needs_equipment === true ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => update('needs_equipment', true)}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStepDef.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
             >
-              Yes
-            </Button>
-            <Button
-              variant={form.needs_equipment === false ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => update('needs_equipment', false)}
-            >
-              No
-            </Button>
-          </div>
-        </div>
-
-        {form.needs_equipment && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3">
-            <Label>Equipment type</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {EQUIPMENT_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => update('equipment_type', opt.value)}
-                  className={cn(
-                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-sm',
-                    form.equipment_type === opt.value
-                      ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-border/50 text-muted-foreground hover:border-primary/30'
-                  )}
-                >
-                  <opt.icon className="h-5 w-5" />
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            {form.equipment_type === 'other' && (
-              <Input value={form.equipment_other} onChange={e => update('equipment_other', e.target.value)} placeholder="Specify equipment..." />
-            )}
-          </motion.div>
-        )}
-
-        <div>
-          <Label>Additional notes</Label>
-          <Textarea value={form.notes} onChange={e => update('notes', e.target.value)} placeholder="Anything else the IT team should know..." rows={3} />
-        </div>
+              {currentStepDef.id === 'identity' && (
+                <StepIdentity form={form} update={update} />
+              )}
+              {currentStepDef.id === 'vo_europe' && (
+                <StepVoEurope form={form} update={update} />
+              )}
+              {currentStepDef.id === 'dates' && (
+                <StepDates form={form} update={update} />
+              )}
+              {currentStepDef.id === 'access' && (
+                <StepAccess form={form} update={update} />
+              )}
+              {currentStepDef.id === 'requester' && (
+                <StepRequester form={form} update={update} />
+              )}
+              {isReview && (
+                <StepReview form={form} activeSteps={activeSteps} />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </CardContent>
       </Card>
 
-      <Button onClick={handleSubmit} disabled={!canSubmit || submitting} loading={submitting} className="w-full">
-        Submit Onboarding Request
-      </Button>
+      {/* Navigation buttons */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s) => s - 1)}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {currentStep === 0 ? 'Cancel' : 'Back'}
+        </Button>
+
+        {currentStep < activeSteps.length - 1 ? (
+          <Button
+            onClick={() => setCurrentStep((s) => s + 1)}
+            disabled={!canGoNext()}
+            className="gap-2"
+          >
+            Next
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="gap-2"
+          >
+            {submitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            Submit Request
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

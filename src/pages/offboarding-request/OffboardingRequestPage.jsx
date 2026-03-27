@@ -1,13 +1,12 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
-import { useOffboardingFormFields } from '@/hooks/use-offboarding'
-import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { useUIStore } from '@/stores/ui-store'
+import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { motion, AnimatePresence } from 'motion/react'
 import {
-  UserMinus, Shield, Monitor, DoorOpen, CheckCircle,
+  UserMinus, Calendar, Shield, Monitor, User, CheckCircle,
   ArrowRight, ArrowLeft, Send, Loader2,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,177 +14,31 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
-import { PageLoading } from '@/components/common/LoadingSpinner'
 
-// ── Step definitions matching the offboarding form builder steps ──
-const STEP_DEFS = [
-  { id: 'general', label: 'General', icon: UserMinus },
-  { id: 'it-revocation', label: 'IT Revocation', icon: Shield },
-  { id: 'equipment', label: 'Equipment', icon: Monitor },
-  { id: 'exit', label: 'Exit', icon: DoorOpen },
-  { id: 'review', label: 'Review', icon: CheckCircle },
+// ── Companies ──
+const COMPANIES = [
+  'MAX',
+  'SIGN BRUSSELS',
+  'STUDIO GONDO',
+  'VO EUROPE',
+  'VO EVENT',
+  'VO GROUP',
+  'VO MIT',
+  'THE LITTLE VOICE',
 ]
 
-// ── Evaluate conditional logic ──
-function evaluateCondition(field, formValues) {
-  if (!field.condition_field) return true
-
-  const value = formValues[field.condition_field]
-  const { condition_operator, condition_value } = field
-
-  switch (condition_operator) {
-    case 'equals':
-      return String(value) === String(condition_value)
-    case 'not_equals':
-      return String(value) !== String(condition_value)
-    case 'contains':
-      return Array.isArray(value)
-        ? value.includes(condition_value)
-        : String(value || '').includes(condition_value)
-    case 'is_true':
-      return value === true || value === 'true'
-    case 'is_false':
-      return value === false || value === 'false' || !value
-    default:
-      return true
-  }
-}
-
-// ── Render a single dynamic field ──
-function DynamicField({ field, value, onChange }) {
-  const options = Array.isArray(field.options) ? field.options : []
-
-  switch (field.field_type) {
-    case 'text':
-      return (
-        <Input
-          type="text"
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={field.placeholder}
-        />
-      )
-
-    case 'textarea':
-      return (
-        <Textarea
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={field.placeholder}
-          rows={3}
-        />
-      )
-
-    case 'select':
-      return (
-        <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
-          <option value="">Select...</option>
-          {options.map((opt) => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
-        </Select>
-      )
-
-    case 'multi_select': {
-      const selected = Array.isArray(value) ? value : []
-      const toggleOpt = (opt) => {
-        if (selected.includes(opt)) {
-          onChange(selected.filter((s) => s !== opt))
-        } else {
-          onChange([...selected, opt])
-        }
-      }
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {options.map((opt) => {
-            const checked = selected.includes(opt)
-            return (
-              <label
-                key={opt}
-                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                  checked
-                    ? 'border-primary/40 bg-primary/5'
-                    : 'border-border hover:border-muted-foreground/30'
-                }`}
-              >
-                <Checkbox checked={checked} onCheckedChange={() => toggleOpt(opt)} />
-                <span className="text-sm font-medium">{opt}</span>
-              </label>
-            )
-          })}
-        </div>
-      )
-    }
-
-    case 'date':
-      return (
-        <Input
-          type="date"
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      )
-
-    case 'toggle':
-      return (
-        <div className="flex items-center gap-3">
-          <Switch checked={!!value} onCheckedChange={onChange} />
-          <span className="text-sm text-muted-foreground">{value ? 'Yes' : 'No'}</span>
-        </div>
-      )
-
-    case 'checkbox':
-      return (
-        <div className="flex items-center gap-3">
-          <Checkbox checked={!!value} onCheckedChange={onChange} />
-          <span className="text-sm">{field.help_text || field.label}</span>
-        </div>
-      )
-
-    default:
-      return (
-        <Input
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={field.placeholder}
-        />
-      )
-  }
-}
-
-// ── Dynamic step: renders all fields for a given step ──
-function DynamicFormStep({ fields, form, setField }) {
-  return (
-    <div className="space-y-5">
-      {fields.map((field) => {
-        const value = form[field.field_key] ?? ''
-
-        return (
-          <div key={field.id} className="space-y-2">
-            {field.field_type !== 'checkbox' && (
-              <Label>
-                {field.label}
-                {field.is_required && <span className="text-destructive ml-1">*</span>}
-              </Label>
-            )}
-            <DynamicField
-              field={field}
-              value={value}
-              onChange={(val) => setField(field.field_key, val)}
-            />
-            {field.help_text && field.field_type !== 'checkbox' && (
-              <p className="text-[11px] text-muted-foreground">{field.help_text}</p>
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
+// ── Step definitions ──
+const STEPS = [
+  { id: 'who', label: 'Who', icon: UserMinus },
+  { id: 'when', label: 'When', icon: Calendar },
+  { id: 'revocation', label: 'Revocation', icon: Shield },
+  { id: 'equipment', label: 'Equipment', icon: Monitor },
+  { id: 'requester', label: 'Requester', icon: User },
+  { id: 'review', label: 'Review', icon: CheckCircle },
+]
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps }) {
@@ -231,23 +84,252 @@ function StepProgress({ currentStep, steps }) {
   )
 }
 
-// ── Review step ──
-function StepReview({ form, allFields }) {
-  const rows = allFields
-    .filter((f) => f.is_active && evaluateCondition(f, form))
-    .map((f) => {
-      const raw = form[f.field_key] ?? ''
-      let display = ''
+// ── Step 1: Who ──
+function StepWho({ form, setField }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          Name
+          <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          type="text"
+          value={form.name}
+          onChange={(e) => setField('name', e.target.value)}
+          placeholder="Full name of the leaving collaborator"
+        />
+      </div>
 
-      if (Array.isArray(raw)) {
-        display = raw.join(', ') || '—'
-      } else if (typeof raw === 'boolean') {
+      <div className="space-y-2">
+        <Label>
+          Company
+          <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Select value={form.company} onChange={(e) => setField('company', e.target.value)}>
+          <option value="">Select...</option>
+          {COMPANIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </Select>
+      </div>
+    </div>
+  )
+}
+
+// ── Step 2: When ──
+function StepWhen({ form, setField }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          Departure On
+          <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          type="date"
+          value={form.departure_on}
+          onChange={(e) => setField('departure_on', e.target.value)}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── Step 3: Revocation ──
+function StepRevocation({ form, setField }) {
+  const showTransferDetails =
+    form.transfer_mailbox_data || form.transfer_sharepoint_data
+
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>Revoke email access</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.revoke_email_access}
+            onCheckedChange={(val) => setField('revoke_email_access', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.revoke_email_access ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Revoke VPN / Tools access</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.revoke_vpn_tools_access}
+            onCheckedChange={(val) => setField('revoke_vpn_tools_access', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.revoke_vpn_tools_access ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Transfer mailbox data</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.transfer_mailbox_data}
+            onCheckedChange={(val) => setField('transfer_mailbox_data', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.transfer_mailbox_data ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Transfer SharePoint data</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.transfer_sharepoint_data}
+            onCheckedChange={(val) => setField('transfer_sharepoint_data', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.transfer_sharepoint_data ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      {showTransferDetails && (
+        <div className="space-y-2">
+          <Label>Transfer details</Label>
+          <Textarea
+            value={form.transfer_details}
+            onChange={(e) => setField('transfer_details', e.target.value)}
+            placeholder="What data needs to be transferred and to whom?"
+            rows={3}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Step 4: Equipment ──
+function StepEquipment({ form, setField }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>Collect laptop</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.collect_laptop}
+            onCheckedChange={(val) => setField('collect_laptop', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.collect_laptop ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Collect phone</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.collect_phone}
+            onCheckedChange={(val) => setField('collect_phone', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.collect_phone ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Collect badge/keys</Label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={form.collect_badge_keys}
+            onCheckedChange={(val) => setField('collect_badge_keys', val)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {form.collect_badge_keys ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Equipment notes</Label>
+        <Textarea
+          value={form.equipment_notes}
+          onChange={(e) => setField('equipment_notes', e.target.value)}
+          placeholder="Any special instructions for equipment collection"
+          rows={3}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ── Step 5: Requester ──
+function StepRequester({ form, setField }) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>
+          Requested By
+          <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          type="text"
+          value={form.requested_by}
+          onChange={(e) => setField('requested_by', e.target.value)}
+          placeholder="Your full name"
+        />
+        <p className="text-[11px] text-muted-foreground">Auto-filled from your profile</p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>
+          Requested On
+          <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          type="date"
+          value={form.requested_on}
+          onChange={(e) => setField('requested_on', e.target.value)}
+        />
+        <p className="text-[11px] text-muted-foreground">Auto-filled with today's date</p>
+      </div>
+    </div>
+  )
+}
+
+// ── Step 6: Review ──
+const REVIEW_FIELDS = [
+  { key: 'name', label: 'Name' },
+  { key: 'company', label: 'Company' },
+  { key: 'departure_on', label: 'Departure On' },
+  { key: 'revoke_email_access', label: 'Revoke Email Access', type: 'toggle' },
+  { key: 'revoke_vpn_tools_access', label: 'Revoke VPN / Tools Access', type: 'toggle' },
+  { key: 'transfer_mailbox_data', label: 'Transfer Mailbox Data', type: 'toggle' },
+  { key: 'transfer_sharepoint_data', label: 'Transfer SharePoint Data', type: 'toggle' },
+  { key: 'transfer_details', label: 'Transfer Details', showIf: (f) => f.transfer_mailbox_data || f.transfer_sharepoint_data },
+  { key: 'collect_laptop', label: 'Collect Laptop', type: 'toggle' },
+  { key: 'collect_phone', label: 'Collect Phone', type: 'toggle' },
+  { key: 'collect_badge_keys', label: 'Collect Badge/Keys', type: 'toggle' },
+  { key: 'equipment_notes', label: 'Equipment Notes' },
+  { key: 'requested_by', label: 'Requested By' },
+  { key: 'requested_on', label: 'Requested On' },
+]
+
+function StepReview({ form }) {
+  const rows = REVIEW_FIELDS
+    .filter((f) => !f.showIf || f.showIf(form))
+    .map((f) => {
+      const raw = form[f.key]
+      let display
+      if (f.type === 'toggle') {
         display = raw ? 'Yes' : 'No'
       } else {
-        display = raw || '—'
+        display = raw || '\u2014'
       }
-
-      return { label: f.label, value: display, fieldKey: f.field_key }
+      return { label: f.label, value: display, key: f.key }
     })
 
   return (
@@ -256,9 +338,9 @@ function StepReview({ form, allFields }) {
         Please review the information below before submitting.
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
-        {rows.map(({ label, value, fieldKey }, idx) => (
+        {rows.map(({ label, value, key }, idx) => (
           <div
-            key={fieldKey}
+            key={key}
             className={`flex items-start gap-4 px-5 py-3 ${
               idx < rows.length - 1 ? 'border-b border-border/50' : ''
             }`}
@@ -280,76 +362,61 @@ function StepReview({ form, allFields }) {
 export function OffboardingRequestPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
-  const createRequest = useCreateItRequest()
-  const { data: formFields = [], isLoading: fieldsLoading } = useOffboardingFormFields()
   const showToast = useUIStore((s) => s.showToast)
 
   const [currentStep, setCurrentStep] = useState(0)
-  const [form, setForm] = useState({})
+  const [submitting, setSubmitting] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    company: '',
+    departure_on: '',
+    revoke_email_access: true,
+    revoke_vpn_tools_access: true,
+    transfer_mailbox_data: false,
+    transfer_sharepoint_data: false,
+    transfer_details: '',
+    collect_laptop: true,
+    collect_phone: false,
+    collect_badge_keys: true,
+    equipment_notes: '',
+    requested_by: '',
+    requested_on: new Date().toISOString().split('T')[0],
+  })
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {
     if (profile) {
+      const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
       setForm((prev) => ({
         ...prev,
-        requester_first_name: prev.requester_first_name || profile.first_name || '',
-        requester_last_name: prev.requester_last_name || profile.last_name || '',
-        requester_email: prev.requester_email || profile.email || '',
+        requested_by: prev.requested_by || fullName,
       }))
     }
   }, [profile])
 
-  // Active fields only, filtered by conditional logic
-  const activeFields = useMemo(() => {
-    return formFields.filter((f) => f.is_active && evaluateCondition(f, form))
-  }, [formFields, form])
-
-  // Group active fields by step
-  const fieldsByStep = useMemo(() => {
-    const groups = {}
-    for (const step of STEP_DEFS) {
-      if (step.id === 'review') continue
-      groups[step.id] = activeFields.filter((f) => f.step === step.id)
-    }
-    return groups
-  }, [activeFields])
-
-  // Determine which steps have fields (skip empty steps)
-  const activeSteps = useMemo(() => {
-    return STEP_DEFS.filter((s) => {
-      if (s.id === 'review') return true
-      return (fieldsByStep[s.id] || []).length > 0
-    })
-  }, [fieldsByStep])
-
-  // Validation: check required fields for current step
+  // Validation per step
   const canGoNext = () => {
-    const step = activeSteps[currentStep]
-    if (!step || step.id === 'review') return true
-
-    const stepFields = fieldsByStep[step.id] || []
-    for (const field of stepFields) {
-      if (!field.is_required) continue
-      if (!evaluateCondition(field, form)) continue
-
-      const value = form[field.field_key] ?? ''
-
-      if (Array.isArray(value)) {
-        if (value.length === 0) return false
-      } else if (!value && value !== false) {
-        return false
-      }
+    const step = STEPS[currentStep]
+    switch (step.id) {
+      case 'who':
+        return !!form.name.trim() && !!form.company
+      case 'when':
+        return !!form.departure_on
+      case 'requester':
+        return !!form.requested_by.trim() && !!form.requested_on
+      default:
+        return true
     }
-    return true
   }
 
   const handleSubmit = async () => {
+    setSubmitting(true)
     try {
       const submitterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
 
-      await createRequest.mutateAsync({
+      await supabase.from('it_requests').insert({
         type: 'offboarding',
         requester_id: user.id,
         requester_email: user.email,
@@ -359,11 +426,11 @@ export function OffboardingRequestPage() {
       })
 
       // Send notification email
-      const employeeName = form.employee_name || form.first_name || 'Unknown'
       sendEmail({
         to: 'admin@vo-group.be',
-        subject: `Offboarding Request: ${employeeName}`,
-        body: `<p><strong>${submitterName}</strong> submitted an offboarding request.</p>
+        subject: `Offboarding Request: ${form.name || 'Unknown'}`,
+        body: `<p><strong>${submitterName}</strong> submitted an offboarding request for <strong>${form.name}</strong> (${form.company}).</p>
+          <p>Departure date: ${form.departure_on}</p>
           <p>Please review it in the admin panel.</p>`,
       })
 
@@ -371,13 +438,13 @@ export function OffboardingRequestPage() {
       setTimeout(() => showToast('Offboarding request submitted successfully!'), 100)
     } catch (err) {
       showToast(err.message || 'Failed to submit request', 'error')
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  if (fieldsLoading) return <PageLoading />
-
-  const currentStepDef = activeSteps[currentStep]
-  const isReview = currentStepDef?.id === 'review'
+  const currentStepDef = STEPS[currentStep]
+  const isReview = currentStepDef.id === 'review'
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
@@ -391,15 +458,15 @@ export function OffboardingRequestPage() {
           Offboarding
         </Badge>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
-          New Offboarding Request
+          Offboarding Request
         </h1>
-        <p className="text-muted-foreground mt-2">
-          Request account & equipment offboarding for a departing employee
+        <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
+          It is imperative that the leaving collaborator passes on information (e-mail, Sharepoint, etc.) before departure.
         </p>
       </motion.div>
 
       {/* Step progress */}
-      <StepProgress currentStep={currentStep} steps={activeSteps} />
+      <StepProgress currentStep={currentStep} steps={STEPS} />
 
       {/* Step content */}
       <Card variant="elevated" className="mb-6">
@@ -413,7 +480,7 @@ export function OffboardingRequestPage() {
               {currentStepDef.label}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {activeSteps.length}
+              Step {currentStep + 1} of {STEPS.length}
             </span>
           </div>
 
@@ -425,14 +492,23 @@ export function OffboardingRequestPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              {isReview ? (
-                <StepReview form={form} allFields={formFields} />
-              ) : (
-                <DynamicFormStep
-                  fields={fieldsByStep[currentStepDef.id] || []}
-                  form={form}
-                  setField={setField}
-                />
+              {currentStepDef.id === 'who' && (
+                <StepWho form={form} setField={setField} />
+              )}
+              {currentStepDef.id === 'when' && (
+                <StepWhen form={form} setField={setField} />
+              )}
+              {currentStepDef.id === 'revocation' && (
+                <StepRevocation form={form} setField={setField} />
+              )}
+              {currentStepDef.id === 'equipment' && (
+                <StepEquipment form={form} setField={setField} />
+              )}
+              {currentStepDef.id === 'requester' && (
+                <StepRequester form={form} setField={setField} />
+              )}
+              {isReview && (
+                <StepReview form={form} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -450,7 +526,7 @@ export function OffboardingRequestPage() {
           {currentStep === 0 ? 'Cancel' : 'Back'}
         </Button>
 
-        {currentStep < activeSteps.length - 1 ? (
+        {currentStep < STEPS.length - 1 ? (
           <Button
             onClick={() => setCurrentStep((s) => s + 1)}
             disabled={!canGoNext()}
@@ -462,10 +538,10 @@ export function OffboardingRequestPage() {
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={createRequest.isPending}
+            disabled={submitting}
             className="gap-2"
           >
-            {createRequest.isPending ? (
+            {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
