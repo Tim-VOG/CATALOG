@@ -81,7 +81,7 @@ export function ProductCard({ product, reservedQty = 0 }) {
               >
                 {Math.max(available, 0)}
               </span>
-              <span className="text-muted-foreground"> available</span>
+              <span className="text-muted-foreground"> / {product.total_stock}</span>
             </div>
           </div>
         </CardContent>

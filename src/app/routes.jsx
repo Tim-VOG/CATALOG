@@ -47,7 +47,7 @@ import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { ReservePage } from '@/pages/catalog/ReservePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
-import { MyEquipmentPage } from '@/pages/my-equipment/MyEquipmentPage'
+// MyEquipmentPage removed — equipment view is in ProfilePage
 import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequestPage'
 import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
 import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
@@ -78,7 +78,6 @@ export function AppRoutes() {
         <Route path="functional-mailbox" element={<RequireModuleAccess moduleKey="functional_mailbox"><FunctionalMailboxFormPage /></RequireModuleAccess>} />
         <Route path="my-requests" element={<MyRequestsPage />} />
         <Route path="scan" element={<ScanPage />} />
-        <Route path="my-equipment" element={<MyEquipmentPage />} />
         <Route path="onboarding-request" element={<OnboardingRequestPage />} />
         <Route path="equipment-request" element={<EquipmentRequestPage />} />
         <Route path="offboarding-request" element={<OffboardingRequestPage />} />
