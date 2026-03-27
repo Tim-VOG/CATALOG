@@ -6,6 +6,7 @@ import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useProducts } from '@/hooks/use-products'
 import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets'
 import { useOverdueScans, useScanStatsByCategory, useUpcomingReturns } from '@/hooks/use-qr-codes'
+import { useLostItems } from '@/hooks/use-qr-reservations'
 import { RequestsChart } from '@/components/admin/dashboard/RequestsChart'
 import { CategoryChart } from '@/components/admin/dashboard/CategoryChart'
 import { LoansChart } from '@/components/admin/dashboard/LoansChart'
@@ -21,7 +22,7 @@ import {
   Inbox, PackageCheck, AlertTriangle, PackageX,
   ArrowRight, CalendarRange, Box, TrendingDown,
   LayoutGrid, BarChart3, PieChart, Activity,
-  Eye, EyeOff, RotateCcw, Calendar, QrCode, Bell, Send,
+  Eye, EyeOff, RotateCcw, Calendar, QrCode, Bell, Send, ShieldAlert,
 } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
@@ -260,6 +261,7 @@ export function AdminDashboardPage() {
   const { data: requests = [], isLoading: requestsLoading } = useLoanRequests()
   const { data: products = [], isLoading: productsLoading } = useProducts()
   const { data: overdueScans = [] } = useOverdueScans()
+  const { data: lostItems = [] } = useLostItems()
   const { data: upcomingReturns = [] } = useUpcomingReturns()
   const { data: scanStats } = useScanStatsByCategory()
   const { isVisible, toggleWidget, resetWidgets, allWidgets } = useDashboardWidgets()
@@ -397,6 +399,11 @@ export function AdminDashboardPage() {
             {isVisible('stat-pickup') && (
               <motion.div {...fadeUp(nextDelay())}>
                 <StatWidget label="Awaiting Pickup" value={approved.length} icon={PackageX} color="text-accent" borderColor="border-l-accent" bgColor="bg-accent/8" link="/admin/requests" />
+              </motion.div>
+            )}
+            {lostItems.length > 0 && (
+              <motion.div {...fadeUp(nextDelay())}>
+                <StatWidget label="Lost Items" value={lostItems.length} icon={ShieldAlert} color="text-destructive" borderColor="border-l-destructive" bgColor="bg-destructive/8" link="/admin/scan-logs" />
               </motion.div>
             )}
           </div>

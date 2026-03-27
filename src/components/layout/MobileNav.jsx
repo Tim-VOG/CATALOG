@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import {
   Package, Home, X, LayoutDashboard, Inbox,
   RotateCcw, Sun, Moon, QrCode, UserPlus, Mail,
-  ClipboardList, UserMinus, ScrollText, FlaskConical, Smartphone,
+  ClipboardList, UserMinus, ScrollText, FlaskConical,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
@@ -17,7 +17,6 @@ const mainLinks = [
   { to: '/', label: 'Hub', icon: Home, exact: true },
   { to: '/catalog', label: 'Catalog', icon: Package },
   { to: '/scan', label: 'QR Scan', icon: QrCode },
-  { to: '/my-equipment', label: 'My Equipment', icon: Smartphone },
 ]
 
 const adminLinks = [
