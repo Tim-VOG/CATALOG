@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, Clock, PenLine, ClipboardList,
-  Settings, UserMinus, QrCode, ScrollText, FlaskConical,
+  Settings, UserMinus, QrCode, ScrollText, FlaskConical, Monitor,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -62,10 +62,8 @@ const sidebarSections = [
     label: 'Onboarding',
     links: [
       { to: '/admin/onboarding', label: 'Recipients', icon: UserPlus, exact: true, anim: ANIM.recipients },
-      { to: '/admin/onboarding/compose', label: 'Compose', icon: PenLine, anim: ANIM.compose },
-      { to: '/admin/onboarding/history', label: 'History', icon: Clock, anim: ANIM.history },
       { to: '/admin/it-requests', label: 'All Requests', icon: ClipboardList, anim: ANIM.itRequests },
-      { to: '/admin/it-form-builder', label: 'Form Builder', icon: Settings, anim: ANIM.formBuild },
+      { to: '/admin/it-form-builder', label: 'Form Builder ON', icon: Settings, anim: ANIM.formBuild },
     ],
   },
   {
@@ -80,6 +78,12 @@ const sidebarSections = [
     links: [
       { to: '/admin/offboarding', label: 'Processes', icon: UserMinus, exact: true, anim: ANIM.offboarding },
       { to: '/admin/offboarding-form-builder', label: 'Form Builder', icon: Settings, anim: ANIM.formBuild },
+    ],
+  },
+  {
+    label: 'IT Tools',
+    links: [
+      { to: '/admin/it-tools', label: 'Overview', icon: Monitor, anim: ANIM.dashboard },
     ],
   },
 ]

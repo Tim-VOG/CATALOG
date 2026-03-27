@@ -1,11 +1,9 @@
 import { useState, useMemo } from 'react'
-import { useOffboardingProcesses, useCreateOffboarding, useUpdateOffboarding, useDeleteOffboarding } from '@/hooks/use-offboarding'
+import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useUIStore } from '@/stores/ui-store'
-import { UserMinus, Plus, Search, Pencil, Trash2, Calendar, Building2, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
+import { UserMinus, Search, Trash2, Calendar, Building2, CheckCircle2, Clock, AlertTriangle, Eye, XCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -13,123 +11,85 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
-const BUSINESS_UNITS = [
-  'VO GROUP',
-  'THE LITTLE VOICE',
-  'VO EVENT',
-  'VO CONSULTING',
-  'VO PRODUCTION',
-  'VO STUDIOS',
-  'KRAFTHAUS',
-]
-
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending', color: 'bg-amber-500/15 text-amber-600 border-amber-500/30', icon: Clock },
   { value: 'in_progress', label: 'In Progress', color: 'bg-blue-500/15 text-blue-600 border-blue-500/30', icon: AlertTriangle },
   { value: 'completed', label: 'Completed', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2 },
+  { value: 'rejected', label: 'Rejected', color: 'bg-destructive/15 text-destructive border-destructive/30', icon: XCircle },
 ]
 
 const STATUS_FILTERS = ['all', 'pending', 'in_progress', 'completed']
-
-const EMPTY_FORM = {
-  first_name: '',
-  last_name: '',
-  email: '',
-  personal_email: '',
-  business_unit: '',
-  departure_date: '',
-  status: 'pending',
-  notes: '',
-}
 
 function formatDate(d) {
   if (!d) return ''
   return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function getInitials(first, last) {
-  return `${(first || '')[0] || ''}${(last || '')[0] || ''}`.toUpperCase()
-}
-
-function getChecklistProgress(checklist) {
-  if (!Array.isArray(checklist) || checklist.length === 0) return { done: 0, total: 0, pct: 0 }
-  const done = checklist.filter((c) => c.done).length
-  return { done, total: checklist.length, pct: Math.round((done / checklist.length) * 100) }
+function getInitials(name) {
+  if (!name) return '?'
+  const parts = name.split(' ')
+  return parts.map((p) => p[0] || '').join('').toUpperCase().slice(0, 2)
 }
 
 export function OffboardingPage() {
-  const { data: processes = [], isLoading } = useOffboardingProcesses()
-  const createProcess = useCreateOffboarding()
-  const updateProcess = useUpdateOffboarding()
-  const deleteProcess = useDeleteOffboarding()
+  const { data: allRequests = [], isLoading } = useItRequests()
+  const updateRequest = useUpdateItRequest()
+  const deleteRequest = useDeleteItRequest()
   const showToast = useUIStore((s) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [editDialog, setEditDialog] = useState(null)
+  const [expandedId, setExpandedId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+
+  // Only show offboarding requests
+  const offboardingRequests = useMemo(
+    () => allRequests.filter((r) => r.type === 'offboarding'),
+    [allRequests]
+  )
 
   // ── Filtering ──
   const filtered = useMemo(() => {
-    let list = processes
+    let list = offboardingRequests
     if (statusFilter !== 'all') {
-      list = list.filter((p) => p.status === statusFilter)
+      list = list.filter((r) => r.status === statusFilter)
     }
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter(
-        (p) =>
-          (p.first_name || '').toLowerCase().includes(q) ||
-          (p.last_name || '').toLowerCase().includes(q) ||
-          (p.email || '').toLowerCase().includes(q) ||
-          (p.business_unit || '').toLowerCase().includes(q)
+        (r) =>
+          (r.data?.employee_name || '').toLowerCase().includes(q) ||
+          (r.data?.employee_email || '').toLowerCase().includes(q) ||
+          (r.data?.business_unit || '').toLowerCase().includes(q) ||
+          (r.requester_name || '').toLowerCase().includes(q) ||
+          (r.requester_email || '').toLowerCase().includes(q)
       )
     }
     return list
-  }, [processes, statusFilter, search])
+  }, [offboardingRequests, statusFilter, search])
 
   // ── Quick stats ──
   const stats = useMemo(() => ({
-    total: processes.length,
-    pending: processes.filter((p) => p.status === 'pending').length,
-    in_progress: processes.filter((p) => p.status === 'in_progress').length,
-    completed: processes.filter((p) => p.status === 'completed').length,
-  }), [processes])
+    total: offboardingRequests.length,
+    pending: offboardingRequests.filter((r) => r.status === 'pending').length,
+    in_progress: offboardingRequests.filter((r) => r.status === 'in_progress').length,
+    completed: offboardingRequests.filter((r) => r.status === 'completed').length,
+  }), [offboardingRequests])
 
-  // ── Handlers ──
-  const handleAdd = () => setEditDialog({ ...EMPTY_FORM, _isNew: true })
-
-  const handleEdit = (process) => {
-    setEditDialog({
-      ...process,
-      departure_date: process.departure_date ? process.departure_date.slice(0, 10) : '',
-      _isNew: false,
-    })
-  }
-
-  const handleSave = async () => {
-    if (!editDialog) return
-    const { _isNew, id, created_at, updated_at, checklist, ...payload } = editDialog
-
+  const handleStatusChange = async (request, newStatus) => {
     try {
-      if (_isNew) {
-        await createProcess.mutateAsync(payload)
-        showToast('Offboarding process created')
-      } else {
-        await updateProcess.mutateAsync({ id, ...payload })
-        showToast('Offboarding process updated')
-      }
-      setEditDialog(null)
+      await updateRequest.mutateAsync({ id: request.id, updates: { status: newStatus } })
+      showToast(`Status updated to ${newStatus.replace('_', ' ')}`)
     } catch (err) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || 'Update failed', 'error')
     }
   }
 
   const handleDelete = async () => {
     if (!deleteConfirm) return
     try {
-      await deleteProcess.mutateAsync(deleteConfirm.id)
-      showToast('Offboarding process deleted')
+      await deleteRequest.mutateAsync(deleteConfirm.id)
+      showToast('Offboarding request deleted')
     } catch (err) {
       showToast(err.message || 'Delete failed', 'error')
     }
@@ -162,12 +122,7 @@ export function OffboardingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="Offboarding" description="Manage employee departure processes">
-        <Button onClick={handleAdd} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Process
-        </Button>
-      </AdminPageHeader>
+      <AdminPageHeader title="Offboarding" description="Manage employee departure processes" />
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -215,85 +170,129 @@ export function OffboardingPage() {
         </div>
       </div>
 
-      {/* Process cards */}
+      {/* Request cards */}
       {filtered.length === 0 ? (
         <EmptyState
           icon={UserMinus}
           title="No offboarding processes"
-          description={search || statusFilter !== 'all' ? 'Try adjusting your search or filter' : 'Create your first offboarding process to get started'}
-          action={!search && statusFilter === 'all' ? { label: 'New Process', onClick: handleAdd } : undefined}
+          description={search || statusFilter !== 'all' ? 'Try adjusting your search or filter' : 'Offboarding processes will appear here when employees submit offboarding requests'}
         />
       ) : (
         <div className="space-y-2">
-          {filtered.map((process) => {
-            const progress = getChecklistProgress(process.checklist)
+          {filtered.map((request) => {
+            const data = request.data || {}
+            const isExpanded = expandedId === request.id
             return (
-              <Card key={process.id} variant="elevated" className="transition-all hover:shadow-md">
+              <Card key={request.id} variant="elevated" className="transition-all hover:shadow-md">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
                     <div className="shrink-0 h-10 w-10 rounded-full bg-rose-500/15 text-rose-600 flex items-center justify-center text-sm font-bold">
-                      {getInitials(process.first_name, process.last_name)}
+                      {getInitials(data.employee_name)}
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm">
-                          {process.first_name} {process.last_name}
+                          {data.employee_name || 'Unknown'}
                         </span>
-                        {getStatusBadge(process.status)}
+                        {getStatusBadge(request.status)}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
-                        {process.email && <span>{process.email}</span>}
-                        {process.business_unit && (
+                        {data.employee_email && <span>{data.employee_email}</span>}
+                        {data.business_unit && (
                           <span className="flex items-center gap-1">
                             <Building2 className="h-3 w-3" />
-                            {process.business_unit}
+                            {data.business_unit}
                           </span>
                         )}
-                        {process.departure_date && (
+                        {data.departure_date && (
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {formatDate(process.departure_date)}
+                            {formatDate(data.departure_date)}
                           </span>
                         )}
                       </div>
-
-                      {/* Checklist progress */}
-                      {progress.total > 0 && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <div className="flex-1 max-w-[200px] h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                'h-full rounded-full transition-all',
-                                progress.pct === 100 ? 'bg-emerald-500' : 'bg-primary'
-                              )}
-                              style={{ width: `${progress.pct}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] text-muted-foreground">
-                            {progress.done}/{progress.total} items
-                          </span>
-                        </div>
-                      )}
                     </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(process)} className="h-8 w-8 p-0">
-                        <Pencil className="h-3.5 w-3.5" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedId(isExpanded ? null : request.id)}
+                        className="h-8 w-8 p-0"
+                      >
+                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setDeleteConfirm(process)}
+                        onClick={() => setDeleteConfirm(request)}
                         className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
+
+                  {/* Expanded details */}
+                  {isExpanded && (
+                    <div className="mt-4 pt-4 border-t border-border/30 space-y-4">
+                      {/* Request details */}
+                      <div className="rounded-xl border bg-muted/20 overflow-hidden">
+                        {Object.entries(data).filter(([key]) => key !== 'submitted_at').map(([key, value], idx) => (
+                          <div
+                            key={key}
+                            className={cn(
+                              'flex items-start gap-4 px-4 py-2.5',
+                              idx > 0 && 'border-t border-border/30'
+                            )}
+                          >
+                            <span className="text-[11px] font-semibold text-muted-foreground w-32 shrink-0 uppercase tracking-wider pt-0.5">
+                              {key.replace(/_/g, ' ')}
+                            </span>
+                            <span className="text-sm">
+                              {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : (value || '—')}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Requester info */}
+                      <div className="text-xs text-muted-foreground">
+                        Submitted by <strong>{request.requester_name || request.requester_email}</strong>
+                        {data.submitted_at && ` on ${formatDate(data.submitted_at)}`}
+                      </div>
+
+                      {/* Status actions */}
+                      <div className="flex gap-2">
+                        {request.status === 'pending' && (
+                          <Button size="sm" onClick={() => handleStatusChange(request, 'in_progress')} className="gap-1.5 text-xs">
+                            <AlertTriangle className="h-3.5 w-3.5" />
+                            Start Processing
+                          </Button>
+                        )}
+                        {request.status === 'in_progress' && (
+                          <Button size="sm" onClick={() => handleStatusChange(request, 'completed')} className="gap-1.5 text-xs">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Mark Completed
+                          </Button>
+                        )}
+                        {request.status !== 'pending' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(request, 'pending')}
+                            className="text-xs"
+                          >
+                            Reset to Pending
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )
@@ -301,134 +300,18 @@ export function OffboardingPage() {
         </div>
       )}
 
-      {/* ── Add/Edit Dialog ── */}
-      <Dialog open={!!editDialog} onOpenChange={() => setEditDialog(null)}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editDialog?._isNew ? 'New Offboarding Process' : 'Edit Offboarding Process'}
-            </DialogTitle>
-          </DialogHeader>
-
-          {editDialog && (
-            <div className="space-y-4">
-              {/* Name row */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label>First Name *</Label>
-                  <Input
-                    value={editDialog.first_name}
-                    onChange={(e) => setEditDialog((prev) => ({ ...prev, first_name: e.target.value }))}
-                    placeholder="First name"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Last Name *</Label>
-                  <Input
-                    value={editDialog.last_name}
-                    onChange={(e) => setEditDialog((prev) => ({ ...prev, last_name: e.target.value }))}
-                    placeholder="Last name"
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1.5">
-                <Label>Work Email</Label>
-                <Input
-                  type="email"
-                  value={editDialog.email}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, email: e.target.value }))}
-                  placeholder="work@company.com"
-                />
-              </div>
-
-              {/* Personal email */}
-              <div className="space-y-1.5">
-                <Label>Personal Email</Label>
-                <Input
-                  type="email"
-                  value={editDialog.personal_email}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, personal_email: e.target.value }))}
-                  placeholder="personal@email.com"
-                />
-              </div>
-
-              {/* Business unit + departure date */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label>Business Unit</Label>
-                  <Select
-                    value={editDialog.business_unit}
-                    onChange={(e) => setEditDialog((prev) => ({ ...prev, business_unit: e.target.value }))}
-                  >
-                    <option value="">Select...</option>
-                    {BUSINESS_UNITS.map((bu) => (
-                      <option key={bu} value={bu}>{bu}</option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Departure Date</Label>
-                  <Input
-                    type="date"
-                    value={editDialog.departure_date}
-                    onChange={(e) => setEditDialog((prev) => ({ ...prev, departure_date: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-1.5">
-                <Label>Status</Label>
-                <Select
-                  value={editDialog.status}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, status: e.target.value }))}
-                >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </Select>
-              </div>
-
-              {/* Notes */}
-              <div className="space-y-1.5">
-                <Label>Notes</Label>
-                <textarea
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  value={editDialog.notes || ''}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Additional notes..."
-                  rows={3}
-                />
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialog(null)}>Cancel</Button>
-            <Button
-              onClick={handleSave}
-              disabled={!editDialog?.first_name?.trim() || !editDialog?.last_name?.trim()}
-            >
-              {editDialog?._isNew ? 'Create' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* ── Delete confirmation ── */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Offboarding Process?
+              Delete Offboarding Request?
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the offboarding process for{' '}
-            <strong>{deleteConfirm?.first_name} {deleteConfirm?.last_name}</strong>.
+            This will permanently delete the offboarding request for{' '}
+            <strong>{deleteConfirm?.data?.employee_name}</strong>.
             This action cannot be undone.
           </p>
           <DialogFooter>
