@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, User, Monitor } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -44,6 +44,12 @@ export function UserMenu() {
           <Link to="/profile">
             <User className="mr-2 h-4 w-4" />
             Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/my-equipments">
+            <Monitor className="mr-2 h-4 w-4" />
+            My Equipments
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
