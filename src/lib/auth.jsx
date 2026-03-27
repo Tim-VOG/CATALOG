@@ -117,6 +117,13 @@ export const AuthProvider = ({ children }) => {
           if (mounted) {
             setLoading(false)
             clearTimeout(timeout)
+            // Welcome toast on sign in
+            if (event === 'SIGNED_IN' && profileData) {
+              const name = profileData.first_name || currentUser.email?.split('@')[0]
+              import('sonner').then(({ toast }) => {
+                toast.success(`Welcome back, ${name}!`)
+              }).catch(() => {})
+            }
             // Background invitation check — never blocks page loading
             if (profileData) checkInvitation(profileData)
           }

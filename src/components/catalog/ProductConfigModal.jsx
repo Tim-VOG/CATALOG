@@ -150,7 +150,7 @@ export function ProductConfigModal({ product, subscriptionPlans, productOptions 
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => onConfirm(options)}>Add to Cart</Button>
+          <Button onClick={() => onConfirm(options)}>Apply Options</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

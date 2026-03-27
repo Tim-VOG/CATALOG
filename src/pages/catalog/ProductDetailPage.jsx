@@ -16,6 +16,7 @@ import { BlurImage } from '@/components/common/BlurImage'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummaryCard'
 import { FadeIn, ScrollFadeIn } from '@/components/ui/motion'
+import { Breadcrumb } from '@/components/common/Breadcrumb'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
@@ -55,14 +56,13 @@ export function ProductDetailPage() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Back button */}
+      {/* Breadcrumb */}
       <FadeIn className="max-w-6xl mx-auto px-4">
-        <Link to="/catalog">
-          <Button variant="ghost" size="sm" className="gap-2 -ml-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to catalog
-          </Button>
-        </Link>
+        <Breadcrumb items={[
+          { label: 'Hub', to: '/' },
+          { label: 'Catalog', to: '/catalog' },
+          { label: product.name, to: `/catalog/${productId}` },
+        ]} />
       </FadeIn>
 
       {/* HERO */}

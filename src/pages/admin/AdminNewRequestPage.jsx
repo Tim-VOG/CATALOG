@@ -18,7 +18,7 @@ import {
   ArrowLeft, ArrowRight, Check, Send, Plus, X as XIcon, Mail,
   Search, Package, Minus, Settings2, Trash2, CalendarRange,
 } from 'lucide-react'
-import { DynamicField } from '@/components/checkout/DynamicField'
+import { DynamicField } from '@/components/admin/DynamicField'
 import { ProductConfigModal } from '@/components/catalog/ProductConfigModal'
 import { UserSearchSelect } from '@/components/admin/UserSearchSelect'
 import { UserAvatar } from '@/components/common/UserAvatar'
