@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode } from 'lucide-react'
+import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 
 import { useUIStore } from '@/stores/ui-store'
@@ -251,12 +251,6 @@ export function Header() {
     : (settings?.logo_url_light || settings?.logo_url)
   const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
 
-  const navLinks = [
-    { to: '/', label: 'Hub', icon: Home, exact: true },
-    { to: '/catalog', label: 'Catalog', icon: Package },
-    { to: '/scan', label: 'Scan', icon: QrCode },
-  ]
-
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-primary/20 after:to-transparent">
       <div className="flex h-16 items-center px-4 gap-3">
@@ -278,6 +272,37 @@ export function Header() {
             </div>
           </Link>
 
+          {/* Desktop nav */}
+          <nav className="hidden lg:flex items-center gap-1 ml-4">
+            {[
+              { to: '/', label: 'Hub', icon: Home, exact: true },
+              { to: '/catalog', label: 'Catalog', icon: Package },
+              { to: '/scan', label: 'Scan', icon: QrCode },
+              { to: '/profile', label: 'Profile', icon: User },
+            ].map(({ to, label, icon: Icon, exact }) => (
+              <Link key={to} to={to}>
+                <Button
+                  variant={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </Button>
+              </Link>
+            ))}
+            {isAdmin && (
+              <>
+                <div className="mx-2 h-6 w-px bg-border" />
+                <Link to="/admin">
+                  <Button variant={location.pathname.startsWith('/admin') ? 'secondary' : 'ghost'} size="sm" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    Admin
+                  </Button>
+                </Link>
+              </>
+            )}
+          </nav>
         </div>
 
         {/* ── Center zone: search ──────────────────── */}

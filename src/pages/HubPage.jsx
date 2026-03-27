@@ -89,7 +89,7 @@ export function HubPage() {
       key="scan"
       to="/scan"
       icon={QrCode}
-      title="QR Scan"
+      title="Scan"
       description="Take or return equipment by scanning its QR code."
       color="cyan"
       buttonLabel="Start Scanning"

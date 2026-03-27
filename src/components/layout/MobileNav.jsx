@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 const mainLinks = [
   { to: '/', label: 'Hub', icon: Home, exact: true },
   { to: '/catalog', label: 'Catalog', icon: Package },
-  { to: '/scan', label: 'QR Scan', icon: QrCode },
+  { to: '/scan', label: 'Scan', icon: QrCode },
 ]
 
 const adminLinks = [

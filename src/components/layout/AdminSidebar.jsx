@@ -112,7 +112,7 @@ export function AdminSidebar() {
                 className="w-full justify-start gap-2.5 h-8 text-xs"
                 size="sm"
               >
-                <CalendarRange className={cn('h-3.5 w-3.5 transition-transform duration-200', ANIM.planning)} />
+                <Inbox className={cn('h-3.5 w-3.5 transition-transform duration-200', ANIM.requests)} />
                 All Requests
               </Button>
             </Link>
