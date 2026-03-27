@@ -385,8 +385,12 @@ export function AdminProductsPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Stock *</Label>
-              <Input type="number" min="1" value={form.total_stock} onChange={(e) => setForm({ ...form, total_stock: parseInt(e.target.value) || 1 })} />
+              <Label>Stock {editing ? '(managed via QR scan)' : '*'}</Label>
+              {editing ? (
+                <div className="h-9 px-3 flex items-center rounded-md bg-muted/50 text-sm font-medium">{form.total_stock}</div>
+              ) : (
+                <Input type="number" min="1" value={form.total_stock} onChange={(e) => setForm({ ...form, total_stock: parseInt(e.target.value) || 1 })} />
+              )}
             </div>
             <div className="space-y-1">
               <Label>Description</Label>

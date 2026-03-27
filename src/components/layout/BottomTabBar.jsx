@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { Package, Home, User, QrCode } from 'lucide-react'
-import { ScalePop } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
 const tabs = [

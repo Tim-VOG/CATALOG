@@ -64,7 +64,7 @@ const sidebarSections = [
       { to: '/admin/onboarding', label: 'Recipients', icon: UserPlus, exact: true, anim: ANIM.recipients },
       { to: '/admin/onboarding/compose', label: 'Compose', icon: PenLine, anim: ANIM.compose },
       { to: '/admin/onboarding/history', label: 'History', icon: Clock, anim: ANIM.history },
-      { to: '/admin/it-requests', label: 'IT Requests', icon: ClipboardList, anim: ANIM.itRequests },
+      { to: '/admin/it-requests', label: 'All Requests', icon: ClipboardList, anim: ANIM.itRequests },
       { to: '/admin/it-form-builder', label: 'Form Builder', icon: Settings, anim: ANIM.formBuild },
     ],
   },
@@ -112,7 +112,7 @@ export function AdminSidebar() {
                 className="w-full justify-start gap-2.5 h-8 text-xs"
                 size="sm"
               >
-                <CalendarRange className={cn('h-3.5 w-3.5 transition-transform duration-200', ANIM.planning)} />
+                <Inbox className={cn('h-3.5 w-3.5 transition-transform duration-200', ANIM.requests)} />
                 All Requests
               </Button>
             </Link>

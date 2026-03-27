@@ -52,7 +52,10 @@ export function OnboardingComposerPage() {
 
   const [recipientId, setRecipientId] = useState(searchParams.get('recipientId') || '')
   const [language, setLanguage] = useState('fr')
-  const [subject, setSubject] = useState('')
+  const [subject, setSubject] = useState(() => {
+    const lang = searchParams.get('lang') || 'fr'
+    return lang === 'fr' ? 'Bienvenue chez VO Group, {Name}' : 'Welcome to VO Group, {Name}'
+  })
   const [blocksConfig, setBlocksConfig] = useState([])
   const blocksRef = useRef(blocksConfig)
   // Keep ref in sync with state (solves closure/stale state issues in save handler)
@@ -89,11 +92,22 @@ export function OnboardingComposerPage() {
     }
   }, [blockTemplates, existingEmail, blocksLoading, initialized])
 
-  // Set language from recipient when selected
+  // Set language and default subject from recipient when selected
   useEffect(() => {
     if (recipientId && !emailId) {
       const r = recipients.find((rec) => rec.id === recipientId)
-      if (r) setLanguage(r.language || 'fr')
+      if (r) {
+        setLanguage(r.language || 'fr')
+        // Set default subject if empty
+        if (!subject) {
+          const name = r.first_name || 'Name'
+          setSubject(
+            (r.language || 'fr') === 'fr'
+              ? `Bienvenue chez VO Group, ${name}`
+              : `Welcome to VO Group, ${name}`
+          )
+        }
+      }
     }
   }, [recipientId, recipients, emailId])
 

@@ -25,7 +25,6 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 const STEP_DEFS = [
   { id: 'general', label: 'Mailbox', icon: Mail },
   { id: 'signature', label: 'Signature', icon: FileSignature },
-  { id: 'management', label: 'Management', icon: Settings },
   { id: 'requester', label: 'Requester', icon: User },
   { id: 'review', label: 'Review', icon: CheckCircle },
 ]

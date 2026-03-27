@@ -21,20 +21,37 @@ export function AdminItRequestsPage() {
   const showToast = useUIStore((s) => s.showToast)
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [typeFilter, setTypeFilter] = useState('all')
   const [detailRequest, setDetailRequest] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return requests
-    const q = search.toLowerCase()
-    return requests.filter(
-      (r) =>
-        r.first_name?.toLowerCase().includes(q) ||
-        r.last_name?.toLowerCase().includes(q) ||
-        r.business_unit?.toLowerCase().includes(q) ||
-        r.requested_by_name?.toLowerCase().includes(q)
-    )
-  }, [requests, search])
+    let result = requests
+    if (typeFilter !== 'all') {
+      result = result.filter((r) => (r.type || 'it_request') === typeFilter)
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (r) =>
+          r.first_name?.toLowerCase().includes(q) ||
+          r.last_name?.toLowerCase().includes(q) ||
+          r.business_unit?.toLowerCase().includes(q) ||
+          r.requested_by_name?.toLowerCase().includes(q) ||
+          r.type?.toLowerCase().includes(q)
+      )
+    }
+    return result
+  }, [requests, search, typeFilter])
+
+  const typeCounts = useMemo(() => {
+    const counts = { all: requests.length }
+    for (const r of requests) {
+      const t = r.type || 'it_request'
+      counts[t] = (counts[t] || 0) + 1
+    }
+    return counts
+  }, [requests])
 
   const handleCreateOnboarding = async (req) => {
     try {
@@ -71,13 +88,37 @@ export function AdminItRequestsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="IT Requests" description={`${requests.length} submission${requests.length !== 1 ? 's' : ''}`} />
+      <AdminPageHeader title="All Requests" description={`${requests.length} submission${requests.length !== 1 ? 's' : ''}`} />
+
+      {/* Type filters */}
+      <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-muted/50 w-fit mb-4">
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'onboarding', label: 'Onboarding' },
+          { key: 'offboarding', label: 'Offboarding' },
+          { key: 'equipment', label: 'Equipment' },
+          { key: 'it_request', label: 'IT Request' },
+        ].filter(t => t.key === 'all' || typeCounts[t.key]).map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setTypeFilter(key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              typeFilter === key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {label}
+            {typeCounts[key] > 0 && (
+              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">{typeCounts[key]}</span>
+            )}
+          </button>
+        ))}
+      </div>
 
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name, unit..."
+          placeholder="Search by name, type, unit..."
           className="pl-9"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

@@ -217,32 +217,68 @@ export const getScanLogsForProduct = async (productId) => {
 }
 
 // Get overdue equipment (taken but not returned past expected_return_date)
+// Filters out items that have been deposited after the take
 export const getOverdueScans = async () => {
   const today = new Date().toISOString().split('T')[0]
-  const { data, error } = await supabase
+
+  // Get all takes past due
+  const { data: takes, error: takesErr } = await supabase
     .from('qr_scan_logs_with_details')
     .select('*')
     .eq('action', 'take')
     .lt('expected_return_date', today)
     .not('expected_return_date', 'is', null)
     .order('expected_return_date', { ascending: true })
-  if (error) throw error
-  return data
+  if (takesErr) throw takesErr
+
+  if (!takes?.length) return []
+
+  // Get all deposits to check which takes have been returned
+  const { data: deposits, error: depsErr } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, user_id, created_at')
+    .eq('action', 'deposit')
+  if (depsErr) throw depsErr
+
+  // Filter: keep only takes where no deposit exists for same user+product after the take
+  return takes.filter(take => {
+    return !deposits?.some(dep =>
+      dep.product_id === take.product_id &&
+      dep.user_id === take.user_id &&
+      new Date(dep.created_at) > new Date(take.created_at)
+    )
+  })
 }
 
 // Get equipment due for return tomorrow (for reminder emails)
+// Excludes items already returned
 export const getUpcomingReturns = async () => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   const tomorrowStr = tomorrow.toISOString().split('T')[0]
-  const { data, error } = await supabase
+
+  const { data: takes, error } = await supabase
     .from('qr_scan_logs_with_details')
     .select('*')
     .eq('action', 'take')
     .eq('expected_return_date', tomorrowStr)
     .not('expected_return_date', 'is', null)
   if (error) throw error
-  return data
+
+  if (!takes?.length) return []
+
+  const { data: deposits } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, user_id, created_at')
+    .eq('action', 'deposit')
+
+  return takes.filter(take => {
+    return !deposits?.some(dep =>
+      dep.product_id === take.product_id &&
+      dep.user_id === take.user_id &&
+      new Date(dep.created_at) > new Date(take.created_at)
+    )
+  })
 }
 
 // Get scan stats grouped by category (for dashboard chart)

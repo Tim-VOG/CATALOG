@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, UserPlus, ArrowRight, Mail, ClipboardList, UserMinus, Clock, Inbox, QrCode, Smartphone } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, ClipboardList } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -11,11 +11,10 @@ import { motion } from 'motion/react'
 
 function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel, variant = 'default' }) {
   const colorMap = {
-    primary: { iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: '', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.1)]' },
-    cyan: { iconBg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-500/5', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10', glow: 'shadow-[0_0_20px_rgba(6,182,212,0.1)]' },
-    violet: { iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10', glow: 'shadow-[0_0_20px_rgba(139,92,246,0.1)]' },
-    amber: { iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10', glow: 'shadow-[0_0_20px_rgba(245,158,11,0.1)]' },
-    rose: { iconBg: 'bg-gradient-to-br from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/30', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10', glow: 'shadow-[0_0_20px_rgba(244,63,94,0.1)]' },
+    primary: { iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: '' },
+    cyan: { iconBg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-500/5', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
+    violet: { iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
+    amber: { iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
   }
   const c = colorMap[color] || colorMap.primary
 
@@ -26,9 +25,7 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
           <div className={`h-14 w-14 rounded-2xl ${c.iconBg} flex items-center justify-center mb-4`}>
             <Icon className={`h-7 w-7 ${c.iconColor}`} />
           </div>
-          <div className="flex items-center gap-2 mb-2">
-            <h2 className="text-lg font-display font-bold">{title}</h2>
-          </div>
+          <h2 className="text-lg font-display font-bold mb-2">{title}</h2>
           <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-1">{description}</p>
           <Badge variant="outline" className="text-[10px] gap-1 text-muted-foreground">
             <Clock className="h-2.5 w-2.5" /> Coming soon
@@ -66,56 +63,50 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
 
 export function HubPage() {
   const { isAdmin } = useAuth()
-  const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
-  const { hasAccess: hasItForm } = useHasModuleAccess('it_form')
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
-  const { hasAccess: hasOffboarding } = useHasModuleAccess('offboarding')
   const { data: settings } = useAppSettings()
 
-  // Hub page titles from settings (with fallback defaults)
   const hubTitle = settings?.hub_main_title || 'VO Gear Hub'
   const hubTagline = settings?.hub_tagline || 'Welcome — choose your destination'
 
-  // Build visible cards dynamically
   const cards = []
 
-  // Catalog — always visible (accessible to all)
+  // Equipment section — always visible
   cards.push(
     <HubCard
       key="catalog"
       to="/catalog"
       icon={Package}
       title={settings?.hub_catalog_title || 'Equipment Catalog'}
-      description={settings?.hub_catalog_description || 'Browse and reserve equipment for your projects. View availability and submit loan requests.'}
+      description="Browse available IT equipment and check stock levels."
       color="primary"
       buttonLabel="Open Catalog"
     />
   )
 
-  // QR Scan — always visible
   cards.push(
     <HubCard
       key="scan"
       to="/scan"
       icon={QrCode}
-      title="QR Scan"
-      description="Scan equipment QR codes to quickly take or deposit items. Stock updates automatically."
+      title="Scan"
+      description="Take or return equipment by scanning its QR code."
       color="cyan"
       buttonLabel="Start Scanning"
       variant="outline"
     />
   )
 
-  // My Equipment — always visible
+  // Equipment Request — always visible
   cards.push(
     <HubCard
-      key="my-equipment"
-      to="/my-equipment"
-      icon={Smartphone}
-      title="My Equipment"
-      description="View equipment currently in your possession. Track return dates and overdue items."
-      color="amber"
-      buttonLabel="View My Items"
+      key="equipment-request"
+      to="/equipment-request"
+      icon={ClipboardList}
+      title="Request Equipment"
+      description="Submit a request for IT equipment for your project or team."
+      color="primary"
+      buttonLabel="New Request"
       variant="outline"
     />
   )
@@ -127,8 +118,8 @@ export function HubPage() {
         key="my-requests"
         to="/my-requests"
         icon={Inbox}
-        title={settings?.hub_my_requests_title || 'My Requests'}
-        description={settings?.hub_my_requests_description || 'View all your submitted requests across every hub in one place. Track status and follow up.'}
+        title="My Requests"
+        description="View all your submitted requests and track their status."
         color="primary"
         buttonLabel="View Requests"
         variant="outline"
@@ -136,22 +127,33 @@ export function HubPage() {
     )
   }
 
-  // Onboarding Hub — admin only
-  if (hasOnboarding && isAdmin) {
-    cards.push(
-      <HubCard
-        key="onboarding"
-        to="/admin/onboarding"
-        icon={UserPlus}
-        title={settings?.hub_onboarding_title || 'Onboarding Hub'}
-        description={settings?.hub_onboarding_description || 'Compose and send welcome emails to new team members. Manage recipients and track delivery.'}
-        color="cyan"
-        badge="Admin"
-        buttonLabel="Open Onboarding"
-        variant="outline"
-      />
-    )
-  }
+  // Onboarding Request — always visible
+  cards.push(
+    <HubCard
+      key="onboarding-request"
+      to="/onboarding-request"
+      icon={UserPlus}
+      title="Onboarding Request"
+      description="Request IT setup and equipment for a new team member."
+      color="cyan"
+      buttonLabel="New Request"
+      variant="outline"
+    />
+  )
+
+  // Offboarding Request — always visible
+  cards.push(
+    <HubCard
+      key="offboarding-request"
+      to="/offboarding-request"
+      icon={UserMinus}
+      title="Offboarding Request"
+      description="Request access revocation and equipment collection for a departing employee."
+      color="amber"
+      buttonLabel="New Request"
+      variant="outline"
+    />
+  )
 
   // Functional Mailbox — show if access granted
   if (hasMailbox) {
@@ -160,8 +162,8 @@ export function HubPage() {
         key="mailbox"
         to="/functional-mailbox"
         icon={Mail}
-        title={settings?.hub_mailbox_title || 'Functional Mailbox'}
-        description={settings?.hub_mailbox_description || 'Request a new functional mailbox for your team or project. Approval workflow included.'}
+        title="Mailbox Request"
+        description="Request a new functional mailbox for your team or project."
         color="violet"
         buttonLabel="New Request"
         variant="outline"
@@ -169,45 +171,10 @@ export function HubPage() {
     )
   }
 
-  // IT Onboarding Request — show if access granted
-  if (hasItForm) {
-    cards.push(
-      <HubCard
-        key="it-request"
-        to="/it-request"
-        icon={ClipboardList}
-        title={settings?.hub_it_request_title || 'IT Onboarding Request'}
-        description={settings?.hub_it_request_description || 'Submit an IT onboarding request for new hires. Provide equipment and access requirements.'}
-        color="amber"
-        buttonLabel="New Request"
-        variant="outline"
-      />
-    )
-  }
-
-  // Offboarding — admin only
-  if (hasOffboarding && isAdmin) {
-    cards.push(
-      <HubCard
-        key="offboarding"
-        to="/admin/offboarding"
-        icon={UserMinus}
-        title={settings?.hub_offboarding_title || 'Offboarding'}
-        description={settings?.hub_offboarding_description || 'Manage employee departure processes. Track equipment returns, access revocation, and exit checklists.'}
-        color="rose"
-        badge="Admin"
-        buttonLabel="Open Offboarding"
-        variant="outline"
-      />
-    )
-  }
-
-  // Determine grid columns based on card count
   const gridCols = cards.length <= 2 ? 'sm:grid-cols-2' : cards.length <= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-3'
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-6 relative">
-      {/* Decorative mesh gradient */}
       <div className="absolute inset-0 bg-mesh-gradient opacity-30 pointer-events-none rounded-3xl" />
 
       <ScrollReveal direction="down" className="text-center mb-10 relative">

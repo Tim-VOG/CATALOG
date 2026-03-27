@@ -27,6 +27,9 @@ export function ScanPage() {
   const [bulkMode, setBulkMode] = useState(false)
   const [bulkItems, setBulkItems] = useState([]) // [{ code, qrData }]
   const [bulkAction, setBulkAction] = useState(null) // 'take' | 'deposit'
+  const [bulkDatesStep, setBulkDatesStep] = useState(false)
+  const [bulkPickupDate, setBulkPickupDate] = useState('')
+  const [bulkReturnDate, setBulkReturnDate] = useState('')
   const [bulkProcessing, setBulkProcessing] = useState(false)
   const [bulkResults, setBulkResults] = useState(null)
 
@@ -90,8 +93,17 @@ export function ScanPage() {
     }
   }
 
+  const handleBulkTakeClick = () => {
+    const today = new Date().toISOString().split('T')[0]
+    const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
+    setBulkPickupDate(today)
+    setBulkReturnDate(nextWeek)
+    setBulkDatesStep(true)
+  }
+
   const handleBulkProcess = async (action) => {
     setBulkProcessing(true)
+    setBulkDatesStep(false)
     const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
     const results = []
 
@@ -103,6 +115,8 @@ export function ScanPage() {
           userId: user?.id,
           userEmail: user?.email,
           userName: userName || user?.email,
+          pickupDate: action === 'take' ? bulkPickupDate : null,
+          expectedReturnDate: action === 'take' ? bulkReturnDate : null,
         })
         results.push({ ...response, code: item.code, productName: item.qrData.product_name })
       } catch (err) {
@@ -130,6 +144,9 @@ export function ScanPage() {
     setBulkItems([])
     setBulkAction(null)
     setBulkResults(null)
+    setBulkDatesStep(false)
+    setBulkPickupDate('')
+    setBulkReturnDate('')
     setScannedCode(null)
   }
 
@@ -250,11 +267,40 @@ export function ScanPage() {
                     )}
                   </Card>
 
+                  {/* Bulk dates step (before Take All) */}
+                  {bulkDatesStep && bulkItems.length > 0 && (
+                    <Card className="p-4 border-primary/20">
+                      <p className="text-sm font-semibold mb-3">Loan period for all items</p>
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-xs text-muted-foreground">Pickup date</label>
+                          <input type="date" value={bulkPickupDate} min={new Date().toISOString().split('T')[0]}
+                            onChange={(e) => setBulkPickupDate(e.target.value)}
+                            className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground">Return by</label>
+                          <input type="date" value={bulkReturnDate} min={bulkPickupDate}
+                            onChange={(e) => setBulkReturnDate(e.target.value)}
+                            className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-3">
+                        <Button variant="outline" size="sm" onClick={() => setBulkDatesStep(false)}>Back</Button>
+                        <Button size="sm" onClick={() => handleBulkProcess('take')}
+                          disabled={!bulkPickupDate || !bulkReturnDate || bulkProcessing} loading={bulkProcessing}
+                          className="bg-gradient-to-br from-orange-500 to-red-500 text-white">
+                          Confirm Take All
+                        </Button>
+                      </div>
+                    </Card>
+                  )}
+
                   {/* Bulk action buttons */}
-                  {bulkItems.length > 0 && (
+                  {bulkItems.length > 0 && !bulkDatesStep && (
                     <div className="grid grid-cols-2 gap-3">
                       <Button
-                        onClick={() => handleBulkProcess('take')}
+                        onClick={handleBulkTakeClick}
                         disabled={bulkProcessing}
                         loading={bulkProcessing}
                         className={cn(
