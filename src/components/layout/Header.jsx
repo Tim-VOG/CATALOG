@@ -278,36 +278,6 @@ export function Header() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 ml-4">
-            {navLinks.map(({ to, label, icon: Icon, exact }) => (
-              <Link key={to} to={to}>
-                <Button
-                  variant={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                </Button>
-              </Link>
-            ))}
-
-            {isAdmin && (
-              <>
-                <div className="mx-2 h-6 w-px bg-border" />
-                <Link to="/admin">
-                  <Button
-                    variant={location.pathname.startsWith('/admin') ? 'secondary' : 'ghost'}
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Admin
-                  </Button>
-                </Link>
-              </>
-            )}
-          </nav>
         </div>
 
         {/* ── Center zone: search ──────────────────── */}
