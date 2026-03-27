@@ -12,9 +12,13 @@ import { motion } from 'motion/react'
 function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel, variant = 'default' }) {
   const colorMap = {
     primary: { iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: '' },
+    blue: { iconBg: 'bg-gradient-to-br from-blue-500/20 to-blue-500/5', iconColor: 'text-blue-500', hoverBorder: 'hover:border-blue-500/30', btnClass: 'border-blue-500/30 text-blue-500 hover:bg-blue-500/10' },
     cyan: { iconBg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-500/5', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
     violet: { iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
     amber: { iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
+    green: { iconBg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500', hoverBorder: 'hover:border-emerald-500/30', btnClass: 'border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10' },
+    rose: { iconBg: 'bg-gradient-to-br from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/30', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
+    yellow: { iconBg: 'bg-gradient-to-br from-yellow-500/20 to-yellow-500/5', iconColor: 'text-yellow-500', hoverBorder: 'hover:border-yellow-500/30', btnClass: 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10' },
   }
   const c = colorMap[color] || colorMap.primary
 
@@ -91,7 +95,7 @@ export function HubPage() {
       icon={QrCode}
       title="Scan"
       description="Take or return equipment by scanning its QR code."
-      color="cyan"
+      color="blue"
       buttonLabel="Start Scanning"
       variant="outline"
     />
@@ -105,7 +109,7 @@ export function HubPage() {
       icon={ClipboardList}
       title="Request Equipment"
       description="Submit a request for IT equipment for your project or team."
-      color="primary"
+      color="green"
       buttonLabel="New Request"
       variant="outline"
     />
@@ -120,7 +124,7 @@ export function HubPage() {
         icon={Inbox}
         title="My Requests"
         description="View all your submitted requests and track their status."
-        color="primary"
+        color="yellow"
         buttonLabel="View Requests"
         variant="outline"
       />
@@ -149,7 +153,7 @@ export function HubPage() {
       icon={UserMinus}
       title="Offboarding Request"
       description="Request access revocation and equipment collection for a departing employee."
-      color="amber"
+      color="rose"
       buttonLabel="New Request"
       variant="outline"
     />

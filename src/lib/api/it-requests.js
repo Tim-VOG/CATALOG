@@ -12,10 +12,11 @@ export const getItRequests = async () => {
 
 // ── User: fetch own IT requests ──
 export const getMyItRequests = async (userId) => {
+  // Check both legacy column (requested_by) and new column (requester_id)
   const { data, error } = await supabase
     .from('it_requests')
     .select('*')
-    .eq('requested_by', userId)
+    .or(`requested_by.eq.${userId},requester_id.eq.${userId}`)
     .order('created_at', { ascending: false })
   if (error) throw error
   return data

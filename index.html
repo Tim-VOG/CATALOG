@@ -6,7 +6,15 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>VO Gear Hub</title>
   </head>
-  <body>
+  <body style="background:#0f1419">
+    <script>
+      // Prevent black flash on refresh: apply theme before React hydrates
+      (function() {
+        var theme = 'dark';
+        try { theme = localStorage.getItem('vo-theme-override') || 'dark'; } catch(e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
