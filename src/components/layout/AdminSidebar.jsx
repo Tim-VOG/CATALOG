@@ -64,7 +64,7 @@ const sidebarSections = [
       { to: '/admin/onboarding', label: 'Recipients', icon: UserPlus, exact: true, anim: ANIM.recipients },
       { to: '/admin/onboarding/compose', label: 'Compose', icon: PenLine, anim: ANIM.compose },
       { to: '/admin/onboarding/history', label: 'History', icon: Clock, anim: ANIM.history },
-      { to: '/admin/it-requests', label: 'IT Requests', icon: ClipboardList, anim: ANIM.itRequests },
+      { to: '/admin/it-requests', label: 'All Requests', icon: ClipboardList, anim: ANIM.itRequests },
       { to: '/admin/it-form-builder', label: 'Form Builder', icon: Settings, anim: ANIM.formBuild },
     ],
   },
