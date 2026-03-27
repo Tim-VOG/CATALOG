@@ -55,21 +55,34 @@ export function OnboardingRequestPage() {
     try {
       const submitterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
 
-      // Save to a generic requests table or IT requests
-      const { error } = await supabase.from('it_requests').insert({
+      // Split name into first/last
+      const nameParts = form.new_employee_name.trim().split(/\s+/)
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+
+      // 1. Create onboarding recipient directly (appears in Recipients page)
+      const { error: recipientError } = await supabase.from('onboarding_recipients').insert({
+        first_name: firstName,
+        last_name: lastName,
+        email: form.new_employee_email,
+        team: form.business_unit,
+        department: form.department || '',
+        start_date: form.start_date || null,
+        language: 'en',
+      })
+      if (recipientError) throw recipientError
+
+      // 2. Also save to it_requests for tracking
+      await supabase.from('it_requests').insert({
         type: 'onboarding',
         requester_id: user.id,
         requester_email: user.email,
         requester_name: submitterName,
-        data: {
-          ...form,
-          submitted_at: new Date().toISOString(),
-        },
+        data: { ...form, submitted_at: new Date().toISOString() },
         status: 'pending',
-      })
-      if (error) throw error
+      }).catch(() => {}) // Non-blocking — recipient is the important part
 
-      // Send notification email to admins (fire and forget)
+      // Send notification email to admins
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `New Onboarding Request: ${form.new_employee_name}`,
@@ -80,7 +93,7 @@ export function OnboardingRequestPage() {
             <li><strong>Start date:</strong> ${form.start_date}</li>
             <li><strong>Department:</strong> ${form.department || '—'}</li>
             <li><strong>Business unit:</strong> ${form.business_unit}</li>
-            <li><strong>Equipment needed:</strong> ${form.needs_equipment ? (form.equipment_type === 'other' ? form.equipment_other : form.equipment_type) : 'No'}</li>
+            <li><strong>Equipment:</strong> ${form.needs_equipment ? (form.equipment_type === 'other' ? form.equipment_other : form.equipment_type) : 'No'}</li>
           </ul>
           ${form.notes ? `<p><strong>Notes:</strong> ${form.notes}</p>` : ''}`,
       })
