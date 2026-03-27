@@ -72,15 +72,17 @@ export function OnboardingRequestPage() {
       })
       if (recipientError) throw recipientError
 
-      // 2. Also save to it_requests for tracking
-      await supabase.from('it_requests').insert({
-        type: 'onboarding',
-        requester_id: user.id,
-        requester_email: user.email,
-        requester_name: submitterName,
-        data: { ...form, submitted_at: new Date().toISOString() },
-        status: 'pending',
-      }).catch(() => {}) // Non-blocking — recipient is the important part
+      // 2. Also save to it_requests for tracking (non-blocking)
+      try {
+        await supabase.from('it_requests').insert({
+          type: 'onboarding',
+          requester_id: user.id,
+          requester_email: user.email,
+          requester_name: submitterName,
+          data: { ...form, submitted_at: new Date().toISOString() },
+          status: 'pending',
+        })
+      } catch {} // Non-blocking — recipient is the important part
 
       // Send notification email to admins
       sendEmail({
