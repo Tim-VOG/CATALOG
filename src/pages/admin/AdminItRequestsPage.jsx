@@ -5,7 +5,7 @@ import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { useUIStore } from '@/stores/ui-store'
 import {
   Search, ClipboardList, UserPlus, Trash2, Eye, Calendar,
-  Monitor, MonitorOff, ChevronRight,
+  Monitor, MonitorOff, ChevronRight, UserMinus, Package,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -133,88 +133,64 @@ export function AdminItRequestsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((req) => (
-            <Card key={req.id} variant="elevated" className="hover:shadow-card-hover transition-shadow">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center gap-4">
-                  {/* Icon */}
-                  <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                    <ClipboardList className="h-5 w-5 text-amber-500" />
-                  </div>
+          {filtered.map((req) => {
+            const reqType = req.type || 'it_request'
+            const data = req.data || {}
+            // Resolve display name: new format uses data or requester_name, old uses first_name/last_name
+            const displayName = data.new_employee_name || data.employee_name || data.project_name
+              || req.requester_name
+              || [req.first_name, req.last_name].filter(Boolean).join(' ')
+              || 'Unknown'
+            const submitter = req.requester_name || req.requested_by_name || ''
+            const bu = data.business_unit || req.business_unit || ''
+            const status = req.status || ''
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm">
-                        {req.first_name} {req.last_name}
-                      </span>
-                      {req.status && (
-                        <Badge variant="outline" className="text-[10px]">{req.status}</Badge>
-                      )}
-                      {req.business_unit && (
-                        <Badge variant="secondary" className="text-[10px]">{req.business_unit}</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                      {req.start_date && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(req.start_date).toLocaleDateString('fr-FR')}
-                        </span>
-                      )}
-                      {req.needs_computer ? (
-                        <span className="flex items-center gap-1 text-primary">
-                          <Monitor className="h-3 w-3" /> Computer needed
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          <MonitorOff className="h-3 w-3" /> No computer
-                        </span>
-                      )}
-                      {req.access_needs?.length > 0 && (
-                        <span>{req.access_needs.length} access{req.access_needs.length > 1 ? 'es' : ''}</span>
-                      )}
-                    </div>
-                    {req.requested_by_name && (
-                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-                        Requested by {req.requested_by_name} &middot; {new Date(req.created_at).toLocaleDateString('fr-FR')}
-                      </p>
-                    )}
-                  </div>
+            const TYPE_STYLES = {
+              onboarding: { icon: UserPlus, bg: 'bg-cyan-500/10', color: 'text-cyan-500' },
+              offboarding: { icon: UserMinus, bg: 'bg-rose-500/10', color: 'text-rose-500' },
+              equipment: { icon: Package, bg: 'bg-primary/10', color: 'text-primary' },
+              it_request: { icon: ClipboardList, bg: 'bg-amber-500/10', color: 'text-amber-500' },
+            }
+            const style = TYPE_STYLES[reqType] || TYPE_STYLES.it_request
+            const TypeIcon = style.icon
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDetailRequest(req)}
-                      className="gap-1.5 text-xs"
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline">View</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCreateOnboarding(req)}
-                      className="gap-1.5 text-xs"
-                    >
-                      <UserPlus className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline">Onboarding</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeleteConfirm(req)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+            return (
+              <Card key={req.id} variant="elevated" className="hover:shadow-card-hover transition-shadow">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-center gap-4">
+                    <div className={`h-10 w-10 rounded-xl ${style.bg} flex items-center justify-center shrink-0`}>
+                      <TypeIcon className={`h-5 w-5 ${style.color}`} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">{displayName}</span>
+                        <Badge variant="outline" className="text-[10px] capitalize">{reqType.replace('_', ' ')}</Badge>
+                        {status && status !== 'pending' && (
+                          <Badge variant="secondary" className="text-[10px]">{status}</Badge>
+                        )}
+                        {bu && <Badge variant="secondary" className="text-[10px]">{bu}</Badge>}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        {submitter && <span>By {submitter}</span>}
+                        <span>{new Date(req.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="sm" onClick={() => setDetailRequest(req)} className="gap-1.5 text-xs">
+                        <Eye className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">View</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(req)} className="text-destructive hover:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
 
@@ -222,41 +198,61 @@ export function AdminItRequestsPage() {
       <Dialog open={!!detailRequest} onOpenChange={() => setDetailRequest(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              IT Request — {detailRequest?.first_name} {detailRequest?.last_name}
+            <DialogTitle className="capitalize">
+              {(detailRequest?.type || 'IT Request').replace('_', ' ')} Details
             </DialogTitle>
           </DialogHeader>
           {detailRequest && (
             <div className="space-y-3">
-              {[
-                ['Status', detailRequest.status],
-                ['Business Unit', detailRequest.business_unit],
-                ['Corporate Email', detailRequest.generated_email],
-                ['Personal Email', detailRequest.personal_email],
-                ['Signature Title', detailRequest.signature_title],
-                ['Starting Date', detailRequest.start_date ? new Date(detailRequest.start_date).toLocaleDateString('fr-FR') : null],
-                ['Leaving Date', detailRequest.leaving_date ? new Date(detailRequest.leaving_date).toLocaleDateString('fr-FR') : null],
-                ['Computer', detailRequest.needs_computer ? 'Yes' : 'No'],
-                ['Access Needed', detailRequest.access_needs?.join(', ')],
-                ['SharePoint URL', detailRequest.sharepoint_url],
-                ['Listing', detailRequest.listing],
-                ['Listing Date', detailRequest.listing_date ? new Date(detailRequest.listing_date).toLocaleDateString('fr-FR') : null],
-                ['Requested By', detailRequest.requested_by_name],
-                ['Submitted', new Date(detailRequest.created_at).toLocaleString('fr-FR')],
-              ].map(([label, value]) => value ? (
-                <div key={label} className="flex items-start gap-3 text-sm">
-                  <span className="font-semibold text-muted-foreground w-32 shrink-0">{label}</span>
-                  <span className="break-all">{value}</span>
+              {/* Show JSONB data for new-format requests */}
+              {detailRequest.data && Object.keys(detailRequest.data).length > 0 ? (
+                Object.entries(detailRequest.data)
+                  .filter(([k, v]) => v !== '' && v !== null && k !== 'submitted_at')
+                  .map(([key, value]) => (
+                    <div key={key} className="flex items-start gap-3 text-sm">
+                      <span className="font-semibold text-muted-foreground w-36 shrink-0 capitalize">
+                        {key.replace(/_/g, ' ')}
+                      </span>
+                      <span className="break-all">
+                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No')
+                          : Array.isArray(value) ? value.map((v, i) => <div key={i}>{typeof v === 'object' ? `${v.product_name} x${v.quantity}` : v}</div>)
+                          : String(value)}
+                      </span>
+                    </div>
+                  ))
+              ) : (
+                // Old-format fields
+                [
+                  ['Status', detailRequest.status],
+                  ['Business Unit', detailRequest.business_unit],
+                  ['Name', `${detailRequest.first_name || ''} ${detailRequest.last_name || ''}`.trim()],
+                  ['Start Date', detailRequest.start_date ? new Date(detailRequest.start_date).toLocaleDateString('en-GB') : null],
+                  ['Computer', detailRequest.needs_computer ? 'Yes' : 'No'],
+                  ['Access Needed', detailRequest.access_needs?.join(', ')],
+                ].filter(([, v]) => v).map(([label, value]) => (
+                  <div key={label} className="flex items-start gap-3 text-sm">
+                    <span className="font-semibold text-muted-foreground w-36 shrink-0">{label}</span>
+                    <span className="break-all">{value}</span>
+                  </div>
+                ))
+              )}
+              {/* Common fields */}
+              <div className="border-t border-border/30 pt-3 space-y-2">
+                {detailRequest.requester_name && (
+                  <div className="flex items-start gap-3 text-sm">
+                    <span className="font-semibold text-muted-foreground w-36 shrink-0">Submitted by</span>
+                    <span>{detailRequest.requester_name} ({detailRequest.requester_email})</span>
+                  </div>
+                )}
+                <div className="flex items-start gap-3 text-sm">
+                  <span className="font-semibold text-muted-foreground w-36 shrink-0">Date</span>
+                  <span>{new Date(detailRequest.created_at).toLocaleString('en-GB')}</span>
                 </div>
-              ) : null)}
+              </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailRequest(null)}>Close</Button>
-            <Button onClick={() => { setDetailRequest(null); handleCreateOnboarding(detailRequest) }} className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              Create Onboarding
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -268,8 +264,8 @@ export function AdminItRequestsPage() {
             <DialogTitle>Delete IT Request?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the IT request for{' '}
-            <strong>{deleteConfirm?.first_name} {deleteConfirm?.last_name}</strong>.
+            This will permanently delete this {deleteConfirm?.type || 'IT'} request
+            {deleteConfirm?.requester_name ? ` from ${deleteConfirm.requester_name}` : ''}.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
