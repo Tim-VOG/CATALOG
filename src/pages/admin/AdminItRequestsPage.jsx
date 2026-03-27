@@ -137,7 +137,7 @@ export function AdminItRequestsPage() {
             const reqType = req.type || 'it_request'
             const data = req.data || {}
             // Resolve display name: new format uses data or requester_name, old uses first_name/last_name
-            const displayName = data.new_employee_name || data.employee_name || data.project_name
+            const displayName = data.new_employee_name || data.employee_name || data.event_name || data.project_name
               || req.requester_name
               || [req.first_name, req.last_name].filter(Boolean).join(' ')
               || 'Unknown'

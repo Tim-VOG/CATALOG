@@ -1,13 +1,11 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
-import { useScanLogs } from '@/hooks/use-qr-codes'
-import { format } from 'date-fns'
-import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { updateProfile } from '@/lib/api/profiles'
 import { supabase } from '@/lib/supabase'
-import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2, MessageSquare, Package, AlertTriangle, QrCode, Layers } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2, MessageSquare } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Input } from '@/components/ui/input'
@@ -27,7 +25,6 @@ const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 export function ProfilePage() {
   const { user, profile, loading, refreshProfile } = useAuth()
   const { data: requests = [] } = useMyLoanRequests(user?.id)
-  const { data: allScanLogs = [] } = useScanLogs({ limit: 200 })
   const showToast = useUIStore((s) => s.showToast)
 
   const [phone, setPhone] = useState(profile?.phone || '')
@@ -45,25 +42,6 @@ export function ProfilePage() {
   const completedRequests = requests.filter((r) => ['returned', 'closed'].includes(r.status)).length
 
   const phoneChanged = phone !== (profile?.phone || '')
-
-  // My Equipment — active loans from QR scans
-  const myEquipment = (() => {
-    if (!user?.id) return []
-    const myLogs = allScanLogs.filter(l => l.user_id === user.id)
-    const takes = myLogs.filter(l => l.action === 'take')
-    const deposits = myLogs.filter(l => l.action === 'deposit')
-    const productCounts = {}
-    for (const t of takes) {
-      if (!productCounts[t.product_id]) productCounts[t.product_id] = { takes: 0, deposits: 0, latest: null }
-      productCounts[t.product_id].takes++
-      if (!productCounts[t.product_id].latest || new Date(t.created_at) > new Date(productCounts[t.product_id].latest.created_at))
-        productCounts[t.product_id].latest = t
-    }
-    for (const d of deposits) {
-      if (productCounts[d.product_id]) productCounts[d.product_id].deposits++
-    }
-    return Object.values(productCounts).filter(pc => pc.takes > pc.deposits).map(pc => pc.latest)
-  })()
 
   const handleSavePhone = async () => {
     if (!phoneChanged) return
@@ -273,57 +251,6 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* My Equipment */}
-      <Card>
-        <CardHeader className="px-6 pt-6 pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Package className="h-4 w-4" /> My Equipment
-            </CardTitle>
-            <Link to="/scan">
-              <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-primary">
-                <QrCode className="h-3.5 w-3.5" /> Scan to return
-              </Button>
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent className="px-6 pb-6">
-          {myEquipment.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No equipment currently checked out.</p>
-          ) : (
-            <div className="space-y-2">
-              {myEquipment.map((loan) => {
-                const today = new Date().toISOString().split('T')[0]
-                const isOverdue = loan.expected_return_date && loan.expected_return_date < today
-                return (
-                  <div key={loan.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/30">
-                    {loan.product_image ? (
-                      <img src={loan.product_image} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                        <Package className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{loan.product_name}</p>
-                      {loan.expected_return_date && (
-                        <p className="text-[10px] text-muted-foreground">
-                          Return by {format(new Date(loan.expected_return_date + 'T12:00:00'), 'MMM d, yyyy')}
-                        </p>
-                      )}
-                    </div>
-                    {isOverdue && (
-                      <Badge variant="outline" className="bg-destructive/15 text-destructive border-destructive/30 text-[10px] shrink-0">
-                        <AlertTriangle className="h-2.5 w-2.5 mr-1" /> Overdue
-                      </Badge>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
 }
