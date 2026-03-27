@@ -182,15 +182,6 @@ function StepVoEurope({ form, update }) {
       </div>
       <div className="space-y-2">
         <Label>
-          Mail to be created <span className="text-destructive ml-1">*</span>
-        </Label>
-        <Input
-          value={form.mail_to_create}
-          onChange={(e) => update('mail_to_create', e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>
           Language <span className="text-destructive ml-1">*</span>
         </Label>
         <Select value={form.language} onChange={(e) => update('language', e.target.value)}>
@@ -317,7 +308,7 @@ function StepReview({ form, activeSteps }) {
     ...(isVoEurope
       ? [
           { label: 'Project Name / Mission', value: form.project_name },
-          { label: 'Mail to be created', value: form.mail_to_create },
+
           { label: 'Language', value: form.language },
           { label: 'Country Based', value: form.country_based },
         ]
@@ -376,7 +367,6 @@ export function OnboardingRequestPage() {
     signing_off_as: '',
     // VO Europe
     project_name: '',
-    mail_to_create: '',
     language: '',
     country_based: '',
     // Dates
@@ -428,7 +418,7 @@ export function OnboardingRequestPage() {
       case 'identity':
         return !!(form.name && form.profile && form.company)
       case 'vo_europe':
-        return !!(form.project_name && form.mail_to_create && form.language && form.country_based)
+        return !!(form.project_name && form.language && form.country_based)
       case 'dates':
         return !!form.first_day
       case 'access':
@@ -462,7 +452,7 @@ export function OnboardingRequestPage() {
         await createOnboardingRecipient({
           first_name: nameParts[0] || '',
           last_name: nameParts.slice(1).join(' ') || '',
-          email: form.mail_to_create || '',
+          email: '',
           team: form.company || '',
           department: '',
           start_date: form.first_day || null,
