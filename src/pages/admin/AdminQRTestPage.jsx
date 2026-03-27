@@ -69,13 +69,16 @@ export function AdminQRTestPage() {
     if (!selectedCode) return
     try {
       const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
+      const today = new Date().toISOString().split('T')[0]
+      const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
       const response = await scanMutation.mutateAsync({
         code: selectedCode,
         action,
         userId: user?.id,
         userEmail: user?.email,
         userName: userName || user?.email,
-        notes: action === 'take' ? 'Test from QR Test Lab' : undefined,
+        pickupDate: action === 'take' ? today : null,
+        expectedReturnDate: action === 'take' ? nextWeek : null,
       })
       setResult(response)
       refetchLogs()

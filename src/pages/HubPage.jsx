@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, ClipboardList } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -93,6 +93,20 @@ export function HubPage() {
       description="Take or return equipment by scanning its QR code."
       color="cyan"
       buttonLabel="Start Scanning"
+      variant="outline"
+    />
+  )
+
+  // Equipment Request — always visible
+  cards.push(
+    <HubCard
+      key="equipment-request"
+      to="/equipment-request"
+      icon={ClipboardList}
+      title="Request Equipment"
+      description="Submit a request for IT equipment for your project or team."
+      color="primary"
+      buttonLabel="New Request"
       variant="outline"
     />
   )

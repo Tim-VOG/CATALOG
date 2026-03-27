@@ -50,6 +50,7 @@ import { ScanPage } from '@/pages/scan/ScanPage'
 import { MyEquipmentPage } from '@/pages/my-equipment/MyEquipmentPage'
 import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequestPage'
 import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
+import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
 
 export function AppRoutes() {
   return (
@@ -79,6 +80,7 @@ export function AppRoutes() {
         <Route path="scan" element={<ScanPage />} />
         <Route path="my-equipment" element={<MyEquipmentPage />} />
         <Route path="onboarding-request" element={<OnboardingRequestPage />} />
+        <Route path="equipment-request" element={<EquipmentRequestPage />} />
         <Route path="offboarding-request" element={<OffboardingRequestPage />} />
 
         {/* Admin routes */}
