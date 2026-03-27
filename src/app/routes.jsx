@@ -48,6 +48,8 @@ import { ReservePage } from '@/pages/catalog/ReservePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
 import { MyEquipmentPage } from '@/pages/my-equipment/MyEquipmentPage'
+import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequestPage'
+import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
 
 export function AppRoutes() {
   return (
@@ -76,6 +78,8 @@ export function AppRoutes() {
         <Route path="my-requests" element={<MyRequestsPage />} />
         <Route path="scan" element={<ScanPage />} />
         <Route path="my-equipment" element={<MyEquipmentPage />} />
+        <Route path="onboarding-request" element={<OnboardingRequestPage />} />
+        <Route path="offboarding-request" element={<OffboardingRequestPage />} />
 
         {/* Admin routes */}
         <Route

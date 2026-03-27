@@ -89,11 +89,22 @@ export function OnboardingComposerPage() {
     }
   }, [blockTemplates, existingEmail, blocksLoading, initialized])
 
-  // Set language from recipient when selected
+  // Set language and default subject from recipient when selected
   useEffect(() => {
     if (recipientId && !emailId) {
       const r = recipients.find((rec) => rec.id === recipientId)
-      if (r) setLanguage(r.language || 'fr')
+      if (r) {
+        setLanguage(r.language || 'fr')
+        // Set default subject if empty
+        if (!subject) {
+          const name = r.first_name || 'Name'
+          setSubject(
+            (r.language || 'fr') === 'fr'
+              ? `Bienvenue chez VO Groupe, ${name}`
+              : `Welcome to VO Groupe, ${name}`
+          )
+        }
+      }
     }
   }, [recipientId, recipients, emailId])
 

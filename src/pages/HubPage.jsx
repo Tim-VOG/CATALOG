@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, ArrowRight, Mail, QrCode, Clock, Inbox } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -112,6 +112,34 @@ export function HubPage() {
       />
     )
   }
+
+  // Onboarding Request — always visible
+  cards.push(
+    <HubCard
+      key="onboarding-request"
+      to="/onboarding-request"
+      icon={UserPlus}
+      title="Onboarding Request"
+      description="Request IT setup and equipment for a new team member."
+      color="cyan"
+      buttonLabel="New Request"
+      variant="outline"
+    />
+  )
+
+  // Offboarding Request — always visible
+  cards.push(
+    <HubCard
+      key="offboarding-request"
+      to="/offboarding-request"
+      icon={UserMinus}
+      title="Offboarding Request"
+      description="Request access revocation and equipment collection for a departing employee."
+      color="amber"
+      buttonLabel="New Request"
+      variant="outline"
+    />
+  )
 
   // Functional Mailbox — show if access granted
   if (hasMailbox) {
