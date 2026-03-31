@@ -103,7 +103,7 @@ export function MobileNav() {
             key="mobile-nav-drawer"
             initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-y-0 left-0 w-72 glass-panel bg-card/95 border-r z-50 flex flex-col shadow-float"
+            className="fixed inset-y-0 left-0 w-[min(18rem,85vw)] glass-panel bg-card/95 border-r z-50 flex flex-col shadow-float"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border/30">

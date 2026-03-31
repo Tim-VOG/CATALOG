@@ -360,15 +360,16 @@ export function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className="border rounded-xl overflow-hidden">
+      <div className="border rounded-xl overflow-hidden relative">
+        <div className="overflow-x-auto after:absolute after:right-0 after:top-0 after:bottom-0 after:w-8 after:bg-gradient-to-l after:from-background after:to-transparent after:pointer-events-none after:md:hidden after:z-10">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[260px]">User</TableHead>
-              <TableHead className="w-[180px]">Business Unit</TableHead>
-              <TableHead className="w-[110px]">Role</TableHead>
-              <TableHead className="w-[100px]">Status</TableHead>
-              <TableHead className="w-[80px] text-center">Loans</TableHead>
+              <TableHead className="w-[180px] sm:w-[260px]">User</TableHead>
+              <TableHead className="w-[140px] sm:w-[180px]">Business Unit</TableHead>
+              <TableHead className="w-[90px] sm:w-[110px]">Role</TableHead>
+              <TableHead className="w-[80px] sm:w-[100px]">Status</TableHead>
+              <TableHead className="w-[60px] sm:w-[80px] text-center">Loans</TableHead>
               <TableHead>Permissions</TableHead>
               <TableHead className="w-[60px]" />
             </TableRow>
@@ -521,6 +522,7 @@ export function AdminUsersPage() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       {/* Confirm role change dialog */}

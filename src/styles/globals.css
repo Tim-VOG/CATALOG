@@ -120,6 +120,7 @@ body {
   color: var(--color-foreground);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Card section padding — generous, matching UI-Kit reference */

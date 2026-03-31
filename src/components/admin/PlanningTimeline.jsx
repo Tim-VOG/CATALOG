@@ -203,7 +203,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
         ))}
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto relative after:absolute after:right-0 after:top-0 after:bottom-0 after:w-8 after:bg-gradient-to-l after:from-background after:to-transparent after:pointer-events-none after:md:hidden after:z-10">
         <div className="min-w-[800px]">
           {/* Header row */}
           <div className="flex border-b bg-muted/10 sticky top-0 z-10">

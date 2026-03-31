@@ -31,7 +31,7 @@ export function AppLayout() {
   return (
     <LiveRegionProvider>
     <TooltipProvider delayDuration={300}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-hidden">
         <NavigationProgress />
         <a
           href="#main-content"
@@ -42,7 +42,7 @@ export function AppLayout() {
         <Header />
         <MobileNav />
         <BottomTabBar />
-        <main id="main-content" className="px-6 py-6 pb-20 md:pb-6 lg:px-10">
+        <main id="main-content" className="px-3 py-4 pb-20 sm:px-6 sm:py-6 md:pb-6 lg:px-10">
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname} direction={direction.current}>
               <Outlet />

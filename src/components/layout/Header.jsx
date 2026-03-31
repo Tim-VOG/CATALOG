@@ -190,7 +190,7 @@ function HeaderSearch() {
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden h-9 w-9"
+        className="md:hidden h-8 w-8 sm:h-9 sm:w-9"
         onClick={handleMobileToggle}
         aria-label="Search"
       >
@@ -253,10 +253,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-primary/20 after:to-transparent">
-      <div className="flex h-16 items-center px-4 gap-3">
+      <div className="flex h-16 items-center px-2 gap-1.5 sm:px-4 sm:gap-3">
         {/* ── Left zone: hamburger + logo + nav ─────── */}
-        <div className="flex items-center gap-3 shrink-0">
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMobileNav} aria-label="Open menu">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 sm:h-9 sm:w-9" onClick={toggleMobileNav} aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </Button>
 
@@ -308,16 +308,16 @@ export function Header() {
         <HeaderSearch />
 
         {/* ── Right zone: actions ──────────────────── */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           <NotificationBell />
 
-          {/* Theme toggle */}
+          {/* Theme toggle — hidden on very small screens */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9"
+                className="h-8 w-8 sm:h-9 sm:w-9 max-[374px]:hidden"
                 onClick={toggleTheme}
               >
                 {themeMode === 'dark' ? (
