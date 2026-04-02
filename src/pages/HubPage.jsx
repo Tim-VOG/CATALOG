@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, ClipboardList } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, Monitor } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -88,29 +88,32 @@ export function HubPage() {
     />
   )
 
-  cards.push(
-    <HubCard
-      key="scan"
-      to="/scan"
-      icon={QrCode}
-      title="Scan"
-      description="Take or return equipment by scanning its QR code."
-      color="blue"
-      buttonLabel="Start Scanning"
-      variant="outline"
-    />
-  )
+  // QR Scan — admin only (users don't need to scan QR codes)
+  if (isAdmin) {
+    cards.push(
+      <HubCard
+        key="scan"
+        to="/scan"
+        icon={QrCode}
+        title="Scan"
+        description="Take or return equipment by scanning its QR code."
+        color="blue"
+        buttonLabel="Start Scanning"
+        variant="outline"
+      />
+    )
+  }
 
-  // Equipment Request — always visible
+  // My Equipment — visible to everyone
   cards.push(
     <HubCard
-      key="equipment-request"
-      to="/equipment-request"
-      icon={ClipboardList}
-      title="Request Equipment"
-      description="Submit a request for IT equipment for your project or team."
+      key="my-equipments"
+      to="/my-equipments"
+      icon={Monitor}
+      title="My Equipment"
+      description="View all equipment currently assigned to you."
       color="green"
-      buttonLabel="New Request"
+      buttonLabel="View Equipment"
       variant="outline"
     />
   )

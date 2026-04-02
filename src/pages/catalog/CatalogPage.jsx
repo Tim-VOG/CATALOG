@@ -4,14 +4,84 @@ import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
-import { Package, QrCode } from 'lucide-react'
+import { Package, QrCode, ShoppingCart } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Link } from 'react-router-dom'
+import { useAuth } from '@/lib/auth'
+import { useCart } from '@/hooks/use-cart'
 import { cn } from '@/lib/utils'
+
+function CartBanner() {
+  const { isAdmin } = useAuth()
+  const { data: cartItems = [] } = useCart()
+  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+
+  if (isAdmin) {
+    return (
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <QrCode className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Need to take or return equipment?</p>
+              <p className="text-xs text-muted-foreground">Scan the QR code on the item to update stock automatically.</p>
+            </div>
+          </div>
+          <Link to="/scan">
+            <Button size="sm" className="gap-2 shrink-0">
+              <QrCode className="h-3.5 w-3.5" />
+              Scan QR
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    )
+  }
+
+  if (itemCount > 0) {
+    return (
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">{itemCount} item{itemCount !== 1 ? 's' : ''} in your cart</p>
+              <p className="text-xs text-muted-foreground">Ready to submit your equipment request?</p>
+            </div>
+          </div>
+          <Link to="/cart">
+            <Button size="sm" className="gap-2 shrink-0">
+              <ShoppingCart className="h-3.5 w-3.5" />
+              View Cart
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="p-4 border-border/40 bg-muted/20">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <ShoppingCart className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold">Add equipment to your cart</p>
+          <p className="text-xs text-muted-foreground">Click "Add to Cart" on any product, then submit your request when ready.</p>
+        </div>
+      </div>
+    </Card>
+  )
+}
 
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -64,26 +134,8 @@ export function CatalogPage() {
         />
       </div>
 
-      {/* QR scan prompt */}
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <QrCode className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Need to take or return equipment?</p>
-              <p className="text-xs text-muted-foreground">Scan the QR code on the item to update stock automatically.</p>
-            </div>
-          </div>
-          <Link to="/scan">
-            <Button size="sm" className="gap-2 shrink-0">
-              <QrCode className="h-3.5 w-3.5" />
-              Scan QR
-            </Button>
-          </Link>
-        </div>
-      </Card>
+      {/* Cart prompt or admin QR prompt */}
+      <CartBanner />
 
       {/* Category filters */}
       <div className="flex flex-wrap gap-2">
