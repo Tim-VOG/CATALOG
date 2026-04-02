@@ -4,7 +4,7 @@ import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
-import { Package, QrCode, ShoppingCart } from 'lucide-react'
+import { Package, QrCode, ShoppingCart, Filter } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
@@ -85,6 +85,7 @@ function CartBanner() {
 
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [inStockOnly, setInStockOnly] = useState(false)
 
   const productsQuery = useProducts()
   const products = productsQuery.data || []
@@ -95,8 +96,12 @@ export function CatalogPage() {
   const { data: reservedByProduct = {} } = useReservationsInRange(today, today)
 
   const filtered = products.filter((p) => {
-    return selectedCategory === 'All' || p.category_name === selectedCategory
+    if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
+    if (inStockOnly && (p.total_stock - (reservedByProduct[p.id] || 0)) <= 0) return false
+    return true
   })
+
+  const totalInStock = products.filter((p) => (p.total_stock - (reservedByProduct[p.id] || 0)) > 0).length
 
   if (productsQuery.isLoading || productsQuery.isError) {
     return (
@@ -137,8 +142,25 @@ export function CatalogPage() {
       {/* Cart prompt or admin QR prompt */}
       <CartBanner />
 
-      {/* Category filters */}
-      <div className="flex flex-wrap gap-2">
+      {/* Filters: categories + in-stock toggle */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* In-stock toggle */}
+        <button
+          type="button"
+          onClick={() => setInStockOnly(!inStockOnly)}
+          className={cn(
+            'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full border transition-colors',
+            inStockOnly
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+              : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted'
+          )}
+        >
+          <Filter className="h-3 w-3" />
+          In stock ({totalInStock})
+        </button>
+
+        <div className="h-5 w-px bg-border/60 mx-1" />
+
         {[{ id: 'all', name: 'All' }, ...categories].map((c) => {
           const isActive = selectedCategory === c.name
           return (

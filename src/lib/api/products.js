@@ -55,6 +55,16 @@ export const deleteProduct = async (id) => {
   if (error) throw error
 }
 
+export const decrementStockForRequest = async (requestId) => {
+  const { error } = await supabase.rpc('decrement_stock_for_request', { p_request_id: requestId })
+  if (error) throw error
+}
+
+export const incrementStockForRequest = async (requestId) => {
+  const { error } = await supabase.rpc('increment_stock_for_request', { p_request_id: requestId })
+  if (error) throw error
+}
+
 export const deleteProducts = async (ids) => {
   if (!ids.length) return
   const { error } = await supabase.from('products').delete().in('id', ids)

@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { useState } from 'react'
 import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
+import { decrementStockForRequest, incrementStockForRequest } from '@/lib/api/products'
 import {
   ArrowLeft, Calendar, MapPin, User, Clock, Package, Mail,
   Check, X, ShieldCheck, Undo2, CalendarPlus,
@@ -51,6 +52,14 @@ export function AdminRequestDetailPage() {
     try {
       await updateStatus.mutateAsync({ id: request.id, status, ...extraData })
       showToast(`Request ${status}`)
+
+      // Stock management: decrement on approval, increment on return
+      if (status === 'approved') {
+        decrementStockForRequest(request.id).catch(() => {})
+      }
+      if (status === 'returned') {
+        incrementStockForRequest(request.id).catch(() => {})
+      }
 
       // Auto-assign equipment to user when request is approved
       if (status === 'approved' && items.length > 0) {
