@@ -1,64 +1,61 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, Monitor } from 'lucide-react'
+import { useMyEquipment } from '@/hooks/use-user-equipment'
+import { useMyLoanRequests } from '@/hooks/use-loan-requests'
+import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Monitor } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ScrollReveal, DynamicsItem } from '@/components/ui/motion'
+import { DynamicsItem } from '@/components/ui/motion'
 import { motion } from 'motion/react'
+import { cn } from '@/lib/utils'
 
-function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel, variant = 'default' }) {
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel }) {
   const colorMap = {
-    primary: { iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: '' },
+    primary: { iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: 'border-primary/30 text-primary hover:bg-primary/10' },
     blue: { iconBg: 'bg-gradient-to-br from-blue-500/20 to-blue-500/5', iconColor: 'text-blue-500', hoverBorder: 'hover:border-blue-500/30', btnClass: 'border-blue-500/30 text-blue-500 hover:bg-blue-500/10' },
     cyan: { iconBg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-500/5', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
     violet: { iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
     amber: { iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
     green: { iconBg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500', hoverBorder: 'hover:border-emerald-500/30', btnClass: 'border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10' },
     rose: { iconBg: 'bg-gradient-to-br from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/30', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
-    yellow: { iconBg: 'bg-gradient-to-br from-yellow-500/20 to-yellow-500/5', iconColor: 'text-yellow-500', hoverBorder: 'hover:border-yellow-500/30', btnClass: 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10' },
   }
   const c = colorMap[color] || colorMap.primary
-
-  if (!to) {
-    return (
-      <Card variant="elevated" className="h-full opacity-55 overflow-hidden">
-        <CardContent className="p-7 flex flex-col items-center text-center h-full">
-          <div className={`h-14 w-14 rounded-2xl ${c.iconBg} flex items-center justify-center mb-4`}>
-            <Icon className={`h-7 w-7 ${c.iconColor}`} />
-          </div>
-          <h2 className="text-lg font-display font-bold mb-2">{title}</h2>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-1">{description}</p>
-          <Badge variant="outline" className="text-[10px] gap-1 text-muted-foreground">
-            <Clock className="h-2.5 w-2.5" /> Coming soon
-          </Badge>
-        </CardContent>
-      </Card>
-    )
-  }
 
   return (
     <Link to={to} className="block h-full">
       <Card variant="elevated" className={`h-full group ${c.hoverBorder} hover:shadow-elevated transition-all duration-300 cursor-pointer overflow-hidden`}>
-        <CardContent className="p-7 flex flex-col items-center text-center h-full">
+        <CardContent className="p-6 flex items-start gap-4 h-full">
           <motion.div
-            whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0] }}
+            whileHover={{ scale: 1.1 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-            className={`h-14 w-14 rounded-2xl ${c.iconBg} flex items-center justify-center mb-4`}
+            className={`h-11 w-11 rounded-xl ${c.iconBg} flex items-center justify-center shrink-0`}
           >
-            <Icon className={`h-7 w-7 ${c.iconColor}`} />
+            <Icon className={`h-5 w-5 ${c.iconColor}`} />
           </motion.div>
-          <div className="flex items-center gap-2 mb-2">
-            <h2 className="text-lg font-display font-bold">{title}</h2>
-            {badge && <Badge variant="secondary" className="text-[10px]">{badge}</Badge>}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-[15px] font-display font-bold">{title}</h2>
+              {badge && (
+                <Badge variant="secondary" className="text-[10px] font-semibold">{badge}</Badge>
+              )}
+            </div>
+            <p className="text-muted-foreground text-xs leading-relaxed mb-3">{description}</p>
+            <Button variant="outline" size="sm" className={cn('gap-1.5 h-8 text-xs group-hover:gap-2.5 transition-all', c.btnClass)}>
+              {buttonLabel}
+              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+            </Button>
           </div>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{description}</p>
-          <Button variant={variant === 'outline' ? 'outline' : 'default'} className={`gap-2 group-hover:gap-3 transition-all ${variant === 'outline' ? c.btnClass : ''}`}>
-            {buttonLabel}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Button>
         </CardContent>
       </Card>
     </Link>
@@ -66,59 +63,65 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
 }
 
 export function HubPage() {
-  const { isAdmin } = useAuth()
+  const { user, profile, isAdmin } = useAuth()
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
   const { data: settings } = useAppSettings()
 
-  const hubTitle = settings?.hub_main_title || 'VO Gear Hub'
-  const hubTagline = settings?.hub_tagline || 'Welcome — choose your destination'
+  // Live counters
+  const { data: myEquipment = [] } = useMyEquipment()
+  const { data: myRequests = [] } = useMyLoanRequests(user?.id)
+
+  const activeEquipment = myEquipment.filter((e) => e.status === 'active').length
+  const pendingRequests = myRequests.filter((r) => r.status === 'pending').length
+
+  const firstName = profile?.first_name || ''
+  const greeting = getGreeting()
 
   const cards = []
 
-  // Equipment section — always visible
+  // Catalog — always visible
   cards.push(
     <HubCard
       key="catalog"
       to="/catalog"
       icon={Package}
       title={settings?.hub_catalog_title || 'Equipment Catalog'}
-      description="Browse available IT equipment and check stock levels."
+      description="Browse and request IT equipment."
       color="primary"
       buttonLabel="Open Catalog"
     />
   )
 
-  // QR Scan — admin only (users don't need to scan QR codes)
+  // QR Scan — admin only
   if (isAdmin) {
     cards.push(
       <HubCard
         key="scan"
         to="/scan"
         icon={QrCode}
-        title="Scan"
-        description="Take or return equipment by scanning its QR code."
+        title="Scan QR"
+        description="Take or return equipment via QR code."
         color="blue"
         buttonLabel="Start Scanning"
-        variant="outline"
       />
     )
   }
 
-  // My Equipment — visible to everyone
+  // My Equipment — everyone
   cards.push(
     <HubCard
       key="my-equipments"
       to="/my-equipments"
       icon={Monitor}
       title="My Equipment"
-      description="View all equipment currently assigned to you."
+      description="Your assigned equipment."
       color="green"
       buttonLabel="View Equipment"
-      variant="outline"
+      badge={activeEquipment > 0 ? `${activeEquipment} item${activeEquipment !== 1 ? 's' : ''}` : null}
     />
   )
 
-  // My Requests — visible to non-admin users only
+  // My Requests — non-admin
   if (!isAdmin) {
     cards.push(
       <HubCard
@@ -126,43 +129,41 @@ export function HubPage() {
         to="/my-requests"
         icon={Inbox}
         title="My Requests"
-        description="View all your submitted requests and track their status."
-        color="yellow"
+        description="Track your submitted requests."
+        color="amber"
         buttonLabel="View Requests"
-        variant="outline"
+        badge={pendingRequests > 0 ? `${pendingRequests} pending` : null}
       />
     )
   }
 
-  // Onboarding Request — always visible
+  // Onboarding
   cards.push(
     <HubCard
       key="onboarding-request"
       to="/onboarding-request"
       icon={UserPlus}
-      title="Onboarding Request"
-      description="Request IT setup and equipment for a new team member."
+      title="Onboarding"
+      description="IT setup for a new team member."
       color="cyan"
       buttonLabel="New Request"
-      variant="outline"
     />
   )
 
-  // Offboarding Request — always visible
+  // Offboarding
   cards.push(
     <HubCard
       key="offboarding-request"
       to="/offboarding-request"
       icon={UserMinus}
-      title="Offboarding Request"
-      description="Request access revocation and equipment collection for a departing employee."
+      title="Offboarding"
+      description="Access revocation for a departing employee."
       color="rose"
       buttonLabel="New Request"
-      variant="outline"
     />
   )
 
-  // Functional Mailbox — show if access granted
+  // Functional Mailbox — if access granted
   if (hasMailbox) {
     cards.push(
       <HubCard
@@ -170,36 +171,32 @@ export function HubPage() {
         to="/functional-mailbox"
         icon={Mail}
         title="Mailbox Request"
-        description="Request a new functional mailbox for your team or project."
+        description="Request a functional mailbox."
         color="violet"
         buttonLabel="New Request"
-        variant="outline"
       />
     )
   }
 
-  const gridCols = cards.length <= 2 ? 'sm:grid-cols-2' : cards.length <= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-3'
-
   return (
-    <div className="max-w-6xl mx-auto py-12 px-6 relative">
-      <div className="absolute inset-0 bg-mesh-gradient opacity-30 pointer-events-none rounded-3xl" />
-
-      <ScrollReveal direction="down" className="text-center mb-10 relative">
-        <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight text-gradient-primary">
-          {hubTitle}
-        </h1>
-        <p className="text-muted-foreground mt-3 text-lg">
-          {hubTagline}
+    <div className="max-w-5xl mx-auto py-10 px-6">
+      {/* Header */}
+      <motion.div
+        className="mb-10"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <p className="text-muted-foreground text-sm">
+          {greeting}{firstName ? `, ${firstName}` : ''}
         </p>
-        <motion.div
-          className="mt-5 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent mx-auto"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        />
-      </ScrollReveal>
+        <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mt-1">
+          What do you need today?
+        </h1>
+      </motion.div>
 
-      <div className={`grid grid-cols-1 ${gridCols} gap-5 relative`}>
+      {/* Cards — 2 columns */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {cards.map((card, i) => (
           <DynamicsItem key={card.key} index={i}>
             {card}
