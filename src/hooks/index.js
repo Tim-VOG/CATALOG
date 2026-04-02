@@ -11,7 +11,6 @@ export { useFormFields, useActiveFormFields, useCreateFormField, useUpdateFormFi
 export { useNotificationRecipients, useCreateNotificationRecipient, useUpdateNotificationRecipient, useDeleteNotificationRecipient } from './use-notification-recipients'
 export { useExtensionRequests, usePendingExtensions, useExtensionsByRequest, useCreateExtension, useApproveExtension, useRejectExtension } from './use-extension-requests'
 export { useLoanRequests, useMyLoanRequests, useLoanRequest, useLoanRequestItems, useCreateLoanRequest, useUpdateRequestStatus, useCancelRequest, useProcessReturn } from './use-loan-requests'
-export { useProductOptions, useAllProductOptions, useCreateProductOption, useUpdateProductOption, useDeleteProductOption } from './use-product-options'
 export { useSubscriptionPlans, useAllSubscriptionPlans, useCreateSubscriptionPlan, useUpdateSubscriptionPlan, useDeleteSubscriptionPlan } from './use-subscription-plans'
 export { useProducts, useProduct, useCreateProduct, useUpdateProduct, useDeleteProduct, useProductReservations, useReservationsInRange } from './use-products'
 export { useThemeMode, useToggleTheme, useClearThemeOverride, useTheme } from './use-theme'

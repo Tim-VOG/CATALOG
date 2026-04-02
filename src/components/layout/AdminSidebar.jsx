@@ -1,71 +1,60 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
+  LayoutDashboard, Package, Inbox, RotateCcw,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
-  SlidersHorizontal, FilePlus2, UserPlus, PenLine, ClipboardList,
-  Settings, UserMinus, QrCode, ScrollText, FlaskConical, Monitor,
-  ChevronDown,
+  FilePlus2, UserPlus, ClipboardList,
+  Settings, UserMinus, QrCode, ScrollText,
+  ChevronDown, CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const sidebarSections = [
   {
-    label: 'Catalog',
+    label: 'Overview',
     defaultOpen: true,
     links: [
       { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-      { to: '/admin/products', label: 'Products', icon: Package },
-      { to: '/admin/product-options', label: 'Product Options', icon: SlidersHorizontal },
-      { to: '/admin/categories', label: 'Categories', icon: FolderTree },
-      { to: '/admin/requests', label: 'Requests', icon: Inbox },
+    ],
+  },
+  {
+    label: 'Requests',
+    defaultOpen: true,
+    links: [
+      { to: '/admin/requests', label: 'Equipment Requests', icon: Inbox },
+      { to: '/admin/it-requests', label: 'IT Requests', icon: ClipboardList },
+      { to: '/admin/mailbox-requests', label: 'Mailbox Requests', icon: Mail },
       { to: '/admin/new-request', label: 'New Request', icon: FilePlus2 },
       { to: '/admin/planning', label: 'Planning', icon: CalendarRange },
       { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
-      { to: '/admin/users', label: 'Users', icon: Users },
-      { to: '/admin/email-templates', label: 'Communications', icon: Mail },
-      { to: '/admin/design', label: 'Design', icon: Palette },
     ],
   },
   {
-    label: 'QR Inventory',
+    label: 'Inventory / QR',
     defaultOpen: false,
     links: [
+      { to: '/admin/products', label: 'Products', icon: Package },
       { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
       { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
-      { to: '/admin/qr-test', label: 'Test Lab', icon: FlaskConical },
     ],
   },
   {
-    label: 'Onboarding',
+    label: 'People',
     defaultOpen: false,
     links: [
-      { to: '/admin/onboarding', label: 'Recipients', icon: UserPlus, exact: true },
-      { to: '/admin/it-requests', label: 'All Requests', icon: ClipboardList },
-      { to: '/admin/it-form-builder', label: 'Form Builder', icon: Settings },
+      { to: '/admin/users', label: 'Users', icon: Users },
+      { to: '/admin/onboarding', label: 'Onboarding', icon: UserPlus },
+      { to: '/admin/offboarding', label: 'Offboarding', icon: UserMinus },
     ],
   },
   {
-    label: 'Functional Mailbox',
+    label: 'Settings',
     defaultOpen: false,
     links: [
-      { to: '/admin/mailbox-requests', label: 'Requests', icon: Mail, exact: true },
-      { to: '/admin/mailbox-form-builder', label: 'Form Builder', icon: Settings },
-    ],
-  },
-  {
-    label: 'Offboarding',
-    defaultOpen: false,
-    links: [
-      { to: '/admin/offboarding', label: 'Processes', icon: UserMinus, exact: true },
-      { to: '/admin/offboarding-form-builder', label: 'Form Builder', icon: Settings },
-    ],
-  },
-  {
-    label: 'IT Tools',
-    defaultOpen: false,
-    links: [
-      { to: '/admin/it-tools', label: 'Overview', icon: Monitor },
+      { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
+      { to: '/admin/email-templates', label: 'Email Templates', icon: Mail },
+      { to: '/admin/design', label: 'Design & Branding', icon: Palette },
+      { to: '/admin/forms', label: 'Form Builder', icon: Settings },
     ],
   },
 ]
@@ -130,25 +119,8 @@ export function AdminSidebar() {
           <p className="text-[10px] text-muted-foreground mt-0.5">Manage your workspace</p>
         </div>
 
-        {/* All Requests quick link */}
-        <div className="px-2 pt-2">
-          <Link to="/admin/all-requests">
-            <div
-              className={cn(
-                'flex items-center gap-2.5 px-3 py-[7px] mx-1 rounded-lg text-[13px] transition-all duration-150',
-                isActive('/admin/all-requests')
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-              )}
-            >
-              <Inbox className="h-[15px] w-[15px] shrink-0" />
-              All Requests
-            </div>
-          </Link>
-        </div>
-
         {/* Scrollable nav */}
-        <nav className="flex-1 overflow-y-auto px-2 pb-2 pt-1 space-y-1">
+        <nav className="flex-1 overflow-y-auto px-2 pb-2 pt-2 space-y-1">
           {sidebarSections.map((section) => (
             <SidebarSection key={section.label} section={section} isActive={isActive} />
           ))}

@@ -23,7 +23,7 @@ import { AdminDesignPage } from '@/pages/admin/AdminDesignPage'
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
 import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
-import { AdminProductOptionsPage } from '@/pages/admin/AdminProductOptionsPage'
+import { AdminSubscriptionPlansPage } from '@/pages/admin/AdminSubscriptionPlansPage'
 import { AdminNewRequestPage } from '@/pages/admin/AdminNewRequestPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
@@ -42,7 +42,7 @@ import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuild
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
 import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
-import { AdminQRTestPage } from '@/pages/admin/AdminQRTestPage'
+// AdminQRTestPage removed — dev-only tool, not needed in production admin
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { ReservePage } from '@/pages/catalog/ReservePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -95,7 +95,9 @@ export function AppRoutes() {
           <Route index element={<AdminDashboardPage />} />
           <Route path="all-requests" element={<AdminAllRequestsPage />} />
           <Route path="products" element={<AdminProductsPage />} />
-          <Route path="product-options" element={<AdminProductOptionsPage />} />
+          <Route path="subscription-plans" element={<AdminSubscriptionPlansPage />} />
+          {/* Redirect old product-options route */}
+          <Route path="product-options" element={<Navigate to="/admin/products" replace />} />
           <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
@@ -119,7 +121,7 @@ export function AppRoutes() {
           <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
           <Route path="qr-codes" element={<AdminQRCodesPage />} />
           <Route path="scan-logs" element={<AdminScanLogsPage />} />
-          <Route path="qr-test" element={<AdminQRTestPage />} />
+          {/* QR Test Lab removed — dev-only tool */}
           {/* Redirect old module-access route to users page */}
           <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
         </Route>
