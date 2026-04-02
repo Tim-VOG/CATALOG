@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth'
 import { printBrandedQRCodes } from '@/lib/qr-branded'
 import {
   ArrowLeft, Check, WifiOff, AlertTriangle,
-  QrCode, Package, Printer, CalendarPlus,
+  QrCode, Package, Printer, CalendarPlus, ShoppingCart, Plus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,6 +17,8 @@ import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummaryCard'
 import { FadeIn, ScrollFadeIn } from '@/components/ui/motion'
 import { Breadcrumb } from '@/components/common/Breadcrumb'
+import { useCartStore } from '@/stores/cart-store'
+import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
 export function ProductDetailPage() {
@@ -129,22 +131,23 @@ export function ProductDetailPage() {
         </div>
       </div>
 
-      {/* QR Scan CTA + Print QR */}
-      <FadeIn delay={0.3} y={10} className="flex justify-center gap-3 mt-8 xl:mt-10 px-4">
-        <Link to="/scan">
-          <Button
-            className="rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 transition-all duration-300"
-          >
-            <QrCode className="h-5 w-5" />
-            Scan QR to Take or Return
-          </Button>
-        </Link>
+      {/* Action buttons */}
+      <FadeIn delay={0.3} y={10} className="flex flex-wrap justify-center gap-3 mt-8 xl:mt-10 px-4">
+        <AddToCartButton product={product} />
         <Link to={`/catalog/${productId}/reserve`}>
           <Button variant="outline" className="rounded-full h-12 sm:h-14 px-6 gap-2">
             <CalendarPlus className="h-4 w-4" />
             Reserve for Later
           </Button>
         </Link>
+        {isAdmin && (
+          <Link to="/scan">
+            <Button variant="outline" className="rounded-full h-12 sm:h-14 px-6 gap-2">
+              <QrCode className="h-4 w-4" />
+              Scan QR
+            </Button>
+          </Link>
+        )}
         {isAdmin && productQRCodes.length > 0 && (
           <Button
             variant="outline"
@@ -213,6 +216,37 @@ export function ProductDetailPage() {
 
       <div className="h-12" />
     </div>
+  )
+}
+
+function AddToCartButton({ product }) {
+  const addItem = useCartStore((s) => s.addItem)
+  const hasItem = useCartStore((s) => s.hasItem)
+  const showToast = useUIStore((s) => s.showToast)
+  const inCart = hasItem(product.id)
+  const isUnavailable = product.total_stock <= 0
+
+  if (isUnavailable) return null
+
+  return (
+    <Button
+      className={cn(
+        'rounded-full h-12 sm:h-14 px-8 sm:px-12 text-base sm:text-lg gap-2.5 font-semibold shadow-lg transition-all duration-300',
+        inCart
+          ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 hover:shadow-emerald-500/25'
+          : 'shadow-primary/20 hover:shadow-xl hover:shadow-primary/25'
+      )}
+      onClick={() => {
+        addItem(product)
+        showToast(inCart ? `${product.name} quantity updated` : `${product.name} added to cart`)
+      }}
+    >
+      {inCart ? (
+        <><Check className="h-5 w-5" /> In Cart — Add More</>
+      ) : (
+        <><ShoppingCart className="h-5 w-5" /> Add to Cart</>
+      )}
+    </Button>
   )
 }
 

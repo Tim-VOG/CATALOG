@@ -1,13 +1,28 @@
 import { Link } from 'react-router-dom'
-import { Check, WifiOff, AlertTriangle } from 'lucide-react'
+import { Check, WifiOff, AlertTriangle, ShoppingCart, Plus } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
+import { useCartStore } from '@/stores/cart-store'
+import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
 export function ProductCard({ product, reservedQty = 0 }) {
   const available = product.total_stock - reservedQty
   const isUnavailable = available <= 0
+  const addItem = useCartStore((s) => s.addItem)
+  const hasItem = useCartStore((s) => s.hasItem)
+  const showToast = useUIStore((s) => s.showToast)
+  const inCart = hasItem(product.id)
+
+  const handleAddToCart = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (isUnavailable) return
+    addItem(product)
+    showToast(`${product.name} added to cart`)
+  }
 
   return (
     <Link to={`/catalog/${product.id}`} className="block h-full">
@@ -38,6 +53,27 @@ export function ProductCard({ product, reservedQty = 0 }) {
               <span className="text-sm font-semibold text-destructive bg-background/80 px-3 py-1 rounded-full">
                 Unavailable
               </span>
+            </div>
+          )}
+          {/* Add to cart hover button */}
+          {!isUnavailable && (
+            <div className="absolute bottom-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                size="sm"
+                className={cn(
+                  'h-8 gap-1.5 rounded-full shadow-lg text-xs font-semibold',
+                  inCart
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                    : 'bg-primary hover:bg-primary/90'
+                )}
+                onClick={handleAddToCart}
+              >
+                {inCart ? (
+                  <><Check className="h-3 w-3" /> In Cart</>
+                ) : (
+                  <><Plus className="h-3 w-3" /> Add to Cart</>
+                )}
+              </Button>
             </div>
           )}
         </div>
@@ -71,7 +107,7 @@ export function ProductCard({ product, reservedQty = 0 }) {
             </div>
           )}
 
-          <div className="pt-2 border-t mt-auto">
+          <div className="pt-2 border-t mt-auto flex items-center justify-between">
             <div className="text-sm">
               <span
                 className={cn(
@@ -83,6 +119,20 @@ export function ProductCard({ product, reservedQty = 0 }) {
               </span>
               <span className="text-muted-foreground"> / {product.total_stock}</span>
             </div>
+            {/* Mobile add to cart button (always visible) */}
+            {!isUnavailable && (
+              <Button
+                size="icon"
+                variant={inCart ? 'default' : 'outline'}
+                className={cn(
+                  'h-7 w-7 sm:hidden shrink-0',
+                  inCart && 'bg-emerald-500 hover:bg-emerald-600 border-emerald-500'
+                )}
+                onClick={handleAddToCart}
+              >
+                {inCart ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

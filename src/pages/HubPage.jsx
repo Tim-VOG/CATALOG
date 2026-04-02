@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, ClipboardList, Monitor } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Clock, Inbox, UserPlus, UserMinus, Monitor } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -104,20 +104,6 @@ export function HubPage() {
     )
   }
 
-  // Equipment Request — always visible
-  cards.push(
-    <HubCard
-      key="equipment-request"
-      to="/equipment-request"
-      icon={ClipboardList}
-      title="Request Equipment"
-      description="Submit a request for IT equipment for your project or team."
-      color="green"
-      buttonLabel="New Request"
-      variant="outline"
-    />
-  )
-
   // My Equipment — visible to everyone
   cards.push(
     <HubCard
@@ -126,7 +112,7 @@ export function HubPage() {
       icon={Monitor}
       title="My Equipment"
       description="View all equipment currently assigned to you."
-      color="blue"
+      color="green"
       buttonLabel="View Equipment"
       variant="outline"
     />

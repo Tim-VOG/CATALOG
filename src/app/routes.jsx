@@ -51,6 +51,7 @@ import { MyEquipmentsPage } from '@/pages/my-equipments/MyEquipmentsPage'
 import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequestPage'
 import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
 import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
+import { CartPage } from '@/pages/cart/CartPage'
 
 export function AppRoutes() {
   return (
@@ -80,6 +81,7 @@ export function AppRoutes() {
         <Route path="scan" element={<ScanPage />} />
         <Route path="my-equipments" element={<MyEquipmentsPage />} />
         <Route path="onboarding-request" element={<OnboardingRequestPage />} />
+        <Route path="cart" element={<CartPage />} />
         <Route path="equipment-request" element={<EquipmentRequestPage />} />
         <Route path="offboarding-request" element={<OffboardingRequestPage />} />
 
