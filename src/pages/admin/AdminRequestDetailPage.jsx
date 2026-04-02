@@ -2,6 +2,8 @@ import { Link, useParams } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
 import { useExtensionsByRequest } from '@/hooks/use-extension-requests'
 import { useAppSettings } from '@/hooks/use-settings'
+import { useAssignEquipmentBatch } from '@/hooks/use-user-equipment'
+import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { useState } from 'react'
 import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
@@ -31,6 +33,8 @@ export function AdminRequestDetailPage() {
   const { data: extensions = [] } = useExtensionsByRequest(requestId)
   const { data: settings } = useAppSettings()
   const updateStatus = useUpdateRequestStatus()
+  const assignBatch = useAssignEquipmentBatch()
+  const { user } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
 
   const [showReject, setShowReject] = useState(false)
@@ -47,6 +51,29 @@ export function AdminRequestDetailPage() {
     try {
       await updateStatus.mutateAsync({ id: request.id, status, ...extraData })
       showToast(`Request ${status}`)
+
+      // Auto-assign equipment to user when request is approved
+      if (status === 'approved' && items.length > 0) {
+        const assignments = items.map((item) => ({
+          user_id: request.user_id,
+          user_email: request.user_email || '',
+          user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
+          product_id: item.product_id,
+          product_name: item.product_name || '',
+          product_image: item.product_image || '',
+          category_name: item.category_name || '',
+          assigned_date: request.pickup_date || new Date().toISOString().split('T')[0],
+          expected_return_date: request.return_date || null,
+          source_type: 'request',
+          source_id: request.id,
+          includes: item.product_includes || [],
+          assigned_by: user?.id,
+          notes: `Auto-assigned from request #${request.request_number}`,
+        }))
+        assignBatch.mutateAsync(assignments).catch(() => {
+          // Silent fail — assignment is best-effort
+        })
+      }
 
       // Auto-send emails for specific status changes (fire & forget)
       sendStatusChangeEmail(status, { request, items, settings })
