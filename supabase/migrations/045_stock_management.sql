@@ -32,7 +32,9 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Update the products_with_category view to include restock_date
-CREATE OR REPLACE VIEW products_with_category AS
+-- Must DROP first because column order changed since original creation
+DROP VIEW IF EXISTS products_with_category CASCADE;
+CREATE VIEW products_with_category AS
 SELECT
     p.*,
     c.name as category_name,
