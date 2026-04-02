@@ -271,8 +271,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-primary/20 after:to-transparent">
-      <div className="flex h-16 items-center px-2 gap-1.5 sm:px-4 sm:gap-3">
-        {/* ── Left zone: hamburger + logo + nav ─────── */}
+      <div className="flex h-16 items-center px-2 sm:px-4">
+        {/* ── Left zone: hamburger + logo ─────── */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 sm:h-9 sm:w-9" onClick={toggleMobileNav} aria-label="Open menu">
             <Menu className="h-5 w-5" />
@@ -289,9 +289,11 @@ export function Header() {
               <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>
             </div>
           </Link>
+        </div>
 
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1 ml-4">
+        {/* ── Center zone: nav + search ──────────────────── */}
+        <div className="flex-1 flex items-center justify-center gap-1 mx-2 sm:mx-4">
+          <nav className="hidden lg:flex items-center gap-1">
             {[
               { to: '/', label: 'Hub', icon: Home, exact: true },
               { to: '/catalog', label: 'Catalog', icon: Package },
@@ -320,10 +322,9 @@ export function Header() {
               </>
             )}
           </nav>
-        </div>
 
-        {/* ── Center zone: search ──────────────────── */}
-        <HeaderSearch />
+          <HeaderSearch />
+        </div>
 
         {/* ── Right zone: actions ──────────────────── */}
         <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
