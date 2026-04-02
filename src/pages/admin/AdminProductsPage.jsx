@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
 
 const emptyForm = {
   name: '', description: '', category_id: '', sub_type: '', image_url: '',
-  total_stock: 1, includes: [], has_accessories: false, has_software: false,
+  total_stock: 1, includes: [],
   has_subscription: false, has_apps: false, wifi_only: false, printer_info: false,
 }
 
@@ -133,8 +133,7 @@ export function AdminProductsPage() {
       category_id: product.category_id, sub_type: product.sub_type || '',
       image_url: product.image_url || '', total_stock: product.total_stock,
       includes: (product.includes || []).flatMap((s) => s.split(/[;,]/).map((t) => t.trim()).filter(Boolean)),
-      has_accessories: product.has_accessories,
-      has_software: product.has_software, has_subscription: product.has_subscription,
+      has_subscription: product.has_subscription,
       has_apps: product.has_apps, wifi_only: product.wifi_only, printer_info: product.printer_info,
     })
     setShowForm(true)
@@ -421,12 +420,13 @@ export function AdminProductsPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>Options</Label>
+              <Label>Product flags</Label>
               <div className="flex flex-wrap gap-4">
                 {[
-                  ['has_accessories', 'Accessories'], ['has_software', 'Software'],
-                  ['has_subscription', 'Subscription'], ['has_apps', 'Apps'],
-                  ['wifi_only', 'WiFi only'], ['printer_info', 'Printer'],
+                  ['has_subscription', 'Needs subscription plan'],
+                  ['has_apps', 'Pre-install apps'],
+                  ['wifi_only', 'WiFi only'],
+                  ['printer_info', 'Printer (B&W)'],
                 ].map(([key, label]) => (
                   <label key={key} className="flex items-center gap-2 text-sm">
                     <Checkbox checked={form[key]} onCheckedChange={(v) => setForm({ ...form, [key]: v })} />

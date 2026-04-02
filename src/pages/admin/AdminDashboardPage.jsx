@@ -312,7 +312,14 @@ export function AdminDashboardPage() {
             Overview of your equipment management
           </motion.p>
         </div>
-        <div className="relative">
+        <div className="flex items-center gap-2">
+          <Link to="/admin/new-request">
+            <Button size="sm" className="gap-2 text-xs h-8 rounded-lg">
+              <Inbox className="h-3.5 w-3.5" />
+              New Request
+            </Button>
+          </Link>
+          <div className="relative">
           <Button
             variant={showCustomize ? 'secondary' : 'outline'}
             size="sm"
@@ -369,6 +376,7 @@ export function AdminDashboardPage() {
               </div>
             </>
           )}
+        </div>
         </div>
       </div>
 

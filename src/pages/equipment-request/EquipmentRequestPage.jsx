@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { useProducts } from '@/hooks/use-products'
+import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { motion, AnimatePresence } from 'motion/react'
 import {
-  User, Calendar, Monitor, CheckCircle,
+  User, Calendar, Monitor, CheckCircle, CreditCard,
   ArrowRight, ArrowLeft, Send, Loader2, Package,
   Laptop, Smartphone, Tablet, Tv, Apple,
 } from 'lucide-react'
@@ -23,6 +24,7 @@ const STEP_DEFS = [
   { id: 'requester', label: 'Requester', icon: User },
   { id: 'event', label: 'Event', icon: Calendar },
   { id: 'equipment', label: 'Equipment', icon: Monitor },
+  { id: 'subscription', label: 'Plan', icon: CreditCard },
   { id: 'review', label: 'Review', icon: CheckCircle },
 ]
 
@@ -447,8 +449,125 @@ function StepEquipment({ form, setField, productsByCategory }) {
   )
 }
 
-// ── Step 4: Review ──
-function StepReview({ form, productsByCategory }) {
+// ── Step: Subscription Plan (for phone/router) ──
+function StepSubscription({ form, setField, subscriptionPlans }) {
+  const [filterType, setFilterType] = useState('all')
+
+  const needsSubscription = (form.equipment_needed || []).some((id) => id === 'PHONE') ||
+    (form.equipment_needed || []).some((id) => id === 'ROUTER')
+
+  if (!needsSubscription) {
+    return (
+      <div className="text-center py-8">
+        <CreditCard className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+        <p className="text-sm text-muted-foreground">
+          No subscription plan needed for your selected equipment.
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Subscription plans are available for phones and routers.
+        </p>
+      </div>
+    )
+  }
+  const filteredPlans = subscriptionPlans.filter(
+    (p) => filterType === 'all' || p.type === filterType || p.type === 'both'
+  )
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Select a subscription plan for your phone or router. This will be included with your equipment request.
+        </p>
+
+        {/* Type filter */}
+        <div className="flex gap-2 mb-4">
+          {[
+            { value: 'all', label: 'All Plans' },
+            { value: 'call', label: 'Call' },
+            { value: 'data', label: 'Data' },
+            { value: 'both', label: 'Call + Data' },
+          ].map((opt) => (
+            <Button
+              key={opt.value}
+              type="button"
+              variant={filterType === opt.value ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilterType(opt.value)}
+              className="text-xs"
+            >
+              {opt.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Plan list */}
+        <div className="space-y-2">
+          {filteredPlans.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">No plans available for this filter.</p>
+          ) : (
+            filteredPlans.map((plan) => {
+              const isSelected = form.subscription_plan_id === plan.id
+              const typeColors = {
+                call: 'border-blue-500/30 bg-blue-500/5',
+                data: 'border-purple-500/30 bg-purple-500/5',
+                both: 'border-cyan-500/30 bg-cyan-500/5',
+              }
+              const typeBadgeColors = {
+                call: 'bg-blue-500/20 text-blue-400',
+                data: 'bg-purple-500/20 text-purple-400',
+                both: 'bg-cyan-500/20 text-cyan-400',
+              }
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => setField('subscription_plan_id', isSelected ? '' : plan.id)}
+                  className={`flex items-center gap-3 w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${
+                    isSelected
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : `border-border hover:${typeColors[plan.type] || 'border-muted-foreground/30'}`
+                  }`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{plan.name}</span>
+                      <Badge className={`text-[10px] ${typeBadgeColors[plan.type] || ''}`}>
+                        {plan.type === 'call' ? 'Call' : plan.type === 'data' ? 'Data' : 'Call + Data'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm font-semibold text-primary">{plan.price}</span>
+                      {plan.description && (
+                        <span className="text-xs text-muted-foreground">— {plan.description}</span>
+                      )}
+                    </div>
+                  </div>
+                  {isSelected && <CheckCircle className="h-5 w-5 text-primary shrink-0" />}
+                </button>
+              )
+            })
+          )}
+        </div>
+      </div>
+
+      {/* No plan option */}
+      <button
+        type="button"
+        onClick={() => setField('subscription_plan_id', '')}
+        className={`w-full p-3 rounded-xl border-2 text-center text-sm transition-all cursor-pointer ${
+          !form.subscription_plan_id
+            ? 'border-muted-foreground/40 bg-muted/20'
+            : 'border-border hover:border-muted-foreground/30 text-muted-foreground'
+        }`}
+      >
+        No subscription plan needed
+      </button>
+    </div>
+  )
+}
+
+function StepReview({ form, productsByCategory, subscriptionPlans }) {
   const equipmentLabels = (form.equipment_needed || [])
     .map((id) => EQUIPMENT_ITEMS.find((e) => e.id === id)?.label || id)
     .join(', ')
@@ -473,6 +592,7 @@ function StepReview({ form, productsByCategory }) {
     ...(form.screen_model ? [{ label: 'Screen', value: resolveProductName('screen', form.screen_model) }] : []),
     ...(form.tablet_model ? [{ label: 'Tablet', value: resolveProductName('tablet', form.tablet_model) }] : []),
     ...(form.phone_model ? [{ label: 'Phone', value: resolveProductName('phone', form.phone_model) }] : []),
+    ...(form.subscription_plan_id ? [{ label: 'Subscription Plan', value: (() => { const plan = subscriptionPlans.find(p => p.id === form.subscription_plan_id); return plan ? `${plan.name} (${plan.price})` : '—' })() }] : []),
     ...(form.additional_notes ? [{ label: 'Notes', value: form.additional_notes }] : []),
   ]
 
@@ -508,6 +628,7 @@ export function EquipmentRequestPage() {
   const { user, profile } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
   const { data: allProducts = [] } = useProducts()
+  const { data: subscriptionPlans = [] } = useSubscriptionPlans()
 
   const [currentStep, setCurrentStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
@@ -524,6 +645,7 @@ export function EquipmentRequestPage() {
     screen_model: '',
     tablet_model: '',
     phone_model: '',
+    subscription_plan_id: '',
     additional_notes: '',
   })
 
@@ -558,6 +680,9 @@ export function EquipmentRequestPage() {
     }
   }, [profile])
 
+  // Check if subscription step is relevant (phone or router selected)
+  const needsSubscription = (form.equipment_needed || []).includes('PHONE')
+
   // Validation per step
   const canGoNext = useMemo(() => {
     const step = STEP_DEFS[currentStep]
@@ -573,6 +698,8 @@ export function EquipmentRequestPage() {
         // If PC is selected, pc_type must be chosen
         if (form.equipment_needed.includes('PC') && !form.pc_type) return false
         return true
+      case 'subscription':
+        return true // Optional step
       case 'review':
         return true
       default:
@@ -586,12 +713,22 @@ export function EquipmentRequestPage() {
       const submitterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
 
       // Note: Stock is NOT decremented here — it only decrements on QR scan
+      // Resolve subscription plan name for the stored data
+      const selectedPlan = form.subscription_plan_id
+        ? subscriptionPlans.find(p => p.id === form.subscription_plan_id)
+        : null
+
       const { error } = await supabase.from('it_requests').insert({
         type: 'equipment',
         requester_id: user.id,
         requester_email: user.email,
         requester_name: submitterName,
-        data: { ...form, submitted_at: new Date().toISOString() },
+        data: {
+          ...form,
+          subscription_plan_name: selectedPlan?.name || null,
+          subscription_plan_price: selectedPlan?.price || null,
+          submitted_at: new Date().toISOString(),
+        },
         status: 'pending',
       })
       if (error) throw error
@@ -668,7 +805,10 @@ export function EquipmentRequestPage() {
               {currentStepDef.id === 'equipment' && (
                 <StepEquipment form={form} setField={setField} productsByCategory={productsByCategory} />
               )}
-              {isReview && <StepReview form={form} productsByCategory={productsByCategory} />}
+              {currentStepDef.id === 'subscription' && (
+                <StepSubscription form={form} setField={setField} subscriptionPlans={subscriptionPlans} />
+              )}
+              {isReview && <StepReview form={form} productsByCategory={productsByCategory} subscriptionPlans={subscriptionPlans} />}
             </motion.div>
           </AnimatePresence>
         </CardContent>

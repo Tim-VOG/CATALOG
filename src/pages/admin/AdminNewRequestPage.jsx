@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useProducts } from '@/hooks/use-products'
-import { useProductOptions } from '@/hooks/use-product-options'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import { useLocations } from '@/hooks/use-locations'
 import { useActiveFormFields } from '@/hooks/use-form-fields'
@@ -48,7 +47,6 @@ export function AdminNewRequestPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { data: products = [] } = useProducts()
-  const { data: productOptions = [] } = useProductOptions()
   const { data: subscriptionPlans = [] } = useSubscriptionPlans()
   const { data: locations = [] } = useLocations()
   const { data: activeFields = [] } = useActiveFormFields()
@@ -105,7 +103,7 @@ export function AdminNewRequestPage() {
   }
 
   const needsConfig = (product) =>
-    product.has_accessories || product.has_software || product.has_subscription || product.has_apps
+    product.has_subscription || product.has_apps
 
   // ---- Validation ----
 
@@ -784,7 +782,6 @@ export function AdminNewRequestPage() {
         <ProductConfigModal
           product={configProduct}
           subscriptionPlans={subscriptionPlans}
-          productOptions={productOptions}
           onConfirm={(options) => handleConfigConfirm(configProduct, options)}
           onClose={() => setConfigProduct(null)}
         />
