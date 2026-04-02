@@ -1,105 +1,80 @@
 import { useState, useMemo } from 'react'
-import { motion } from 'motion/react'
 import { useProducts, useReservationsInRange } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
+import { useCart } from '@/hooks/use-cart'
+import { useAuth } from '@/lib/auth'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { AnimateList, AnimateListItem, ScrollFadeIn } from '@/components/ui/motion'
-import { Package, QrCode, ShoppingCart, Filter } from 'lucide-react'
+import { Package, Search, ShoppingCart, Filter, ArrowUpDown, QrCode } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { Card } from '@/components/ui/card'
 import { Link } from 'react-router-dom'
-import { useAuth } from '@/lib/auth'
-import { useCart } from '@/hooks/use-cart'
 import { cn } from '@/lib/utils'
 
-function CartBanner() {
-  const { isAdmin } = useAuth()
-  const { data: cartItems = [] } = useCart()
-  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+const SORT_OPTIONS = [
+  { value: 'name-asc', label: 'Name (A-Z)' },
+  { value: 'name-desc', label: 'Name (Z-A)' },
+  { value: 'stock-desc', label: 'Stock (high to low)' },
+  { value: 'stock-asc', label: 'Stock (low to high)' },
+  { value: 'category', label: 'Category' },
+]
 
-  if (isAdmin) {
-    return (
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <QrCode className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Need to take or return equipment?</p>
-              <p className="text-xs text-muted-foreground">Scan the QR code on the item to update stock automatically.</p>
-            </div>
-          </div>
-          <Link to="/scan">
-            <Button size="sm" className="gap-2 shrink-0">
-              <QrCode className="h-3.5 w-3.5" />
-              Scan QR
-            </Button>
-          </Link>
-        </div>
-      </Card>
-    )
+function sortProducts(products, sortBy, reservedByProduct) {
+  const list = [...products]
+  switch (sortBy) {
+    case 'name-asc': return list.sort((a, b) => a.name.localeCompare(b.name))
+    case 'name-desc': return list.sort((a, b) => b.name.localeCompare(a.name))
+    case 'stock-desc': return list.sort((a, b) => (b.total_stock - (reservedByProduct[b.id] || 0)) - (a.total_stock - (reservedByProduct[a.id] || 0)))
+    case 'stock-asc': return list.sort((a, b) => (a.total_stock - (reservedByProduct[a.id] || 0)) - (b.total_stock - (reservedByProduct[b.id] || 0)))
+    case 'category': return list.sort((a, b) => (a.category_name || '').localeCompare(b.category_name || ''))
+    default: return list
   }
-
-  if (itemCount > 0) {
-    return (
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <ShoppingCart className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">{itemCount} item{itemCount !== 1 ? 's' : ''} in your cart</p>
-              <p className="text-xs text-muted-foreground">Ready to submit your equipment request?</p>
-            </div>
-          </div>
-          <Link to="/cart">
-            <Button size="sm" className="gap-2 shrink-0">
-              <ShoppingCart className="h-3.5 w-3.5" />
-              View Cart
-            </Button>
-          </Link>
-        </div>
-      </Card>
-    )
-  }
-
-  return (
-    <Card className="p-4 border-border/40 bg-muted/20">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-          <ShoppingCart className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold">Add equipment to your cart</p>
-          <p className="text-xs text-muted-foreground">Click "Add to Cart" on any product, then submit your request when ready.</p>
-        </div>
-      </div>
-    </Card>
-  )
 }
 
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [inStockOnly, setInStockOnly] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('name-asc')
 
+  const { isAdmin } = useAuth()
   const productsQuery = useProducts()
   const products = productsQuery.data || []
   const { data: categories = [] } = useCategories()
+  const { data: cartItems = [] } = useCart()
+  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
 
-  // Today's date for availability
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
   const { data: reservedByProduct = {} } = useReservationsInRange(today, today)
 
-  const filtered = products.filter((p) => {
-    if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
-    if (inStockOnly && (p.total_stock - (reservedByProduct[p.id] || 0)) <= 0) return false
-    return true
-  })
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts = { All: products.length }
+    for (const p of products) {
+      const cat = p.category_name || 'Other'
+      counts[cat] = (counts[cat] || 0) + 1
+    }
+    return counts
+  }, [products])
+
+  // Filter + sort
+  const filtered = useMemo(() => {
+    let list = products.filter((p) => {
+      if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
+      if (inStockOnly && (p.total_stock - (reservedByProduct[p.id] || 0)) <= 0) return false
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase()
+        if (!p.name.toLowerCase().includes(q) && !(p.category_name || '').toLowerCase().includes(q) && !(p.description || '').toLowerCase().includes(q)) return false
+      }
+      return true
+    })
+    return sortProducts(list, sortBy, reservedByProduct)
+  }, [products, selectedCategory, inStockOnly, searchQuery, sortBy, reservedByProduct])
 
   const totalInStock = products.filter((p) => (p.total_stock - (reservedByProduct[p.id] || 0)) > 0).length
 
@@ -109,14 +84,9 @@ export function CatalogPage() {
         query={productsQuery}
         skeleton={
           <div className="space-y-6">
-            <div>
-              <div className="h-8 w-64 bg-muted rounded animate-pulse" />
-              <div className="h-4 w-96 bg-muted rounded animate-pulse mt-2" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
+            <div className="h-8 w-64 bg-muted rounded animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
             </div>
           </div>
         }
@@ -125,26 +95,55 @@ export function CatalogPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Equipment Catalog</h1>
-        <p className="text-muted-foreground mt-1">View available equipment and stock levels</p>
-        <motion.div
-          className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ originX: 0 }}
-        />
+    <div className="space-y-5">
+      {/* Header — compact */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-display font-bold tracking-tight">Equipment Catalog</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">{products.length} products available</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link to="/scan">
+              <Button variant="outline" size="sm" className="gap-2">
+                <QrCode className="h-3.5 w-3.5" /> Scan QR
+              </Button>
+            </Link>
+          )}
+          {cartCount > 0 && (
+            <Link to="/cart">
+              <Button size="sm" className="gap-2">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                Cart ({cartCount})
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
 
-      {/* Cart prompt or admin QR prompt */}
-      <CartBanner />
+      {/* Search + Sort bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products..."
+            className="pl-10 rounded-full"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-44 text-sm">
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </Select>
+        </div>
+      </div>
 
-      {/* Filters: categories + in-stock toggle */}
+      {/* Filters: in-stock toggle + category pills with counts */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* In-stock toggle */}
         <button
           type="button"
           onClick={() => setInStockOnly(!inStockOnly)}
@@ -163,6 +162,7 @@ export function CatalogPage() {
 
         {[{ id: 'all', name: 'All' }, ...categories].map((c) => {
           const isActive = selectedCategory === c.name
+          const count = categoryCounts[c.name] || 0
           return (
             <button
               key={c.id}
@@ -171,35 +171,35 @@ export function CatalogPage() {
               className={cn(
                 'relative px-3 py-1.5 text-sm font-medium rounded-full transition-colors',
                 isActive
-                  ? 'text-primary-foreground'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
-              {isActive && (
-                <motion.span
-                  layoutId="category-pill"
-                  className="absolute inset-0 rounded-full bg-primary"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{c.name}</span>
+              {c.name} ({count})
             </button>
           )
         })}
       </div>
 
-      {/* Product grid */}
+      {/* Results count */}
+      <p className="text-xs text-muted-foreground">
+        Showing {filtered.length} of {products.length} product{products.length !== 1 ? 's' : ''}
+        {inStockOnly && ' (in stock only)'}
+        {searchQuery.trim() && ` matching "${searchQuery}"`}
+      </p>
+
+      {/* Product grid — max 3 columns */}
       {filtered.length === 0 ? (
         <EmptyState
           icon={Package}
           title="No equipment found"
-          description="No products in this category"
+          description={searchQuery ? 'Try a different search term' : 'No products match your filters'}
         />
       ) : (
         <ScrollFadeIn>
           <AnimateList
-            key={selectedCategory}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+            key={`${selectedCategory}-${sortBy}`}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
             {filtered.map((product) => (
               <AnimateListItem key={product.id} className="h-full">

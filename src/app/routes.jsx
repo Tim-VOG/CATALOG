@@ -8,7 +8,7 @@ import { HubPage } from '@/pages/HubPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
 import { CatalogPage } from '@/pages/catalog/CatalogPage'
-import { ProductDetailPage } from '@/pages/catalog/ProductDetailPage'
+// ProductDetailPage removed — all info is on the card
 // Cart and Checkout removed — all equipment actions go through QR scan
 import { RequestsPage } from '@/pages/requests/RequestsPage'
 import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
@@ -44,7 +44,7 @@ import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
 // AdminQRTestPage removed — dev-only tool, not needed in production admin
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
-import { ReservePage } from '@/pages/catalog/ReservePage'
+// ReservePage removed — booking via cart flow
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
 import { MyEquipmentsPage } from '@/pages/my-equipments/MyEquipmentsPage'
@@ -70,8 +70,8 @@ export function AppRoutes() {
       >
         <Route index element={<HubPage />} />
         <Route path="catalog" element={<CatalogPage />} />
-        <Route path="catalog/:productId" element={<ProductDetailPage />} />
-        <Route path="catalog/:productId/reserve" element={<ReservePage />} />
+        <Route path="catalog/:productId" element={<Navigate to="/catalog" replace />} />
+        <Route path="catalog/:productId/reserve" element={<Navigate to="/catalog" replace />} />
         <Route path="requests" element={<RequestsPage />} />
         <Route path="requests/:requestId" element={<RequestDetailPage />} />
         <Route path="profile" element={<ProfilePage />} />

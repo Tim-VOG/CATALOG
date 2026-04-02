@@ -1,14 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
-import { Check, WifiOff, AlertTriangle, ShoppingCart, Plus, CreditCard, Clock } from 'lucide-react'
+import { Check, ShoppingCart, Plus, CreditCard, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
 import { useCart, useAddToCart } from '@/hooks/use-cart'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
@@ -118,7 +116,9 @@ export function ProductCard({ product, reservedQty = 0 }) {
   const { data: cartItems = [] } = useCart()
   const addToCart = useAddToCart()
   const showToast = useUIStore((s) => s.showToast)
-  const inCart = cartItems.some((i) => i.product_id === product.id)
+  const cartItem = cartItems.find((i) => i.product_id === product.id)
+  const inCart = !!cartItem
+  const cartQty = cartItem?.quantity || 0
   const showOptions = needsOptions(product.category_name)
   const [optionsOpen, setOptionsOpen] = useState(false)
 
@@ -148,128 +148,91 @@ export function ProductCard({ product, reservedQty = 0 }) {
     doAdd(options)
   }
 
-  // Restock date formatting
   const restockLabel = outOfStock && product.restock_date
     ? `Available ${format(new Date(product.restock_date + 'T12:00:00'), 'MMM d, yyyy')}`
     : null
 
   return (
     <>
-      <Link to={`/catalog/${product.id}`} className="block h-full">
-        <Card spotlight={!outOfStock} className={cn(
-          'overflow-hidden group transition-all duration-200 h-full flex flex-col',
-          outOfStock
-            ? 'grayscale-[60%] opacity-70'
-            : 'hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50 active:scale-[0.98]'
-        )}>
-          <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-            <BlurImage
-              src={product.image_url || 'https://via.placeholder.com/400x250?text=No+Image'}
-              alt={product.name}
-              className={cn('transition-transform duration-300', !outOfStock && 'group-hover:scale-105')}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-            <CategoryBadge className="absolute top-3 left-3" name={product.category_name} color={product.category_color} subType={product.sub_type} />
+      <Card spotlight={!outOfStock} className={cn(
+        'overflow-hidden group transition-all duration-200 h-full flex flex-col',
+        outOfStock
+          ? 'grayscale-[60%] opacity-70'
+          : 'hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50'
+      )}>
+        {/* Image */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+          <BlurImage
+            src={product.image_url || 'https://via.placeholder.com/400x250?text=No+Image'}
+            alt={product.name}
+            className={cn('transition-transform duration-300', !outOfStock && 'group-hover:scale-105')}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
-            {/* Out of stock overlay */}
-            {outOfStock && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50">
-                <span className="text-sm font-bold text-foreground bg-background/90 px-4 py-1.5 rounded-full border border-border shadow-sm">
-                  Coming soon
+          {/* Out of stock overlay */}
+          {outOfStock && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50">
+              <span className="text-sm font-bold text-foreground bg-background/90 px-4 py-1.5 rounded-full border border-border shadow-sm">
+                Coming soon
+              </span>
+              {restockLabel && (
+                <span className="mt-2 text-xs text-muted-foreground bg-background/80 px-3 py-1 rounded-full flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> {restockLabel}
                 </span>
-                {restockLabel && (
-                  <span className="mt-2 text-xs text-muted-foreground bg-background/80 px-3 py-1 rounded-full flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> {restockLabel}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Add to cart hover button (desktop) — only when in stock */}
-            {!outOfStock && (
-              <div className="absolute bottom-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  size="sm"
-                  className={cn(
-                    'h-8 gap-1.5 rounded-full shadow-lg text-xs font-semibold',
-                    inCart ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-primary hover:bg-primary/90'
-                  )}
-                  onClick={handleAddToCart}
-                  disabled={addToCart.isPending}
-                >
-                  {inCart ? <><Check className="h-3 w-3" /> In Cart</> : <><Plus className="h-3 w-3" /> Add</>}
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <CardContent className="p-5 space-y-3 flex-1 flex flex-col">
-            <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors">{product.name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-
-            {product.includes?.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {product.includes.map((item, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted rounded px-2 py-0.5">
-                    <Check className="h-3 w-3 text-success" />{item}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {product.wifi_only && (
-              <div className="flex items-center gap-1 text-xs text-warning"><WifiOff className="h-3 w-3" /> WiFi only</div>
-            )}
-            {product.printer_info && (
-              <div className="flex items-center gap-1 text-xs text-warning"><AlertTriangle className="h-3 w-3" /> B&W Laser</div>
-            )}
-
-            {/* Stock + Add to Cart footer */}
-            <div className="pt-3 border-t mt-auto space-y-2.5">
-              {/* Stock display */}
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  {outOfStock ? (
-                    <span className="font-bold text-destructive">Out of stock</span>
-                  ) : (
-                    <>
-                      <span className={cn('font-bold', available > 3 ? 'text-success' : 'text-warning')}>
-                        {available}
-                      </span>
-                      <span className="text-muted-foreground"> in stock</span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Always-visible Add to Cart button */}
-              {!outOfStock ? (
-                <Button
-                  size="sm"
-                  className={cn(
-                    'w-full gap-2 rounded-lg text-xs font-semibold h-9',
-                    inCart
-                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                      : ''
-                  )}
-                  onClick={handleAddToCart}
-                  disabled={addToCart.isPending}
-                >
-                  {inCart ? (
-                    <><Check className="h-3.5 w-3.5" /> In Cart</>
-                  ) : (
-                    <><ShoppingCart className="h-3.5 w-3.5" /> Add to Cart</>
-                  )}
-                </Button>
-              ) : (
-                <Button size="sm" variant="outline" className="w-full gap-2 rounded-lg text-xs h-9" disabled>
-                  <Clock className="h-3.5 w-3.5" /> Unavailable
-                </Button>
               )}
             </div>
-          </CardContent>
-        </Card>
-      </Link>
+          )}
+        </div>
+
+        {/* Content */}
+        <CardContent className="p-5 flex-1 flex flex-col">
+          <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-1">
+            {product.category_name}
+          </p>
+          <h3 className="font-semibold text-base leading-tight">{product.name}</h3>
+          {product.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{product.description}</p>
+          )}
+
+          {/* Stock + Add to Cart */}
+          <div className="pt-3 border-t mt-auto space-y-2.5">
+            <div className="text-sm">
+              {outOfStock ? (
+                <span className="font-bold text-destructive">Out of stock</span>
+              ) : (
+                <>
+                  <span className={cn('font-bold', available > 3 ? 'text-success' : 'text-warning')}>
+                    {available}
+                  </span>
+                  <span className="text-muted-foreground"> in stock</span>
+                </>
+              )}
+            </div>
+
+            {!outOfStock ? (
+              <Button
+                size="sm"
+                className={cn(
+                  'w-full gap-2 rounded-lg text-xs font-semibold h-9',
+                  inCart ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''
+                )}
+                onClick={handleAddToCart}
+                disabled={addToCart.isPending}
+              >
+                {inCart ? (
+                  <><Check className="h-3.5 w-3.5" /> In Cart ({cartQty})</>
+                ) : (
+                  <><ShoppingCart className="h-3.5 w-3.5" /> Add to Cart</>
+                )}
+              </Button>
+            ) : (
+              <Button size="sm" variant="outline" className="w-full gap-2 rounded-lg text-xs h-9" disabled>
+                <Clock className="h-3.5 w-3.5" /> Unavailable
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {optionsOpen && (
         <OptionsDialog
