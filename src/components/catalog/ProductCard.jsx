@@ -4,24 +4,29 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
-import { useCartStore } from '@/stores/cart-store'
+import { useCart, useAddToCart } from '@/hooks/use-cart'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
 export function ProductCard({ product, reservedQty = 0 }) {
   const available = product.total_stock - reservedQty
   const isUnavailable = available <= 0
-  const addItem = useCartStore((s) => s.addItem)
-  const hasItem = useCartStore((s) => s.hasItem)
+  const { data: cartItems = [] } = useCart()
+  const addToCart = useAddToCart()
   const showToast = useUIStore((s) => s.showToast)
-  const inCart = hasItem(product.id)
+  const inCart = cartItems.some((i) => i.product_id === product.id)
 
   const handleAddToCart = (e) => {
     e.preventDefault()
     e.stopPropagation()
     if (isUnavailable) return
-    addItem(product)
-    showToast(`${product.name} added to cart`)
+    addToCart.mutate(
+      { productId: product.id, quantity: 1 },
+      {
+        onSuccess: () => showToast(`${product.name} added to cart`),
+        onError: (err) => showToast(err.message, 'error'),
+      }
+    )
   }
 
   return (
@@ -67,6 +72,7 @@ export function ProductCard({ product, reservedQty = 0 }) {
                     : 'bg-primary hover:bg-primary/90'
                 )}
                 onClick={handleAddToCart}
+                disabled={addToCart.isPending}
               >
                 {inCart ? (
                   <><Check className="h-3 w-3" /> In Cart</>
@@ -119,7 +125,7 @@ export function ProductCard({ product, reservedQty = 0 }) {
               </span>
               <span className="text-muted-foreground"> / {product.total_stock}</span>
             </div>
-            {/* Mobile add to cart button (always visible) */}
+            {/* Mobile add to cart button */}
             {!isUnavailable && (
               <Button
                 size="icon"
@@ -129,6 +135,7 @@ export function ProductCard({ product, reservedQty = 0 }) {
                   inCart && 'bg-emerald-500 hover:bg-emerald-600 border-emerald-500'
                 )}
                 onClick={handleAddToCart}
+                disabled={addToCart.isPending}
               >
                 {inCart ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
               </Button>

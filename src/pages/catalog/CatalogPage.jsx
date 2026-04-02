@@ -12,12 +12,13 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
-import { useCartStore } from '@/stores/cart-store'
+import { useCart } from '@/hooks/use-cart'
 import { cn } from '@/lib/utils'
 
 function CartBanner() {
   const { isAdmin } = useAuth()
-  const itemCount = useCartStore((s) => s.getItemCount())
+  const { data: cartItems = [] } = useCart()
+  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
 
   if (isAdmin) {
     return (

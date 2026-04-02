@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { Package, Home, User, ShoppingCart } from 'lucide-react'
-import { useCartStore } from '@/stores/cart-store'
+import { useCart } from '@/hooks/use-cart'
 import { cn } from '@/lib/utils'
 
 const tabs = [
@@ -13,7 +13,8 @@ const tabs = [
 
 export function BottomTabBar() {
   const location = useLocation()
-  const cartCount = useCartStore((s) => s.getItemCount())
+  const { data: cartItems = [] } = useCart()
+  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
 
   const isActive = (to, exact) => exact ? location.pathname === to : location.pathname.startsWith(to)
 

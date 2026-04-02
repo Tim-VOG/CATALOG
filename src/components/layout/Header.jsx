@@ -4,7 +4,7 @@ import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, Shop
 import { useAuth } from '@/lib/auth'
 
 import { useUIStore } from '@/stores/ui-store'
-import { useCartStore } from '@/stores/cart-store'
+import { useCart } from '@/hooks/use-cart'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useThemeMode, useToggleTheme } from '@/hooks/use-theme'
 import { useProductSearch } from '@/hooks/use-product-search'
@@ -239,7 +239,8 @@ function HeaderSearch() {
 }
 
 function CartButton() {
-  const itemCount = useCartStore((s) => s.getItemCount())
+  const { data: cartItems = [] } = useCart()
+  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
   return (
     <Link to="/cart">
       <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9" aria-label={itemCount > 0 ? `Cart (${itemCount} items)` : 'Cart'}>

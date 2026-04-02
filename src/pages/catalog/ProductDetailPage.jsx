@@ -18,6 +18,7 @@ import { AvailabilitySummaryCard } from '@/components/catalog/AvailabilitySummar
 import { FadeIn, ScrollFadeIn } from '@/components/ui/motion'
 import { Breadcrumb } from '@/components/common/Breadcrumb'
 import { useCartStore } from '@/stores/cart-store'
+import { useCart, useAddToCart } from '@/hooks/use-cart'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
@@ -220,10 +221,10 @@ export function ProductDetailPage() {
 }
 
 function AddToCartButton({ product }) {
-  const addItem = useCartStore((s) => s.addItem)
-  const hasItem = useCartStore((s) => s.hasItem)
+  const { data: cartItems = [] } = useCart()
+  const addToCart = useAddToCart()
   const showToast = useUIStore((s) => s.showToast)
-  const inCart = hasItem(product.id)
+  const inCart = cartItems.some((i) => i.product_id === product.id)
   const isUnavailable = product.total_stock <= 0
 
   if (isUnavailable) return null
@@ -236,9 +237,15 @@ function AddToCartButton({ product }) {
           ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 hover:shadow-emerald-500/25'
           : 'shadow-primary/20 hover:shadow-xl hover:shadow-primary/25'
       )}
+      disabled={addToCart.isPending}
       onClick={() => {
-        addItem(product)
-        showToast(inCart ? `${product.name} quantity updated` : `${product.name} added to cart`)
+        addToCart.mutate(
+          { productId: product.id, quantity: 1 },
+          {
+            onSuccess: () => showToast(inCart ? `${product.name} quantity updated` : `${product.name} added to cart`),
+            onError: (err) => showToast(err.message, 'error'),
+          }
+        )
       }}
     >
       {inCart ? (
