@@ -21,23 +21,15 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { cn } from '@/lib/utils'
 
+import { getCategoryConfig, needsOptions } from '@/components/catalog/ProductCard'
+
 // ── Helpers ──
-const PHONE_ROUTER_CATEGORIES = ['iphone', 'phone', 'smartphone', 'mobile', '5g router', 'router', 'modem']
-
-function needsOptions(categoryName) {
-  if (!categoryName) return false
-  return PHONE_ROUTER_CATEGORIES.some((c) => categoryName.toLowerCase().includes(c))
-}
-
 function getOptionsSummary(options) {
   if (!options) return []
   const tags = []
-  const specs = options.specifications || {}
   const services = options.services || {}
   const accessories = options.accessories || []
-  Object.values(specs).forEach((v) => { if (v) tags.push(v) })
   if (services.subscription_plan) tags.push(services.subscription_plan)
-  if (services.insurance) tags.push('Insured')
   accessories.forEach((a) => tags.push(a))
   return tags
 }
@@ -81,18 +73,22 @@ function StepProgress({ currentStep }) {
   )
 }
 
-// ── Item Options Editor (only for phone/router) ──
+// ── Item Options Editor (category-aware) ──
 function ItemOptionsEditor({ item, subscriptionPlans, onSave }) {
   const [open, setOpen] = useState(false)
   const options = item.options || {}
   const services = options.services || {}
   const accessories = options.accessories || []
 
+  const config = getCategoryConfig(item.category_name)
+  const filteredPlans = config
+    ? subscriptionPlans.filter((p) => config.planTypes.includes(p.type))
+    : subscriptionPlans
+
   const [subscriptionPlan, setSubscriptionPlan] = useState(services.subscription_plan || '')
-  const [insurance, setInsurance] = useState(services.insurance || false)
   const [selectedAccessories, setSelectedAccessories] = useState(accessories)
 
-  const ACCESSORY_OPTIONS = ['Protective Case', 'Fast Charger', 'Screen Protector', 'USB-C Hub', 'Car Charger']
+  const availableAccessories = config?.accessories || []
 
   const toggleAccessory = (acc) => {
     setSelectedAccessories((prev) =>
@@ -101,15 +97,16 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave }) {
   }
 
   const handleSave = () => {
-    const newOptions = {
-      specifications: {},
-      services: {},
-      accessories: selectedAccessories,
-    }
+    const newOptions = { services: {}, accessories: selectedAccessories }
     if (subscriptionPlan) newOptions.services.subscription_plan = subscriptionPlan
-    if (insurance) newOptions.services.insurance = true
     onSave(newOptions)
     setOpen(false)
+  }
+
+  const typeBadge = {
+    call: 'bg-blue-500/15 text-blue-400',
+    data: 'bg-purple-500/15 text-purple-400',
+    both: 'bg-cyan-500/15 text-cyan-400',
   }
 
   return (
@@ -129,66 +126,53 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave }) {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="mt-2 p-3 rounded-lg border bg-muted/20 space-y-4"
+          className="mt-2 p-3 rounded-xl border bg-muted/20 space-y-3"
         >
-          {/* Subscription Plan */}
-          <div className="space-y-2">
-            <Label className="text-[11px] flex items-center gap-1.5">
-              <CreditCard className="h-3 w-3 text-muted-foreground" /> Subscription Plan
-            </Label>
-            {subscriptionPlans.length > 0 ? (
-              <div className="space-y-1.5">
-                {subscriptionPlans.map((plan) => {
-                  const isSelected = subscriptionPlan === plan.name
-                  const typeBadge = { call: 'bg-blue-500/20 text-blue-400', data: 'bg-purple-500/20 text-purple-400', both: 'bg-cyan-500/20 text-cyan-400' }
-                  return (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => setSubscriptionPlan(isSelected ? '' : plan.name)}
-                      className={cn(
-                        'flex items-center justify-between w-full p-2.5 rounded-lg border text-left transition-all text-xs',
-                        isSelected ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'
-                      )}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{plan.name}</span>
-                        <Badge className={cn('text-[9px]', typeBadge[plan.type] || '')}>{plan.type}</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">{plan.price}</span>
-                        {isSelected && <Check className="h-3 w-3 text-primary" />}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-[11px] text-muted-foreground">No plans available</p>
-            )}
-          </div>
+          {filteredPlans.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-[11px] flex items-center gap-1.5">
+                <CreditCard className="h-3 w-3 text-muted-foreground" /> Subscription Plan
+              </Label>
+              {filteredPlans.map((plan) => {
+                const isSelected = subscriptionPlan === plan.name
+                return (
+                  <button
+                    key={plan.id}
+                    type="button"
+                    onClick={() => setSubscriptionPlan(isSelected ? '' : plan.name)}
+                    className={cn(
+                      'flex items-center justify-between w-full p-2.5 rounded-lg border text-left transition-all text-xs',
+                      isSelected ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{plan.name}</span>
+                      <Badge className={cn('text-[9px]', typeBadge[plan.type] || '')}>{plan.type}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">{plan.price}</span>
+                      {isSelected && <Check className="h-3 w-3 text-primary" />}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
-          {/* Accessories */}
-          <div className="space-y-2">
-            <Label className="text-[11px]">Accessories</Label>
-            <div className="flex flex-wrap gap-2">
-              {ACCESSORY_OPTIONS.map((acc) => (
-                <label key={acc} className="flex items-center gap-1.5 text-xs cursor-pointer">
-                  <Checkbox
-                    checked={selectedAccessories.includes(acc)}
-                    onCheckedChange={() => toggleAccessory(acc)}
-                  />
+          {availableAccessories.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-[11px]">Accessories</Label>
+              {availableAccessories.map((acc) => (
+                <label key={acc} className={cn(
+                  'flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer transition-all',
+                  selectedAccessories.includes(acc) ? 'border-primary/40 bg-primary/5' : 'border-border hover:border-primary/20'
+                )}>
+                  <Checkbox checked={selectedAccessories.includes(acc)} onCheckedChange={() => toggleAccessory(acc)} />
                   {acc}
                 </label>
               ))}
             </div>
-          </div>
-
-          {/* Insurance */}
-          <label className="flex items-center gap-2 text-xs cursor-pointer">
-            <Checkbox checked={insurance} onCheckedChange={setInsurance} />
-            Insurance coverage
-          </label>
+          )}
 
           <Button size="sm" className="h-7 text-xs gap-1" onClick={handleSave}>
             <Check className="h-3 w-3" /> Apply
@@ -196,7 +180,6 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave }) {
         </motion.div>
       )}
 
-      {/* Options summary badges */}
       {!open && getOptionsSummary(options).length > 0 && (
         <div className="flex flex-wrap gap-1 mt-1.5">
           {getOptionsSummary(options).map((tag, i) => (
