@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
@@ -108,7 +109,7 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
   const titleId = React.useId()
   const descId = React.useId()
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -118,13 +119,13 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md"
             onClick={() => onOpenChange?.(false)}
             aria-hidden="true"
           />
           {/* Centering wrapper — prevents scroll, centers content */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 pointer-events-none">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 pointer-events-none">
             <motion.div
               key="dialog-content"
               ref={(node) => {
@@ -136,15 +137,10 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
               aria-modal="true"
               aria-labelledby={titleId}
               aria-describedby={descId}
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97, y: 5 }}
-              transition={{
-                type: 'spring',
-                stiffness: 500,
-                damping: 32,
-                mass: 0.8,
-              }}
+              exit={{ opacity: 0, scale: 0.98, y: 4 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className={cn(
                 'relative w-full max-h-[85vh] overflow-y-auto pointer-events-auto',
                 'bg-card shadow-2xl',
@@ -170,7 +166,8 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 })
 DialogContent.displayName = 'DialogContent'
