@@ -24,6 +24,7 @@ function DialogTrigger({ children, asChild, ...props }) {
 const DIALOG_SIZES = {
   sm: 'max-w-sm',
   default: 'max-w-lg',
+  md: 'max-w-md',
   lg: 'max-w-2xl',
   xl: 'max-w-4xl',
   full: 'max-w-6xl',
@@ -34,11 +35,30 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
   const contentRef = React.useRef(null)
   const previousFocusRef = React.useRef(null)
 
+  // Lock body scroll when dialog is open
+  React.useEffect(() => {
+    if (open) {
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.left = '0'
+      document.body.style.right = '0'
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.left = ''
+        document.body.style.right = ''
+        document.body.style.overflow = ''
+        window.scrollTo(0, scrollY)
+      }
+    }
+  }, [open])
+
   // Focus trap + restore focus on close
   React.useEffect(() => {
     if (open) {
       previousFocusRef.current = document.activeElement
-      // Delay to allow animation to start
       const timer = setTimeout(() => {
         const el = contentRef.current
         if (!el) return
@@ -67,7 +87,7 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
     return () => document.removeEventListener('keydown', handler)
   }, [open, onOpenChange])
 
-  // Focus trap — keep Tab within dialog
+  // Focus trap
   const handleKeyDown = (e) => {
     if (e.key !== 'Tab') return
     const el = contentRef.current
@@ -79,15 +99,9 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
     const first = focusables[0]
     const last = focusables[focusables.length - 1]
     if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault()
-        last.focus()
-      }
+      if (document.activeElement === first) { e.preventDefault(); last.focus() }
     } else {
-      if (document.activeElement === last) {
-        e.preventDefault()
-        first.focus()
-      }
+      if (document.activeElement === last) { e.preventDefault(); first.focus() }
     }
   }
 
@@ -98,66 +112,62 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
     <AnimatePresence>
       {open && (
         <>
-          {/* Overlay with glass blur */}
+          {/* Overlay — dark + blur, covers everything */}
           <motion.div
             key="dialog-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
             onClick={() => onOpenChange?.(false)}
             aria-hidden="true"
           />
-          {/* Content with spring animation */}
-          <motion.div
-            key="dialog-content"
-            ref={(node) => {
-              contentRef.current = node
-              if (typeof ref === 'function') ref(node)
-              else if (ref) ref.current = node
-            }}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            aria-describedby={descId}
-            initial={{ opacity: 0, scale: 0.92, y: '-48%', x: '-50%' }}
-            animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
-            exit={{ opacity: 0, scale: 0.95, y: '-48%', x: '-50%' }}
-            transition={{
-              type: 'spring',
-              stiffness: 400,
-              damping: 28,
-              mass: 0.8,
-            }}
-            className={cn(
-              'fixed left-1/2 top-1/2 z-50 grid w-full gap-4 p-6 max-h-[85vh] overflow-y-auto',
-              'bg-card border border-border/50 shadow-float',
-              'rounded-xl',
-              // Gradient top accent
-              'before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/40 before:to-transparent',
-              DIALOG_SIZES[size] || DIALOG_SIZES.default,
-              'max-sm:max-w-none max-sm:h-full max-sm:max-h-full max-sm:rounded-none',
-              className
-            )}
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={handleKeyDown}
-            {...props}
-          >
-            <DialogIdContext.Provider value={{ titleId, descId }}>
-              {children}
-            </DialogIdContext.Provider>
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="absolute right-4 top-4 rounded-full p-1 opacity-60 transition-opacity hover:opacity-100 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              onClick={() => onOpenChange?.(false)}
-              aria-label="Close"
+          {/* Centering wrapper — prevents scroll, centers content */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 pointer-events-none">
+            <motion.div
+              key="dialog-content"
+              ref={(node) => {
+                contentRef.current = node
+                if (typeof ref === 'function') ref(node)
+                else if (ref) ref.current = node
+              }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              aria-describedby={descId}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97, y: 5 }}
+              transition={{
+                type: 'spring',
+                stiffness: 500,
+                damping: 32,
+                mass: 0.8,
+              }}
+              className={cn(
+                'relative w-full max-h-[85vh] overflow-y-auto pointer-events-auto',
+                'bg-card shadow-2xl',
+                'rounded-2xl',
+                DIALOG_SIZES[size] || DIALOG_SIZES.default,
+                className
+              )}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={handleKeyDown}
+              {...props}
             >
-              <X className="h-4 w-4" />
-            </motion.button>
-          </motion.div>
+              <DialogIdContext.Provider value={{ titleId, descId }}>
+                {children}
+              </DialogIdContext.Provider>
+              <button
+                className="absolute right-3 top-3 z-10 rounded-full p-1.5 bg-muted/80 hover:bg-muted opacity-70 hover:opacity-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => onOpenChange?.(false)}
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

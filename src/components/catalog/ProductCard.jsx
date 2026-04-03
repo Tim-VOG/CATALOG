@@ -80,7 +80,7 @@ function OptionsDialog({ product, open, onClose, onConfirm }) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
+      <DialogContent className="max-w-md p-0 overflow-hidden" size="md">
         {/* Header with product info */}
         <div className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <div className="flex items-center gap-3">
