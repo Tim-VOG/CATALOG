@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, Package, Inbox, RotateCcw,
+  LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   FilePlus2, UserPlus, ClipboardList,
   Settings, UserMinus, QrCode, ScrollText,
@@ -26,7 +26,6 @@ const sidebarSections = [
       { to: '/admin/mailbox-requests', label: 'Mailbox Requests', icon: Mail },
       { to: '/admin/new-request', label: 'New Request', icon: FilePlus2 },
       { to: '/admin/planning', label: 'Planning', icon: CalendarRange },
-      { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
     ],
   },
   {

@@ -38,8 +38,6 @@ export function AdminRequestDetailPage() {
   const { user } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [showReject, setShowReject] = useState(false)
-  const [rejectionReason, setRejectionReason] = useState('')
   const [showReturn, setShowReturn] = useState(false)
 
   if (isLoading) return <PageLoading />
@@ -53,16 +51,13 @@ export function AdminRequestDetailPage() {
       await updateStatus.mutateAsync({ id: request.id, status, ...extraData })
       showToast(`Request ${status}`)
 
-      // Stock management: decrement on approval, increment on return
-      if (status === 'approved') {
+      // Stock management: decrement when processing starts
+      if (status === 'in_progress') {
         decrementStockForRequest(request.id).catch(() => {})
       }
-      if (status === 'returned') {
-        incrementStockForRequest(request.id).catch(() => {})
-      }
 
-      // Auto-assign equipment to user when request is approved
-      if (status === 'approved' && items.length > 0) {
+      // Auto-assign equipment to user when request is ready
+      if (status === 'ready' && items.length > 0) {
         const assignments = items.map((item) => ({
           user_id: request.user_id,
           user_email: request.user_email || '',
@@ -91,10 +86,7 @@ export function AdminRequestDetailPage() {
     }
   }
 
-  const handleReject = async () => {
-    await handleStatusUpdate('rejected', { rejection_reason: rejectionReason })
-    setShowReject(false)
-  }
+  // handleReject removed — no more approve/reject workflow
 
   const timeline = buildTimeline(request)
 
@@ -117,32 +109,22 @@ export function AdminRequestDetailPage() {
           </p>
         </div>
 
-        {/* Action buttons based on current status */}
+        {/* Action buttons — simplified: Start / Mark Ready */}
         <div className="flex gap-2 shrink-0">
           {request.status === 'pending' && (
-            <>
-              <Button variant="success" className="gap-2" onClick={() => handleStatusUpdate('approved')}>
-                <Check className="h-4 w-4" /> Approve
-              </Button>
-              <Button variant="destructive" className="gap-2" onClick={() => setShowReject(true)}>
-                <X className="h-4 w-4" /> Reject
-              </Button>
-            </>
-          )}
-          {request.status === 'approved' && (
-            <Button className="gap-2" onClick={() => handleStatusUpdate('picked_up')}>
-              <Package className="h-4 w-4" /> Mark as Picked Up
+            <Button className="gap-2" onClick={() => handleStatusUpdate('in_progress')}>
+              <Package className="h-4 w-4" /> Start Processing
             </Button>
           )}
-          {request.status === 'picked_up' && (
-            <Button className="gap-2" onClick={() => setShowReturn(true)}>
-              <Undo2 className="h-4 w-4" /> Process Return
+          {request.status === 'in_progress' && (
+            <Button variant="success" className="gap-2" onClick={() => handleStatusUpdate('ready')}>
+              <Check className="h-4 w-4" /> Mark Ready
             </Button>
           )}
-          {request.status === 'returned' && (
-            <Button variant="success" className="gap-2" onClick={() => handleStatusUpdate('closed')}>
-              <ShieldCheck className="h-4 w-4" /> Close Request
-            </Button>
+          {request.status === 'ready' && (
+            <div className="flex items-center gap-2 text-sm text-emerald-500 font-medium">
+              <Check className="h-4 w-4" /> Completed
+            </div>
           )}
         </div>
       </div>

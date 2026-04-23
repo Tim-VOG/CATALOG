@@ -17,7 +17,7 @@ import { AdminProductsPage } from '@/pages/admin/AdminProductsPage'
 import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
 import { AdminRequestsPage } from '@/pages/admin/AdminRequestsPage'
 import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
-import { AdminReturnsPage } from '@/pages/admin/AdminReturnsPage'
+// AdminReturnsPage removed — returns handled via QR scan
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { AdminDesignPage } from '@/pages/admin/AdminDesignPage'
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
@@ -52,6 +52,7 @@ import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequ
 import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
 import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
 import { CartPage } from '@/pages/cart/CartPage'
+import { TrackingPage } from '@/pages/track/TrackingPage'
 
 export function AppRoutes() {
   return (
@@ -59,6 +60,7 @@ export function AppRoutes() {
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      <Route path="/track/:token" element={<TrackingPage />} />
 
       {/* Protected routes */}
       <Route
@@ -104,7 +106,7 @@ export function AppRoutes() {
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
           <Route path="new-request" element={<AdminNewRequestPage />} />
-          <Route path="returns" element={<AdminReturnsPage />} />
+          <Route path="returns" element={<Navigate to="/admin/requests" replace />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="design" element={<AdminDesignPage />} />
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
