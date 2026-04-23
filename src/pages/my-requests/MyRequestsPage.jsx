@@ -1,124 +1,157 @@
-import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useAuth } from '@/lib/auth'
+import { useMyLoanRequests } from '@/hooks/use-loan-requests'
+import { useMyItRequests } from '@/hooks/use-it-requests'
+import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { motion } from 'motion/react'
-import { Inbox, ArrowRight, CalendarDays } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import {
+  Package, Clock, Loader2, CheckCircle, UserPlus,
+  UserMinus, Mail, Inbox,
+} from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/EmptyState'
-import { RequestsCalendar } from '@/components/calendar/RequestsCalendar'
-import { useCalendarRequests } from '@/hooks/use-calendar-requests'
+import { PageLoading } from '@/components/common/LoadingSpinner'
+import { ScrollFadeIn } from '@/components/ui/motion'
+import { cn } from '@/lib/utils'
 
-// ── Calendar loading skeleton ──
-function CalendarSkeleton() {
+const STEPS = [
+  { key: 'pending', label: 'Pending', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500' },
+  { key: 'in_progress', label: 'In Progress', icon: Loader2, color: 'text-blue-500', bg: 'bg-blue-500' },
+  { key: 'ready', label: 'Ready', icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500' },
+]
+
+const TYPE_CONFIG = {
+  equipment: { icon: Package, label: 'Equipment', color: 'text-primary', bg: 'bg-primary/10' },
+  onboarding: { icon: UserPlus, label: 'Onboarding', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+  offboarding: { icon: UserMinus, label: 'Offboarding', color: 'text-rose-500', bg: 'bg-rose-500/10' },
+  mailbox: { icon: Mail, label: 'Mailbox', color: 'text-violet-500', bg: 'bg-violet-500/10' },
+}
+
+function getStepIndex(status) {
+  const idx = STEPS.findIndex((s) => s.key === status)
+  return idx >= 0 ? idx : 0
+}
+
+const formatDate = (d) =>
+  new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+
+function RequestStepper({ status }) {
+  const currentStep = getStepIndex(status)
+
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4 space-y-6">
-      <div>
-        <Skeleton className="h-9 w-52" />
-        <Skeleton className="h-4 w-36 mt-2" />
-        <Skeleton className="h-0.5 w-16 mt-3" />
-      </div>
-      {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-9 w-9 rounded-xl" />
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-9 w-9 rounded-xl" />
-      </div>
-      {/* Filters */}
-      <div className="flex gap-2">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-7 w-20 rounded-full" />
-        ))}
-      </div>
-      {/* Grid */}
-      <div className="rounded-2xl border border-border/50 p-3">
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={`h-${i}`} className="h-5 w-full rounded" />
-          ))}
-          {Array.from({ length: 35 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 sm:h-16 w-full rounded-xl" />
-          ))}
-        </div>
-      </div>
+    <div className="flex items-center gap-1 w-full">
+      {STEPS.map((step, idx) => {
+        const isDone = idx < currentStep
+        const isCurrent = idx === currentStep
+        const isPending = idx > currentStep
+        const Icon = step.icon
+
+        return (
+          <div key={step.key} className="flex items-center flex-1 last:flex-none">
+            <div className="flex flex-col items-center gap-1">
+              <div className={cn(
+                'h-8 w-8 rounded-full flex items-center justify-center transition-all',
+                isDone && `${step.bg} text-white`,
+                isCurrent && `${step.bg} text-white shadow-md`,
+                isPending && 'bg-muted text-muted-foreground',
+              )}>
+                <Icon className={cn('h-4 w-4', isCurrent && step.key === 'in_progress' && 'animate-spin')} />
+              </div>
+              <span className={cn(
+                'text-[9px] font-medium',
+                isPending ? 'text-muted-foreground/50' : isCurrent ? step.color : 'text-muted-foreground'
+              )}>
+                {step.label}
+              </span>
+            </div>
+            {idx < STEPS.length - 1 && (
+              <div className={cn('flex-1 h-0.5 mx-1.5 mt-[-14px] rounded-full', isDone ? step.bg : 'bg-muted')} />
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
 
-// ── Main Page ──
-export function MyRequestsPage() {
-  const { events, isLoading, counts, hasCatalog, hasItForm, hasMailbox } = useCalendarRequests()
+function RequestCard({ request, type }) {
+  const config = TYPE_CONFIG[type] || TYPE_CONFIG.equipment
+  const TypeIcon = config.icon
+  const data = request.data || {}
 
-  const totalCount = events.length
-
-  if (isLoading) return <CalendarSkeleton />
-
-  if (totalCount === 0) {
-    return (
-      <div className="max-w-5xl mx-auto py-10 px-4">
-        <EmptyState
-          icon={Inbox}
-          title="No requests yet"
-          description="You haven't submitted any requests. Browse the available hubs to get started."
-        >
-          <Link to="/">
-            <Button className="gap-2">
-              <ArrowRight className="h-4 w-4" />
-              Go to Hub
-            </Button>
-          </Link>
-        </EmptyState>
-      </div>
-    )
-  }
+  const title = type === 'equipment'
+    ? (request.project_name || 'Equipment Request')
+    : (data.name || data.employee_name || data.project_name || request.requester_name || `${config.label} Request`)
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4 space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <CalendarDays className="h-5 w-5 text-primary" />
+    <Card variant="elevated" className="overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-start gap-4">
+          <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', config.bg)}>
+            <TypeIcon className={cn('h-5 w-5', config.color)} />
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-gradient-primary">
-              My Requests
-            </h1>
-            <p className="text-muted-foreground text-sm mt-0.5">
-              {totalCount} request{totalCount !== 1 ? 's' : ''} across all hubs
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-semibold text-sm truncate">{title}</h3>
+              <Badge variant="outline" className="text-[10px] shrink-0">{config.label}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatDate(request.created_at)}
+              {type === 'equipment' && request.item_count && ` · ${request.item_count} item${request.item_count > 1 ? 's' : ''}`}
             </p>
           </div>
-          <Badge variant="outline" className="ml-auto text-xs gap-1.5 hidden sm:flex">
-            <CalendarDays className="h-3 w-3" />
-            Calendar view
-          </Badge>
         </div>
-        <motion.div
-          className="mt-4 h-0.5 w-16 rounded-full bg-primary/60"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ originX: 0 }}
-        />
+
+        <div className="mt-4 pl-14">
+          <RequestStepper status={request.status || 'pending'} />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export function MyRequestsPage() {
+  const { user } = useAuth()
+  const { data: loanRequests = [], isLoading: loansLoading } = useMyLoanRequests(user?.id)
+  const { data: itRequests = [], isLoading: itLoading } = useMyItRequests(user?.id)
+  const { data: mailboxRequests = [], isLoading: mailboxLoading } = useMyMailboxRequests(user?.id)
+
+  const isLoading = loansLoading || itLoading || mailboxLoading
+
+  const allRequests = useMemo(() => {
+    const items = []
+    for (const r of loanRequests) items.push({ ...r, _type: 'equipment' })
+    for (const r of itRequests) items.push({ ...r, _type: r.type || 'onboarding' })
+    for (const r of mailboxRequests) items.push({ ...r, _type: 'mailbox' })
+    items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    return items
+  }, [loanRequests, itRequests, mailboxRequests])
+
+  if (isLoading) return <PageLoading />
+
+  return (
+    <div className="max-w-2xl mx-auto py-10 px-4 space-y-6">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl font-display font-bold tracking-tight">My Requests</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          {allRequests.length} request{allRequests.length !== 1 ? 's' : ''}
+        </p>
       </motion.div>
 
-      {/* Calendar */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.15 }}
-      >
-        <RequestsCalendar
-          events={events}
-          counts={counts}
-          hasCatalog={hasCatalog}
-          hasItForm={hasItForm}
-          hasMailbox={hasMailbox}
-        />
-      </motion.div>
+      {/* Requests list */}
+      {allRequests.length === 0 ? (
+        <EmptyState icon={Inbox} title="No requests yet" description="Your submitted requests will appear here with live status tracking." />
+      ) : (
+        <div className="space-y-3">
+          {allRequests.map((req, i) => (
+            <ScrollFadeIn key={req.id} delay={i * 0.05}>
+              <RequestCard request={req} type={req._type} />
+            </ScrollFadeIn>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

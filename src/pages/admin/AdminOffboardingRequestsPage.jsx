@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
+import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
   Search, UserMinus, Trash2, Eye, Package, Check,
@@ -55,6 +56,7 @@ export function AdminOffboardingRequestsPage() {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       showToast(`Request marked as ${newStatus.replace('_', ' ')}`)
+      sendStatusChangeEmail(newStatus, { request: req, requestType: 'offboarding' })
     } catch (err) {
       showToast(err.message, 'error')
     }

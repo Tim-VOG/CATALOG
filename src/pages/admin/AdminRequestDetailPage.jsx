@@ -1,6 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
-import { useAppSettings } from '@/hooks/use-settings'
 import { useAssignEquipmentBatch } from '@/hooks/use-user-equipment'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
@@ -21,7 +20,6 @@ export function AdminRequestDetailPage() {
   const { requestId } = useParams()
   const { data: request, isLoading } = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
-  const { data: settings } = useAppSettings()
   const updateStatus = useUpdateRequestStatus()
   const assignBatch = useAssignEquipmentBatch()
   const { user } = useAuth()
@@ -57,7 +55,7 @@ export function AdminRequestDetailPage() {
         assignBatch.mutateAsync(assignments).catch(() => {})
       }
 
-      sendStatusChangeEmail(status, { request, items, settings })
+      sendStatusChangeEmail(status, { request, requestType: 'equipment' })
     } catch (err) {
       showToast(err.message, 'error')
     }
