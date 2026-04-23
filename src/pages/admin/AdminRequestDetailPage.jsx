@@ -5,7 +5,6 @@ import { useAssignEquipmentBatch } from '@/hooks/use-user-equipment'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
-import { decrementStockForRequest } from '@/lib/api/products'
 import {
   ArrowLeft, Calendar, User, Package, Mail, Check,
 } from 'lucide-react'
@@ -36,9 +35,7 @@ export function AdminRequestDetailPage() {
       await updateStatus.mutateAsync({ id: request.id, status })
       showToast(`Request marked as ${status.replace('_', ' ')}`)
 
-      if (status === 'in_progress') {
-        decrementStockForRequest(request.id).catch(() => {})
-      }
+      // Stock is managed by QR scan (take/deposit), not by status change
 
       if (status === 'ready' && items.length > 0) {
         const assignments = items.map((item) => ({
