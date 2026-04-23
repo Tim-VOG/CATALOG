@@ -1,18 +1,15 @@
 import { useState, useCallback } from 'react'
 
-// All available dashboard widgets with display info and default visibility
 const ALL_WIDGETS = {
   'stat-pending':     { label: 'Pending Requests',   group: 'stats',  defaultVisible: true },
-  'stat-active':      { label: 'Active Loans',       group: 'stats',  defaultVisible: true },
-  'stat-overdue':     { label: 'Overdue Count',      group: 'stats',  defaultVisible: true },
-  'stat-pickup':      { label: 'Awaiting Pickup',    group: 'stats',  defaultVisible: true },
+  'stat-active':      { label: 'In Progress',        group: 'stats',  defaultVisible: true },
+  'stat-pickup':      { label: 'Ready',              group: 'stats',  defaultVisible: true },
   'chart-requests':   { label: 'Requests Chart',     group: 'charts', defaultVisible: true },
   'chart-categories': { label: 'Category Breakdown', group: 'charts', defaultVisible: false },
-  'chart-loans':      { label: 'Loan Activity',      group: 'charts', defaultVisible: false },
+  'chart-loans':      { label: 'Request Activity',   group: 'charts', defaultVisible: false },
   'timeline':         { label: 'Planning Timeline',  group: 'charts', defaultVisible: true },
-  'active-loans':     { label: 'Active Loans List',  group: 'lists',  defaultVisible: true },
+  'active-loans':     { label: 'In Progress List',   group: 'lists',  defaultVisible: true },
   'recent-requests':  { label: 'Recent Requests',    group: 'lists',  defaultVisible: true },
-  'overdue-returns':  { label: 'Overdue Returns',    group: 'lists',  defaultVisible: false },
   'low-stock':        { label: 'Low Stock Alert',    group: 'lists',  defaultVisible: true },
   'qr-usage':         { label: 'QR Usage by Category', group: 'charts', defaultVisible: true },
   'qr-overdue':       { label: 'Overdue Equipment',  group: 'lists',  defaultVisible: true },
@@ -25,7 +22,6 @@ function getInitialVisibility() {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
-      // Merge with defaults to handle new widgets added after initial save
       const merged = {}
       for (const [id, w] of Object.entries(ALL_WIDGETS)) {
         merged[id] = parsed[id] ?? w.defaultVisible
@@ -33,7 +29,6 @@ function getInitialVisibility() {
       return merged
     }
   } catch {}
-  // Use defaults
   const defaults = {}
   for (const [id, w] of Object.entries(ALL_WIDGETS)) {
     defaults[id] = w.defaultVisible

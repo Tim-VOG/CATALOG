@@ -30,7 +30,6 @@ import { cn } from '@/lib/utils'
 const WIDGET_ICONS = {
   'stat-pending': Inbox,
   'stat-active': PackageCheck,
-  'stat-overdue': AlertTriangle,
   'stat-pickup': PackageX,
   'chart-requests': BarChart3,
   'chart-categories': PieChart,
@@ -38,7 +37,6 @@ const WIDGET_ICONS = {
   'timeline': CalendarRange,
   'active-loans': PackageCheck,
   'recent-requests': Inbox,
-  'overdue-returns': AlertTriangle,
   'low-stock': TrendingDown,
   'qr-usage': QrCode,
   'qr-overdue': Bell,
@@ -445,7 +443,7 @@ export function AdminDashboardPage() {
           {isVisible('active-loans') && (
             <motion.div {...fadeUp(nextDelay())} className="h-[420px]">
               <ListWidget
-                title="Active Loans"
+                title="In Progress"
                 icon={PackageCheck}
                 iconColor="text-blue-500"
                 iconBg="bg-blue-500/10"
@@ -459,25 +457,16 @@ export function AdminDashboardPage() {
               >
                 {inProgress.length > 0 && (
                   <div className="space-y-1">
-                    {inProgress.slice(0, 8).map((r) => {
-                      const isOverdue = r.return_date < today
-                      return (
+                    {inProgress.slice(0, 8).map((r) => (
                         <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
                           <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
                             <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name} · {r.item_count} item{r.item_count > 1 ? 's' : ''}</p>
                           </div>
-                          <div className="text-right shrink-0">
-                            {isOverdue ? (
-                              <Badge variant="outline" className="text-[10px] bg-rose-500/10 text-rose-500 border-rose-500/20">Overdue</Badge>
-                            ) : (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1"><CalendarRange className="h-3 w-3" />{r.return_date}</span>
-                            )}
-                          </div>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0"><CalendarRange className="h-3 w-3" />{r.return_date}</span>
                         </Link>
-                      )
-                    })}
+                    ))}
                   </div>
                 )}
               </ListWidget>
