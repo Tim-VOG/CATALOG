@@ -5,7 +5,7 @@ export const getPlanningData = async ({ startDate, endDate }) => {
   const { data: requests, error: reqError } = await supabase
     .from('loan_requests_with_details')
     .select('*')
-    .in('status', ['pending', 'approved', 'reserved', 'picked_up'])
+    .in('status', ['pending', 'in_progress', 'ready'])
     .lte('pickup_date', endDate)
     .gte('return_date', startDate)
     .order('pickup_date')

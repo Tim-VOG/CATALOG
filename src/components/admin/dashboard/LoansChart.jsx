@@ -18,8 +18,8 @@ export function LoansChart({ requests = [] }) {
       for (const r of requests) {
         const created = new Date(r.created_at)
         if (created >= start && created <= end) {
-          if (r.status === 'picked_up') active++
-          else if (r.status === 'returned') returned++
+          if (r.status === 'in_progress') active++
+          else if (r.status === 'ready') returned++
         }
       }
       weeks.push({ label, active, returned })

@@ -82,7 +82,7 @@ export function AppRoutes() {
         <Route path="it-request" element={<RequireModuleAccess moduleKey="it_form"><ItRequestFormPage /></RequireModuleAccess>} />
         <Route path="functional-mailbox" element={<FunctionalMailboxFormPage />} />
         <Route path="my-requests" element={<MyRequestsPage />} />
-        <Route path="scan" element={<ScanPage />} />
+        <Route path="scan" element={<RequireAdmin><ScanPage /></RequireAdmin>} />
         <Route path="my-equipments" element={<MyEquipmentsPage />} />
         <Route path="onboarding-request" element={<OnboardingRequestPage />} />
         <Route path="cart" element={<CartPage />} />

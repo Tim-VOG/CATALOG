@@ -83,7 +83,7 @@ export const getProductReservations = async (productId) => {
       )
     `)
     .eq('product_id', productId)
-    .in('loan_requests.status', ['approved', 'picked_up', 'pending'])
+    .in('loan_requests.status', ['pending', 'in_progress', 'ready'])
 
   if (error) throw error
 
@@ -111,7 +111,7 @@ export const getReservationsInRange = async (pickupDate, returnDate) => {
         status
       )
     `)
-    .in('loan_requests.status', ['pending', 'approved', 'reserved', 'picked_up'])
+    .in('loan_requests.status', ['pending', 'in_progress', 'ready'])
     .lte('loan_requests.pickup_date', returnDate)
     .gte('loan_requests.return_date', pickupDate)
 

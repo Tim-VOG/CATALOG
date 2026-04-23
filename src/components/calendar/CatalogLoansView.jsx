@@ -17,27 +17,14 @@ import { cn } from '@/lib/utils'
 // ── Status colors for bars ──
 const STATUS_COLORS = {
   pending: 'bg-amber-500/80 hover:bg-amber-500',
-  approved: 'bg-blue-500/80 hover:bg-blue-500',
-  reserved: 'bg-cyan-500/80 hover:bg-cyan-500',
-  picked_up: 'bg-emerald-500/80 hover:bg-emerald-500',
-  returned: 'bg-violet-500/80 hover:bg-violet-500',
-  completed: 'bg-primary/80 hover:bg-primary',
-  rejected: 'bg-red-500/80 hover:bg-red-500',
-  cancelled: 'bg-gray-400/80 hover:bg-gray-400',
-  closed: 'bg-gray-500/80 hover:bg-gray-500',
-  overdue: 'bg-red-500/80 hover:bg-red-500',
+  in_progress: 'bg-blue-500/80 hover:bg-blue-500',
+  ready: 'bg-emerald-500/80 hover:bg-emerald-500',
 }
 
 const STATUS_LABELS = {
   pending: 'Pending',
-  approved: 'Approved',
-  reserved: 'Reserved',
-  picked_up: 'Picked Up',
-  returned: 'Returned',
-  completed: 'Completed',
-  rejected: 'Rejected',
-  cancelled: 'Cancelled',
-  closed: 'Closed',
+  in_progress: 'In Progress',
+  ready: 'Ready',
 }
 
 const VIEW_MODES = [
@@ -46,7 +33,7 @@ const VIEW_MODES = [
   { key: '3M', label: '3 Months' },
 ]
 
-const STATUS_PILLS = ['pending', 'approved', 'picked_up', 'returned', 'completed', 'rejected']
+const STATUS_PILLS = ['pending', 'in_progress', 'ready']
 
 export function CatalogLoansView({ events }) {
   const [viewMode, setViewMode] = useState('1M')

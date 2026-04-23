@@ -14,11 +14,10 @@ import { cn } from '@/lib/utils'
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending', color: 'bg-amber-500/15 text-amber-600 border-amber-500/30', icon: Clock },
   { value: 'in_progress', label: 'In Progress', color: 'bg-blue-500/15 text-blue-600 border-blue-500/30', icon: AlertTriangle },
-  { value: 'completed', label: 'Completed', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2 },
-  { value: 'rejected', label: 'Rejected', color: 'bg-destructive/15 text-destructive border-destructive/30', icon: XCircle },
+  { value: 'ready', label: 'Ready', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2 },
 ]
 
-const STATUS_FILTERS = ['all', 'pending', 'in_progress', 'completed']
+const STATUS_FILTERS = ['all', 'pending', 'in_progress', 'ready']
 
 function formatDate(d) {
   if (!d) return ''
@@ -73,7 +72,7 @@ export function OffboardingPage() {
     total: offboardingRequests.length,
     pending: offboardingRequests.filter((r) => r.status === 'pending').length,
     in_progress: offboardingRequests.filter((r) => r.status === 'in_progress').length,
-    completed: offboardingRequests.filter((r) => r.status === 'completed').length,
+    completed: offboardingRequests.filter((r) => r.status === 'ready').length,
   }), [offboardingRequests])
 
   const handleStatusChange = async (request, newStatus) => {
@@ -275,7 +274,7 @@ export function OffboardingPage() {
                           </Button>
                         )}
                         {request.status === 'in_progress' && (
-                          <Button size="sm" onClick={() => handleStatusChange(request, 'completed')} className="gap-1.5 text-xs">
+                          <Button size="sm" onClick={() => handleStatusChange(request, 'ready')} className="gap-1.5 text-xs">
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             Mark Completed
                           </Button>

@@ -10,18 +10,14 @@ import { cn } from '@/lib/utils'
 
 const STATUS_COLORS = {
   pending: 'bg-amber-500/80 hover:bg-amber-500',
-  approved: 'bg-blue-500/80 hover:bg-blue-500',
-  reserved: 'bg-cyan-500/80 hover:bg-cyan-500',
-  picked_up: 'bg-emerald-500/80 hover:bg-emerald-500',
-  overdue: 'bg-red-500/80 hover:bg-red-500',
+  in_progress: 'bg-blue-500/80 hover:bg-blue-500',
+  ready: 'bg-emerald-500/80 hover:bg-emerald-500',
 }
 
 const STATUS_LABELS = {
   pending: 'Pending',
-  approved: 'Approved',
-  reserved: 'Reserved',
-  picked_up: 'Picked Up',
-  overdue: 'Overdue',
+  in_progress: 'In Progress',
+  ready: 'Ready',
 }
 
 /**

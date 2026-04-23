@@ -9,9 +9,8 @@ const TYPE_CONFIG = {
 
 const STATUS_CONFIG = {
   pending: { label: 'Pending', color: 'bg-amber-500/15 text-amber-600 border-amber-500/30' },
-  approved: { label: 'Approved', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30' },
-  rejected: { label: 'Rejected', color: 'bg-destructive/15 text-destructive border-destructive/30' },
-  completed: { label: 'Completed', color: 'bg-primary/15 text-primary border-primary/30' },
+  in_progress: { label: 'In Progress', color: 'bg-blue-500/15 text-blue-600 border-blue-500/30' },
+  ready: { label: 'Ready', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30' },
 }
 
 export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasItForm, hasMailbox }) {
