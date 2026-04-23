@@ -1,115 +1,73 @@
-/**
- * Request Status Service — status workflow logic + email dispatch for status changes.
- *
- * Encapsulates the status transition map and automates email sending
- * when an admin changes a request's status.
- */
-
 import { sendEmail } from '@/lib/api/send-email'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
-import { generateStatusEmailDraft } from '@/lib/email-draft'
 
-/**
- * Status workflow: maps current status → allowed next statuses.
- */
 export const STATUS_TRANSITIONS = {
-  pending: ['approved', 'rejected'],
-  approved: ['picked_up', 'cancelled'],
-  picked_up: ['returned'],
-  returned: ['closed'],
-  rejected: [],
-  cancelled: [],
-  closed: [],
+  pending: ['in_progress'],
+  in_progress: ['ready'],
+  ready: [],
 }
 
-/**
- * Email template keys that should be sent automatically on status change.
- */
 const STATUS_EMAIL_MAP = {
-  picked_up: 'equipment_picked_up',
-  closed: 'request_closed',
+  in_progress: 'request_in_progress',
+  ready: 'request_ready',
 }
 
-/**
- * Get the list of statuses a request can transition to from its current status.
- * @param {string} currentStatus
- * @returns {string[]}
- */
 export function getAvailableTransitions(currentStatus) {
   return STATUS_TRANSITIONS[currentStatus] || []
 }
 
-/**
- * Send a status change email (fire-and-forget).
- * @param {string} newStatus - The new status triggering the email
- * @param {object} params - { request, items, settings }
- */
 export async function sendStatusChangeEmail(newStatus, { request, items, settings }) {
   const templateKey = STATUS_EMAIL_MAP[newStatus]
   if (!templateKey) return
-
-  const appName = settings?.app_name || 'VO Gear Hub'
-  const logoUrl = settings?.logo_url || ''
-  const tagline = settings?.email_tagline || ''
-  const logoHeight = settings?.email_logo_height || 0
-  const ccEmails = request.custom_fields?.cc_emails || []
 
   try {
     const template = await getEmailTemplateByKey(templateKey)
     if (!template || !template.is_active) return
 
-    const draft = generateStatusEmailDraft({
-      template,
-      request,
-      items,
-      appName,
-      logoUrl,
-      tagline,
-      logoHeight,
-    })
+    const requesterName = `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim() || request.user_email
+    const trackingUrl = `${window.location.origin}/track/${request.tracking_token}`
 
-    if (draft.to) {
+    let subject = (template.subject || '')
+      .replace(/\{\{request_type\}\}/g, 'equipment')
+      .replace(/\{\{requester_name\}\}/g, requesterName)
+
+    let body = (template.body || '')
+      .replace(/\{\{request_type\}\}/g, 'equipment')
+      .replace(/\{\{requester_name\}\}/g, requesterName)
+      .replace(/\{\{tracking_url\}\}/g, trackingUrl)
+      .replace(/\{\{project_name\}\}/g, request.project_name || '')
+
+    if (request.user_email) {
       await sendEmail({
-        to: draft.to,
-        cc: ccEmails.length > 0 ? ccEmails : undefined,
-        subject: draft.subject,
-        body: draft.body,
-        isHtml: draft.isHtml,
+        to: request.user_email,
+        subject,
+        body,
+        isHtml: true,
       })
     }
   } catch {
-    // Email is non-critical — don't block the action
+    // non-critical
   }
 }
 
-/**
- * Format a date for display in timelines.
- */
 export const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 export const formatDateTime = (d) =>
   new Date(d).toLocaleString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
   })
 
-/**
- * Build timeline events from a request object.
- * @param {object} request - Request with date fields
- * @returns {Array<{ label: string, date: string }>}
- */
 export function buildTimeline(request) {
-  return [
+  const events = [
     { label: 'Submitted', date: request.created_at },
-    request.approved_at && { label: 'Approved', date: request.approved_at },
-    request.picked_up_at && { label: 'Picked up', date: request.picked_up_at },
-    request.returned_at && { label: 'Returned', date: request.returned_at },
-    request.closed_at && { label: 'Closed', date: request.closed_at },
-    request.status === 'rejected' && { label: 'Rejected', date: request.updated_at },
-    request.status === 'cancelled' && { label: 'Cancelled', date: request.updated_at },
-  ].filter(Boolean)
+  ]
+  if (request.status === 'in_progress' || request.status === 'ready') {
+    events.push({ label: 'In Progress', date: request.updated_at })
+  }
+  if (request.status === 'ready') {
+    events.push({ label: 'Ready', date: request.updated_at })
+  }
+  return events
 }

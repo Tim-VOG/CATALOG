@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
-import { useLoans, useUpdateLoanStatus } from '@/hooks/use-loans'
-import { User, Calendar, Check, X, Inbox, ChevronRight, Eye } from 'lucide-react'
+import { Inbox, Calendar, ChevronRight } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -11,98 +10,50 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
-import { useUIStore } from '@/stores/ui-store'
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
+const STATUS_FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'ready', label: 'Ready' },
+]
+
 export function AdminRequestsPage() {
-  const { data: requests = [], isLoading: reqLoading } = useLoanRequests()
-  const { data: loans = [], isLoading: loansLoading } = useLoans()
-  const updateLoanStatus = useUpdateLoanStatus()
-  const showToast = useUIStore((s) => s.showToast)
+  const { data: requests = [], isLoading } = useLoanRequests()
   const [filter, setFilter] = useState('all')
 
-  const isLoading = reqLoading || loansLoading
-
-  // Legacy pending loans (from old system)
-  const pendingLoans = loans.filter((l) => l.status === 'pending')
-
-  // New request system
   const filteredRequests = filter === 'all'
     ? requests
     : requests.filter((r) => r.status === filter)
 
-  const handleLegacyApprove = async (id) => {
-    try {
-      await updateLoanStatus.mutateAsync({ id, status: 'active' })
-      showToast('Request approved')
-    } catch (err) { showToast(err.message, 'error') }
-  }
-
-  const handleLegacyReject = async (id) => {
-    try {
-      await updateLoanStatus.mutateAsync({ id, status: 'rejected' })
-      showToast('Request rejected')
-    } catch (err) { showToast(err.message, 'error') }
-  }
+  const pendingCount = requests.filter((r) => r.status === 'pending').length
 
   if (isLoading) return <PageLoading />
 
-  const statusFilters = ['all', 'pending', 'approved', 'picked_up', 'returned']
-
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Requests" description="Manage equipment loan requests">
-        {statusFilters.map((s) => (
+      <AdminPageHeader title="Equipment Requests" description={`${requests.length} total requests`}>
+        {STATUS_FILTERS.map((s) => (
           <Button
-            key={s}
-            variant={filter === s ? 'default' : 'outline'}
+            key={s.value}
+            variant={filter === s.value ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setFilter(s)}
+            onClick={() => setFilter(s.value)}
           >
-            {s === 'all' ? 'All' : s.replace('_', ' ')}
-            {s === 'pending' && requests.filter((r) => r.status === 'pending').length > 0 && (
+            {s.label}
+            {s.value === 'pending' && pendingCount > 0 && (
               <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
-                {requests.filter((r) => r.status === 'pending').length}
+                {pendingCount}
               </span>
             )}
           </Button>
         ))}
       </AdminPageHeader>
 
-      {/* Legacy pending loans */}
-      {pendingLoans.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-muted-foreground">Legacy Requests</h2>
-          {pendingLoans.map((loan) => (
-            <Card key={loan.id}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <h3 className="font-semibold">{loan.product_name} &times; {loan.quantity}</h3>
-                    <div className="flex gap-3 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" /> {loan.borrower_name}</span>
-                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {formatDate(loan.pickup_date)} &rarr; {formatDate(loan.return_date)}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Button variant="success" size="sm" className="gap-1" onClick={() => handleLegacyApprove(loan.id)}>
-                      <Check className="h-3.5 w-3.5" /> Approve
-                    </Button>
-                    <Button variant="destructive" size="sm" className="gap-1" onClick={() => handleLegacyReject(loan.id)}>
-                      <X className="h-3.5 w-3.5" /> Reject
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* New request system */}
-      {filteredRequests.length === 0 && pendingLoans.length === 0 ? (
+      {filteredRequests.length === 0 ? (
         <EmptyState icon={Inbox} title="No requests" description="No requests match the current filter" />
       ) : (
         <div className="space-y-3">
@@ -122,11 +73,6 @@ export function AdminRequestsPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-sm truncate">{req.project_name}</h3>
                         <StatusBadge status={req.status} />
-                        {req.priority !== 'normal' && (
-                          <Badge variant={req.priority === 'urgent' ? 'destructive' : req.priority === 'high' ? 'warning' : 'secondary'} className="text-[10px]">
-                            {req.priority}
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
                         <span>{req.user_first_name} {req.user_last_name}</span>

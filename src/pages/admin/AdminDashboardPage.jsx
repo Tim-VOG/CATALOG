@@ -119,9 +119,8 @@ function ChartWidget({ title, icon: Icon, children }) {
 // ── Timeline Planning mini widget ──
 const TIMELINE_COLORS = {
   pending: 'bg-amber-500/70',
-  approved: 'bg-blue-500/70',
-  reserved: 'bg-cyan-500/70',
-  picked_up: 'bg-emerald-500/70',
+  in_progress: 'bg-blue-500/70',
+  ready: 'bg-emerald-500/70',
 }
 
 function TimelineWidget({ requests }) {
@@ -132,7 +131,7 @@ function TimelineWidget({ requests }) {
   const timelineItems = useMemo(() => {
     const endWindow = addDays(today, days)
     return requests
-      .filter((r) => ['pending', 'approved', 'picked_up'].includes(r.status))
+      .filter((r) => ['pending', 'in_progress', 'ready'].includes(r.status))
       .filter((r) => {
         const start = startOfDay(new Date(r.pickup_date || r.created_at))
         const end = startOfDay(new Date(r.return_date || addDays(start, 7)))
@@ -226,7 +225,7 @@ function TimelineWidget({ requests }) {
             </div>
 
             <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/20">
-              {Object.entries({ pending: 'Pending', approved: 'Approved', picked_up: 'Active' }).map(([key, label]) => (
+              {Object.entries({ pending: 'Pending', in_progress: 'In Progress', ready: 'Ready' }).map(([key, label]) => (
                 <div key={key} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                   <div className={cn('h-2.5 w-2.5 rounded-full', TIMELINE_COLORS[key])} />
                   {label}
@@ -254,12 +253,8 @@ export function AdminDashboardPage() {
   const today = new Date().toISOString().split('T')[0]
 
   const pending = useMemo(() => requests.filter((r) => r.status === 'pending'), [requests])
-  const active = useMemo(() => requests.filter((r) => r.status === 'picked_up'), [requests])
-  const approved = useMemo(() => requests.filter((r) => r.status === 'approved'), [requests])
-  const overdue = useMemo(
-    () => active.filter((r) => r.return_date < today),
-    [active, today]
-  )
+  const inProgress = useMemo(() => requests.filter((r) => r.status === 'in_progress'), [requests])
+  const ready = useMemo(() => requests.filter((r) => r.status === 'ready'), [requests])
   const lowStock = useMemo(
     () => products.filter((p) => p.total_stock <= 1),
     [products]
@@ -267,23 +262,23 @@ export function AdminDashboardPage() {
 
   const STATUS_COLORS = {
     pending: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    approved: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    picked_up: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+    in_progress: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    ready: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
   }
 
   const recentRequests = requests
-    .filter((r) => ['pending', 'approved', 'picked_up'].includes(r.status))
+    .filter((r) => ['pending', 'in_progress', 'ready'].includes(r.status))
     .slice(0, 8)
 
   if (requestsLoading || productsLoading) return <PageLoading />
 
-  const visibleStats = ['stat-pending', 'stat-active', 'stat-overdue', 'stat-pickup'].filter((id) => isVisible(id))
+  const visibleStats = ['stat-pending', 'stat-active', 'stat-pickup'].filter((id) => isVisible(id))
   const hasChartRequests = isVisible('chart-requests')
   const hasChartCategories = isVisible('chart-categories')
   const hasChartLoans = isVisible('chart-loans')
   const hasTimeline = isVisible('timeline')
   const visiblePrimaryLists = ['active-loans', 'recent-requests'].filter((id) => isVisible(id))
-  const visibleSecondaryLists = ['overdue-returns', 'low-stock'].filter((id) => isVisible(id))
+  const visibleSecondaryLists = ['low-stock'].filter((id) => isVisible(id))
 
   let d = -0.05
   const nextDelay = () => { d += 0.05; return d }
@@ -390,17 +385,12 @@ export function AdminDashboardPage() {
           )}
           {isVisible('stat-active') && (
             <motion.div {...fadeUp(nextDelay())}>
-              <StatWidget label="Active Loans" value={active.length} icon={PackageCheck} color="text-blue-500" iconBg="bg-blue-500/10" link="/admin/requests" />
-            </motion.div>
-          )}
-          {isVisible('stat-overdue') && (
-            <motion.div {...fadeUp(nextDelay())}>
-              <StatWidget label="Overdue" value={overdue.length} icon={AlertTriangle} color="text-rose-500" iconBg="bg-rose-500/10" link="/admin/requests" />
+              <StatWidget label="In Progress" value={inProgress.length} icon={PackageCheck} color="text-blue-500" iconBg="bg-blue-500/10" link="/admin/requests" />
             </motion.div>
           )}
           {isVisible('stat-pickup') && (
             <motion.div {...fadeUp(nextDelay())}>
-              <StatWidget label="Awaiting Pickup" value={approved.length} icon={PackageX} color="text-cyan-500" iconBg="bg-cyan-500/10" link="/admin/requests" />
+              <StatWidget label="Ready" value={ready.length} icon={PackageX} color="text-emerald-500" iconBg="bg-emerald-500/10" link="/admin/requests" />
             </motion.div>
           )}
           {lostItems.length > 0 && (
@@ -467,9 +457,9 @@ export function AdminDashboardPage() {
                   </Link>
                 }
               >
-                {active.length > 0 && (
+                {inProgress.length > 0 && (
                   <div className="space-y-1">
-                    {active.slice(0, 8).map((r) => {
+                    {inProgress.slice(0, 8).map((r) => {
                       const isOverdue = r.return_date < today
                       return (
                         <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
@@ -516,7 +506,7 @@ export function AdminDashboardPage() {
                           <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name}</p>
                         </div>
                         <Badge variant="outline" className={cn('text-[10px] shrink-0', STATUS_COLORS[r.status] || '')}>
-                          {r.status === 'picked_up' ? 'Active' : r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                          {r.status === 'in_progress' ? 'In Progress' : r.status.charAt(0).toUpperCase() + r.status.slice(1)}
                         </Badge>
                       </Link>
                     ))}
@@ -618,39 +608,9 @@ export function AdminDashboardPage() {
         </motion.div>
       )}
 
-      {/* ── Overdue Returns + Low Stock ── */}
+      {/* ── Low Stock ── */}
       {visibleSecondaryLists.length > 0 && (
-        <div className={cn(
-          'grid gap-5',
-          visibleSecondaryLists.length >= 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
-        )}>
-          {isVisible('overdue-returns') && (
-            <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
-              <ListWidget
-                title={`Overdue Returns (${overdue.length})`}
-                icon={AlertTriangle}
-                iconColor="text-rose-500"
-                iconBg="bg-rose-500/10"
-                emptyIcon={AlertTriangle}
-                emptyText="No overdue returns — all clear!"
-              >
-                {overdue.length > 0 && (
-                  <div className="space-y-1">
-                    {overdue.slice(0, 5).map((r) => (
-                      <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
-                        <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate group-hover:text-rose-500 transition-colors">{r.project_name}</p>
-                          <p className="text-xs text-muted-foreground">{r.user_first_name} {r.user_last_name} · Due {r.return_date}</p>
-                        </div>
-                        <Badge variant="outline" className="text-[10px] bg-rose-500/10 text-rose-500 border-rose-500/20 shrink-0">Overdue</Badge>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </ListWidget>
-            </motion.div>
-          )}
+        <div className="grid gap-5 grid-cols-1">
           {isVisible('low-stock') && (
             <motion.div {...fadeUp(nextDelay())} className="h-[380px]">
               <ListWidget

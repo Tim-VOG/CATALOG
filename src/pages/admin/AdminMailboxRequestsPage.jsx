@@ -24,18 +24,14 @@ import { cn } from '@/lib/utils'
 
 const STATUS_COLORS = {
   pending: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
-  approved: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
-  rejected: 'bg-destructive/15 text-destructive border-destructive/30',
-  completed: 'bg-primary/15 text-primary border-primary/30',
-  cancelled: 'bg-gray-500/15 text-gray-600 border-gray-500/30',
+  in_progress: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
+  ready: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
 }
 
 const STATUS_ICONS = {
   pending: Clock,
-  approved: CheckCircle,
-  rejected: XCircle,
-  completed: CheckCircle,
-  cancelled: XCircle,
+  in_progress: Clock,
+  ready: CheckCircle,
 }
 
 // ── Default email template with placeholders ──
@@ -702,7 +698,7 @@ export function AdminMailboxRequestsPage() {
           updates: {
             confirmation_email_sent: true,
             onepassword_link: emailForm.onepassword_link || null,
-            status: 'completed',
+            status: 'ready',
             // Clear draft
             email_draft_subject: null,
             email_draft_body: null,
@@ -812,19 +808,19 @@ export function AdminMailboxRequestsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleStatusChange(selectedRequest, 'rejected')}
-                className="gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => handleStatusChange(selectedRequest, 'in_progress')}
+                className="gap-1.5 text-xs"
               >
-                <XCircle className="h-3.5 w-3.5" />
-                Reject
+                <Clock className="h-3.5 w-3.5" />
+                Start Processing
               </Button>
               <Button
                 size="sm"
-                onClick={() => handleStatusChange(selectedRequest, 'approved')}
-                className="gap-1.5 text-xs"
+                onClick={() => handleStatusChange(selectedRequest, 'ready')}
+                className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600"
               >
                 <CheckCircle className="h-3.5 w-3.5" />
-                Approve
+                Mark Ready
               </Button>
             </CardContent>
           </Card>

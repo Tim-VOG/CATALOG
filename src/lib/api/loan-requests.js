@@ -76,14 +76,6 @@ export const createLoanRequest = async ({ request, items }) => {
 export const updateRequestStatus = async (id, status, extraData = {}) => {
   const updates = { status, ...extraData }
 
-  if (status === 'approved') {
-    updates.approved_at = new Date().toISOString()
-    updates.approved_by = (await supabase.auth.getUser()).data.user?.id
-  }
-  if (status === 'picked_up') updates.picked_up_at = new Date().toISOString()
-  if (status === 'returned') updates.returned_at = new Date().toISOString()
-  if (status === 'closed') updates.closed_at = new Date().toISOString()
-
   const { data, error } = await supabase
     .from('loan_requests')
     .update(updates)
@@ -92,10 +84,6 @@ export const updateRequestStatus = async (id, status, extraData = {}) => {
     .single()
   if (error) throw error
   return data
-}
-
-export const cancelRequest = async (id) => {
-  return updateRequestStatus(id, 'cancelled')
 }
 
 export const deleteLoanRequest = async (id) => {

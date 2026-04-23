@@ -280,8 +280,7 @@ export function AdminNewRequestPage() {
           terms_accepted: true,
           responsibility_accepted: true,
           custom_fields: customFields,
-          status: autoApprove ? 'approved' : 'pending',
-          ...(autoApprove ? { approved_at: new Date().toISOString(), approved_by: user.id } : {}),
+          status: autoApprove ? 'ready' : 'pending',
         },
         items: selectedItems,
       })
@@ -754,8 +753,8 @@ export function AdminNewRequestPage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <Checkbox checked={autoApprove} onCheckedChange={setAutoApprove} />
                 <div>
-                  <span className="text-sm font-medium">Auto-approve this request</span>
-                  <p className="text-xs text-amber-500">This will skip the normal approval workflow and immediately mark the request as approved</p>
+                  <span className="text-sm font-medium">Skip to Ready</span>
+                  <p className="text-xs text-amber-500">This will skip the processing steps and immediately mark the request as ready</p>
                 </div>
               </label>
 
