@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
-  FilePlus2, UserPlus, ClipboardList,
+  FilePlus2, UserPlus, UserMinus, ClipboardList,
   Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
@@ -42,7 +42,8 @@ const sidebarSections = [
     defaultOpen: false,
     links: [
       { to: '/admin/users', label: 'Users', icon: Users },
-      { to: '/admin/it-requests', label: 'Onboarding / Offboarding', icon: UserPlus },
+      { to: '/admin/onboarding-requests', label: 'Onboarding', icon: UserPlus },
+      { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus },
     ],
   },
   {

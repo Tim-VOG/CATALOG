@@ -31,6 +31,8 @@ import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingCompo
 import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
 import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
+import { AdminOnboardingRequestsPage } from '@/pages/admin/AdminOnboardingRequestsPage'
+import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
 import { OnboardingVariablesPage } from '@/pages/admin/onboarding/OnboardingVariablesPage'
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
 import { OffboardingPage } from '@/pages/admin/offboarding/OffboardingPage'
@@ -118,6 +120,8 @@ export function AppRoutes() {
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
           <Route path="onboarding/variables" element={<OnboardingVariablesPage />} />
           <Route path="it-requests" element={<AdminItRequestsPage />} />
+          <Route path="onboarding-requests" element={<AdminOnboardingRequestsPage />} />
+          <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
           <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
           <Route path="offboarding" element={<OffboardingPage />} />
           <Route path="offboarding-form-builder" element={<AdminOffboardingFormBuilderPage />} />
