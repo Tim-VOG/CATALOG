@@ -117,7 +117,6 @@ export const deleteLoanRequests = async (ids) => {
 }
 
 export const processReturn = async (requestId, { itemReturns, admin_notes }) => {
-  // Update each item's return details
   for (const item of itemReturns) {
     const { error } = await supabase
       .from('loan_request_items')
@@ -129,7 +128,5 @@ export const processReturn = async (requestId, { itemReturns, admin_notes }) => 
       .eq('id', item.id)
     if (error) throw error
   }
-
-  // Update the request status to returned
-  return updateRequestStatus(requestId, 'returned', { admin_notes })
+  return updateRequestStatus(requestId, 'ready', { admin_notes })
 }
