@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   FilePlus2, UserPlus, ClipboardList,
-  Settings, UserMinus, QrCode, ScrollText,
+  Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -42,8 +42,7 @@ const sidebarSections = [
     defaultOpen: false,
     links: [
       { to: '/admin/users', label: 'Users', icon: Users },
-      { to: '/admin/onboarding', label: 'Onboarding', icon: UserPlus },
-      { to: '/admin/offboarding', label: 'Offboarding', icon: UserMinus },
+      { to: '/admin/it-requests', label: 'Onboarding / Offboarding', icon: UserPlus },
     ],
   },
   {
