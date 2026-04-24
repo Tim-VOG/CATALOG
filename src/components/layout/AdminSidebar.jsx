@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, Inbox,
-  Users, Palette, Mail, CalendarRange, ArrowLeft,
-  FilePlus2, UserPlus, UserMinus, ClipboardList,
+  Users, Palette, Mail, ArrowLeft,
+  UserPlus, UserMinus, ClipboardList,
   Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
@@ -21,15 +21,15 @@ const sidebarSections = [
     label: 'Requests',
     defaultOpen: true,
     links: [
-      { to: '/admin/requests', label: 'Equipment Requests', icon: Inbox },
+      { to: '/admin/requests', label: 'Equipment', icon: Inbox },
+      { to: '/admin/onboarding-requests', label: 'Onboarding', icon: UserPlus },
+      { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus },
+      { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail },
       { to: '/admin/it-requests', label: 'IT Requests', icon: ClipboardList },
-      { to: '/admin/mailbox-requests', label: 'Mailbox Requests', icon: Mail },
-      { to: '/admin/new-request', label: 'New Request', icon: FilePlus2 },
-      { to: '/admin/planning', label: 'Planning', icon: CalendarRange },
     ],
   },
   {
-    label: 'Inventory / QR',
+    label: 'Inventory',
     defaultOpen: false,
     links: [
       { to: '/admin/products', label: 'Products', icon: Package },
@@ -38,12 +38,10 @@ const sidebarSections = [
     ],
   },
   {
-    label: 'People',
+    label: 'Users',
     defaultOpen: false,
     links: [
-      { to: '/admin/users', label: 'Users', icon: Users },
-      { to: '/admin/onboarding-requests', label: 'Onboarding', icon: UserPlus },
-      { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus },
+      { to: '/admin/users', label: 'All Users', icon: Users },
     ],
   },
   {
@@ -51,15 +49,13 @@ const sidebarSections = [
     defaultOpen: false,
     links: [
       { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
-      { to: '/admin/email-templates', label: 'Email Templates', icon: Mail },
+      { to: '/admin/email-templates', label: 'Communications', icon: Mail },
       { to: '/admin/design', label: 'Design & Branding', icon: Palette },
-      { to: '/admin/forms', label: 'Form Builder', icon: Settings },
     ],
   },
 ]
 
 function SidebarSection({ section, isActive }) {
-  // Auto-open if any link in the section is active
   const hasActiveLink = section.links.some(l => isActive(l.to, l.exact))
   const [open, setOpen] = useState(section.defaultOpen || hasActiveLink)
 
@@ -110,22 +106,17 @@ export function AdminSidebar() {
   return (
     <aside className="hidden lg:block py-3 pl-3 shrink-0 self-start">
       <div className="w-56 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 flex flex-col max-h-[calc(100vh-5.5rem)] overflow-hidden">
-        {/* Header */}
         <div className="px-4 py-3 border-b border-border/20">
-          <h2 className="font-display font-semibold text-sm tracking-tight">
-            Admin Panel
-          </h2>
+          <h2 className="font-display font-semibold text-sm tracking-tight">Admin Panel</h2>
           <p className="text-[10px] text-muted-foreground mt-0.5">Manage your workspace</p>
         </div>
 
-        {/* Scrollable nav */}
         <nav className="flex-1 overflow-y-auto px-2 pb-2 pt-2 space-y-1">
           {sidebarSections.map((section) => (
             <SidebarSection key={section.label} section={section} isActive={isActive} />
           ))}
         </nav>
 
-        {/* Back link */}
         <div className="px-3 py-2.5 border-t border-border/20">
           <Link to="/" className="flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-3.5 w-3.5" />

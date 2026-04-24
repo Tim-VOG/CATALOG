@@ -20,17 +20,15 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ScrollFadeIn } from '@/components/ui/motion'
 import {
   useQRCodes, useCreateQRCode, useCreateQRCodes, useUpdateQRCode, useDeleteQRCode,
-  useQRKits, useCreateQRKit, useUpdateQRKit, useDeleteQRKit
 } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
-const emptyQRForm = { code: '', product_id: '', kit_id: '', label: '', is_active: true }
-const emptyKitForm = { reference: '', name: '', description: '', items: [] }
+const emptyQRForm = { code: '', product_id: '', label: '', is_active: true }
 
 export function AdminQRCodesPage() {
-  const [tab, setTab] = useState('codes') // 'codes' | 'kits'
+  const [tab, setTab] = useState('codes')
   const [search, setSearch] = useState('')
   const [showDialog, setShowDialog] = useState(false)
   const [showKitDialog, setShowKitDialog] = useState(false)

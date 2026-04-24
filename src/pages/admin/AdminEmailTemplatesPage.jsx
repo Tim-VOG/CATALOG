@@ -16,28 +16,18 @@ import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/emai
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 
-// Chronological workflow order (inactive templates interleaved)
 const TEMPLATE_ORDER = {
-  order_confirmation: 1,
-  order_ready: 2,
-  equipment_picked_up: 3,
-  return_reminder: 4,
-  return_confirmation: 5,
-  request_closed: 6,
-  extension_approved: 7,
-  extension_rejected: 8,
+  request_confirmed: 1,
+  request_in_progress: 2,
+  request_ready: 3,
+  user_invitation: 4,
 }
 
-const EXTENSION_STEP = 7
-
 const TEMPLATE_ICONS = {
-  order_confirmation: '📋',
-  equipment_picked_up: '📤',
-  return_confirmation: '📦',
-  request_closed: '✅',
-  extension_approved: '📅',
-  extension_rejected: '❌',
-  order_ready: '✅',
+  request_confirmed: '📋',
+  request_in_progress: '⏳',
+  request_ready: '✅',
+  user_invitation: '📧',
   return_reminder: '⏰',
 }
 

@@ -21,10 +21,8 @@ import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { AdminDesignPage } from '@/pages/admin/AdminDesignPage'
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
-import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
-import { AdminFormFieldsPage } from '@/pages/admin/AdminFormFieldsPage'
+// AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
 import { AdminSubscriptionPlansPage } from '@/pages/admin/AdminSubscriptionPlansPage'
-import { AdminNewRequestPage } from '@/pages/admin/AdminNewRequestPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
 import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingComposerPage'
@@ -107,13 +105,13 @@ export function AppRoutes() {
           <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
-          <Route path="new-request" element={<AdminNewRequestPage />} />
+          <Route path="new-request" element={<Navigate to="/admin/requests" replace />} />
           <Route path="returns" element={<Navigate to="/admin/requests" replace />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="design" element={<AdminDesignPage />} />
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
-          <Route path="planning" element={<AdminPlanningPage />} />
-          <Route path="forms" element={<AdminFormFieldsPage />} />
+          <Route path="planning" element={<Navigate to="/admin" replace />} />
+          <Route path="forms" element={<Navigate to="/admin" replace />} />
           <Route path="onboarding" element={<OnboardingRecipientsPage />} />
           <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
           <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
