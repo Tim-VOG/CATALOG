@@ -180,6 +180,29 @@ export const processQRScan = async ({ code, action, userId, userEmail, userName,
     p_expected_return_date: expectedReturnDate || null,
   })
   if (error) throw error
+
+  // Update QR code assignment status
+  const qr = await getQRCodeByCode(code)
+  if (qr) {
+    if (action === 'take') {
+      await supabase.from('qr_codes').update({
+        status: 'assigned',
+        assigned_to: userId,
+        assigned_to_name: userName || null,
+        assigned_to_email: userEmail || null,
+        assigned_at: new Date().toISOString(),
+      }).eq('id', qr.id)
+    } else if (action === 'deposit') {
+      await supabase.from('qr_codes').update({
+        status: 'available',
+        assigned_to: null,
+        assigned_to_name: null,
+        assigned_to_email: null,
+        assigned_at: null,
+      }).eq('id', qr.id)
+    }
+  }
+
   return data
 }
 
