@@ -94,7 +94,7 @@ const STATUS_EMAIL = {
   ready: {
     subject: 'Your request is ready!',
     title: 'Your request is ready',
-    body: (name, type) => `Your <strong>${type}</strong> request has been completed. Please come to the IT desk to collect your equipment.`,
+    body: (name, type) => `Your <strong>${type}</strong> request has been completed and is ready.`,
   },
 }
 
