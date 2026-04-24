@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { useCart, useUpdateCartItem, useRemoveFromCart, useCheckoutCart } from '@/hooks/use-cart'
 import { sendEmail } from '@/lib/api/send-email'
+import { buildConfirmationEmail } from '@/services/request-status-service'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import {
   ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ArrowRight,
@@ -243,15 +244,7 @@ export function CartPage() {
       sendEmail({
         to: user.email,
         subject: 'Your equipment request has been received',
-        body: `<div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:520px;margin:0 auto;">
-          <h2 style="color:#1e293b;">Request received</h2>
-          <p style="color:#64748b;font-size:15px;">Hi ${submitterName},</p>
-          <p style="color:#64748b;font-size:15px;">Your <strong>equipment</strong> request for <strong>${projectName || 'Equipment'}</strong> (${totalItems} item${totalItems > 1 ? 's' : ''}) has been received.</p>
-          <div style="background:#fffbeb;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
-            <p style="margin:0;font-size:13px;color:#fbbf24;">STATUS</p>
-            <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#f59e0b;">Pending</p>
-          </div>
-        </div>`,
+        body: buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
         isHtml: true,
       })
       sendEmail({

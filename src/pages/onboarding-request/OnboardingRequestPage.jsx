@@ -5,6 +5,7 @@ import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
+import { buildConfirmationEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -464,16 +465,7 @@ export function OnboardingRequestPage() {
       sendEmail({
         to: user.email,
         subject: 'Your onboarding request has been received',
-        body: `<div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:520px;margin:0 auto;">
-          <h2 style="color:#1e293b;">Request received</h2>
-          <p style="color:#64748b;font-size:15px;">Hi ${submitterName},</p>
-          <p style="color:#64748b;font-size:15px;">Your <strong>onboarding</strong> request for <strong>${form.name}</strong> has been received and will be processed by the IT team.</p>
-          <div style="background:#fffbeb;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
-            <p style="margin:0;font-size:13px;color:#fbbf24;">STATUS</p>
-            <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#f59e0b;">Pending</p>
-          </div>
-          <p style="color:#94a3b8;font-size:13px;">You can track the status of your request on the IT Hub.</p>
-        </div>`,
+        body: buildConfirmationEmail({ name: submitterName, type: 'onboarding', detail: form.name }),
         isHtml: true,
       })
 
