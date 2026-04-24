@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { format, addDays, differenceInDays, startOfDay } from 'date-fns'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
+import { useItRequests } from '@/hooks/use-it-requests'
 import { useProducts } from '@/hooks/use-products'
 import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets'
 import { useOverdueScans, useScanStatsByCategory, useUpcomingReturns } from '@/hooks/use-qr-codes'
@@ -238,7 +239,9 @@ function TimelineWidget({ requests }) {
 }
 
 export function AdminDashboardPage() {
-  const { data: requests = [], isLoading: requestsLoading } = useLoanRequests()
+  const { data: loanReqs = [], isLoading: requestsLoading } = useLoanRequests()
+  const { data: itReqs = [] } = useItRequests()
+  const requests = useMemo(() => [...loanReqs, ...itReqs], [loanReqs, itReqs])
   const { data: products = [], isLoading: productsLoading } = useProducts()
   const { data: overdueScans = [] } = useOverdueScans()
   const { data: lostItems = [] } = useLostItems()
