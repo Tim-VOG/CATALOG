@@ -5,6 +5,8 @@ export const useEmailTemplates = () =>
   useQuery({
     queryKey: ['email-templates'],
     queryFn: getEmailTemplates,
+    retry: 2,
+    staleTime: 30000,
   })
 
 export const useUpdateEmailTemplate = () => {
