@@ -97,7 +97,6 @@ export function AdminProductsPage() {
   const [search, setSearch] = useState('')
   const [selectedIds, setSelectedIds] = useState(new Set())
 
-  // Collect all unique included items across products for suggestions
   const allIncludesItems = useMemo(() => {
     const set = new Set()
     for (const p of products) {
@@ -182,7 +181,6 @@ export function AdminProductsPage() {
     return p.name.toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q)
   })
 
-  // Suggestions = all known items minus what's already in the form
   const suggestions = allIncludesItems.filter((item) => !form.includes.includes(item))
 
   return (
@@ -217,7 +215,7 @@ export function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Search bar — pill style */}
+      {/* Search bar */}
       <div className="relative max-w-md">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -244,7 +242,6 @@ export function AdminProductsPage() {
                     isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
                   )}
                 >
-                  {/* Image */}
                   <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                     <BlurImage
                       src={p.image_url || 'https://via.placeholder.com/400x300?text=No+Image'}
@@ -258,7 +255,6 @@ export function AdminProductsPage() {
                       color={p.category_color}
                       subType={p.sub_type}
                     />
-                    {/* Selection checkbox */}
                     <div className={cn(
                       'absolute top-2.5 right-2.5 transition-opacity',
                       isSelected || selectedIds.size > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
@@ -280,7 +276,6 @@ export function AdminProductsPage() {
                         )}
                       </button>
                     </div>
-                    {/* Hover action overlay — only when not in bulk select mode */}
                     {selectedIds.size === 0 && (
                       <div className="absolute bottom-2.5 right-2.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -305,7 +300,6 @@ export function AdminProductsPage() {
                     )}
                   </div>
 
-                  {/* Info */}
                   <CardContent className="p-5 flex-1 flex flex-col">
                     <h3 className="font-semibold text-sm leading-tight truncate">{p.name}</h3>
                     {p.description && (
@@ -351,16 +345,22 @@ export function AdminProductsPage() {
         )}
       </AnimatePresence>
 
+      {/* ─── Edit / Create Dialog ─────────────────────────────────── */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl w-full">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Product' : 'Add Product'}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+
+          <div className="space-y-5 max-h-[75vh] overflow-y-auto px-1 py-1">
+
+            {/* Row 1 — Name (full width) */}
             <div className="space-y-1">
               <Label>Name *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 5G Home Router" />
             </div>
+
+            {/* Row 2 — Category + Sub-type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Category</Label>
@@ -370,9 +370,11 @@ export function AdminProductsPage() {
               </div>
               <div className="space-y-1">
                 <Label>Sub-type</Label>
-                <Input value={form.sub_type} onChange={(e) => setForm({ ...form, sub_type: e.target.value })} />
+                <Input value={form.sub_type} onChange={(e) => setForm({ ...form, sub_type: e.target.value })} placeholder="e.g. Plug-in" />
               </div>
             </div>
+
+            {/* Row 3 — Image (full width) */}
             <div className="space-y-1">
               <Label>Product Image</Label>
               <ImageUpload
@@ -383,18 +385,24 @@ export function AdminProductsPage() {
                 requiredHeight={300}
               />
             </div>
-            <div className="space-y-1">
-              <Label>Stock {editing ? '(managed via QR scan)' : '*'}</Label>
-              {editing ? (
-                <div className="h-9 px-3 flex items-center rounded-md bg-muted/50 text-sm font-medium">{form.total_stock}</div>
-              ) : (
-                <Input type="number" min="1" value={form.total_stock} onChange={(e) => setForm({ ...form, total_stock: parseInt(e.target.value) || 1 })} />
-              )}
+
+            {/* Row 4 — Stock + Description side by side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+              <div className="space-y-1">
+                <Label>Stock {editing ? '(managed via QR scan)' : '*'}</Label>
+                {editing ? (
+                  <div className="h-9 px-3 flex items-center rounded-md bg-muted/50 text-sm font-medium">{form.total_stock}</div>
+                ) : (
+                  <Input type="number" min="1" value={form.total_stock} onChange={(e) => setForm({ ...form, total_stock: parseInt(e.target.value) || 1 })} />
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label>Description</Label>
+                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Optional description..." />
+              </div>
             </div>
-            <div className="space-y-1">
-              <Label>Description</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} />
-            </div>
+
+            {/* Row 5 — Included items (full width) */}
             <div className="space-y-1.5">
               <Label>Included items</Label>
               <TagInput
@@ -402,7 +410,6 @@ export function AdminProductsPage() {
                 onChange={(tags) => setForm({ ...form, includes: tags })}
                 placeholder="Type item and press Enter..."
               />
-              {/* Suggestion chips from existing items */}
               {suggestions.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {suggestions.map((item) => (
@@ -419,23 +426,27 @@ export function AdminProductsPage() {
                 </div>
               )}
             </div>
+
+            {/* Row 6 — Product flags */}
             <div className="space-y-2">
               <Label>Product flags</Label>
-              <div className="flex flex-wrap gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   ['has_subscription', 'Needs subscription plan'],
                   ['has_apps', 'Pre-install apps'],
                   ['wifi_only', 'WiFi only'],
                   ['printer_info', 'Printer (B&W)'],
                 ].map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2 text-sm">
+                  <label key={key} className="flex items-center gap-2 text-sm cursor-pointer">
                     <Checkbox checked={form[key]} onCheckedChange={(v) => setForm({ ...form, [key]: v })} />
                     {label}
                   </label>
                 ))}
               </div>
             </div>
+
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
             <Button onClick={handleSave}>Save</Button>
