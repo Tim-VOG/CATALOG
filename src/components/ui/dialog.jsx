@@ -144,7 +144,7 @@ const DialogContent = React.forwardRef(({ className, children, size = 'default',
               className={cn(
                 'relative w-full max-h-[85vh] overflow-y-auto pointer-events-auto',
                 'bg-card shadow-2xl',
-                'rounded-2xl',
+                'rounded-2xl p-6',
                 DIALOG_SIZES[size] || DIALOG_SIZES.default,
                 className
               )}
