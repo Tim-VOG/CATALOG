@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, Inbox,
@@ -7,95 +7,69 @@ import {
   Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
+import { useLoanRequests } from '@/hooks/use-loan-requests'
+import { useItRequests } from '@/hooks/use-it-requests'
+import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { cn } from '@/lib/utils'
-
-const sidebarSections = [
-  {
-    label: 'Overview',
-    defaultOpen: true,
-    links: [
-      { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-    ],
-  },
-  {
-    label: 'Requests',
-    defaultOpen: true,
-    links: [
-      { to: '/admin/requests', label: 'Equipment', icon: Inbox },
-      { to: '/admin/onboarding-requests', label: 'Onboarding', icon: UserPlus },
-      { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus },
-      { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail },
-    ],
-  },
-  {
-    label: 'Inventory',
-    defaultOpen: false,
-    links: [
-      { to: '/admin/products', label: 'Products', icon: Package },
-      { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
-      { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
-    ],
-  },
-  {
-    label: 'Users',
-    defaultOpen: false,
-    links: [
-      { to: '/admin/users', label: 'All Users', icon: Users },
-    ],
-  },
-  {
-    label: 'Settings',
-    defaultOpen: false,
-    links: [
-      { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
-      { to: '/admin/email-templates', label: 'Communications', icon: Mail },
-      { to: '/admin/design', label: 'Design & Branding', icon: Palette },
-    ],
-  },
-]
-
-function SidebarSection({ section, isActive }) {
-  const hasActiveLink = section.links.some(l => isActive(l.to, l.exact))
-  const [open, setOpen] = useState(section.defaultOpen || hasActiveLink)
-
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-      >
-        {section.label}
-        <ChevronDown className={cn('h-3 w-3 transition-transform duration-200', open && 'rotate-180')} />
-      </button>
-      {open && (
-        <div className="space-y-0.5 pb-1">
-          {section.links.map(({ to, label, icon: Icon, exact }) => {
-            const active = isActive(to, exact)
-            return (
-              <Link key={to} to={to}>
-                <div
-                  className={cn(
-                    'flex items-center gap-2.5 px-3 py-[7px] mx-1 rounded-lg text-[13px] transition-all duration-150',
-                    active
-                      ? 'bg-primary/10 text-primary font-medium'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-                  )}
-                >
-                  <Icon className={cn('h-[15px] w-[15px] shrink-0', active && 'text-primary')} />
-                  {label}
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export function AdminSidebar() {
   const location = useLocation()
+
+  const { data: loanReqs = [] } = useLoanRequests()
+  const { data: itReqs = [] } = useItRequests()
+  const { data: mailboxReqs = [] } = useMailboxRequests()
+
+  const pendingCounts = useMemo(() => ({
+    equipment: loanReqs.filter((r) => r.status === 'pending').length,
+    onboarding: itReqs.filter((r) => r.type === 'onboarding' && r.status === 'pending').length,
+    offboarding: itReqs.filter((r) => r.type === 'offboarding' && r.status === 'pending').length,
+    mailbox: mailboxReqs.filter((r) => r.status === 'pending').length,
+  }), [loanReqs, itReqs, mailboxReqs])
+
+  const sidebarSections = [
+    {
+      label: 'Overview',
+      defaultOpen: true,
+      links: [
+        { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      ],
+    },
+    {
+      label: 'Requests',
+      defaultOpen: true,
+      links: [
+        { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
+        { to: '/admin/onboarding-requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding },
+        { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding },
+        { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox },
+      ],
+    },
+    {
+      label: 'Inventory',
+      defaultOpen: false,
+      links: [
+        { to: '/admin/products', label: 'Products', icon: Package },
+        { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
+        { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
+      ],
+    },
+    {
+      label: 'Users',
+      defaultOpen: false,
+      links: [
+        { to: '/admin/users', label: 'All Users', icon: Users },
+      ],
+    },
+    {
+      label: 'Settings',
+      defaultOpen: false,
+      links: [
+        { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
+        { to: '/admin/email-templates', label: 'Communications', icon: Mail },
+        { to: '/admin/design', label: 'Design & Branding', icon: Palette },
+      ],
+    },
+  ]
 
   const isActive = (to, exact) => {
     if (exact) return location.pathname === to
@@ -124,5 +98,50 @@ export function AdminSidebar() {
         </div>
       </div>
     </aside>
+  )
+}
+
+function SidebarSection({ section, isActive }) {
+  const hasActiveLink = section.links.some(l => isActive(l.to, l.exact))
+  const [open, setOpen] = useState(section.defaultOpen || hasActiveLink)
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+      >
+        {section.label}
+        <ChevronDown className={cn('h-3 w-3 transition-transform duration-200', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <div className="space-y-0.5 pb-1">
+          {section.links.map(({ to, label, icon: Icon, exact, badge }) => {
+            const active = isActive(to, exact)
+            return (
+              <Link key={to} to={to}>
+                <div
+                  className={cn(
+                    'flex items-center gap-2.5 px-3 py-[7px] mx-1 rounded-lg text-[13px] transition-all duration-150',
+                    active
+                      ? 'bg-primary/10 text-primary font-medium'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  )}
+                >
+                  <Icon className={cn('h-[15px] w-[15px] shrink-0', active && 'text-primary')} />
+                  <span className="flex-1">{label}</span>
+                  {badge > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+                      {badge}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }
