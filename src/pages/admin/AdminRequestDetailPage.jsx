@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
 import { useAssignEquipmentBatch } from '@/hooks/use-user-equipment'
@@ -7,8 +7,9 @@ import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { supabase } from '@/lib/supabase'
 import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
+import { QRScanner } from '@/components/scan/QRScanner'
 import {
-  ArrowLeft, Calendar, Package, Check, QrCode, Search, Link2,
+  ArrowLeft, Calendar, Package, Check, QrCode, Search, Link2, Camera, List,
 } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
@@ -34,8 +35,10 @@ export function AdminRequestDetailPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [assigningItem, setAssigningItem] = useState(null)
+  const [assignMode, setAssignMode] = useState('scan')
   const [qrSearch, setQrSearch] = useState('')
   const [assignedQRs, setAssignedQRs] = useState({})
+  const [scanError, setScanError] = useState(null)
 
   if (isLoading) return <PageLoading />
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
@@ -97,6 +100,26 @@ export function AdminRequestDetailPage() {
       showToast(err.message, 'error')
     }
   }
+
+  const handleScannedCode = useCallback(async (scannedCode) => {
+    if (!assigningItem) return
+    setScanError(null)
+
+    const qr = allQRCodes.find(
+      (q) => q.code === scannedCode && q.product_id === assigningItem.product_id
+    )
+
+    if (!qr) {
+      setScanError(`"${scannedCode}" is not a valid QR code for ${assigningItem.product_name}`)
+      return
+    }
+    if ((qr.status || 'available') !== 'available') {
+      setScanError(`"${scannedCode}" is already assigned to ${qr.assigned_to_name || 'someone'}`)
+      return
+    }
+
+    await handleAssignQR(qr)
+  }, [assigningItem, allQRCodes])
 
   const getAvailableQRsForProduct = (productId) => {
     return allQRCodes.filter(
@@ -263,53 +286,78 @@ export function AdminRequestDetailPage() {
         </CardContent>
       </Card>
 
-      {/* QR Assignment Dialog */}
-      <Dialog open={!!assigningItem} onOpenChange={() => setAssigningItem(null)}>
-        <DialogContent className="max-w-md p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base">
-              Assign QR Code — {assigningItem?.product_name}
-            </DialogTitle>
-          </DialogHeader>
-
-          <p className="text-sm text-muted-foreground">
-            Select a QR code to assign to <strong>{requesterName}</strong>
-          </p>
-
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search QR code..." className="pl-9" value={qrSearch} onChange={(e) => setQrSearch(e.target.value)} />
+      {/* QR Assignment Dialog — Scan or Pick from list */}
+      <Dialog open={!!assigningItem} onOpenChange={() => { setAssigningItem(null); setAssignMode('scan') }}>
+        <DialogContent className="max-w-md p-0 overflow-hidden" size="md">
+          <div className="px-6 pt-6 pb-4 border-b bg-muted/30">
+            <h3 className="font-display font-bold text-base">Assign QR Code</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {assigningItem?.product_name} → <strong>{requesterName}</strong>
+            </p>
           </div>
 
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {filteredAssignQRs.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                No available QR codes for this product
-              </p>
+          {/* Mode toggle: Scan / List */}
+          <div className="px-6 pt-4 flex gap-2">
+            <Button
+              variant={assignMode === 'scan' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 gap-2 text-xs"
+              onClick={() => setAssignMode('scan')}
+            >
+              <Camera className="h-3.5 w-3.5" /> Scan QR
+            </Button>
+            <Button
+              variant={assignMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 gap-2 text-xs"
+              onClick={() => setAssignMode('list')}
+            >
+              <List className="h-3.5 w-3.5" /> Pick from list
+            </Button>
+          </div>
+
+          <div className="px-6 py-4">
+            {assignMode === 'scan' ? (
+              <div className="space-y-3">
+                <QRScanner onScan={handleScannedCode} />
+                {scanError && (
+                  <p className="text-sm text-destructive text-center">{scanError}</p>
+                )}
+              </div>
             ) : (
-              filteredAssignQRs.map((qr) => (
-                <button
-                  key={qr.id}
-                  type="button"
-                  onClick={() => handleAssignQR(qr)}
-                  className="flex items-center gap-3 w-full p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
-                >
-                  <QrCode className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <code className="text-sm font-mono font-semibold">{qr.code}</code>
-                    {qr.label && <p className="text-xs text-muted-foreground">{qr.label}</p>}
-                  </div>
-                  <Badge variant="outline" className="text-[10px] text-emerald-500 bg-emerald-500/10 border-emerald-500/20">
-                    Available
-                  </Badge>
-                </button>
-              ))
+              <div className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search QR code..." className="pl-9" value={qrSearch} onChange={(e) => setQrSearch(e.target.value)} />
+                </div>
+                <div className="space-y-2 max-h-56 overflow-y-auto">
+                  {filteredAssignQRs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">No available QR codes for this product</p>
+                  ) : (
+                    filteredAssignQRs.map((qr) => (
+                      <button
+                        key={qr.id}
+                        type="button"
+                        onClick={() => handleAssignQR(qr)}
+                        className="flex items-center gap-3 w-full p-3 rounded-xl border-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+                      >
+                        <QrCode className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <code className="text-sm font-mono font-semibold">{qr.code}</code>
+                          {qr.label && <p className="text-xs text-muted-foreground">{qr.label}</p>}
+                        </div>
+                        <Badge variant="outline" className="text-[10px] text-emerald-500 bg-emerald-500/10 border-emerald-500/20">Available</Badge>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAssigningItem(null)}>Cancel</Button>
-          </DialogFooter>
+          <div className="px-6 py-4 border-t bg-muted/20">
+            <Button variant="outline" className="w-full" onClick={() => { setAssigningItem(null); setAssignMode('scan') }}>Cancel</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
