@@ -117,7 +117,7 @@ export function AppRoutes() {
           <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
           <Route path="onboarding/variables" element={<OnboardingVariablesPage />} />
-          <Route path="it-requests" element={<AdminItRequestsPage />} />
+          <Route path="it-requests" element={<Navigate to="/admin/onboarding-requests" replace />} />
           <Route path="onboarding-requests" element={<AdminOnboardingRequestsPage />} />
           <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
           <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
