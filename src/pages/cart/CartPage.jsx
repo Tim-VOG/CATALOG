@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { useCart, useUpdateCartItem, useRemoveFromCart, useCheckoutCart } from '@/hooks/use-cart'
+import { sendEmail } from '@/lib/api/send-email'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import {
   ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ArrowRight,
@@ -237,6 +238,28 @@ export function CartPage() {
         locationId: null,
         priority: 'normal',
       })
+
+      const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
+      sendEmail({
+        to: user.email,
+        subject: 'Your equipment request has been received',
+        body: `<div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:520px;margin:0 auto;">
+          <h2 style="color:#1e293b;">Request received</h2>
+          <p style="color:#64748b;font-size:15px;">Hi ${submitterName},</p>
+          <p style="color:#64748b;font-size:15px;">Your <strong>equipment</strong> request for <strong>${projectName || 'Equipment'}</strong> (${totalItems} item${totalItems > 1 ? 's' : ''}) has been received.</p>
+          <div style="background:#fffbeb;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
+            <p style="margin:0;font-size:13px;color:#fbbf24;">STATUS</p>
+            <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#f59e0b;">Pending</p>
+          </div>
+        </div>`,
+        isHtml: true,
+      })
+      sendEmail({
+        to: 'admin@vo-group.be',
+        subject: `New Equipment Request from ${submitterName}`,
+        body: `<p><strong>${submitterName}</strong> submitted an equipment request: <strong>${projectName || 'Equipment'}</strong> (${totalItems} items). Please review it in the admin panel.</p>`,
+      })
+
       navigate('/my-requests')
       setTimeout(() => showToast('Request submitted successfully!'), 100)
     } catch (err) {
