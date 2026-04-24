@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { format, addDays, differenceInDays, startOfDay } from 'date-fns'
@@ -26,6 +26,7 @@ import {
   Eye, EyeOff, RotateCcw, Calendar, QrCode, Bell, Send, ShieldAlert,
 } from 'lucide-react'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { checkAndSendReturnReminders } from '@/services/return-reminder-service'
 import { cn } from '@/lib/utils'
 
 // Widget icon map for the toggle panel
@@ -243,7 +244,39 @@ export function AdminDashboardPage() {
   const { data: loanReqs = [], isLoading: requestsLoading } = useLoanRequests()
   const { data: itReqs = [] } = useItRequests()
   const { data: mailboxReqs = [] } = useMailboxRequests()
-  const requests = useMemo(() => [...loanReqs, ...itReqs, ...mailboxReqs], [loanReqs, itReqs, mailboxReqs])
+
+  const requests = useMemo(() => {
+    const normalized = []
+    for (const r of loanReqs) {
+      normalized.push({ ...r, _source: 'equipment', _link: `/admin/requests/${r.id}` })
+    }
+    for (const r of itReqs) {
+      const data = r.data || {}
+      normalized.push({
+        ...r,
+        _source: r.type || 'it',
+        _link: r.type === 'onboarding' ? '/admin/onboarding-requests' : r.type === 'offboarding' ? '/admin/offboarding-requests' : '/admin/it-requests',
+        project_name: data.name || data.employee_name || data.event_name || r.requester_name || `${r.type || 'IT'} request`,
+        user_first_name: r.requester_name?.split(' ')[0] || '',
+        user_last_name: r.requester_name?.split(' ').slice(1).join(' ') || '',
+        user_email: r.requester_email || '',
+        item_count: 0,
+      })
+    }
+    for (const r of mailboxReqs) {
+      normalized.push({
+        ...r,
+        _source: 'mailbox',
+        _link: '/admin/mailbox-requests',
+        project_name: r.email_to_create || r.project_name || 'Mailbox request',
+        user_first_name: r.requested_by_name?.split(' ')[0] || '',
+        user_last_name: r.requested_by_name?.split(' ').slice(1).join(' ') || '',
+        user_email: r.requester_email || '',
+        item_count: 0,
+      })
+    }
+    return normalized
+  }, [loanReqs, itReqs, mailboxReqs])
   const { data: products = [], isLoading: productsLoading } = useProducts()
   const { data: overdueScans = [] } = useOverdueScans()
   const { data: lostItems = [] } = useLostItems()
@@ -252,6 +285,8 @@ export function AdminDashboardPage() {
   const { isVisible, toggleWidget, resetWidgets, allWidgets } = useDashboardWidgets()
   const [showCustomize, setShowCustomize] = useState(false)
   const [sendingReminders, setSendingReminders] = useState(false)
+
+  useEffect(() => { checkAndSendReturnReminders() }, [])
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -457,11 +492,11 @@ export function AdminDashboardPage() {
                 {inProgress.length > 0 && (
                   <div className="space-y-1">
                     {inProgress.slice(0, 8).map((r) => (
-                        <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
+                        <Link key={r.id} to={r._link || `/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
                           <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name} · {r.item_count} item{r.item_count > 1 ? 's' : ''}</p>
+                            <p className="text-xs text-muted-foreground truncate">{r.user_first_name} {r.user_last_name}{r.item_count > 0 ? ` · ${r.item_count} item${r.item_count > 1 ? 's' : ''}` : ''}</p>
                           </div>
                           <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0"><CalendarRange className="h-3 w-3" />{r.return_date}</span>
                         </Link>
@@ -487,7 +522,7 @@ export function AdminDashboardPage() {
                 {recentRequests.length > 0 && (
                   <div className="space-y-1">
                     {recentRequests.slice(0, 5).map((r) => (
-                      <Link key={r.id} to={`/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
+                      <Link key={r.id} to={r._link || `/admin/requests/${r.id}`} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors group">
                         <UserAvatar avatarUrl={r.user_avatar_url} firstName={r.user_first_name} lastName={r.user_last_name} email={r.user_email} size="sm" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{r.project_name}</p>
