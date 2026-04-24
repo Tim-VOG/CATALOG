@@ -347,7 +347,7 @@ export function AdminProductsPage() {
 
       {/* ─── Edit / Create Dialog ─────────────────────────────────── */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-3xl w-full">
+        <DialogContent size="xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Product' : 'Add Product'}</DialogTitle>
           </DialogHeader>
