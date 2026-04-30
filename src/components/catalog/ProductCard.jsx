@@ -87,8 +87,8 @@ function OptionsDialog({ product, open, onClose, onConfirm }) {
   )
 }
 
-export function ProductCard({ product, reservedQty = 0 }) {
-  const available = product.total_stock - reservedQty
+export function ProductCard({ product }) {
+  const available = product.total_stock
   const outOfStock = available <= 0
   const { data: cartItems = [] } = useCart()
   const addToCart = useAddToCart()

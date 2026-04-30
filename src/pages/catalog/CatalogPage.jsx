@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'motion/react'
-import { useProducts, useReservationsInRange } from '@/hooks/use-products'
+import { useProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/lib/auth'
@@ -23,13 +23,13 @@ const SORT_OPTIONS = [
   { value: 'stock-asc', label: 'Least stock' },
 ]
 
-function sortProducts(products, sortBy, reserved) {
+function sortProducts(products, sortBy) {
   const list = [...products]
   switch (sortBy) {
     case 'name-asc': return list.sort((a, b) => a.name.localeCompare(b.name))
     case 'name-desc': return list.sort((a, b) => b.name.localeCompare(a.name))
-    case 'stock-desc': return list.sort((a, b) => (b.total_stock - (reserved[b.id] || 0)) - (a.total_stock - (reserved[a.id] || 0)))
-    case 'stock-asc': return list.sort((a, b) => (a.total_stock - (reserved[a.id] || 0)) - (b.total_stock - (reserved[b.id] || 0)))
+    case 'stock-desc': return list.sort((a, b) => b.total_stock - a.total_stock)
+    case 'stock-asc': return list.sort((a, b) => a.total_stock - b.total_stock)
     default: return list
   }
 }
@@ -47,9 +47,6 @@ export function CatalogPage() {
   const { data: cartItems = [] } = useCart()
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
 
-  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
-  const { data: reservedByProduct = {} } = useReservationsInRange(today, today)
-
   const categoryCounts = useMemo(() => {
     const counts = { All: products.length }
     for (const p of products) { counts[p.category_name || 'Other'] = (counts[p.category_name || 'Other'] || 0) + 1 }
@@ -59,17 +56,17 @@ export function CatalogPage() {
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
       if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
-      if (inStockOnly && (p.total_stock - (reservedByProduct[p.id] || 0)) <= 0) return false
+      if (inStockOnly && p.total_stock <= 0) return false
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase()
         return p.name.toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)
       }
       return true
     })
-    return sortProducts(list, sortBy, reservedByProduct)
-  }, [products, selectedCategory, inStockOnly, searchQuery, sortBy, reservedByProduct])
+    return sortProducts(list, sortBy)
+  }, [products, selectedCategory, inStockOnly, searchQuery, sortBy])
 
-  const totalInStock = products.filter((p) => (p.total_stock - (reservedByProduct[p.id] || 0)) > 0).length
+  const totalInStock = products.filter((p) => p.total_stock > 0).length
 
   if (productsQuery.isLoading || productsQuery.isError) {
     return (
@@ -199,7 +196,7 @@ export function CatalogPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {filtered.map((product, i) => (
             <ScrollFadeIn key={product.id} delay={i * 0.03}>
-              <ProductCard product={product} reservedQty={reservedByProduct[product.id] || 0} />
+              <ProductCard product={product} />
             </ScrollFadeIn>
           ))}
         </div>
