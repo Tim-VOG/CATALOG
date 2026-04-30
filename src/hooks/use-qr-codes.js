@@ -55,45 +55,6 @@ export const useDeleteQRCode = () => {
   })
 }
 
-// ── QR Kits ──────────────────────────────────────────
-
-export const useQRKits = () =>
-  useQuery({
-    queryKey: ['qr-kits'],
-    queryFn: api.getQRKits,
-  })
-
-export const useQRKit = (id) =>
-  useQuery({
-    queryKey: ['qr-kits', id],
-    queryFn: () => api.getQRKit(id),
-    enabled: !!id,
-  })
-
-export const useCreateQRKit = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: api.createQRKit,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-kits'] }),
-  })
-}
-
-export const useUpdateQRKit = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, ...data }) => api.updateQRKit(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-kits'] }),
-  })
-}
-
-export const useDeleteQRKit = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: api.deleteQRKit,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-kits'] }),
-  })
-}
-
 // ── Scan ──────────────────────────────────────────────
 
 export const useProcessQRScan = () => {

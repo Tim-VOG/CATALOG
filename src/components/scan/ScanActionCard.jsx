@@ -84,10 +84,8 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
           )}
           <div className="flex-1 min-w-0">
             <h3 className="font-display font-semibold text-lg truncate">{qrData.product_name}</h3>
-            {qrData.kit_name && (
               <div className="flex items-center gap-1.5 text-sm text-accent">
                 <Layers className="h-3.5 w-3.5" />
-                <span>Kit: {qrData.kit_name}</span>
               </div>
             )}
             <div className="flex items-center gap-1.5 mt-1">
@@ -282,7 +280,6 @@ function ScanResult({ result }) {
             {isTake ? (
               <>
                 <h3 className="text-xl font-display font-bold mb-1">Item Taken</h3>
-                <p className="text-muted-foreground mb-4">{result.product_name}{result.kit_name && ` (${result.kit_name})`}</p>
                 <div className="flex items-center justify-center gap-4 text-sm mb-3">
                   <div className="text-center">
                     <div className="text-muted-foreground">Before</div>
@@ -306,7 +303,6 @@ function ScanResult({ result }) {
               <>
                 <h3 className="text-xl font-display font-bold mb-2">Thank you!</h3>
                 <p className="text-muted-foreground mb-4">The equipment has been successfully returned.</p>
-                <p className="text-sm font-medium">{result.product_name}{result.kit_name && ` (${result.kit_name})`}</p>
                 <div className="flex items-center justify-center gap-4 text-sm mt-3">
                   <div className="text-center">
                     <div className="text-muted-foreground">Before</div>
