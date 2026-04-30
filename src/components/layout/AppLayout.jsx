@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'motion/react'
 import { Toaster } from 'sonner'
@@ -6,6 +6,7 @@ import { Header } from './Header'
 import { MobileNav } from './MobileNav'
 import { BottomTabBar } from './BottomTabBar'
 import { NavigationProgress } from '@/components/common/NavigationProgress'
+import { OnboardingTour } from '@/components/common/OnboardingTour'
 import { PageTransition } from '@/components/ui/motion'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
@@ -16,6 +17,7 @@ export function AppLayout() {
   const location = useLocation()
   const themeMode = useThemeMode()
   const prevPath = useRef(location.pathname)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   // Detect navigation direction (forward vs back)
   const direction = useRef('forward')
@@ -39,7 +41,8 @@ export function AppLayout() {
         >
           Skip to content
         </a>
-        <Header />
+        <Header onOpenTour={() => setShowOnboarding(true)} />
+        <OnboardingTour forceOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
         <MobileNav />
         <BottomTabBar />
         <main id="main-content" className="px-3 py-4 pb-20 sm:px-6 sm:py-6 md:pb-6 lg:px-10">

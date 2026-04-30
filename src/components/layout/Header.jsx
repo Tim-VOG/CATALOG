@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, ShoppingCart } from 'lucide-react'
+import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, ShoppingCart, HelpCircle } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 
 import { useUIStore } from '@/stores/ui-store'
@@ -255,7 +255,7 @@ function CartButton() {
   )
 }
 
-export function Header() {
+export function Header({ onOpenTour }) {
   const { isAdmin } = useAuth()
   const location = useLocation()
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
@@ -329,6 +329,11 @@ export function Header() {
         {/* ── Right zone: actions ──────────────────── */}
         <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           <CartButton />
+          {onOpenTour && (
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={onOpenTour} aria-label="How it works">
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          )}
           <NotificationBell />
 
           {/* Theme toggle — hidden on very small screens */}
