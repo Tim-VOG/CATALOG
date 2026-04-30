@@ -23,13 +23,6 @@ const STEPS = [
             className="h-11 rounded-xl bg-white/15 backdrop-blur-sm border border-white/10"
           />
         ))}
-        <motion.div
-          className="absolute bottom-4 right-4 h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <Package className="h-5 w-5 text-white/80" />
-        </motion.div>
       </div>
     ),
   },
@@ -292,26 +285,10 @@ export function OnboardingTour({ forceOpen = false, onClose }) {
 
               {/* Bottom gradient fade */}
               <div className="absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-
-              {/* Floating icon badge */}
-              <motion.div
-                className="absolute bottom-0 left-8 translate-y-1/2 z-10"
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 400, damping: 20 }}
-                key={`icon-${step}`}
-              >
-                <div className={cn(
-                  'h-12 w-12 rounded-[14px] flex items-center justify-center shadow-lg bg-gradient-to-br',
-                  currentStep.color
-                )} style={{ boxShadow: '0 8px 20px -4px rgba(0,0,0,0.3)' }}>
-                  <currentStep.icon className="h-6 w-6 text-white" />
-                </div>
-              </motion.div>
             </div>
 
             {/* Content */}
-            <div className="px-8 pt-10 pb-4">
+            <div className="px-8 pt-7 pb-4">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={step}
