@@ -263,11 +263,11 @@ export function Header({ onOpenTour }) {
   const themeMode = useThemeMode()
   const toggleTheme = useToggleTheme()
 
-  const appName = settings?.app_name || 'VO Gear Hub'
+  const appName = settings?.app_name || 'IT Hub'
   const logoUrl = themeMode === 'dark'
     ? (settings?.logo_url_dark || settings?.logo_url)
     : (settings?.logo_url_light || settings?.logo_url)
-  const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
+  const tagline = settings?.header_tagline || ''
 
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-card/80 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-card/60 shadow-[0_1px_3px_0_rgb(var(--color-primary)/0.08)] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-primary/20 after:to-transparent">
@@ -286,7 +286,7 @@ export function Header({ onOpenTour }) {
             )}
             <div className="hidden sm:flex flex-col leading-tight">
               <span className="font-display text-lg font-bold">{appName}</span>
-              <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>
+              {tagline && <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>}
             </div>
           </Link>
         </div>
