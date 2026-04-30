@@ -335,21 +335,22 @@ export function OnboardingTour({ forceOpen = false, onClose }) {
             {/* Footer */}
             <div className="px-8 pb-7 pt-3 flex items-center justify-between">
               {/* Dots */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 h-8">
                 {STEPS.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => goTo(i)}
-                    className="relative p-0.5"
+                    className="flex items-center justify-center h-8"
                   >
                     <motion.div
-                      className="rounded-full bg-foreground"
+                      className="rounded-full"
                       animate={{
                         width: i === step ? 24 : 8,
                         height: 8,
-                        opacity: i === step ? 1 : 0.2,
+                        backgroundColor: i === step ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
+                        opacity: i === step ? 1 : 0.25,
                       }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     />
                   </button>
                 ))}
