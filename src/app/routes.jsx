@@ -41,6 +41,7 @@ import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
 import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
+import { AdminLocalITPage } from '@/pages/admin/AdminLocalITPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
 // AdminQRTestPage removed — dev-only tool, not needed in production admin
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
@@ -125,6 +126,7 @@ export function AppRoutes() {
           <Route path="offboarding-form-builder" element={<AdminOffboardingFormBuilderPage />} />
           <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
           <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
+          <Route path="local-it" element={<AdminLocalITPage />} />
           <Route path="qr-codes" element={<AdminQRCodesPage />} />
           <Route path="scan-logs" element={<AdminScanLogsPage />} />
           {/* QR Test Lab removed — dev-only tool */}

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, ArrowLeft,
-  UserPlus, UserMinus,
+  UserPlus, UserMinus, Monitor,
   Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
@@ -48,6 +48,7 @@ export function AdminSidebar() {
       label: 'Inventory',
       defaultOpen: false,
       links: [
+        { to: '/admin/local-it', label: 'Local IT', icon: Monitor },
         { to: '/admin/products', label: 'Products', icon: Package },
         { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
         { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
