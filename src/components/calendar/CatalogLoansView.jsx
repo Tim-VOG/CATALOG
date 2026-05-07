@@ -359,7 +359,7 @@ export function CatalogLoansView({ events }) {
       <div className="border rounded-xl overflow-hidden bg-card shadow-card">
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-2.5 border-b bg-muted/20 text-xs">
-          {Object.entries(STATUS_COLORS).filter(([k]) => ['pending', 'approved', 'picked_up', 'returned', 'completed'].includes(k)).map(([status, color]) => (
+          {Object.entries(STATUS_COLORS).map(([status, color]) => (
             <div key={status} className="flex items-center gap-2">
               <div className={cn('h-2.5 w-2.5 rounded-full', color.split(' ')[0])} />
               <span className="text-muted-foreground font-medium">{STATUS_LABELS[status]}</span>

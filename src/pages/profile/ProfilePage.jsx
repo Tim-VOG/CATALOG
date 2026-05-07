@@ -38,8 +38,8 @@ export function ProfilePage() {
 
   // Stats
   const totalRequests = requests.length
-  const activeRequests = requests.filter((r) => ['pending', 'approved', 'picked_up'].includes(r.status)).length
-  const completedRequests = requests.filter((r) => ['returned', 'closed'].includes(r.status)).length
+  const activeRequests = requests.filter((r) => ['pending', 'in_progress'].includes(r.status)).length
+  const completedRequests = requests.filter((r) => r.status === 'ready').length
 
   const phoneChanged = phone !== (profile?.phone || '')
 

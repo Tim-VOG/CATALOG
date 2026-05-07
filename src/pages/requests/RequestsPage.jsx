@@ -14,8 +14,8 @@ import { StatusBadge } from '@/components/common/StatusBadge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-const ACTIVE_STATUSES = ['pending', 'approved', 'picked_up']
-const PAST_STATUSES = ['returned', 'closed', 'rejected', 'cancelled']
+const ACTIVE_STATUSES = ['pending', 'in_progress']
+const PAST_STATUSES = ['ready']
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -33,19 +33,6 @@ function RequestCard({ req }) {
                 {req.priority !== 'normal' && (
                   <Badge variant={req.priority === 'urgent' ? 'destructive' : req.priority === 'high' ? 'warning' : 'secondary'}>
                     {req.priority}
-                  </Badge>
-                )}
-                {/* Return status indicators for past requests */}
-                {req.status === 'returned' && (
-                  <Badge variant="outline" className="gap-1 text-amber-500 border-amber-500/30">
-                    <Clock className="h-3 w-3" />
-                    Pending close
-                  </Badge>
-                )}
-                {req.status === 'closed' && (
-                  <Badge variant="outline" className="gap-1 text-green-500 border-green-500/30">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Completed
                   </Badge>
                 )}
               </div>
