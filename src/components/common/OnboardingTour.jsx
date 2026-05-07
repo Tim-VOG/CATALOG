@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, ArrowRight, ArrowLeft, Package, ShoppingCart, QrCode, Bell, Rocket } from 'lucide-react'
+import { X, ArrowRight, ArrowLeft, Package, ShoppingCart, QrCode, UserPlus, Monitor, Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const STORAGE_KEY = 'vo-onboarding-seen'
@@ -10,18 +10,16 @@ const STEPS = [
   {
     icon: Package,
     color: 'from-blue-500 to-indigo-600',
-    title: 'Browse the Catalog',
-    description: 'Explore all available IT equipment. Filter by category, search by name, and check real-time stock levels.',
+    title: 'Welcome to IT Hub',
+    description: 'Your one-stop platform for all IT needs: equipment, onboarding, offboarding, and mailbox requests. Everything in one place.',
     illustration: () => (
-      <div className="grid grid-cols-3 gap-2.5">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.08, type: 'spring', stiffness: 300, damping: 20 }}
-            className="h-11 rounded-xl bg-white/15 backdrop-blur-sm border border-white/10"
-          />
+      <div className="flex items-center justify-center gap-4">
+        {[Package, UserPlus, Mail, Monitor].map((Icon, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.12, type: 'spring', stiffness: 300 }}
+            className="h-14 w-14 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+            <Icon className="h-6 w-6 text-white/80" />
+          </motion.div>
         ))}
       </div>
     ),
@@ -29,8 +27,8 @@ const STEPS = [
   {
     icon: ShoppingCart,
     color: 'from-emerald-500 to-teal-600',
-    title: 'Add to Cart',
-    description: 'Found what you need? Add it to your cart with one click. For phones and routers, choose a plan and accessories.',
+    title: 'Request Equipment',
+    description: 'Browse the catalog, add items to your cart, and submit a request. For phones and routers, you can pick a subscription plan.',
     illustration: () => (
       <div className="flex items-center justify-center gap-5">
         <motion.div
@@ -67,49 +65,36 @@ const STEPS = [
     ),
   },
   {
-    icon: Rocket,
-    color: 'from-violet-500 to-purple-600',
-    title: 'Submit Your Request',
-    description: 'Review your cart, set pickup and return dates, then submit. The IT team gets notified instantly.',
+    icon: UserPlus,
+    color: 'from-cyan-500 to-blue-600',
+    title: 'Onboarding & Offboarding',
+    description: 'New team member joining? Submit an onboarding request. Someone leaving? Submit an offboarding request. IT handles the rest.',
     illustration: () => (
-      <div className="flex flex-col items-center gap-3">
-        <div className="flex gap-2">
-          {['Cart', 'Details', 'Review'].map((s, i) => (
-            <motion.div
-              key={s}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15 }}
-              className={cn(
-                'px-4 py-2 rounded-full text-xs font-semibold border',
-                i === 2 ? 'bg-white/25 text-white border-white/30' : 'bg-white/8 text-white/50 border-white/10'
-              )}
-            >
-              {s}
-            </motion.div>
-          ))}
-        </div>
-        <motion.div
-          className="w-40 h-1.5 rounded-full bg-white/10 overflow-hidden mt-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <motion.div
-            className="h-full rounded-full bg-white/50"
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{ delay: 0.6, duration: 1.2, ease: 'easeOut' }}
-          />
+      <div className="flex items-center justify-center gap-6">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, type: 'spring' }}
+          className="flex flex-col items-center gap-2">
+          <div className="h-14 w-14 rounded-full bg-white/20 border border-white/15 flex items-center justify-center">
+            <UserPlus className="h-6 w-6 text-white/80" />
+          </div>
+          <span className="text-[11px] text-white/60 font-medium">Onboarding</span>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="text-white/30 text-2xl font-light">/</motion.div>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, type: 'spring' }}
+          className="flex flex-col items-center gap-2">
+          <div className="h-14 w-14 rounded-full bg-white/20 border border-white/15 flex items-center justify-center">
+            <UserPlus className="h-6 w-6 text-white/80 rotate-180" />
+          </div>
+          <span className="text-[11px] text-white/60 font-medium">Offboarding</span>
         </motion.div>
       </div>
     ),
   },
   {
-    icon: Bell,
+    icon: Monitor,
     color: 'from-amber-500 to-orange-600',
-    title: 'Track Your Request',
-    description: 'Follow your request in real-time: Pending → In Progress → Ready. You\'ll receive an email at each step.',
+    title: 'Track Everything',
+    description: 'All your requests in one place. Follow the status in real-time: Pending → In Progress → Ready. You get an email at each step.',
     illustration: () => (
       <div className="space-y-2 w-full max-w-[240px] mx-auto">
         {[
@@ -140,9 +125,9 @@ const STEPS = [
   },
   {
     icon: QrCode,
-    color: 'from-cyan-500 to-blue-600',
+    color: 'from-violet-500 to-purple-600',
     title: 'You\'re All Set!',
-    description: 'When your equipment is ready, come to the IT desk. The admin will scan the QR code and hand it over. Easy!',
+    description: 'When equipment is ready, pick it up at the IT desk. Need a mailbox? It\'ll be created for you. Everything is tracked automatically.',
     illustration: () => (
       <div className="flex items-center justify-center">
         <motion.div
