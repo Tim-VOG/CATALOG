@@ -53,6 +53,14 @@ export function AdminRequestsPage() {
         ))}
       </AdminPageHeader>
 
+      {/* Mobile scan tip */}
+      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+        <span className="text-lg">📱</span>
+        <p className="text-sm text-blue-600 dark:text-blue-400">
+          For a better experience, use your phone to scan QR codes when assigning equipment.
+        </p>
+      </div>
+
       {filteredRequests.length === 0 ? (
         <EmptyState icon={Inbox} title="No requests" description="No requests match the current filter" />
       ) : (

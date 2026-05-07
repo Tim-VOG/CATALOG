@@ -214,16 +214,6 @@ export function AdminRequestDetailPage() {
         </Card>
       </div>
 
-      {/* QR scan tip */}
-      {request.status === 'in_progress' && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-          <QrCode className="h-5 w-5 text-blue-500 shrink-0" />
-          <p className="text-sm text-blue-600 dark:text-blue-400">
-            <strong>Tip:</strong> Open this page on your phone to scan QR codes with your camera. You can also pick from the list below.
-          </p>
-        </div>
-      )}
-
       {/* Items with QR assignment */}
       <Card>
         <CardHeader>
