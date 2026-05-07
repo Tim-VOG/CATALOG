@@ -129,9 +129,6 @@ export function AdminScanLogsPage() {
                         {log.category_name && (
                           <CategoryBadge name={log.category_name} color={log.category_color} />
                         )}
-                        {log.kit_name && (
-                          <span className="text-xs text-accent">Kit: {log.kit_name}</span>
-                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
