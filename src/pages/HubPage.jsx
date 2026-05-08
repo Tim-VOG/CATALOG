@@ -5,6 +5,8 @@ import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useMyEquipment } from '@/hooks/use-user-equipment'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
+import { useMyItRequests } from '@/hooks/use-it-requests'
+import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Monitor, Loader2, CheckCircle, Calendar } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -69,17 +71,19 @@ export function HubPage() {
 
   // Live counters
   const { data: myEquipment = [] } = useMyEquipment()
-  const { data: myRequests = [] } = useMyLoanRequests(user?.id)
+  const { data: myLoanRequests = [] } = useMyLoanRequests(user?.id)
+  const { data: myItRequests = [] } = useMyItRequests(user?.id)
+  const { data: myMailboxRequests = [] } = useMyMailboxRequests(user?.id)
 
   const activeEquipment = myEquipment.filter((e) => e.status === 'active').length
-  const pendingRequests = myRequests.filter((r) => r.status === 'pending').length
+  const allRequests = [...myLoanRequests, ...myItRequests, ...myMailboxRequests]
+  const pendingRequests = allRequests.filter((r) => r.status === 'pending').length
+  const inProgressRequests = allRequests.filter((r) => r.status === 'in_progress').length
 
   // Nearest return date
   const nearestReturn = myEquipment
     .filter((e) => e.status === 'active' && e.expected_return_date)
     .sort((a, b) => new Date(a.expected_return_date) - new Date(b.expected_return_date))[0]
-
-  const inProgressRequests = myRequests.filter((r) => r.status === 'in_progress').length
 
   const firstName = profile?.first_name || ''
   const greeting = getGreeting()
