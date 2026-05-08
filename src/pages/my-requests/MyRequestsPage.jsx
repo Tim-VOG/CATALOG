@@ -6,7 +6,7 @@ import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { motion } from 'motion/react'
 import {
   Package, Clock, Loader2, CheckCircle, UserPlus,
-  UserMinus, Mail, Inbox, ClipboardList,
+  UserMinus, Mail, Inbox, ClipboardList, ThumbsUp, ThumbsDown,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -83,6 +83,37 @@ function RequestStepper({ status }) {
   )
 }
 
+function SatisfactionRating({ requestId }) {
+  const key = `satisfaction-${requestId}`
+  const [rating, setRating] = useState(() => localStorage.getItem(key))
+
+  const rate = (value) => {
+    localStorage.setItem(key, value)
+    setRating(value)
+  }
+
+  if (rating) {
+    return (
+      <div className="mt-3 pl-14 flex items-center gap-2 text-xs text-muted-foreground">
+        {rating === 'up' ? <ThumbsUp className="h-3.5 w-3.5 text-emerald-500" /> : <ThumbsDown className="h-3.5 w-3.5 text-rose-500" />}
+        <span>{rating === 'up' ? 'Thanks for the feedback!' : 'We\'ll do better next time'}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-3 pl-14 flex items-center gap-3">
+      <span className="text-xs text-muted-foreground">How was your experience?</span>
+      <button onClick={() => rate('up')} className="h-7 w-7 rounded-full hover:bg-emerald-500/10 flex items-center justify-center transition-colors">
+        <ThumbsUp className="h-4 w-4 text-muted-foreground hover:text-emerald-500" />
+      </button>
+      <button onClick={() => rate('down')} className="h-7 w-7 rounded-full hover:bg-rose-500/10 flex items-center justify-center transition-colors">
+        <ThumbsDown className="h-4 w-4 text-muted-foreground hover:text-rose-500" />
+      </button>
+    </div>
+  )
+}
+
 function RequestCard({ request, type }) {
   const config = TYPE_CONFIG[type] || TYPE_CONFIG.equipment
   const TypeIcon = config.icon
@@ -113,6 +144,9 @@ function RequestCard({ request, type }) {
         <div className="mt-4 pl-14">
           <RequestStepper status={request.status || 'pending'} />
         </div>
+        {(request.status === 'ready') && (
+          <SatisfactionRating requestId={request.id} />
+        )}
       </CardContent>
     </Card>
   )

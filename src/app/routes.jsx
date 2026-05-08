@@ -42,6 +42,7 @@ import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuild
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
 import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
 import { AdminLocalITPage } from '@/pages/admin/AdminLocalITPage'
+import { AdminStatsPage } from '@/pages/admin/AdminStatsPage'
 import { AdminScanLogsPage } from '@/pages/admin/AdminScanLogsPage'
 // AdminQRTestPage removed — dev-only tool, not needed in production admin
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
@@ -98,6 +99,7 @@ export function AppRoutes() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
+          <Route path="stats" element={<AdminStatsPage />} />
           <Route path="all-requests" element={<AdminAllRequestsPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="subscription-plans" element={<AdminSubscriptionPlansPage />} />

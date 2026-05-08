@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { Check, ShoppingCart, CreditCard, Clock, Plus } from 'lucide-react'
+import { Check, ShoppingCart, CreditCard, Clock, Plus, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -119,6 +119,17 @@ export function ProductCard({ product }) {
 
   const isNew = product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000
 
+  const [isFav, setIsFav] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('vo-favorites') || '[]').includes(product.id) } catch { return false }
+  })
+  const toggleFav = (e) => {
+    e.preventDefault(); e.stopPropagation()
+    const favs = JSON.parse(localStorage.getItem('vo-favorites') || '[]')
+    const next = isFav ? favs.filter((id) => id !== product.id) : [...favs, product.id]
+    localStorage.setItem('vo-favorites', JSON.stringify(next))
+    setIsFav(!isFav)
+  }
+
   return (
     <>
       <div className={cn(
@@ -139,6 +150,10 @@ export function ProductCard({ product }) {
               {restockLabel && <span className="mt-2 text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />{restockLabel}</span>}
             </div>
           )}
+          {/* Favorite heart */}
+          <button onClick={toggleFav} className="absolute top-3 left-3 z-10 h-8 w-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center hover:bg-background/80 transition-all">
+            <Heart className={cn('h-4 w-4 transition-colors', isFav ? 'fill-rose-500 text-rose-500' : 'text-muted-foreground')} />
+          </button>
           {/* New badge */}
           {isNew && (
             <div className="absolute top-3 left-3">

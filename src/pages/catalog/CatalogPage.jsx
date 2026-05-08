@@ -6,7 +6,7 @@ import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/lib/auth'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { ScrollFadeIn } from '@/components/ui/motion'
-import { Package, Search, ShoppingCart, SlidersHorizontal, QrCode } from 'lucide-react'
+import { Package, Search, ShoppingCart, SlidersHorizontal, QrCode, Heart } from 'lucide-react'
 import { EmptyState } from '@/components/common/EmptyState'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { SkeletonCard } from '@/components/ui/skeleton'
@@ -37,6 +37,7 @@ function sortProducts(products, sortBy) {
 export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [inStockOnly, setInStockOnly] = useState(false)
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('name-asc')
 
@@ -54,8 +55,10 @@ export function CatalogPage() {
   }, [products])
 
   const filtered = useMemo(() => {
+    const favs = favoritesOnly ? JSON.parse(localStorage.getItem('vo-favorites') || '[]') : []
     let list = products.filter((p) => {
       if (p.is_visible === false) return false
+      if (favoritesOnly && !favs.includes(p.id)) return false
       if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
       if (inStockOnly && p.total_stock <= 0) return false
       if (searchQuery.trim()) {
@@ -157,6 +160,21 @@ export function CatalogPage() {
         </div>
 
         <div className="flex-1" />
+
+        {/* Favorites toggle */}
+        <button
+          type="button"
+          onClick={() => setFavoritesOnly(!favoritesOnly)}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+            favoritesOnly
+              ? 'bg-rose-500/15 text-rose-500 ring-1 ring-rose-500/30'
+              : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+          )}
+        >
+          <Heart className={cn('h-3.5 w-3.5', favoritesOnly && 'fill-rose-500')} />
+          Favorites
+        </button>
 
         {/* In stock toggle */}
         <button

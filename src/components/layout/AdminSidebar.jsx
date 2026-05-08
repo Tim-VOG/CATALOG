@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, ArrowLeft,
-  UserPlus, UserMinus, Monitor,
+  UserPlus, UserMinus, Monitor, BarChart3,
   Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
@@ -32,6 +32,7 @@ export function AdminSidebar() {
       defaultOpen: true,
       links: [
         { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { to: '/admin/stats', label: 'Statistics', icon: BarChart3 },
       ],
     },
     {

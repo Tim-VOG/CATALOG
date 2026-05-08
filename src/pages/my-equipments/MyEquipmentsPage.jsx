@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import { useAuth } from '@/lib/auth'
-import { useMyEquipment, useReturnEquipment } from '@/hooks/use-user-equipment'
+import { useMyEquipment, useReturnEquipment, useUpdateUserEquipment } from '@/hooks/use-user-equipment'
+import { sendEmail } from '@/lib/api/send-email'
 import { useUIStore } from '@/stores/ui-store'
 import { format, differenceInDays } from 'date-fns'
 import { motion } from 'motion/react'
 import {
   Package, AlertTriangle, Monitor, Clock, CheckCircle,
-  CalendarDays, ArrowRight, RotateCcw, QrCode,
+  CalendarDays, ArrowRight, RotateCcw, QrCode, Undo2,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -33,6 +34,7 @@ export function MyEquipmentsPage() {
   const { user } = useAuth()
   const { data: equipment = [], isLoading } = useMyEquipment()
   const returnMutation = useReturnEquipment()
+  const updateEquip = useUpdateUserEquipment()
   const showToast = useUIStore((s) => s.showToast)
 
   const { active, returned } = useMemo(() => {
@@ -156,6 +158,22 @@ export function MyEquipmentsPage() {
                                 <StatusIcon className="h-2.5 w-2.5" />
                                 {status.label}
                               </Badge>
+                              {item.expected_return_date && item.notes !== 'early_return_requested' && (
+                                <Button variant="ghost" size="sm" className="h-7 text-[10px] gap-1 text-muted-foreground"
+                                  onClick={() => {
+                                    updateEquip.mutate({ id: item.id, notes: 'early_return_requested' }, {
+                                      onSuccess: () => {
+                                        showToast('Early return requested')
+                                        sendEmail({ to: 'admin@vo-group.be', subject: `Early return: ${item.product_name}`, body: `<p>${item.user_name} wants to return <strong>${item.product_name}</strong> early.</p>` })
+                                      }
+                                    })
+                                  }}>
+                                  <Undo2 className="h-3 w-3" /> Return early
+                                </Button>
+                              )}
+                              {item.notes === 'early_return_requested' && (
+                                <Badge variant="outline" className="text-[9px] text-amber-500 bg-amber-500/10 border-amber-500/20">Return requested</Badge>
+                              )}
                             </div>
                           </div>
                         </CardContent>
