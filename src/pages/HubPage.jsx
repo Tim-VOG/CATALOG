@@ -143,7 +143,6 @@ export function HubPage() {
         description="Track your submitted requests."
         color="amber"
         buttonLabel="View Requests"
-        badge={pendingRequests > 0 ? `${pendingRequests} pending` : null}
       />
     )
   }
