@@ -34,6 +34,14 @@ const ACCESS_OPTIONS = [
 const EMAILING_OPTIONS = [
   'Distribution List', 'ALL VO', 'VO EU ALL',
 ]
+const EMAIL_DOMAINS = [
+  'vo-group.be', 'voice.be', 'vo-europe.eu', 'vo-citizen.be',
+  'designbysign.com', 'vo-event.be', 'studiogondo.be', 'artonpaper.be',
+  'vo-lab.be', 'vocommunication.com', 'vo-communication.com', 'sign.brussels',
+  'myimpacttool.com', 'thelittlevoice.be', 'vo-event-max.be', 'max.be',
+  '100ans-sncb.be', '100jaar-nmbs.be', 'eventfresco.be', 'VO.local',
+]
+const DEFAULT_DOMAIN = 'vo-group.be'
 
 // ── Step definitions ──
 const ALL_STEPS = [
@@ -179,13 +187,25 @@ function StepIdentity({ form, update }) {
         <Label>
           Mail to be created <span className="text-destructive ml-1">*</span>
         </Label>
-        <Input
-          type="email"
-          value={form.email_to_create}
-          onChange={(e) => update('email_to_create', e.target.value)}
-          placeholder="john.doe@vo-group.be"
-        />
-        <p className="text-[11px] text-muted-foreground">Auto-suggested from first/last name</p>
+        <div className="flex">
+          <Input
+            value={form.email_local}
+            onChange={(e) => update('email_local', e.target.value)}
+            placeholder="john.doe"
+            className="rounded-r-none border-r-0 flex-1 min-w-0"
+          />
+          <span className="inline-flex items-center px-2 bg-muted border border-input border-l-0 border-r-0 text-sm text-muted-foreground select-none">@</span>
+          <Select
+            value={form.email_domain}
+            onChange={(e) => update('email_domain', e.target.value)}
+            className="rounded-l-none w-auto min-w-[180px]"
+          >
+            {EMAIL_DOMAINS.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </Select>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Local part auto-suggested from first/last name</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -401,7 +421,7 @@ function StepReview({ form, update }) {
   const fields = [
     { label: 'First Name', value: form.first_name },
     { label: 'Last Name', value: form.last_name },
-    { label: 'Mail to be created', value: form.email_to_create },
+    { label: 'Mail to be created', value: form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : '' },
     { label: 'Profile', value: form.profile },
     { label: 'Company', value: form.company },
     { label: 'Job Title', value: form.job_title },
@@ -474,7 +494,8 @@ export function OnboardingRequestPage() {
     // Identity
     first_name: '',
     last_name: '',
-    email_to_create: '',
+    email_local: '',
+    email_domain: DEFAULT_DOMAIN,
     profile: '',
     company: '',
     job_title: '',
@@ -514,15 +535,17 @@ export function OnboardingRequestPage() {
     }
   }, [profile])
 
-  // Auto-suggest email from first_name + last_name (only when email is still empty)
+  // Auto-suggest email local part from first_name + last_name (only when local is still empty)
   useEffect(() => {
-    if (form.email_to_create) return
+    if (form.email_local) return
     const slug = (s) => (s || '').trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '')
     const first = slug(form.first_name)
     const last = slug(form.last_name)
     if (!first || !last) return
-    setForm((prev) => prev.email_to_create ? prev : { ...prev, email_to_create: `${first}.${last}@vo-group.be` })
-  }, [form.first_name, form.last_name, form.email_to_create])
+    setForm((prev) => prev.email_local ? prev : { ...prev, email_local: `${first}.${last}` })
+  }, [form.first_name, form.last_name, form.email_local])
+
+  const fullEmail = form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : ''
 
   const activeSteps = ALL_STEPS
 
@@ -533,7 +556,7 @@ export function OnboardingRequestPage() {
 
     switch (step.id) {
       case 'identity':
-        return !!(form.first_name && form.last_name && form.email_to_create && form.profile && form.company && form.job_title)
+        return !!(form.first_name && form.last_name && form.email_local && form.email_domain && form.profile && form.company && form.job_title)
       case 'project':
         return !!(form.language && form.country_based)
       case 'dates':
@@ -561,7 +584,7 @@ export function OnboardingRequestPage() {
         requester_id: user.id,
         requester_email: user.email,
         requester_name: submitterName,
-        data: { ...form, name: fullName, submitted_at: new Date().toISOString() },
+        data: { ...form, name: fullName, email_to_create: fullEmail, submitted_at: new Date().toISOString() },
         status: 'pending',
       })
       if (reqError) throw reqError
@@ -571,7 +594,7 @@ export function OnboardingRequestPage() {
         await createOnboardingRecipient({
           first_name: form.first_name || '',
           last_name: form.last_name || '',
-          email: form.email_to_create || '',
+          email: fullEmail || '',
           team: form.company || '',
           department: '',
           start_date: form.first_day || null,
@@ -594,7 +617,7 @@ export function OnboardingRequestPage() {
         body: `<p><strong>${submitterName}</strong> submitted an onboarding request:</p>
           <ul>
             <li><strong>Name:</strong> ${fullName}</li>
-            <li><strong>Mail to be created:</strong> ${form.email_to_create || '—'}</li>
+            <li><strong>Mail to be created:</strong> ${fullEmail || '—'}</li>
             <li><strong>Profile:</strong> ${form.profile}</li>
             <li><strong>Company:</strong> ${form.company}</li>
             <li><strong>Job Title:</strong> ${form.job_title || '—'}</li>
