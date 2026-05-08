@@ -37,12 +37,6 @@ export function NotFoundPage() {
               Go to Hub
             </Button>
           </Link>
-          <Link to="/scan">
-            <Button variant="outline" className="gap-2">
-              <QrCode className="h-4 w-4" />
-              Scan QR Code
-            </Button>
-          </Link>
           <Link to="/catalog">
             <Button variant="ghost" className="gap-2">
               <ArrowLeft className="h-4 w-4" />

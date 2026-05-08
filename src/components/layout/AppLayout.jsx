@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'motion/react'
 import { Toaster } from 'sonner'
 import { Header } from './Header'
@@ -18,6 +18,23 @@ export function AppLayout() {
   const themeMode = useThemeMode()
   const prevPath = useRef(location.pathname)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const navigate = useNavigate()
+
+  // Keyboard shortcuts: Cmd/Ctrl+K = focus search, Cmd/Ctrl+N = catalog
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        document.querySelector('[data-search-input]')?.focus()
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault()
+        navigate('/catalog')
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [navigate])
 
   // Detect navigation direction (forward vs back)
   const direction = useRef('forward')

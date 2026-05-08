@@ -165,7 +165,8 @@ function HeaderSearch() {
             }}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search products..."
+            placeholder="Search products... (⌘K)"
+            data-search-input
             className={cn(
               'w-full h-9 pl-10 pr-4 text-sm rounded-full',
               'bg-muted/40 border border-border/50',

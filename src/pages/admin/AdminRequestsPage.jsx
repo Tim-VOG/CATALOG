@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
-import { Inbox, Calendar, ChevronRight } from 'lucide-react'
+import { Inbox, Calendar, ChevronRight, Download } from 'lucide-react'
+import { exportToCSV } from '@/lib/export-csv'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,6 +37,12 @@ export function AdminRequestsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title="Equipment Requests" description={`${requests.length} total requests`}>
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filteredRequests.map(r => ({
+          Request: r.request_number, Project: r.project_name, User: `${r.user_first_name} ${r.user_last_name}`,
+          Status: r.status, Priority: r.priority, Pickup: r.pickup_date, Return: r.return_date, Items: r.item_count,
+        })), 'equipment-requests')}>
+          <Download className="h-3.5 w-3.5" /> Export
+        </Button>
         {STATUS_FILTERS.map((s) => (
           <Button
             key={s.value}

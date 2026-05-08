@@ -117,6 +117,8 @@ export function ProductCard({ product }) {
     ? format(new Date(product.restock_date + 'T12:00:00'), 'MMM d, yyyy')
     : null
 
+  const isNew = product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000
+
   return (
     <>
       <div className={cn(
@@ -135,6 +137,12 @@ export function ProductCard({ product }) {
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/60 backdrop-blur-sm">
               <span className="text-xs font-bold text-foreground bg-background/90 px-4 py-1.5 rounded-full border shadow-sm">Coming soon</span>
               {restockLabel && <span className="mt-2 text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />{restockLabel}</span>}
+            </div>
+          )}
+          {/* New badge */}
+          {isNew && (
+            <div className="absolute top-3 left-3">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shadow-sm">NEW</span>
             </div>
           )}
           {/* Stock pill */}

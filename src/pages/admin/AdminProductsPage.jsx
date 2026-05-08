@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useDeleteProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
-import { Plus, Pencil, Trash2, Search, Package, Box, Layers, AlertTriangle, CheckSquare, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, Package, Box, Layers, AlertTriangle, CheckSquare, X, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
@@ -122,6 +122,19 @@ export function AdminProductsPage() {
   const openCreate = () => {
     setEditing(null)
     setForm({ ...emptyForm, category_id: categories[0]?.id || '' })
+    setShowForm(true)
+  }
+
+  const openDuplicate = (product) => {
+    setEditing(null)
+    setForm({
+      name: `${product.name} (copy)`, description: product.description || '',
+      category_id: product.category_id, sub_type: product.sub_type || '',
+      image_url: product.image_url || '', total_stock: 1,
+      includes: (product.includes || []).flatMap((s) => s.split(/[;,]/).map((t) => t.trim()).filter(Boolean)),
+      has_subscription: product.has_subscription,
+      has_apps: product.has_apps, wifi_only: product.wifi_only, printer_info: product.printer_info,
+    })
     setShowForm(true)
   }
 
@@ -278,6 +291,15 @@ export function AdminProductsPage() {
                     </div>
                     {selectedIds.size === 0 && (
                       <div className="absolute bottom-2.5 right-2.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background shadow-md"
+                          onClick={() => openDuplicate(p)}
+                          aria-label={`Duplicate ${p.name}`}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
                         <Button
                           variant="secondary"
                           size="icon"

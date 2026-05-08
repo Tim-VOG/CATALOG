@@ -1,4 +1,15 @@
 import { sendEmail } from '@/lib/api/send-email'
+import { supabase } from '@/lib/supabase'
+
+export async function createNotification(userId, title, message, type = 'status_change') {
+  if (!userId) return
+  try {
+    await supabase.from('notifications').insert({
+      user_id: userId, type, title, message,
+      link: '/my-requests',
+    })
+  } catch {}
+}
 
 export const STATUS_TRANSITIONS = {
   pending: ['in_progress'],
@@ -122,9 +133,15 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
       }),
       isHtml: true,
     })
-  } catch {
-    // non-critical
-  }
+  } catch {}
+
+  // Create in-app notification
+  const userId = request.user_id || request.requester_id
+  const notifTitle = newStatus === 'in_progress' ? 'Request in progress' : 'Request ready'
+  const notifMsg = newStatus === 'in_progress'
+    ? `Your ${requestType} request is being prepared by the IT team.`
+    : `Your ${requestType} request is ready! Come pick it up at the IT desk.`
+  createNotification(userId, notifTitle, notifMsg)
 }
 
 export const formatDate = (d) =>

@@ -3,7 +3,7 @@ import { useQRCodes, useUpdateQRCode } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
 import { useScanLogs } from '@/hooks/use-qr-codes'
 import {
-  Search, Package, User, QrCode, Wrench, AlertTriangle,
+  Search, Package, User, QrCode, Wrench, AlertTriangle, Download,
   CheckCircle, Clock, Eye, Filter, Monitor, ChevronDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Select } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { exportToCSV } from '@/lib/export-csv'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ScrollFadeIn } from '@/components/ui/motion'
@@ -127,7 +128,15 @@ export function AdminLocalITPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Local IT" description={`${stats.total} devices tracked`} />
+      <AdminPageHeader title="Local IT" description={`${stats.total} devices tracked`}>
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filtered.map(qr => ({
+          Code: qr.code, Product: qr.product_name, Category: qr.category_name, Status: qr.status || 'available',
+          'Assigned To': qr.assigned_to_name || '', 'Assigned Email': qr.assigned_to_email || '',
+          'Since': qr.assigned_at ? format(new Date(qr.assigned_at), 'dd/MM/yyyy') : '',
+        })), 'local-it-inventory')}>
+          <Download className="h-3.5 w-3.5" /> Export
+        </Button>
+      </AdminPageHeader>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
