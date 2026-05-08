@@ -191,7 +191,7 @@ function StepIdentity({ form, update }) {
           <Input
             value={form.email_local}
             onChange={(e) => update('email_local', e.target.value)}
-            placeholder="john.doe"
+            placeholder="jdoe"
             className="rounded-r-none border-r-0 flex-1 min-w-0"
           />
           <span className="inline-flex items-center px-2 bg-muted border border-input border-l-0 border-r-0 text-sm text-muted-foreground select-none">@</span>
@@ -535,14 +535,14 @@ export function OnboardingRequestPage() {
     }
   }, [profile])
 
-  // Auto-suggest email local part from first_name + last_name (only when local is still empty)
+  // Auto-suggest email local part: first letter of first name + full last name (only when local is still empty)
   useEffect(() => {
     if (form.email_local) return
     const slug = (s) => (s || '').trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '')
     const first = slug(form.first_name)
     const last = slug(form.last_name)
     if (!first || !last) return
-    setForm((prev) => prev.email_local ? prev : { ...prev, email_local: `${first}.${last}` })
+    setForm((prev) => prev.email_local ? prev : { ...prev, email_local: `${first[0]}${last}` })
   }, [form.first_name, form.last_name, form.email_local])
 
   const fullEmail = form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : ''
