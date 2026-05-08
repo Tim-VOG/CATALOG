@@ -9,8 +9,9 @@ import { supabase } from '@/lib/supabase'
 import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
 import { QRScanner } from '@/components/scan/QRScanner'
 import {
-  ArrowLeft, Calendar, Package, Check, QrCode, Search, Link2, Camera, List,
+  ArrowLeft, Calendar, Package, Check, QrCode, Search, Link2, Camera, List, MessageSquare, Save,
 } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,33 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { cn } from '@/lib/utils'
+
+function AdminNotes({ requestId, initialNotes }) {
+  const [notes, setNotes] = useState(initialNotes)
+  const [saving, setSaving] = useState(false)
+  const showToast = useUIStore((s) => s.showToast)
+  const changed = notes !== initialNotes
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await supabase.from('loan_requests').update({ admin_notes: notes }).eq('id', requestId)
+      showToast('Notes saved')
+    } catch (err) { showToast(err.message, 'error') }
+    setSaving(false)
+  }
+
+  return (
+    <div className="space-y-2">
+      <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Internal notes (not visible to the user)..." rows={3} className="text-sm" />
+      {changed && (
+        <Button size="sm" onClick={handleSave} disabled={saving} className="gap-2">
+          <Save className="h-3.5 w-3.5" /> {saving ? 'Saving...' : 'Save Notes'}
+        </Button>
+      )}
+    </div>
+  )
+}
 
 export function AdminRequestDetailPage() {
   const { requestId } = useParams()
@@ -283,6 +311,14 @@ export function AdminRequestDetailPage() {
               </div>
             )
           })}
+        </CardContent>
+      </Card>
+
+      {/* Admin notes */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><MessageSquare className="h-4 w-4" /> Admin Notes</CardTitle></CardHeader>
+        <CardContent>
+          <AdminNotes requestId={request.id} initialNotes={request.admin_notes || ''} />
         </CardContent>
       </Card>
 

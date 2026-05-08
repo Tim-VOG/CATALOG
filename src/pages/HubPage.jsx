@@ -5,7 +5,7 @@ import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useMyEquipment } from '@/hooks/use-user-equipment'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
-import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Monitor } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Monitor, Loader2, CheckCircle, Calendar } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -73,6 +73,13 @@ export function HubPage() {
 
   const activeEquipment = myEquipment.filter((e) => e.status === 'active').length
   const pendingRequests = myRequests.filter((r) => r.status === 'pending').length
+
+  // Nearest return date
+  const nearestReturn = myEquipment
+    .filter((e) => e.status === 'active' && e.expected_return_date)
+    .sort((a, b) => new Date(a.expected_return_date) - new Date(b.expected_return_date))[0]
+
+  const inProgressRequests = myRequests.filter((r) => r.status === 'in_progress').length
 
   const firstName = profile?.first_name || ''
   const greeting = getGreeting()
@@ -192,6 +199,48 @@ export function HubPage() {
           What do you need today?
         </h1>
       </motion.div>
+
+      {/* Mini dashboard */}
+      {(activeEquipment > 0 || pendingRequests > 0 || inProgressRequests > 0) && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {activeEquipment > 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+              <Monitor className="h-5 w-5 text-blue-500 shrink-0" />
+              <div>
+                <p className="text-lg font-bold text-blue-500">{activeEquipment}</p>
+                <p className="text-[10px] text-muted-foreground">Equipment</p>
+              </div>
+            </div>
+          )}
+          {pendingRequests > 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <Inbox className="h-5 w-5 text-amber-500 shrink-0" />
+              <div>
+                <p className="text-lg font-bold text-amber-500">{pendingRequests}</p>
+                <p className="text-[10px] text-muted-foreground">Pending</p>
+              </div>
+            </div>
+          )}
+          {inProgressRequests > 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
+              <Loader2 className="h-5 w-5 text-primary shrink-0" />
+              <div>
+                <p className="text-lg font-bold text-primary">{inProgressRequests}</p>
+                <p className="text-[10px] text-muted-foreground">In Progress</p>
+              </div>
+            </div>
+          )}
+          {nearestReturn && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/40">
+              <Calendar className="h-5 w-5 text-muted-foreground shrink-0" />
+              <div>
+                <p className="text-sm font-bold">{new Date(nearestReturn.expected_return_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
+                <p className="text-[10px] text-muted-foreground">Next return</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Cards — 2 columns */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -6,7 +6,7 @@ import { format, differenceInDays } from 'date-fns'
 import { motion } from 'motion/react'
 import {
   Package, AlertTriangle, Monitor, Clock, CheckCircle,
-  CalendarDays, ArrowRight, RotateCcw,
+  CalendarDays, ArrowRight, RotateCcw, QrCode,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -128,6 +128,13 @@ export function MyEquipmentsPage() {
                                 )}
                               </div>
                               {/* Subscription plan */}
+                              {/* QR code reference */}
+                              {item.notes && item.notes.startsWith('QR:') && (
+                                <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground">
+                                  <QrCode className="h-3 w-3" />
+                                  <code className="font-mono">{item.notes.replace('QR: ', '')}</code>
+                                </div>
+                              )}
                               {item.subscription_plan_name && (
                                 <p className="text-[11px] text-primary mt-1">
                                   Plan: {item.subscription_plan_name} ({item.subscription_plan_price})

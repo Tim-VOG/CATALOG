@@ -55,6 +55,7 @@ export function CatalogPage() {
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
+      if (p.is_visible === false) return false
       if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
       if (inStockOnly && p.total_stock <= 0) return false
       if (searchQuery.trim()) {

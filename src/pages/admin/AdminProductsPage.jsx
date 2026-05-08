@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
 
 const emptyForm = {
   name: '', description: '', category_id: '', sub_type: '', image_url: '',
-  total_stock: 1, includes: [],
+  total_stock: 1, includes: [], is_visible: true,
   has_subscription: false, has_apps: false, wifi_only: false, printer_info: false,
 }
 
@@ -144,6 +144,7 @@ export function AdminProductsPage() {
       name: product.name, description: product.description || '',
       category_id: product.category_id, sub_type: product.sub_type || '',
       image_url: product.image_url || '', total_stock: product.total_stock,
+      is_visible: product.is_visible !== false,
       includes: (product.includes || []).flatMap((s) => s.split(/[;,]/).map((t) => t.trim()).filter(Boolean)),
       has_subscription: product.has_subscription,
       has_apps: product.has_apps, wifi_only: product.wifi_only, printer_info: product.printer_info,
@@ -451,6 +452,7 @@ export function AdminProductsPage() {
               <Label>Product flags</Label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
+                  ['is_visible', 'Visible in catalog'],
                   ['has_subscription', 'Needs subscription plan'],
                   ['has_apps', 'Pre-install apps'],
                   ['wifi_only', 'WiFi only'],
