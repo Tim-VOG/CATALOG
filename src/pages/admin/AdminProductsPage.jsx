@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useDeleteProducts } from '@/hooks/use-products'
+import { useCreateQRCodes } from '@/hooks/use-qr-codes'
 import { useCategories } from '@/hooks/use-categories'
 import { Plus, Pencil, Trash2, Search, Package, Box, Layers, AlertTriangle, CheckSquare, X, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,13 @@ import { ScrollFadeIn } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
+
+function generateQRCode(prefix = 'VO') {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)]
+  return `${prefix}-${code}`
+}
 
 const emptyForm = {
   name: '', description: '', category_id: '', sub_type: '', image_url: '',
@@ -89,6 +97,7 @@ export function AdminProductsPage() {
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
   const bulkDelete = useDeleteProducts()
+  const createQRCodes = useCreateQRCodes()
   const showToast = useUIStore((s) => s.showToast)
 
   const [showForm, setShowForm] = useState(false)
@@ -158,8 +167,17 @@ export function AdminProductsPage() {
         await updateProduct.mutateAsync({ id: editing.id, ...form })
         showToast('Product updated')
       } else {
-        await createProduct.mutateAsync(form)
-        showToast('Product created')
+        const created = await createProduct.mutateAsync(form)
+        const stock = Math.max(0, parseInt(form.total_stock, 10) || 0)
+        if (created?.id && stock > 0) {
+          const codes = Array.from({ length: stock }, () => ({
+            code: generateQRCode('VO'),
+            product_id: created.id,
+            is_active: true,
+          }))
+          await createQRCodes.mutateAsync(codes)
+        }
+        showToast(stock > 0 ? `Product created with ${stock} QR code${stock > 1 ? 's' : ''}` : 'Product created')
       }
       setShowForm(false)
     } catch (err) {
