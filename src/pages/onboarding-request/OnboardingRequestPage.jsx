@@ -190,7 +190,7 @@ function StepIdentity({ form, update }) {
         <div className="flex">
           <Input
             value={form.email_local}
-            onChange={(e) => update('email_local', e.target.value)}
+            onChange={(e) => { setEmailLocalEdited(true); update('email_local', e.target.value) }}
             placeholder="jdoe"
             className="rounded-r-none border-r-0 flex-1 min-w-0"
           />
@@ -489,6 +489,7 @@ export function OnboardingRequestPage() {
 
   const [currentStep, setCurrentStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
+  const [emailLocalEdited, setEmailLocalEdited] = useState(false)
 
   const [form, setForm] = useState({
     // Identity
@@ -535,15 +536,15 @@ export function OnboardingRequestPage() {
     }
   }, [profile])
 
-  // Auto-suggest email local part: first letter of first name + full last name (only when local is still empty)
+  // Auto-suggest email local part: first letter of first name + full last name (until user edits it manually)
   useEffect(() => {
-    if (form.email_local) return
+    if (emailLocalEdited) return
     const slug = (s) => (s || '').trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '')
     const first = slug(form.first_name)
     const last = slug(form.last_name)
-    if (!first || !last) return
-    setForm((prev) => prev.email_local ? prev : { ...prev, email_local: `${first[0]}${last}` })
-  }, [form.first_name, form.last_name, form.email_local])
+    const suggestion = first && last ? `${first[0]}${last}` : ''
+    setForm((prev) => prev.email_local === suggestion ? prev : { ...prev, email_local: suggestion })
+  }, [form.first_name, form.last_name, emailLocalEdited])
 
   const fullEmail = form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : ''
 
