@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
@@ -31,14 +31,14 @@ const ACCESS_OPTIONS = [
   'TLO - Timesheet Only', 'TLO - PM', 'TLO',
   'TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL',
 ]
-const SUBSCRIBE_OPTIONS = [
-  'Distribution List', 'Internal Newsletter', 'ALL VO', 'VO EU ALL',
+const EMAILING_OPTIONS = [
+  'Distribution List', 'ALL VO', 'VO EU ALL',
 ]
 
 // ── Step definitions ──
 const ALL_STEPS = [
   { id: 'identity', label: 'Identity', icon: User },
-  { id: 'vo_europe', label: 'VO Europe', icon: Globe },
+  { id: 'project', label: 'Project', icon: Globe },
   { id: 'dates', label: 'Dates', icon: Calendar },
   { id: 'access', label: 'Access', icon: Shield },
   { id: 'requester', label: 'Requester', icon: UserPlus },
@@ -121,84 +121,168 @@ function MultiSelectField({ options, value, onChange }) {
   )
 }
 
+// ── Yes/No toggle ──
+function YesNoField({ value, onChange }) {
+  return (
+    <div className="flex gap-2">
+      {[
+        { v: true, label: 'Yes' },
+        { v: false, label: 'No' },
+      ].map((opt) => {
+        const selected = value === opt.v
+        return (
+          <button
+            key={opt.label}
+            type="button"
+            onClick={() => onChange(opt.v)}
+            className={`flex-1 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+              selected
+                ? 'border-primary/40 bg-primary/5 text-primary'
+                : 'border-border hover:border-muted-foreground/30 text-muted-foreground'
+            }`}
+          >
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Step: Identity ──
 function StepIdentity({ form, update }) {
   return (
     <div className="space-y-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>
+            First Name <span className="text-destructive ml-1">*</span>
+          </Label>
+          <Input
+            value={form.first_name}
+            onChange={(e) => update('first_name', e.target.value)}
+            placeholder="John"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>
+            Last Name <span className="text-destructive ml-1">*</span>
+          </Label>
+          <Input
+            value={form.last_name}
+            onChange={(e) => update('last_name', e.target.value)}
+            placeholder="Doe"
+          />
+        </div>
+      </div>
       <div className="space-y-2">
         <Label>
-          Name <span className="text-destructive ml-1">*</span>
+          Mail to be created <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
-          value={form.name}
-          onChange={(e) => update('name', e.target.value)}
-          placeholder="Who is joining?"
+          type="email"
+          value={form.email_to_create}
+          onChange={(e) => update('email_to_create', e.target.value)}
+          placeholder="john.doe@vo-group.be"
         />
+        <p className="text-[11px] text-muted-foreground">Auto-suggested from first/last name</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>
+            Profile <span className="text-destructive ml-1">*</span>
+          </Label>
+          <Select value={form.profile} onChange={(e) => update('profile', e.target.value)}>
+            <option value="">Select...</option>
+            {PROFILES.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>
+            Company <span className="text-destructive ml-1">*</span>
+          </Label>
+          <Select value={form.company} onChange={(e) => update('company', e.target.value)}>
+            <option value="">Select...</option>
+            {COMPANIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </Select>
+        </div>
       </div>
       <div className="space-y-2">
         <Label>
-          Profile <span className="text-destructive ml-1">*</span>
+          Job Title <span className="text-destructive ml-1">*</span>
         </Label>
-        <Select value={form.profile} onChange={(e) => update('profile', e.target.value)}>
-          <option value="">Select...</option>
-          {PROFILES.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label>
-          Company <span className="text-destructive ml-1">*</span>
-        </Label>
-        <Select value={form.company} onChange={(e) => update('company', e.target.value)}>
-          <option value="">Select...</option>
-          {COMPANIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </Select>
+        <Input
+          value={form.job_title}
+          onChange={(e) => update('job_title', e.target.value)}
+          placeholder="e.g. Consultant, Project Manager"
+        />
+        <p className="text-[11px] text-muted-foreground">Used as signature title in emails</p>
       </div>
       <div className="space-y-2">
         <Label>Signing off as</Label>
         <Input
           value={form.signing_off_as}
           onChange={(e) => update('signing_off_as', e.target.value)}
+          placeholder="Optional — name to display in signature"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>Phone number</Label>
+        <Input
+          value={form.phone}
+          onChange={(e) => update('phone', e.target.value)}
+          placeholder="Optional — +32 ..."
         />
       </div>
     </div>
   )
 }
 
-// ── Step: VO Europe (conditional) ──
-function StepVoEurope({ form, update }) {
+// ── Step: Project & Location ──
+function StepProject({ form, update }) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <Label>
-          Project Name / Mission <span className="text-destructive ml-1">*</span>
-        </Label>
+        <Label>Project Name / Mission</Label>
         <Input
           value={form.project_name}
           onChange={(e) => update('project_name', e.target.value)}
+          placeholder="Project or mission name"
         />
       </div>
-      <div className="space-y-2">
-        <Label>
-          Language <span className="text-destructive ml-1">*</span>
-        </Label>
-        <Select value={form.language} onChange={(e) => update('language', e.target.value)}>
-          <option value="">Select...</option>
-          {LANGUAGES.map((l) => (
-            <option key={l} value={l}>{l}</option>
-          ))}
-        </Select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>
+            Language <span className="text-destructive ml-1">*</span>
+          </Label>
+          <Select value={form.language} onChange={(e) => update('language', e.target.value)}>
+            <option value="">Select...</option>
+            {LANGUAGES.map((l) => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>
+            Country Based <span className="text-destructive ml-1">*</span>
+          </Label>
+          <Input
+            value={form.country_based}
+            onChange={(e) => update('country_based', e.target.value)}
+            placeholder="e.g. Belgium, France"
+          />
+        </div>
       </div>
       <div className="space-y-2">
-        <Label>
-          Country Based <span className="text-destructive ml-1">*</span>
-        </Label>
+        <Label>Manager / Reports to</Label>
         <Input
-          value={form.country_based}
-          onChange={(e) => update('country_based', e.target.value)}
+          value={form.manager}
+          onChange={(e) => update('manager', e.target.value)}
+          placeholder="Optional — N+1 name"
         />
       </div>
     </div>
@@ -211,7 +295,7 @@ function StepDates({ form, update }) {
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          First Day <span className="text-destructive ml-1">*</span>
+          Entry Date <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           type="date"
@@ -220,7 +304,7 @@ function StepDates({ form, update }) {
         />
       </div>
       <div className="space-y-2">
-        <Label>Last Day</Label>
+        <Label>Exit Date</Label>
         <Input
           type="date"
           value={form.last_day}
@@ -252,7 +336,7 @@ function StepAccess({ form, update }) {
           exit={{ opacity: 0, height: 0 }}
           className="space-y-2"
         >
-          <Label>Which folders?</Label>
+          <Label>Folder Access</Label>
           <Input
             value={form.which_folders}
             onChange={(e) => update('which_folders', e.target.value)}
@@ -261,11 +345,25 @@ function StepAccess({ form, update }) {
         </motion.div>
       )}
       <div className="space-y-2">
-        <Label>Subscribe to</Label>
+        <Label>Emailing list</Label>
         <MultiSelectField
-          options={SUBSCRIBE_OPTIONS}
+          options={EMAILING_OPTIONS}
           value={form.subscribe_to}
           onChange={(val) => update('subscribe_to', val)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>Internal Newsletter</Label>
+        <YesNoField
+          value={form.internal_newsletter}
+          onChange={(v) => update('internal_newsletter', v)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>Welcome Interview Reception</Label>
+        <YesNoField
+          value={form.welcome_interview}
+          onChange={(v) => update('welcome_interview', v)}
         />
       </div>
     </div>
@@ -298,29 +396,30 @@ function StepRequester({ form, update }) {
 }
 
 // ── Step: Review ──
-function StepReview({ form, activeSteps }) {
-  const isVoEurope = form.company === 'VO EUROPE'
-
+function StepReview({ form, update }) {
+  const fmtBool = (v) => (v === true ? 'Yes' : v === false ? 'No' : '—')
   const fields = [
-    { label: 'Name', value: form.name },
+    { label: 'First Name', value: form.first_name },
+    { label: 'Last Name', value: form.last_name },
+    { label: 'Mail to be created', value: form.email_to_create },
     { label: 'Profile', value: form.profile },
     { label: 'Company', value: form.company },
+    { label: 'Job Title', value: form.job_title },
     { label: 'Signing off as', value: form.signing_off_as },
-    ...(isVoEurope
-      ? [
-          { label: 'Project Name / Mission', value: form.project_name },
-
-          { label: 'Language', value: form.language },
-          { label: 'Country Based', value: form.country_based },
-        ]
-      : []),
-    { label: 'First Day', value: form.first_day },
-    { label: 'Last Day', value: form.last_day },
+    { label: 'Phone', value: form.phone },
+    { label: 'Project Name / Mission', value: form.project_name },
+    { label: 'Language', value: form.language },
+    { label: 'Country Based', value: form.country_based },
+    { label: 'Manager', value: form.manager },
+    { label: 'Entry Date', value: form.first_day },
+    { label: 'Exit Date', value: form.last_day },
     { label: 'What Access', value: Array.isArray(form.what_access) ? form.what_access.join(', ') : '' },
     ...(Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
-      ? [{ label: 'Which folders?', value: form.which_folders }]
+      ? [{ label: 'Folder Access', value: form.which_folders }]
       : []),
-    { label: 'Subscribe to', value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
+    { label: 'Emailing list', value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
+    { label: 'Internal Newsletter', value: fmtBool(form.internal_newsletter) },
+    { label: 'Welcome Interview', value: fmtBool(form.welcome_interview) },
     { label: 'Requested On', value: form.requested_on },
     { label: 'Requested By', value: form.requested_by },
   ]
@@ -347,6 +446,17 @@ function StepReview({ form, activeSteps }) {
           </div>
         ))}
       </div>
+      <label className="flex items-start gap-3 p-4 rounded-lg border border-border hover:border-primary/30 cursor-pointer">
+        <Checkbox
+          checked={!!form.terms_accepted}
+          onCheckedChange={(checked) => update('terms_accepted', !!checked)}
+          className="mt-0.5"
+        />
+        <span className="text-sm">
+          I confirm the information above is accurate and accept the IT request terms.
+          <span className="text-destructive ml-1">*</span>
+        </span>
+      </label>
     </div>
   )
 }
@@ -362,14 +472,19 @@ export function OnboardingRequestPage() {
 
   const [form, setForm] = useState({
     // Identity
-    name: '',
+    first_name: '',
+    last_name: '',
+    email_to_create: '',
     profile: '',
     company: '',
+    job_title: '',
     signing_off_as: '',
-    // VO Europe
+    phone: '',
+    // Project & Location
     project_name: '',
     language: '',
     country_based: '',
+    manager: '',
     // Dates
     first_day: '',
     last_day: '',
@@ -377,9 +492,13 @@ export function OnboardingRequestPage() {
     what_access: [],
     which_folders: '',
     subscribe_to: [],
+    internal_newsletter: null,
+    welcome_interview: null,
     // Requester
     requested_on: new Date().toISOString().split('T')[0],
     requested_by: '',
+    // Review
+    terms_accepted: false,
   })
 
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
@@ -395,20 +514,17 @@ export function OnboardingRequestPage() {
     }
   }, [profile])
 
-  // Determine active steps — skip VO Europe when company is not VO EUROPE
-  const activeSteps = useMemo(() => {
-    return ALL_STEPS.filter((s) => {
-      if (s.id === 'vo_europe') return form.company === 'VO EUROPE'
-      return true
-    })
-  }, [form.company])
-
-  // Clamp current step if steps change (e.g. VO Europe removed)
+  // Auto-suggest email from first_name + last_name (only when email is still empty)
   useEffect(() => {
-    if (currentStep >= activeSteps.length) {
-      setCurrentStep(activeSteps.length - 1)
-    }
-  }, [activeSteps, currentStep])
+    if (form.email_to_create) return
+    const slug = (s) => (s || '').trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '')
+    const first = slug(form.first_name)
+    const last = slug(form.last_name)
+    if (!first || !last) return
+    setForm((prev) => prev.email_to_create ? prev : { ...prev, email_to_create: `${first}.${last}@vo-group.be` })
+  }, [form.first_name, form.last_name, form.email_to_create])
+
+  const activeSteps = ALL_STEPS
 
   // Validation per step
   const canGoNext = () => {
@@ -417,15 +533,16 @@ export function OnboardingRequestPage() {
 
     switch (step.id) {
       case 'identity':
-        return !!(form.name && form.profile && form.company)
-      case 'vo_europe':
-        return !!(form.project_name && form.language && form.country_based)
+        return !!(form.first_name && form.last_name && form.email_to_create && form.profile && form.company && form.job_title)
+      case 'project':
+        return !!(form.language && form.country_based)
       case 'dates':
         return !!form.first_day
       case 'access':
       case 'requester':
-      case 'review':
         return true
+      case 'review':
+        return !!form.terms_accepted
       default:
         return true
     }
@@ -436,24 +553,25 @@ export function OnboardingRequestPage() {
     try {
       const submitterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
 
+      const fullName = [form.first_name, form.last_name].filter(Boolean).join(' ').trim()
+
       // 1. Create it_request
       const { error: reqError } = await supabase.from('it_requests').insert({
         type: 'onboarding',
         requester_id: user.id,
         requester_email: user.email,
         requester_name: submitterName,
-        data: { ...form, submitted_at: new Date().toISOString() },
+        data: { ...form, name: fullName, submitted_at: new Date().toISOString() },
         status: 'pending',
       })
       if (reqError) throw reqError
 
       // 2. Create onboarding recipient (non-blocking)
       try {
-        const nameParts = form.name.trim().split(/\s+/)
         await createOnboardingRecipient({
-          first_name: nameParts[0] || '',
-          last_name: nameParts.slice(1).join(' ') || '',
-          email: '',
+          first_name: form.first_name || '',
+          last_name: form.last_name || '',
+          email: form.email_to_create || '',
           team: form.company || '',
           department: '',
           start_date: form.first_day || null,
@@ -465,23 +583,31 @@ export function OnboardingRequestPage() {
       sendEmail({
         to: user.email,
         subject: 'Your onboarding request has been received',
-        body: buildConfirmationEmail({ name: submitterName, type: 'onboarding', detail: form.name }),
+        body: buildConfirmationEmail({ name: submitterName, type: 'onboarding', detail: fullName }),
         isHtml: true,
       })
 
       // 4. Notify admin
       sendEmail({
         to: 'admin@vo-group.be',
-        subject: `New Onboarding Request: ${form.name}`,
+        subject: `New Onboarding Request: ${fullName}`,
         body: `<p><strong>${submitterName}</strong> submitted an onboarding request:</p>
           <ul>
-            <li><strong>Name:</strong> ${form.name}</li>
+            <li><strong>Name:</strong> ${fullName}</li>
+            <li><strong>Mail to be created:</strong> ${form.email_to_create || '—'}</li>
             <li><strong>Profile:</strong> ${form.profile}</li>
             <li><strong>Company:</strong> ${form.company}</li>
-            <li><strong>First Day:</strong> ${form.first_day}</li>
-            <li><strong>Last Day:</strong> ${form.last_day || '—'}</li>
+            <li><strong>Job Title:</strong> ${form.job_title || '—'}</li>
+            <li><strong>Project / Mission:</strong> ${form.project_name || '—'}</li>
+            <li><strong>Language:</strong> ${form.language || '—'}</li>
+            <li><strong>Country:</strong> ${form.country_based || '—'}</li>
+            <li><strong>Entry Date:</strong> ${form.first_day}</li>
+            <li><strong>Exit Date:</strong> ${form.last_day || '—'}</li>
             <li><strong>Access:</strong> ${Array.isArray(form.what_access) ? form.what_access.join(', ') : '—'}</li>
-            <li><strong>Subscribe to:</strong> ${Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '—'}</li>
+            <li><strong>Folder Access:</strong> ${form.which_folders || '—'}</li>
+            <li><strong>Emailing list:</strong> ${Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '—'}</li>
+            <li><strong>Internal Newsletter:</strong> ${form.internal_newsletter === true ? 'Yes' : form.internal_newsletter === false ? 'No' : '—'}</li>
+            <li><strong>Welcome Interview:</strong> ${form.welcome_interview === true ? 'Yes' : form.welcome_interview === false ? 'No' : '—'}</li>
           </ul>`,
       })
 
@@ -545,8 +671,8 @@ export function OnboardingRequestPage() {
               {currentStepDef.id === 'identity' && (
                 <StepIdentity form={form} update={update} />
               )}
-              {currentStepDef.id === 'vo_europe' && (
-                <StepVoEurope form={form} update={update} />
+              {currentStepDef.id === 'project' && (
+                <StepProject form={form} update={update} />
               )}
               {currentStepDef.id === 'dates' && (
                 <StepDates form={form} update={update} />
@@ -558,7 +684,7 @@ export function OnboardingRequestPage() {
                 <StepRequester form={form} update={update} />
               )}
               {isReview && (
-                <StepReview form={form} activeSteps={activeSteps} />
+                <StepReview form={form} update={update} />
               )}
             </motion.div>
           </AnimatePresence>
@@ -588,7 +714,7 @@ export function OnboardingRequestPage() {
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || !form.terms_accepted}
             className="gap-2"
           >
             {submitting ? (
