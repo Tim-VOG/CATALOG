@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
-import { useCreateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
+import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
@@ -207,6 +207,7 @@ export function OnboardingRequestsPage() {
   const { data: recipients = [] } = useOnboardingRecipients()
   const { data: emails = [] } = useOnboardingEmails()
   const createRecipient = useCreateRecipient()
+  const updateRecipient = useUpdateRecipient()
   const updateRequest = useUpdateItRequest()
   const deleteRequest = useDeleteItRequest()
   const showToast = useUIStore((s) => s.showToast)
@@ -290,6 +291,20 @@ export function OnboardingRequestsPage() {
       )
       if (!recipient) {
         recipient = await createRecipient.mutateAsync(payload)
+      } else {
+        // Resync the existing recipient with the latest request data
+        // (covers old recipients created before personal_email was required,
+        // or any edits made to the request afterwards)
+        try {
+          const updates = {}
+          for (const key of ['first_name', 'last_name', 'email', 'personal_email', 'team', 'department', 'start_date', 'language']) {
+            if (payload[key] && payload[key] !== recipient[key]) updates[key] = payload[key]
+          }
+          if (Object.keys(updates).length > 0) {
+            const updated = await updateRecipient.mutateAsync({ id: recipient.id, ...updates })
+            recipient = updated || { ...recipient, ...updates }
+          }
+        } catch {}
       }
       // Auto-advance status: pending → in_progress
       if (req.status === 'pending') {
