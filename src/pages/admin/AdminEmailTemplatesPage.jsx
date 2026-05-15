@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useEmailTemplates, useUpdateEmailTemplate } from '@/hooks/use-email-templates'
+import { wrapEmailHtml } from '@/lib/email-html'
+import { useAppSettings } from '@/hooks/use-settings'
 import { Mail, Pencil, Save, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,6 +33,7 @@ const TEMPLATE_DESCRIPTIONS = {
 
 export function AdminEmailTemplatesPage() {
   const { data: templates = [], isLoading } = useEmailTemplates()
+  const { data: settings } = useAppSettings()
   const updateTemplate = useUpdateEmailTemplate()
   const showToast = useUIStore((s) => s.showToast)
 
@@ -39,6 +42,27 @@ export function AdminEmailTemplatesPage() {
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
   const [editTab, setEditTab] = useState('edit')
+
+  const previewHtml = useMemo(() => {
+    if (!body) return ''
+    const sample = {
+      first_name: 'John', last_name: 'Doe', requester_name: 'John Doe',
+      app_name: settings?.app_name || 'VO Hub',
+      login_url: `${window.location.origin}/login`,
+      tracking_url: `${window.location.origin}/track/sample`,
+      request_type: 'equipment', product_name: 'MacBook Pro 16"',
+      return_date: '15 Jun 2026',
+    }
+    const resolved = body.replace(/\{\{(\w+)\}\}/g, (_, k) => sample[k] ?? `[${k}]`)
+    const raw = /^\s*</.test(resolved)
+    return wrapEmailHtml(resolved, {
+      appName: settings?.app_name || 'VO Hub',
+      logoUrl: settings?.logo_url || '',
+      tagline: settings?.tagline || '',
+      logoHeight: settings?.logo_height || 0,
+      raw,
+    })
+  }, [body, settings])
 
   const openEdit = (template) => {
     setEditing(template)
@@ -139,8 +163,13 @@ export function AdminEmailTemplatesPage() {
             </TabsContent>
 
             <TabsContent value="preview" className="mt-4">
-              <div className="border rounded-xl overflow-hidden bg-white">
-                <div className="p-4" dangerouslySetInnerHTML={{ __html: body }} />
+              <div className="border rounded-xl overflow-hidden bg-muted/30">
+                <iframe
+                  title="Email preview"
+                  srcDoc={previewHtml}
+                  className="w-full h-[600px] bg-white"
+                  sandbox=""
+                />
               </div>
             </TabsContent>
           </Tabs>

@@ -28,17 +28,19 @@ const VARIABLES = [
 ]
 
 const DEFAULT_SUBJECT = "You're invited to join {{app_name}}"
-const DEFAULT_BODY = `Dear {{first_name}},
+const DEFAULT_BODY = `Hi {{first_name}},
 
-You've been invited to join {{app_name}}! Click the button below to sign in with your Microsoft account and get started.
+Welcome aboard! You've been invited to join **{{app_name}}**.
 
-<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 0;">
-<a href="{{login_url}}" style="display:inline-block;padding:14px 32px;border-radius:8px;background:linear-gradient(135deg,#f97316,#06b6d4);color:#ffffff;font-weight:600;font-size:15px;text-decoration:none;">Get Started</a>
-</td></tr></table>
+Sign in with your Microsoft account to access the platform — your access is configured and ready to go.
 
-You'll have access to all platform features once you sign in.
+{{cta:Get started|{{login_url}}}}
 
-Best regards,
+Once you're in, you'll find everything you need: equipment catalog, your requests, and your team's resources.
+
+If you have any questions, just reply to this email — we're here to help.
+
+Best,
 The {{app_name}} Team`
 
 export function InviteUserDialog({ open, onOpenChange, invitation: editingInvitation }) {

@@ -1,5 +1,6 @@
 import { sendEmail } from '@/lib/api/send-email'
 import { supabase } from '@/lib/supabase'
+import { wrapEmailHtml } from '@/lib/email-html'
 
 export async function createNotification(userId, title, message, type = 'status_change') {
   if (!userId) return
@@ -22,64 +23,31 @@ export function getAvailableTransitions(currentStatus) {
 }
 
 // ── Branded email wrapper ──
+// Builds inner body + status badge, then delegates chrome to wrapEmailHtml.
 function emailTemplate({ title, greeting, body, statusLabel, statusColor, statusBg }) {
-  return `
-<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 20px;">
-<tr><td align="center">
-<table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+  const inner = `<h1 style="margin:0 0 14px 0;font-size:24px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">${title}</h1>
+<p style="margin:0 0 12px 0;font-size:15px;color:#425466;line-height:1.65;">${greeting}</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#425466;line-height:1.65;">${body}</p>
 
-  <!-- Header with logo -->
-  <tr><td style="padding:32px 40px 20px 40px;border-bottom:1px solid #f1f5f9;">
-    <table width="100%" cellpadding="0" cellspacing="0">
-      <tr>
-        <td><span style="font-size:24px;font-weight:800;color:#1e293b;">VO</span></td>
-        <td style="text-align:right;">
-          <span style="font-size:16px;font-weight:700;color:#f97316;">IT Hub</span><br>
-          <span style="font-size:11px;color:#94a3b8;">Equipment Management</span>
-        </td>
-      </tr>
-    </table>
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:8px 0 8px 0;">
+  <tr><td align="center">
+    <div style="background:${statusBg};border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">
+      <p style="margin:0;font-size:11px;font-weight:600;color:${statusColor};letter-spacing:1px;text-transform:uppercase;">Status</p>
+      <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:${statusColor};letter-spacing:-0.3px;">${statusLabel}</p>
+    </div>
   </td></tr>
-
-  <!-- Body -->
-  <tr><td style="padding:32px 40px;">
-    <h1 style="margin:0 0 16px 0;font-size:22px;font-weight:700;color:#1e293b;">${title}</h1>
-    <p style="margin:0 0 12px 0;font-size:15px;color:#64748b;line-height:1.6;">${greeting}</p>
-    <p style="margin:0 0 24px 0;font-size:15px;color:#64748b;line-height:1.6;">${body}</p>
-
-    <!-- Status badge -->
-    <table width="100%" cellpadding="0" cellspacing="0">
-      <tr><td align="center">
-        <div style="background:${statusBg};border-radius:12px;padding:20px;text-align:center;">
-          <p style="margin:0;font-size:12px;font-weight:600;color:${statusColor};letter-spacing:1px;text-transform:uppercase;">STATUS</p>
-          <p style="margin:6px 0 0;font-size:22px;font-weight:800;color:${statusColor};">${statusLabel}</p>
-        </div>
-      </td></tr>
-    </table>
-
-    <p style="margin:24px 0 0 0;font-size:13px;color:#94a3b8;">You can track the status of your request on the IT Hub.</p>
-  </td></tr>
-
-  <!-- Footer -->
-  <tr><td style="padding:20px 40px;background:#f8fafc;border-top:1px solid #f1f5f9;text-align:center;">
-    <p style="margin:0;font-size:12px;color:#94a3b8;">Sent from <strong style="color:#64748b;">IT Hub</strong></p>
-    <p style="margin:4px 0 0;font-size:11px;color:#cbd5e1;">VO Group — Brussels</p>
-  </td></tr>
-
 </table>
-</td></tr>
-</table>
-</body></html>`
+
+<p style="margin:24px 0 0 0;font-size:13px;color:#8898aa;">You can track your request status anytime in the hub.</p>`
+
+  return wrapEmailHtml(inner, { appName: 'VO Hub', raw: true })
 }
 
 // ── Status configs ──
 const STATUS_STYLE = {
-  pending: { label: 'Pending', color: '#f59e0b', bg: '#fffbeb' },
-  in_progress: { label: 'In Progress', color: '#3b82f6', bg: '#eff6ff' },
-  ready: { label: 'Ready', color: '#22c55e', bg: '#f0fdf4' },
+  pending: { label: 'Pending', color: '#a16207', bg: '#fef6e0' },
+  in_progress: { label: 'In Progress', color: '#3955cf', bg: '#eef4ff' },
+  ready: { label: 'Ready', color: '#0a7a3b', bg: '#e7f6ec' },
 }
 
 // ── Public: build a confirmation email (called from form pages) ──
