@@ -52,6 +52,7 @@ import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingR
 import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
 import { CartPage } from '@/pages/cart/CartPage'
 import { TrackingPage } from '@/pages/track/TrackingPage'
+import { PersonalInfoPage } from '@/pages/personal-info/PersonalInfoPage'
 
 export function AppRoutes() {
   return (
@@ -60,6 +61,7 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/track/:token" element={<TrackingPage />} />
+      <Route path="/personal-info/:token" element={<PersonalInfoPage />} />
 
       {/* Protected routes */}
       <Route

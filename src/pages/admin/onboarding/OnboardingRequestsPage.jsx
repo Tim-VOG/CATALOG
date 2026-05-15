@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
+import { usePersonalInfoSubmissions } from '@/hooks/use-personal-info'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Eye,
+  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Eye, Copy,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -181,11 +182,99 @@ function OnboardingRequestInfoCard({ req, sentEmail, onUpdate }) {
   )
 }
 
+// ── Personal Information block ──
+function PersonalInfoBlock({ req, submission, showToast }) {
+  const token = req.personal_info_token
+  const data = req.data || {}
+  const firstName = data.first_name || 'the new hire'
+  const link = token ? `${window.location.origin}/personal-info/${token}` : ''
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    if (!link) return
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopied(true)
+      showToast?.('Link copied to clipboard')
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback select
+      const ta = document.createElement('textarea')
+      ta.value = link
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  if (submission) {
+    return (
+      <Card variant="elevated" className="border-emerald-500/30">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold">Personal email received</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                <strong className="text-foreground break-all">{submission.personal_email}</strong>
+                <span className="ml-2">· submitted {formatDate(submission.submitted_at)}</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card variant="elevated" className="border-amber-500/30">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+            <Clock className="h-4 w-4 text-amber-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold">Waiting for personal email</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              Share this link with {firstName} so they can drop their personal email — the welcome email will go there.
+            </div>
+          </div>
+        </div>
+        {link && (
+          <div className="flex items-center gap-2">
+            <Input
+              value={link}
+              readOnly
+              className="text-xs h-9 font-mono bg-muted/30"
+              onFocus={(e) => e.target.select()}
+            />
+            <Button
+              size="sm"
+              variant={copied ? 'success' : 'default'}
+              className="gap-1.5 text-xs h-9 shrink-0"
+              onClick={handleCopy}
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? 'Copied' : 'Copy link'}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 // ── Inline detail view (mirrors AdminMailboxRequestsPage detail) ──
-function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, onUpdateData, sentEmail, composing, recipientForCompose, onCloseComposer }) {
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, onUpdateData, sentEmail, composing, recipientForCompose, onCloseComposer, personalInfo, showToast }) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const showComposer = !!recipientForCompose && !sentEmail
+  const canCompose = !!personalInfo
 
   return (
     <div className="space-y-5">
@@ -238,6 +327,9 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
         </Card>
       )}
 
+      {/* Personal Information collection */}
+      {!sentEmail && <PersonalInfoBlock req={req} submission={personalInfo} showToast={showToast} />}
+
       {/* Compose welcome email — inline */}
       {sentEmail ? (
         <Card variant="elevated" className="border-emerald-500/30">
@@ -259,11 +351,12 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
         <Button
           onClick={() => onComposeWelcome(req)}
           variant="outline"
-          disabled={composing}
-          className="w-full gap-2 py-6 text-sm border-dashed hover:border-primary/40 hover:bg-primary/5 transition-all"
+          disabled={composing || !canCompose}
+          title={!canCompose ? 'Waiting for the personal email to be submitted' : ''}
+          className="w-full gap-2 py-6 text-sm border-dashed hover:border-primary/40 hover:bg-primary/5 transition-all disabled:cursor-not-allowed"
         >
           <Send className="h-4 w-4 text-primary" />
-          Compose Welcome Email
+          {canCompose ? 'Compose Welcome Email' : 'Compose Welcome Email — waiting for personal email'}
         </Button>
       )}
     </div>
@@ -301,6 +394,15 @@ export function OnboardingRequestsPage() {
     }
     return map
   }, [emails])
+
+  // Personal info submissions, indexed by it_request_id
+  const requestIds = useMemo(() => requests.map((r) => r.id), [requests])
+  const { data: personalInfos = [] } = usePersonalInfoSubmissions(requestIds)
+  const personalInfoByRequestId = useMemo(() => {
+    const map = {}
+    for (const p of personalInfos) map[p.it_request_id] = p
+    return map
+  }, [personalInfos])
 
   const filtered = useMemo(() => {
     let result = requests
@@ -352,6 +454,10 @@ export function OnboardingRequestsPage() {
     setComposing(true)
     try {
       const payload = requestToRecipient(req)
+      // Override personal_email with the public form submission if available
+      // (canonical source — the new hire entered it themselves)
+      const submission = personalInfoByRequestId[req.id]
+      if (submission?.personal_email) payload.personal_email = submission.personal_email
       let recipient = recipients.find(
         (r) =>
           (payload.email && r.email?.toLowerCase() === payload.email.toLowerCase()) ||
@@ -430,6 +536,8 @@ export function OnboardingRequestsPage() {
         <RequestDetail
           req={selectedRequest}
           sentEmail={sentByRequestId[selectedRequest.id]}
+          personalInfo={personalInfoByRequestId[selectedRequest.id]}
+          showToast={showToast}
           composing={composing}
           recipientForCompose={recipientForCompose}
           onBack={() => { setSelectedId(null); setRecipientForCompose(null) }}
@@ -505,6 +613,7 @@ export function OnboardingRequestsPage() {
             const firstDay = data.first_day || ''
             const submitter = req.requester_name || ''
             const sentEmail = sentByRequestId[req.id]
+            const personalInfo = personalInfoByRequestId[req.id]
 
             return (
               <Card
@@ -529,6 +638,17 @@ export function OnboardingRequestsPage() {
                             <Check className="h-2.5 w-2.5" /> Email sent
                           </Badge>
                         )}
+                        {!sentEmail && (
+                          personalInfo ? (
+                            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
+                              <CheckCircle className="h-2.5 w-2.5" /> Personal info ready
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
+                              <Clock className="h-2.5 w-2.5" /> Awaiting personal email
+                            </Badge>
+                          )
+                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                         {submitter && <span>By {submitter}</span>}
@@ -543,7 +663,7 @@ export function OnboardingRequestsPage() {
                           <Package className="h-3 w-3" /> Start
                         </Button>
                       )}
-                      {req.status === 'in_progress' && !sentEmail && (
+                      {req.status === 'in_progress' && !sentEmail && personalInfo && (
                         <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8" onClick={() => handleComposeWelcome(req)} disabled={composing}>
                           <Mail className="h-3 w-3" /> Welcome email
                         </Button>
