@@ -445,22 +445,6 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
   // Extract custom branding from salutation block options
   const salutationBlock = blocksConfig.find((b) => b.block_key === 'salutation')
   const salutationOpts = salutationBlock?.options || {}
-  const closingBlock = blocksConfig.find((b) => b.block_key === 'closing')
-  const closingOpts = closingBlock?.options || {}
-
-  const headerTitle = salutationOpts.header_title || 'VO IT HUB'
-  const headerSubtitle = language === 'fr'
-    ? (salutationOpts.header_subtitle_fr || 'Votre guide d\'int\u00e9gration chez VO Group')
-    : (salutationOpts.header_subtitle_en || 'Your onboarding guide at VO Group')
-  const footerLabel = language === 'fr'
-    ? (salutationOpts.footer_text_fr || 'Plateforme IT interne')
-    : (salutationOpts.footer_text_en || 'Internal IT Platform')
-  const autoNotice = language === 'fr'
-    ? (closingOpts.auto_notice_fr || `Cet email a \u00e9t\u00e9 envoy\u00e9 automatiquement depuis ${headerTitle}`)
-    : (closingOpts.auto_notice_en || `This email was sent automatically from ${headerTitle}`)
-
-  // Customizable accent color (defaults to orange #f97316)
-  const accentColor = salutationOpts.accent_color || '#f97316'
 
   // Customizable welcome title with variable substitution
   const welcomeTitlePattern = language === 'fr'
@@ -488,18 +472,23 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
     <!-- Spacer -->
     <mj-section background-color="transparent" padding="8px 0" />
 
-    <!-- Header banner -->
+    <!-- Accent stripe (matches wrapEmailHtml) -->
     <mj-section background-color="#ffffff" border-radius="16px 16px 0 0" padding="0">
       <mj-column padding="0">
-        <mj-divider border-color="${accentColor}" border-width="4px" padding="0" width="100%" />
-        <mj-text padding="32px 40px 0 40px" font-size="11px" font-weight="700" color="${accentColor}" letter-spacing="1.5px">
-          ${escapeHtml(headerTitle)}
+        <mj-table padding="0" cellpadding="0" cellspacing="0">
+          <tr><td height="4" style="background:linear-gradient(90deg,#f97316 0%,#ec4899 50%,#06b6d4 100%);line-height:4px;font-size:0;">&nbsp;</td></tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+
+    <!-- Header: black "VO Hub" pill + welcome title -->
+    <mj-section background-color="#ffffff" padding="0">
+      <mj-column padding="0">
+        <mj-text padding="32px 40px 0 40px">
+          <span style="display:inline-block;padding:6px 12px;border-radius:8px;background:#0a0a0a;color:#ffffff;font-size:15px;font-weight:700;letter-spacing:-0.2px;">VO Hub</span>
         </mj-text>
-        <mj-text padding="10px 40px 4px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height="1.2" letter-spacing="-0.5px">
+        <mj-text padding="24px 40px 28px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height:"1.2" letter-spacing="-0.5px">
           ${escapeHtml(welcomeTitle)}
-        </mj-text>
-        <mj-text padding="0 40px 24px 40px" font-size="13px" color="#8898aa">
-          ${escapeHtml(headerSubtitle)}
         </mj-text>
       </mj-column>
     </mj-section>
@@ -507,15 +496,15 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
     <!-- Content blocks -->
     ${blocksSections.join('\n')}
 
-    <!-- Footer -->
-    <mj-section background-color="#f6f9fc" border-radius="0 0 16px 16px" padding="24px 40px 28px 40px" css-class="email-footer">
+    <!-- Footer (matches wrapEmailHtml) -->
+    <mj-section background-color="#f6f9fc" border-radius="0 0 16px 16px" padding="24px 40px 28px 40px">
       <mj-column>
         <mj-divider border-color="#eef2f7" border-width="1px" padding="0 0 16px 0" />
         <mj-text align="left" font-size="12px" color="#8898aa" padding="0 0 4px 0">
-          Sent from <span style="color:#525f7f;font-weight:600;">${escapeHtml(headerTitle)}</span> &mdash; ${escapeHtml(footerLabel)}
+          Sent from <span style="color:#525f7f;font-weight:600;">VO Hub</span>
         </mj-text>
         <mj-text align="left" font-size="11px" color="#aab7c4" padding="0">
-          ${escapeHtml(autoNotice)}
+          This is an automated message &mdash; please do not reply directly.
         </mj-text>
       </mj-column>
     </mj-section>
