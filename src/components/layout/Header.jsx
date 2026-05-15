@@ -264,7 +264,7 @@ export function Header({ onOpenTour }) {
   const themeMode = useThemeMode()
   const toggleTheme = useToggleTheme()
 
-  const appName = settings?.app_name || 'IT Hub'
+  const appName = settings?.app_name || 'VO Hub'
   const logoUrl = themeMode === 'dark'
     ? (settings?.logo_url_dark || settings?.logo_url)
     : (settings?.logo_url_light || settings?.logo_url)

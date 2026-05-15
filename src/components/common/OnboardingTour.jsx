@@ -10,7 +10,7 @@ const STEPS = [
   {
     icon: Package,
     color: 'from-blue-500 to-indigo-600',
-    title: 'Welcome to IT Hub',
+    title: 'Welcome to VO Hub',
     description: 'Your one-stop platform for all IT needs: equipment, onboarding, offboarding, and mailbox requests. Everything in one place.',
     illustration: () => (
       <div className="flex items-center justify-center gap-4">

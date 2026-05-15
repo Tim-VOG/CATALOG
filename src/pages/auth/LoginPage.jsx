@@ -83,7 +83,7 @@ export function LoginPage() {
       setDevLoading(null)
     }
   }
-  const appName = settings?.app_name || 'VO Gear Hub'
+  const appName = settings?.app_name || 'VO Hub'
   // Always use light logo on login page
   const logoUrl = settings?.logo_url_light || settings?.logo_url
 

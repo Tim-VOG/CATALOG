@@ -574,24 +574,24 @@ export function AdminDashboardPage() {
                       disabled={sendingReminders}
                       onClick={async () => {
                         setSendingReminders(true)
-                        const tmpl = await getEmailTemplateByKey('dashboard_reminder').catch(() => null)
+                        const tmpl = await getEmailTemplateByKey('request_return_reminder').catch(() => null)
                         let sent = 0
                         for (const scan of upcomingReturns) {
                           if (!scan.user_email) continue
                           const vars = {
+                            requester_name: scan.user_name || 'there',
                             first_name: scan.user_name || 'there',
                             product_name: scan.product_name,
                             return_date: scan.expected_return_date,
-                            app_name: 'VO Hub',
                           }
-                          const subject = (tmpl?.subject || 'Reminder: {{product_name}} due tomorrow')
+                          const subject = (tmpl?.subject || 'Reminder: {{product_name}} due back on {{return_date}}')
                             .replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `[${k}]`)
-                          const rawBody = (tmpl?.body || 'Hi {{first_name}},\n\nThis is a friendly reminder that **{{product_name}}** is due for return tomorrow ({{return_date}}).\n\nPlease bring it to the IT desk.\n\nThanks!\nThe {{app_name}} Team')
+                          const rawBody = (tmpl?.body || 'Hi {{requester_name}},\n\nFriendly reminder that **{{product_name}}** is due for return on **{{return_date}}**.\n\nPlease bring the equipment to the IT desk.\n\nBest,\nThe VO Hub Team')
                             .replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `[${k}]`)
                           await sendEmail({
                             to: scan.user_email,
                             subject,
-                            body: wrapEmailHtml(rawBody, { appName: 'VO Hub' }),
+                            body: wrapEmailHtml(rawBody, { appName: 'VO Hub', raw: /^\s*</.test(rawBody) }),
                             isHtml: true,
                           })
                           sent++

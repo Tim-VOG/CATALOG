@@ -151,7 +151,7 @@ export function TrackingPage() {
           {/* Footer */}
           <div className="px-6 py-4 border-t bg-muted/20 text-center">
             <p className="text-[11px] text-muted-foreground">
-              IT Hub — VO Group
+              VO Hub — VO Group
             </p>
           </div>
         </Card>

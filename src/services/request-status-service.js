@@ -38,7 +38,8 @@ function emailTemplate({ title, greeting, body, statusLabel, statusColor, status
   </td></tr>
 </table>
 
-<p style="margin:24px 0 0 0;font-size:13px;color:#8898aa;">You can track your request status anytime in the hub.</p>`
+<p style="margin:24px 0 6px 0;font-size:15px;color:#425466;line-height:1.65;">You can track your request anytime in the hub.</p>
+<p style="margin:18px 0 0 0;font-size:15px;color:#425466;line-height:1.65;">Best,<br>The VO Hub Team</p>`
 
   return wrapEmailHtml(inner, { appName: 'VO Hub', raw: true })
 }

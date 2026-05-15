@@ -49,7 +49,7 @@ Your functional mailbox has been created and is ready to use.
 If you have any questions, just reply to this email — we're here to help.
 
 Best,
-The {{app_name}} Team`
+The VO Hub Team`
 
 // ── Available template variables ──
 const TEMPLATE_VARS = [
@@ -366,7 +366,7 @@ function EditableCCEmails({ req, onSave }) {
 //  Inline Email Editor
 // ══════════════════════════════════════════
 function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending }) {
-  const appName = settings?.app_name || 'VO Gear Hub'
+  const appName = settings?.app_name || 'VO Hub'
 
   const [dbTemplate, setDbTemplate] = useState(null)
 
@@ -683,7 +683,7 @@ export function AdminMailboxRequestsPage() {
     setSending(true)
 
     try {
-      const appName = settings?.app_name || 'VO Gear Hub'
+      const appName = settings?.app_name || 'VO Hub'
       const logoUrl = settings?.logo_url || ''
       const tagline = settings?.tagline || ''
       const logoHeight = settings?.email_logo_height || 0

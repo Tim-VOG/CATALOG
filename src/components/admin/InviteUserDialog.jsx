@@ -27,21 +27,19 @@ const VARIABLES = [
   { key: 'login_url', label: 'Login URL' },
 ]
 
-const DEFAULT_SUBJECT = "You're invited to join {{app_name}}"
+const DEFAULT_SUBJECT = "You're invited to join VO Hub"
 const DEFAULT_BODY = `Hi {{first_name}},
 
-Welcome aboard! You've been invited to join **{{app_name}}**.
+Welcome aboard! You've been invited to join **VO Hub**.
 
 Sign in with your Microsoft account to access the platform — your access is configured and ready to go.
 
 {{cta:Get started|{{login_url}}}}
 
-Once you're in, you'll find everything you need: equipment catalog, your requests, and your team's resources.
-
 If you have any questions, just reply to this email — we're here to help.
 
 Best,
-The {{app_name}} Team`
+The VO Hub Team`
 
 export function InviteUserDialog({ open, onOpenChange, invitation: editingInvitation }) {
   const { user } = useAuth()
@@ -63,7 +61,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
   const [showFullPreview, setShowFullPreview] = useState(false)
   const [templateLoaded, setTemplateLoaded] = useState(false)
 
-  const appName = settings?.app_name || 'VO Gear Hub'
+  const appName = settings?.app_name || 'VO Hub'
   const logoUrl = settings?.logo_url || ''
   const tagline = settings?.tagline || ''
   const logoHeight = settings?.logo_height || 0

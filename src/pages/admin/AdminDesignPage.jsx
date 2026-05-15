@@ -173,7 +173,7 @@ export function AdminDesignPage() {
 
   useEffect(() => {
     if (!settings) return
-    setAppName(settings.app_name || 'VO Gear Hub')
+    setAppName(settings.app_name || 'VO Hub')
     setLogoUrl(settings.logo_url || '')
     setLogoUrlDark(settings.logo_url_dark || '')
     setLogoUrlLight(settings.logo_url_light || '')
@@ -869,7 +869,7 @@ export function AdminDesignPage() {
               <Input
                 value={appName}
                 onChange={(e) => setAppName(e.target.value)}
-                placeholder="VO Gear Hub"
+                placeholder="VO Hub"
               />
               <p className="text-xs text-muted-foreground">Displayed in the header and browser title</p>
             </div>
@@ -938,7 +938,7 @@ export function AdminDesignPage() {
               <Input
                 value={hubMainTitle}
                 onChange={(e) => setHubMainTitle(e.target.value)}
-                placeholder="VO Gear Hub"
+                placeholder="VO Hub"
               />
             </div>
             <div className="space-y-1">
@@ -1056,7 +1056,7 @@ export function AdminDesignPage() {
                 style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }}
               />
               <span className="text-sm font-bold" style={{ color: primaryColor || SHARED_DEFAULTS.primary_color }}>
-                {appName || 'VO Gear Hub'}
+                {appName || 'VO Hub'}
               </span>
               <div className="ml-auto flex gap-1.5">
                 <div className="w-12 h-5 rounded text-[9px] font-medium flex items-center justify-center"

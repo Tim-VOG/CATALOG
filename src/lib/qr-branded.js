@@ -88,7 +88,7 @@ export async function printBrandedQRCodes(items) {
 
   const win = window.open('', '_blank')
   win.document.write(`
-    <html><head><title>VO Gear Hub — QR Codes</title>
+    <html><head><title>VO Hub — QR Codes</title>
     <style>
       body { font-family: -apple-system, sans-serif; display: flex; flex-wrap: wrap; gap: 16px; padding: 20px; justify-content: center; }
       .card { text-align: center; border: 1px solid #e2e8f0; padding: 8px; border-radius: 12px; width: 220px; }

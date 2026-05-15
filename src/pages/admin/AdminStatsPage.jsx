@@ -80,7 +80,7 @@ export function AdminStatsPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Statistics" description="Overview of IT Hub activity" />
+      <AdminPageHeader title="Statistics" description="Overview of VO Hub activity" />
 
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

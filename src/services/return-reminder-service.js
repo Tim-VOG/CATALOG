@@ -36,7 +36,8 @@ export async function checkAndSendReturnReminders() {
     <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#a16207;letter-spacing:-0.3px;">${item.expected_return_date}</p>
   </div>
 </td></tr></table>
-<p style="margin:24px 0 0;font-size:13px;color:#8898aa;">Please bring the equipment to the IT desk.</p>`
+<p style="margin:24px 0 6px;font-size:15px;color:#425466;line-height:1.65;">Please bring the equipment to the IT desk.</p>
+<p style="margin:18px 0 0;font-size:15px;color:#425466;line-height:1.65;">Best,<br>The VO Hub Team</p>`
 
       await sendEmail({
         to: item.user_email,

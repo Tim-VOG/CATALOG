@@ -49,7 +49,7 @@ export function MobileNav() {
   const themeMode = useThemeMode()
   const toggleTheme = useToggleTheme()
 
-  const appName = settings?.app_name || 'VO Gear Hub'
+  const appName = settings?.app_name || 'VO Hub'
   const logoUrl = settings?.logo_url
   const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
   const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : ''
