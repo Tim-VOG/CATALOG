@@ -275,7 +275,7 @@ export function OnboardingComposerPage() {
             style={{ originX: 0 }}
           />
         </div>
-        <Button variant="outline" className="gap-2" onClick={() => navigate('/admin/onboarding')}>
+        <Button variant="outline" className="gap-2" onClick={() => navigate('/admin/onboarding/requests')}>
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
       </div>
@@ -291,10 +291,10 @@ export function OnboardingComposerPage() {
 
       {/* Top bar: recipient, language, subject */}
       <div className="flex flex-wrap items-end gap-4 p-4 rounded-xl border bg-card">
-        <div className="space-y-1 min-w-[200px]">
-          <Label>Recipient *</Label>
+        <div className="space-y-1 min-w-[240px]">
+          <Label>For *</Label>
           <Select value={recipientId} onChange={(e) => setRecipientId(e.target.value)}>
-            <option value="">Select recipient...</option>
+            <option value="">— Pick a hire from Requests —</option>
             {recipients.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.first_name} {r.last_name} ({r.email})

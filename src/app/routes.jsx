@@ -115,7 +115,8 @@ export function AppRoutes() {
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
           <Route path="planning" element={<Navigate to="/admin" replace />} />
           <Route path="forms" element={<Navigate to="/admin" replace />} />
-          <Route path="onboarding" element={<OnboardingRecipientsPage />} />
+          <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
+          <Route path="onboarding/recipients" element={<OnboardingRecipientsPage />} />
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
           <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
           <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />

@@ -35,11 +35,9 @@ const emptyForm = {
 }
 
 const TABS = [
-  { key: 'requests',   label: 'Requests',   to: '/admin/onboarding/requests' },
-  { key: 'recipients', label: 'Recipients', to: '/admin/onboarding' },
-  { key: 'compose',    label: 'Compose',    to: '/admin/onboarding/compose' },
-  { key: 'history',    label: 'History',    to: '/admin/onboarding/history' },
-  { key: 'variables',  label: 'Variables',  to: '/admin/onboarding/variables' },
+  { key: 'requests', label: 'Requests', to: '/admin/onboarding/requests' },
+  { key: 'compose',  label: 'Compose',  to: '/admin/onboarding/compose' },
+  { key: 'history',  label: 'History',  to: '/admin/onboarding/history' },
 ]
 
 export function OnboardingTabNav() {
