@@ -78,6 +78,11 @@ const STATUS_EMAIL = {
 }
 
 export async function sendStatusChangeEmail(newStatus, { request, requestType = 'equipment' }) {
+  // For onboarding, the requester is the IT admin (not the new hire), so a
+  // generic "your request is in progress" email is noise. The admin sends a
+  // dedicated welcome email to the new hire from the composer instead.
+  if (requestType === 'onboarding') return
+
   const content = STATUS_EMAIL[newStatus]
   if (!content) return
 

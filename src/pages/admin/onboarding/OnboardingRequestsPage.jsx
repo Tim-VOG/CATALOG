@@ -405,7 +405,13 @@ export function OnboardingRequestsPage() {
         (r) => payload.email && r.email?.toLowerCase() === payload.email.toLowerCase()
       )
       if (recipient && payload.personal_email && payload.personal_email !== recipient.personal_email) {
-        try { await updateRecipient.mutateAsync({ id: recipient.id, personal_email: payload.personal_email }) } catch {}
+        try {
+          const updated = await updateRecipient.mutateAsync({ id: recipient.id, personal_email: payload.personal_email })
+          // Refresh the composer's recipient prop so the preview re-renders
+          if (recipientForCompose?.id === recipient.id) {
+            setRecipientForCompose(updated || { ...recipient, personal_email: payload.personal_email })
+          }
+        } catch {}
       }
       showToast('Updated')
     } catch (err) {
