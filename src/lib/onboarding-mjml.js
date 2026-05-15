@@ -483,14 +483,9 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
     <!-- Header: brand logo (if available) + welcome hero title -->
     <mj-section background-color="#ffffff" padding="0">
       <mj-column padding="0">
-        ${branding.logoUrl ? `<mj-image
-          align="left"
-          padding="32px 40px 0 40px"
-          src="${escapeHtml(branding.logoUrl)}"
-          alt="${escapeHtml(branding.appName || 'VO Hub')}"
-          height="${branding.logoHeight || 36}px"
-          width="auto"
-        />` : ''}
+        ${branding.logoUrl ? `<mj-text padding="32px 40px 0 40px" align="left">
+          <img src="${escapeHtml(branding.logoUrl)}" alt="${escapeHtml(branding.appName || 'VO Hub')}" style="display:block;height:${branding.logoHeight || 36}px;width:auto;max-height:${branding.logoHeight || 36}px;max-width:180px;border:0;outline:none;text-decoration:none;" />
+        </mj-text>` : ''}
         <mj-text padding="${branding.logoUrl ? '20px' : '36px'} 40px 28px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height="1.2" letter-spacing="-0.5px">
           ${escapeHtml(welcomeTitle)}
         </mj-text>
