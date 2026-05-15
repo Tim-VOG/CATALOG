@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
@@ -19,6 +18,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { OnboardingTabNav } from './OnboardingTabNav'
+import { OnboardingComposer } from './OnboardingComposer'
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
@@ -155,9 +155,10 @@ function OnboardingRequestInfoCard({ req, sentEmail }) {
 }
 
 // ── Inline detail view (mirrors AdminMailboxRequestsPage detail) ──
-function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, sentEmail, composing }) {
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, sentEmail, composing, recipientForCompose, onCloseComposer }) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
+  const showComposer = !!recipientForCompose && !sentEmail
 
   return (
     <div className="space-y-5">
@@ -194,7 +195,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
         </Card>
       )}
 
-      {req.status === 'in_progress' && !sentEmail && (
+      {req.status === 'in_progress' && !sentEmail && !showComposer && (
         <Card variant="elevated">
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-blue-500 shrink-0" />
@@ -206,7 +207,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
         </Card>
       )}
 
-      {/* Compose welcome email CTA */}
+      {/* Compose welcome email — inline */}
       {sentEmail ? (
         <Card variant="elevated" className="border-emerald-500/30">
           <CardContent className="p-4 flex items-center gap-3">
@@ -216,6 +217,13 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
             </span>
           </CardContent>
         </Card>
+      ) : showComposer ? (
+        <OnboardingComposer
+          recipient={recipientForCompose}
+          requestId={req.id}
+          onSent={onCloseComposer}
+          onClose={onCloseComposer}
+        />
       ) : (
         <Button
           onClick={() => onComposeWelcome(req)}
@@ -233,7 +241,6 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
 
 // ── Main page ───────────────────────────────────────────────────
 export function OnboardingRequestsPage() {
-  const navigate = useNavigate()
   const { data: allRequests = [], isLoading } = useItRequests()
   const { data: recipients = [] } = useOnboardingRecipients()
   const { data: emails = [] } = useOnboardingEmails()
@@ -248,6 +255,7 @@ export function OnboardingRequestsPage() {
   const [selectedId, setSelectedId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [composing, setComposing] = useState(false)
+  const [recipientForCompose, setRecipientForCompose] = useState(null)
 
   const requests = useMemo(
     () => allRequests.filter((r) => r.type === 'onboarding'),
@@ -343,12 +351,18 @@ export function OnboardingRequestsPage() {
           await updateRequest.mutateAsync({ id: req.id, updates: { status: 'in_progress' } })
         } catch {}
       }
-      navigate(`/admin/onboarding/compose?recipientId=${recipient.id}&requestId=${req.id}`)
+      // Open the inline composer
+      setSelectedId(req.id)
+      setRecipientForCompose(recipient)
     } catch (err) {
       showToast(err.message, 'error')
     } finally {
       setComposing(false)
     }
+  }
+
+  const handleCloseComposer = () => {
+    setRecipientForCompose(null)
   }
 
   if (isLoading) return <PageLoading />
@@ -363,10 +377,12 @@ export function OnboardingRequestsPage() {
           req={selectedRequest}
           sentEmail={sentByRequestId[selectedRequest.id]}
           composing={composing}
-          onBack={() => setSelectedId(null)}
+          recipientForCompose={recipientForCompose}
+          onBack={() => { setSelectedId(null); setRecipientForCompose(null) }}
           onDelete={(r) => setDeleteConfirm(r)}
           onStatusChange={handleStatusChange}
           onComposeWelcome={handleComposeWelcome}
+          onCloseComposer={handleCloseComposer}
         />
 
         <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>

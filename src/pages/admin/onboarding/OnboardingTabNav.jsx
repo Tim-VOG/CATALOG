@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils'
 
 const TABS = [
   { key: 'requests', label: 'Requests', to: '/admin/onboarding/requests' },
-  { key: 'compose',  label: 'Compose',  to: '/admin/onboarding/compose' },
   { key: 'history',  label: 'History',  to: '/admin/onboarding/history' },
 ]
 
@@ -12,8 +11,6 @@ export function OnboardingTabNav() {
   const location = useLocation()
 
   const getActiveTab = () => {
-    if (location.pathname.includes('/requests')) return 'requests'
-    if (location.pathname.includes('/compose')) return 'compose'
     if (location.pathname.includes('/history')) return 'history'
     return 'requests'
   }

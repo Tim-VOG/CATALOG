@@ -169,7 +169,7 @@ export function AdminEmailTemplatesPage() {
                   })}
 
                   {cat.key === 'onboarding' && (
-                    <Link to="/admin/onboarding/compose">
+                    <Link to="/admin/onboarding/requests">
                       <Card className="hover:shadow-md transition-shadow border-dashed">
                         <CardContent className="p-5">
                           <div className="flex items-center gap-4">

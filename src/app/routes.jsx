@@ -24,7 +24,6 @@ import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 // AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
 import { AdminSubscriptionPlansPage } from '@/pages/admin/AdminSubscriptionPlansPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
-import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingComposerPage'
 import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
 import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
@@ -115,8 +114,8 @@ export function AppRoutes() {
           <Route path="forms" element={<Navigate to="/admin" replace />} />
           <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
-          <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
-          <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
+          <Route path="onboarding/compose" element={<Navigate to="/admin/onboarding/requests" replace />} />
+          <Route path="onboarding/compose/:emailId" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
           <Route path="onboarding/recipients" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/variables" element={<Navigate to="/admin/onboarding/requests" replace />} />

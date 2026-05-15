@@ -72,6 +72,17 @@ export const useOnboardingEmail = (id) =>
     retry: 1,
   })
 
+export const useOnboardingEmailsByRequest = (requestId) =>
+  useQuery({
+    queryKey: ['onboarding-emails', 'by-request', requestId],
+    queryFn: async () => {
+      const all = await getOnboardingEmails()
+      return all.filter((e) => e.it_request_id === requestId)
+    },
+    enabled: !!requestId,
+    retry: 1,
+  })
+
 export const useCreateEmail = () => {
   const queryClient = useQueryClient()
   return useMutation({

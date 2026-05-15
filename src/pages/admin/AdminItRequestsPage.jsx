@@ -66,7 +66,7 @@ export function AdminItRequestsPage() {
         personal_email: req.personal_email || '',
       })
       showToast('Onboarding recipient created!')
-      navigate(`/admin/onboarding/compose?recipientId=${recipient.id}`)
+      navigate(`/admin/onboarding/requests`)
     } catch (err) {
       showToast(err.message || 'Failed to create recipient', 'error')
     }

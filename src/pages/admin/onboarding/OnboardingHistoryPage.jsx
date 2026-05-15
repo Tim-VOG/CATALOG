@@ -125,14 +125,14 @@ export function OnboardingHistoryPage() {
                         </Button>
                       )}
                       {email.status === 'draft' && (
-                        <Link to={`/admin/onboarding/compose/${email.id}`}>
+                        <Link to={email.it_request_id ? `/admin/onboarding/requests` : `/admin/onboarding/requests`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit">
                             <FileEdit className="h-3.5 w-3.5" />
                           </Button>
                         </Link>
                       )}
                       {email.status === 'failed' && (
-                        <Link to={`/admin/onboarding/compose/${email.id}`}>
+                        <Link to={email.it_request_id ? `/admin/onboarding/requests` : `/admin/onboarding/requests`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8" title="Retry">
                             <Mail className="h-3.5 w-3.5" />
                           </Button>
