@@ -5,7 +5,6 @@ import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
-import { buildConfirmationEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -618,13 +617,9 @@ export function OnboardingRequestPage() {
         })
       } catch {}
 
-      // 3. Confirmation email to user
-      sendEmail({
-        to: user.email,
-        subject: 'Your onboarding request has been received',
-        body: buildConfirmationEmail({ name: submitterName, type: 'onboarding', detail: fullName }),
-        isHtml: true,
-      })
+      // Note: no confirmation email is sent for onboarding requests — the
+      // submitter IS an IT admin, and the dedicated welcome email goes to
+      // the new hire's personal address from the inline composer.
 
       // 4. Notify admin
       sendEmail({

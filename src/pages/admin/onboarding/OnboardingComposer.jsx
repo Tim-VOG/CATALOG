@@ -44,6 +44,8 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
   )
 
   const [emailDbId, setEmailDbId] = useState(null)
+  const deliveryEmail = recipient?.personal_email || recipient?.email || ''
+  const usingPersonal = !!recipient?.personal_email
   const [language, setLanguage] = useState((recipient?.language || 'fr') === 'fr' ? 'fr' : 'en')
   const [subject, setSubject] = useState('')
   const [blocksConfig, setBlocksConfig] = useState([])
@@ -202,9 +204,6 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
       </Card>
     )
   }
-
-  const deliveryEmail = recipient.personal_email || recipient.email
-  const usingPersonal = !!recipient.personal_email
 
   return (
     <Card variant="elevated">
