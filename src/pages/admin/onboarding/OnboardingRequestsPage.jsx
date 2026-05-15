@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Eye, ChevronDown, ChevronUp,
+  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Eye,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -49,26 +48,39 @@ const STATUS_COLORS = {
 }
 
 // ── Info card (mirrors AdminMailboxRequestsPage RequestInfoCard) ──
-function OnboardingRequestInfoCard({ req, sentEmail }) {
-  const [expanded, setExpanded] = useState(false)
+function OnboardingRequestInfoCard({ req, sentEmail, onUpdate }) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const corporateEmail = data.email_local && data.email_domain
     ? `${data.email_local}@${data.email_domain}`
     : data.email_to_create || '—'
 
-  const mainFields = [
+  const [editingPersonal, setEditingPersonal] = useState(false)
+  const [personalEmail, setPersonalEmail] = useState(data.personal_email || '')
+  const [savingPersonal, setSavingPersonal] = useState(false)
+
+  const handleSavePersonal = async () => {
+    const trimmed = personalEmail.trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return
+    setSavingPersonal(true)
+    try {
+      await onUpdate({ ...data, personal_email: trimmed })
+      setEditingPersonal(false)
+    } finally {
+      setSavingPersonal(false)
+    }
+  }
+
+  // All fields, always visible
+  const fields = [
     ['First Name', data.first_name],
     ['Last Name', data.last_name],
     ['Corporate Email', corporateEmail],
-    ['Personal Email', data.personal_email],
+    // personal_email handled inline below
     ['Profile', data.profile],
     ['Company', data.company],
     ['Job Title', data.job_title],
     ['First Day', formatDate(data.first_day)],
-  ]
-
-  const extraFields = [
     ['Business Unit', data.business_unit],
     ['Signing Off As', data.signing_off_as],
     ['Phone', data.phone],
@@ -77,7 +89,7 @@ function OnboardingRequestInfoCard({ req, sentEmail }) {
     ['Requested By', req.requester_name],
     ['Requester Email', req.requester_email],
     ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
-  ].filter(([, v]) => v)
+  ]
 
   return (
     <Card variant="elevated">
@@ -107,55 +119,70 @@ function OnboardingRequestInfoCard({ req, sentEmail }) {
           </div>
         </div>
 
-        {/* Main fields */}
+        {/* Fields — all visible, no expand */}
         <div className="p-5 space-y-2.5">
-          {mainFields.map(([label, value]) => value ? (
+          <div className="flex items-start gap-3 text-sm">
+            <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">First Name</span>
+            <span className="text-foreground break-all">{data.first_name || '—'}</span>
+          </div>
+          <div className="flex items-start gap-3 text-sm">
+            <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">Last Name</span>
+            <span className="text-foreground break-all">{data.last_name || '—'}</span>
+          </div>
+          <div className="flex items-start gap-3 text-sm">
+            <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">Corporate Email</span>
+            <span className="text-foreground break-all">{corporateEmail}</span>
+          </div>
+          {/* Personal Email — editable */}
+          <div className="flex items-start gap-3 text-sm">
+            <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">Personal Email</span>
+            {editingPersonal ? (
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  type="email"
+                  value={personalEmail}
+                  onChange={(e) => setPersonalEmail(e.target.value)}
+                  placeholder="jdoe@gmail.com"
+                  className="h-7 text-sm"
+                  autoFocus
+                />
+                <Button size="sm" className="h-7 px-3 text-xs" onClick={handleSavePersonal} disabled={savingPersonal}>
+                  Save
+                </Button>
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => { setEditingPersonal(false); setPersonalEmail(data.personal_email || '') }}>
+                  Cancel
+                </Button>
+              </div>
+            ) : data.personal_email ? (
+              <div className="flex items-center gap-2 flex-1 group">
+                <span className="text-foreground break-all">{data.personal_email}</span>
+                <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] opacity-0 group-hover:opacity-100 transition" onClick={() => setEditingPersonal(true)}>
+                  Edit
+                </Button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setEditingPersonal(true)}
+                className="text-xs text-amber-600 hover:text-amber-700 font-medium underline decoration-dotted underline-offset-4"
+              >
+                + Add (required for password block)
+              </button>
+            )}
+          </div>
+          {fields.slice(4).map(([label, value]) => (
             <div key={label} className="flex items-start gap-3 text-sm">
               <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">{label}</span>
-              <span className="text-foreground break-all">{value}</span>
+              <span className="text-foreground break-all">{value || '—'}</span>
             </div>
-          ) : null)}
+          ))}
         </div>
-
-        {/* Expand for more details */}
-        {extraFields.length > 0 && (
-          <>
-            <AnimatePresence>
-              {expanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-5 pb-4 space-y-2.5 border-t border-border/50 pt-4">
-                    {extraFields.map(([label, value]) => (
-                      <div key={label} className="flex items-start gap-3 text-sm">
-                        <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">{label}</span>
-                        <span className="text-foreground break-all">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground border-t border-border/50 transition-colors"
-            >
-              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-              {expanded ? 'Show less' : 'Show more details'}
-            </button>
-          </>
-        )}
       </CardContent>
     </Card>
   )
 }
 
 // ── Inline detail view (mirrors AdminMailboxRequestsPage detail) ──
-function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, sentEmail, composing, recipientForCompose, onCloseComposer }) {
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, onUpdateData, sentEmail, composing, recipientForCompose, onCloseComposer }) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const showComposer = !!recipientForCompose && !sentEmail
@@ -177,7 +204,11 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
       </div>
 
       {/* Request info */}
-      <OnboardingRequestInfoCard req={req} sentEmail={sentEmail} />
+      <OnboardingRequestInfoCard
+        req={req}
+        sentEmail={sentEmail}
+        onUpdate={async (newData) => onUpdateData(req, newData)}
+      />
 
       {/* Status actions banner */}
       {req.status === 'pending' && (
@@ -365,6 +396,23 @@ export function OnboardingRequestsPage() {
     setRecipientForCompose(null)
   }
 
+  const handleUpdateData = async (req, newData) => {
+    try {
+      await updateRequest.mutateAsync({ id: req.id, updates: { data: newData } })
+      // Also sync the linked recipient so the inline composer sees the updated field
+      const payload = requestToRecipient({ ...req, data: newData })
+      const recipient = recipients.find(
+        (r) => payload.email && r.email?.toLowerCase() === payload.email.toLowerCase()
+      )
+      if (recipient && payload.personal_email && payload.personal_email !== recipient.personal_email) {
+        try { await updateRecipient.mutateAsync({ id: recipient.id, personal_email: payload.personal_email }) } catch {}
+      }
+      showToast('Updated')
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }
+
   if (isLoading) return <PageLoading />
 
   // Detail view
@@ -383,6 +431,7 @@ export function OnboardingRequestsPage() {
           onStatusChange={handleStatusChange}
           onComposeWelcome={handleComposeWelcome}
           onCloseComposer={handleCloseComposer}
+          onUpdateData={handleUpdateData}
         />
 
         <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
