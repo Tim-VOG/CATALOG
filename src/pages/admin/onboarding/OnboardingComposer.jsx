@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { BlockEditor } from '@/components/admin/onboarding/BlockEditor'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuth } from '@/lib/auth'
+import { useAppSettings } from '@/hooks/use-settings'
 
 /**
  * Inline onboarding email composer.
@@ -27,6 +28,7 @@ import { useAuth } from '@/lib/auth'
  */
 export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
   const { user, profile } = useAuth()
+  const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
   const { data: dbBlockTemplates = [], isLoading: blocksLoading, error: blocksError } = useOnboardingBlockTemplates()
@@ -98,11 +100,16 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
         phone: profile.phone,
         email: profile.email || user?.email,
       } : null
-      return buildMjmlFromBlocks(blocksConfig, language, recipient, sender)
+      const branding = {
+        appName: settings?.app_name || 'VO Hub',
+        logoUrl: settings?.logo_url || '',
+        logoHeight: settings?.logo_height || 36,
+      }
+      return buildMjmlFromBlocks(blocksConfig, language, recipient, sender, branding)
     } catch {
       return ''
     }
-  }, [blocksConfig, language, recipient, profile, user])
+  }, [blocksConfig, language, recipient, profile, user, settings])
 
   // Lazy-load mjml-browser and render preview
   useEffect(() => {

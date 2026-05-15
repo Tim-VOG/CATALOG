@@ -419,7 +419,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
  * @param {Object} recipient - { first_name, last_name, email, team, department, start_date }
  * @returns {string} MJML markup
  */
-export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = null) {
+export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = null, branding = {}) {
   const vars = {
     first_name: recipient.first_name || '',
     last_name: recipient.last_name || '',
@@ -480,10 +480,18 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
       </mj-column>
     </mj-section>
 
-    <!-- Header: welcome hero title (no badge — the title is enough branding) -->
+    <!-- Header: brand logo (if available) + welcome hero title -->
     <mj-section background-color="#ffffff" padding="0">
       <mj-column padding="0">
-        <mj-text padding="36px 40px 28px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height="1.2" letter-spacing="-0.5px">
+        ${branding.logoUrl ? `<mj-image
+          align="left"
+          padding="32px 40px 0 40px"
+          src="${escapeHtml(branding.logoUrl)}"
+          alt="${escapeHtml(branding.appName || 'VO Hub')}"
+          height="${branding.logoHeight || 36}px"
+          width="auto"
+        />` : ''}
+        <mj-text padding="${branding.logoUrl ? '20px' : '36px'} 40px 28px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height="1.2" letter-spacing="-0.5px">
           ${escapeHtml(welcomeTitle)}
         </mj-text>
       </mj-column>
