@@ -123,6 +123,10 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
         const { html } = mjml2html(mjmlSource, { validationLevel: 'soft' })
         if (!cancelled) setPreviewHtml(html)
       } catch (err) {
+        if (/Failed to fetch dynamically imported module|Importing a module script failed/i.test(err?.message || '')) {
+          // Stale chunk after a deploy — let main.jsx reload handler kick in
+          throw err
+        }
         if (!cancelled) setPreviewHtml(`<pre style="color:red;padding:20px;">${err.message}</pre>`)
       }
     }
