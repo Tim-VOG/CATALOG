@@ -616,7 +616,7 @@ export function FunctionalMailboxFormPage() {
       sendEmail({
         to: user.email,
         subject: 'Your mailbox request has been received',
-        body: buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name }),
         isHtml: true,
       })
 

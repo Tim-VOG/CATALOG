@@ -430,7 +430,7 @@ export function OffboardingRequestPage() {
       sendEmail({
         to: user.email,
         subject: 'Your offboarding request has been received',
-        body: buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name }),
         isHtml: true,
       })
 

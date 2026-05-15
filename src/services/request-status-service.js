@@ -1,6 +1,7 @@
 import { sendEmail } from '@/lib/api/send-email'
 import { supabase } from '@/lib/supabase'
 import { wrapEmailHtml } from '@/lib/email-html'
+import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 
 export async function createNotification(userId, title, message, type = 'status_change') {
   if (!userId) return
@@ -22,89 +23,86 @@ export function getAvailableTransitions(currentStatus) {
   return STATUS_TRANSITIONS[currentStatus] || []
 }
 
-// ── Branded email wrapper ──
-// Builds inner body + status badge, then delegates chrome to wrapEmailHtml.
-function emailTemplate({ title, greeting, body, statusLabel, statusColor, statusBg }) {
-  const inner = `<h1 style="margin:0 0 14px 0;font-size:24px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">${title}</h1>
-<p style="margin:0 0 12px 0;font-size:15px;color:#425466;line-height:1.65;">${greeting}</p>
-<p style="margin:0 0 24px 0;font-size:15px;color:#425466;line-height:1.65;">${body}</p>
-
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:8px 0 8px 0;">
-  <tr><td align="center">
-    <div style="background:${statusBg};border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">
-      <p style="margin:0;font-size:11px;font-weight:600;color:${statusColor};letter-spacing:1px;text-transform:uppercase;">Status</p>
-      <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:${statusColor};letter-spacing:-0.3px;">${statusLabel}</p>
-    </div>
-  </td></tr>
-</table>
-
-<p style="margin:24px 0 6px 0;font-size:15px;color:#425466;line-height:1.65;">You can track your request anytime in the hub.</p>
-<p style="margin:18px 0 0 0;font-size:15px;color:#425466;line-height:1.65;">Best,<br>The VO Hub Team</p>`
-
-  return wrapEmailHtml(inner, { appName: 'VO Hub', raw: true })
+// ── Hardcoded fallbacks (used if DB template is unavailable) ──
+const FALLBACK_TEMPLATES = {
+  request_confirmed: {
+    subject: 'Your {{request_type}} request has been received',
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been received and will be processed by the IT team.\n\n<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center">\n  <div style="background:#fef6e0;border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">\n    <p style="margin:0;font-size:11px;font-weight:600;color:#a16207;letter-spacing:1px;text-transform:uppercase;">Status</p>\n    <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#a16207;letter-spacing:-0.3px;">Pending</p>\n  </div>\n</td></tr></table>\n\nYou can track your request anytime in the hub.\n\nBest,\nThe VO Hub Team`,
+  },
+  request_in_progress: {
+    subject: 'Your {{request_type}} request is being prepared',
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request is now being prepared by the IT team.\n\n<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center">\n  <div style="background:#eef4ff;border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">\n    <p style="margin:0;font-size:11px;font-weight:600;color:#3955cf;letter-spacing:1px;text-transform:uppercase;">Status</p>\n    <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#3955cf;letter-spacing:-0.3px;">In Progress</p>\n  </div>\n</td></tr></table>\n\nWe'll let you know as soon as it's ready.\n\nBest,\nThe VO Hub Team`,
+  },
+  request_ready: {
+    subject: 'Your {{request_type}} request is ready',
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been completed. Your equipment is ready for pickup at the IT desk.\n\n<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center">\n  <div style="background:#e7f6ec;border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">\n    <p style="margin:0;font-size:11px;font-weight:600;color:#0a7a3b;letter-spacing:1px;text-transform:uppercase;">Status</p>\n    <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#0a7a3b;letter-spacing:-0.3px;">Ready</p>\n  </div>\n</td></tr></table>\n\nCome by the IT desk whenever you're ready.\n\nBest,\nThe VO Hub Team`,
+  },
 }
 
-// ── Status configs ──
-const STATUS_STYLE = {
-  pending: { label: 'Pending', color: '#a16207', bg: '#fef6e0' },
-  in_progress: { label: 'In Progress', color: '#3955cf', bg: '#eef4ff' },
-  ready: { label: 'Ready', color: '#0a7a3b', bg: '#e7f6ec' },
+function substitute(text, vars) {
+  return (text || '').replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `[${key}]`)
+}
+
+/**
+ * Load a template from the DB and substitute {{vars}}.
+ * Falls back to the hardcoded version if the DB row is missing.
+ * Always returns { subject, body } where body is the inner content
+ * (not yet wrapped by wrapEmailHtml).
+ */
+async function renderTemplate(key, vars) {
+  let tmpl = null
+  try { tmpl = await getEmailTemplateByKey(key) } catch {}
+  const source = tmpl || FALLBACK_TEMPLATES[key] || { subject: '', body: '' }
+  return {
+    subject: substitute(source.subject, vars),
+    body: substitute(source.body, vars),
+  }
 }
 
 // ── Public: build a confirmation email (called from form pages) ──
-export function buildConfirmationEmail({ name, type, detail }) {
-  const style = STATUS_STYLE.pending
-  return emailTemplate({
-    title: 'Request received',
-    greeting: `Hi ${name},`,
-    body: `Your <strong>${type}</strong> request${detail ? ` for <strong>${detail}</strong>` : ''} has been received and will be processed by the IT team.`,
-    statusLabel: style.label,
-    statusColor: style.color,
-    statusBg: style.bg,
-  })
+export async function buildConfirmationEmail({ name, type, detail }) {
+  const vars = {
+    requester_name: name || 'there',
+    request_type: type || 'equipment',
+    detail: detail || '',
+  }
+  const { body } = await renderTemplate('request_confirmed', vars)
+  return wrapEmailHtml(body, { appName: 'VO Hub', raw: true })
+}
+
+export async function buildConfirmationSubject({ type }) {
+  const { subject } = await renderTemplate('request_confirmed', { request_type: type || 'equipment', requester_name: '' })
+  return subject
 }
 
 // ── Status change emails (in_progress / ready) ──
-const STATUS_EMAIL = {
-  in_progress: {
-    subject: 'Your request is being prepared',
-    title: "We're on it",
-    body: (name, type) => `Your <strong>${type}</strong> request is now being prepared by the IT team.`,
-  },
-  ready: {
-    subject: 'Your request is ready!',
-    title: 'Your request is ready',
-    body: (name, type) => `Your <strong>${type}</strong> request has been completed and is ready.`,
-  },
-}
-
 export async function sendStatusChangeEmail(newStatus, { request, requestType = 'equipment' }) {
   // For onboarding, the requester is the IT admin (not the new hire), so a
   // generic "your request is in progress" email is noise. The admin sends a
   // dedicated welcome email to the new hire from the composer instead.
   if (requestType === 'onboarding') return
 
-  const content = STATUS_EMAIL[newStatus]
-  if (!content) return
+  const key =
+    newStatus === 'in_progress' ? 'request_in_progress' :
+    newStatus === 'ready' ? 'request_ready' :
+    null
+  if (!key) return
 
   const email = request.user_email || request.requester_email
   if (!email) return
 
   const name = request.user_first_name || request.requester_name || email.split('@')[0]
-  const style = STATUS_STYLE[newStatus]
+
+  const { subject, body } = await renderTemplate(key, {
+    requester_name: name,
+    request_type: requestType,
+  })
 
   try {
     await sendEmail({
       to: email,
-      subject: content.subject,
-      body: emailTemplate({
-        title: content.title,
-        greeting: `Hi ${name},`,
-        body: content.body(name, requestType),
-        statusLabel: style.label,
-        statusColor: style.color,
-        statusBg: style.bg,
-      }),
+      subject,
+      body: wrapEmailHtml(body, { appName: 'VO Hub', raw: true }),
       isHtml: true,
     })
   } catch {}

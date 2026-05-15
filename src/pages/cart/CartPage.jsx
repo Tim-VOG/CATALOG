@@ -245,7 +245,7 @@ export function CartPage() {
       sendEmail({
         to: user.email,
         subject: 'Your equipment request has been received',
-        body: buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
         isHtml: true,
       })
       sendEmail({

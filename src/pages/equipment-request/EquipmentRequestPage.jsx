@@ -738,7 +738,7 @@ export function EquipmentRequestPage() {
       sendEmail({
         to: user.email,
         subject: 'Your equipment request has been received',
-        body: buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: form.event_name }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: form.event_name }),
         isHtml: true,
       })
 
