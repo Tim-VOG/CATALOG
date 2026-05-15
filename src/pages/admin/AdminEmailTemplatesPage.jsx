@@ -1,8 +1,9 @@
 import { useState, useRef, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { useEmailTemplates, useUpdateEmailTemplate } from '@/hooks/use-email-templates'
 import { wrapEmailHtml } from '@/lib/email-html'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Mail, Pencil, Save, Eye } from 'lucide-react'
+import { Mail, Pencil, Save, Eye, UserPlus, Inbox, ClipboardList, Bell, Blocks, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,15 +22,36 @@ const TEMPLATE_ICONS = {
   request_confirmed: '📋',
   request_in_progress: '⏳',
   request_ready: '✅',
+  request_return_reminder: '🔔',
+  request_overdue: '⚠️',
+  request_return_confirmed: '📦',
   user_invitation: '📧',
+  mailbox_confirmation: '📬',
+  onboarding_welcome: '👋',
+  dashboard_reminder: '⏰',
 }
 
 const TEMPLATE_DESCRIPTIONS = {
   request_confirmed: 'Sent when a request is submitted',
   request_in_progress: 'Sent when admin starts processing',
   request_ready: 'Sent when the request is completed',
+  request_return_reminder: 'Sent 3 days before the expected return date',
+  request_overdue: 'Sent when equipment is past the return date',
+  request_return_confirmed: 'Sent when equipment is returned',
   user_invitation: 'Sent when inviting a new user',
+  mailbox_confirmation: 'Sent when a functional mailbox has been created',
+  onboarding_welcome: 'Sent to a new hire as a welcome (single email)',
+  dashboard_reminder: 'Quick reminder sent from the admin dashboard',
 }
+
+const CATEGORIES = [
+  { key: 'invitations', label: 'Invitations',  icon: UserPlus,      tint: 'bg-violet-500/10 text-violet-600' },
+  { key: 'requests',    label: 'Request status', icon: ClipboardList, tint: 'bg-blue-500/10 text-blue-600' },
+  { key: 'mailbox',     label: 'Mailbox',       icon: Inbox,          tint: 'bg-emerald-500/10 text-emerald-600' },
+  { key: 'onboarding',  label: 'Onboarding',    icon: UserPlus,       tint: 'bg-amber-500/10 text-amber-600' },
+  { key: 'reminders',   label: 'Reminders',     icon: Bell,           tint: 'bg-rose-500/10 text-rose-600' },
+  { key: 'other',       label: 'Other',         icon: Mail,           tint: 'bg-muted text-muted-foreground' },
+]
 
 export function AdminEmailTemplatesPage() {
   const { data: templates = [], isLoading } = useEmailTemplates()
@@ -85,6 +107,10 @@ export function AdminEmailTemplatesPage() {
   if (isLoading) return <PageLoading />
 
   const activeTemplates = templates.filter((t) => t.is_active)
+  const byCategory = CATEGORIES.map((cat) => ({
+    ...cat,
+    templates: activeTemplates.filter((t) => (t.category || 'other') === cat.key),
+  })).filter((c) => c.templates.length > 0 || c.key === 'onboarding')
 
   return (
     <div className="space-y-6">
@@ -100,34 +126,74 @@ export function AdminEmailTemplatesPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="templates" className="mt-6 space-y-3">
+        <TabsContent value="templates" className="mt-6 space-y-8">
           {activeTemplates.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">No active email templates</p>
           ) : (
-            activeTemplates.map((template) => {
-              const icon = TEMPLATE_ICONS[template.template_key] || '📧'
-              const desc = TEMPLATE_DESCRIPTIONS[template.template_key] || ''
+            byCategory.map((cat) => {
+              const Icon = cat.icon
               return (
-                <Card key={template.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-lg shrink-0">
-                        {icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm">{template.name}</h3>
-                          <Badge variant="outline" className="text-[10px]">{template.template_key}</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Subject: {template.subject}</p>
-                      </div>
-                      <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openEdit(template)}>
-                        <Pencil className="h-3 w-3" /> Edit
-                      </Button>
+                <div key={cat.key} className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', cat.tint)}>
+                      <Icon className="h-3.5 w-3.5" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{cat.label}</h2>
+                  </div>
+
+                  {cat.templates.map((template) => {
+                    const icon = TEMPLATE_ICONS[template.template_key] || '📧'
+                    const desc = template.description || TEMPLATE_DESCRIPTIONS[template.template_key] || ''
+                    return (
+                      <Card key={template.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-5">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-lg shrink-0">
+                              {icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-semibold text-sm">{template.name}</h3>
+                                <Badge variant="outline" className="text-[10px]">{template.template_key}</Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">Subject: {template.subject}</p>
+                            </div>
+                            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openEdit(template)}>
+                              <Pencil className="h-3 w-3" /> Edit
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+
+                  {cat.key === 'onboarding' && (
+                    <Link to="/admin/onboarding/compose">
+                      <Card className="hover:shadow-md transition-shadow border-dashed">
+                        <CardContent className="p-5">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                              <Blocks className="h-5 w-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-sm">Onboarding email blocks</h3>
+                                <Badge variant="outline" className="text-[10px]">advanced</Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Block-based composer (MJML) used to send the full multi-section welcome email.
+                              </p>
+                            </div>
+                            <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+                              Open <ArrowRight className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  )}
+                </div>
               )
             })
           )}

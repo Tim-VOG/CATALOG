@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useMailboxRequests, useUpdateMailboxRequest, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
-import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
+import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml } from '@/lib/email-html'
+import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   Search, Mail, Trash2, Eye, Calendar, Building2, ArrowLeft,
@@ -34,20 +35,20 @@ const STATUS_ICONS = {
   ready: CheckCircle,
 }
 
-// ── Default email template with placeholders ──
-const DEFAULT_TEMPLATE = `Dear {{requester_name}},
+// ── Default email template (fallback if DB template is not yet seeded) ──
+const DEFAULT_TEMPLATE = `Hi {{requester_name}},
 
-Your functional mailbox has been created successfully.
+Your functional mailbox has been created and is ready to use.
 
-Mailbox: {{mailbox_email}}
-Project: {{project_name}}
-Display Name: {{display_name}}
+**Mailbox** {{mailbox_email}}
+**Project** {{project_name}}
+**Display name** {{display_name}}
 
 {{onepassword_section}}
 
-If you have any questions, feel free to reach out.
+If you have any questions, just reply to this email — we're here to help.
 
-Best regards,
+Best,
 The {{app_name}} Team`
 
 // ── Available template variables ──
@@ -366,12 +367,23 @@ function EditableCCEmails({ req, onSave }) {
 // ══════════════════════════════════════════
 function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending }) {
   const appName = settings?.app_name || 'VO Gear Hub'
-  const savedTemplate = settings?.mailbox_email_template || DEFAULT_TEMPLATE
+
+  const [dbTemplate, setDbTemplate] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    getEmailTemplateByKey('mailbox_confirmation')
+      .then((tmpl) => { if (!cancelled) setDbTemplate(tmpl) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  const savedTemplate = dbTemplate?.body || settings?.mailbox_email_template || DEFAULT_TEMPLATE
+  const savedSubject = dbTemplate?.subject || `${appName} — Your functional mailbox has been created`
 
   // Initialize from draft (if saved) or template
   const [emailForm, setEmailForm] = useState(() => {
     if (req.email_draft_body) {
-      // Restore draft
       return {
         to: req.email_draft_to || req.requester_email || '',
         cc: req.email_draft_cc || extractEmails(req.who_needs_access).join(', '),
@@ -380,15 +392,25 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending }) {
         onepassword_link: req.email_draft_onepassword || req.onepassword_link || '',
       }
     }
-    // Fill template with request values
     return {
       to: req.requester_email || '',
       cc: extractEmails(req.who_needs_access).join(', '),
       subject: `${appName} — Your functional mailbox has been created`,
-      body: fillTemplate(savedTemplate, req, appName),
+      body: fillTemplate(DEFAULT_TEMPLATE, req, appName),
       onepassword_link: req.onepassword_link || '',
     }
   })
+
+  // Once the DB template loads (after mount), refresh body/subject if no draft exists
+  useEffect(() => {
+    if (!dbTemplate || req.email_draft_body) return
+    setEmailForm((prev) => ({
+      ...prev,
+      subject: savedSubject.replace(/\{\{app_name\}\}/g, appName),
+      body: fillTemplate(savedTemplate, req, appName),
+    }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dbTemplate])
 
   const [showVars, setShowVars] = useState(false)
   const [draftSaved, setDraftSaved] = useState(!!req.email_draft_body)
@@ -607,7 +629,6 @@ export function AdminMailboxRequestsPage() {
   const updateRequest = useUpdateMailboxRequest()
   const deleteRequest = useDeleteMailboxRequest()
   const { data: settings } = useAppSettings()
-  const updateSettings = useUpdateAppSettings()
   const showToast = useUIStore((s) => s.showToast)
 
   const [search, setSearch] = useState('')
@@ -707,18 +728,6 @@ export function AdminMailboxRequestsPage() {
             email_draft_onepassword: null,
           },
         })
-
-        // Save email body as template for future requests
-        // Re-templatize: replace actual values back with placeholders
-        try {
-          let templateBody = emailForm.body
-          // Only save if it looks different from current template
-          if (templateBody && templateBody !== (settings?.mailbox_email_template || DEFAULT_TEMPLATE)) {
-            await updateSettings.mutateAsync({ mailbox_email_template: templateBody })
-          }
-        } catch {
-          // Template save is best-effort
-        }
 
         showToast('Confirmation email sent! Request completed.')
         setShowEmail(false)

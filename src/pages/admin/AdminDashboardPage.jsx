@@ -14,6 +14,8 @@ import { CategoryChart } from '@/components/admin/dashboard/CategoryChart'
 import { LoansChart } from '@/components/admin/dashboard/LoansChart'
 import { QRUsageChart } from '@/components/admin/dashboard/QRUsageChart'
 import { sendEmail } from '@/lib/api/send-email'
+import { wrapEmailHtml } from '@/lib/email-html'
+import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -572,16 +574,27 @@ export function AdminDashboardPage() {
                       disabled={sendingReminders}
                       onClick={async () => {
                         setSendingReminders(true)
+                        const tmpl = await getEmailTemplateByKey('dashboard_reminder').catch(() => null)
                         let sent = 0
                         for (const scan of upcomingReturns) {
-                          if (scan.user_email) {
-                            await sendEmail({
-                              to: scan.user_email,
-                              subject: `Reminder: ${scan.product_name} due tomorrow`,
-                              body: `<p>Hi ${scan.user_name || 'there'},</p><p>This is a friendly reminder that <strong>${scan.product_name}</strong> is due for return tomorrow (${scan.expected_return_date}).</p><p>Please return it to the IT desk.</p><p>Thank you!</p>`,
-                            })
-                            sent++
+                          if (!scan.user_email) continue
+                          const vars = {
+                            first_name: scan.user_name || 'there',
+                            product_name: scan.product_name,
+                            return_date: scan.expected_return_date,
+                            app_name: 'VO Hub',
                           }
+                          const subject = (tmpl?.subject || 'Reminder: {{product_name}} due tomorrow')
+                            .replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `[${k}]`)
+                          const rawBody = (tmpl?.body || 'Hi {{first_name}},\n\nThis is a friendly reminder that **{{product_name}}** is due for return tomorrow ({{return_date}}).\n\nPlease bring it to the IT desk.\n\nThanks!\nThe {{app_name}} Team')
+                            .replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `[${k}]`)
+                          await sendEmail({
+                            to: scan.user_email,
+                            subject,
+                            body: wrapEmailHtml(rawBody, { appName: 'VO Hub' }),
+                            isHtml: true,
+                          })
+                          sent++
                         }
                         setSendingReminders(false)
                         alert(`${sent} reminder${sent !== 1 ? 's' : ''} sent!`)
