@@ -16,7 +16,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
-import { OnboardingTabNav } from './OnboardingRecipientsPage'
+import { OnboardingTabNav } from './OnboardingTabNav'
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'

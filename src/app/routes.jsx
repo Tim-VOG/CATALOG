@@ -24,14 +24,12 @@ import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 // AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
 import { AdminSubscriptionPlansPage } from '@/pages/admin/AdminSubscriptionPlansPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
-import { OnboardingRecipientsPage } from '@/pages/admin/onboarding/OnboardingRecipientsPage'
 import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingComposerPage'
 import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
 import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
 import { OnboardingRequestsPage } from '@/pages/admin/onboarding/OnboardingRequestsPage'
 import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
-import { OnboardingVariablesPage } from '@/pages/admin/onboarding/OnboardingVariablesPage'
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
 import { OffboardingPage } from '@/pages/admin/offboarding/OffboardingPage'
 import { AdminOffboardingFormBuilderPage } from '@/pages/admin/AdminOffboardingFormBuilderPage'
@@ -116,12 +114,12 @@ export function AppRoutes() {
           <Route path="planning" element={<Navigate to="/admin" replace />} />
           <Route path="forms" element={<Navigate to="/admin" replace />} />
           <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
-          <Route path="onboarding/recipients" element={<OnboardingRecipientsPage />} />
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
           <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
           <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
-          <Route path="onboarding/variables" element={<OnboardingVariablesPage />} />
+          <Route path="onboarding/recipients" element={<Navigate to="/admin/onboarding/requests" replace />} />
+          <Route path="onboarding/variables" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="it-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />

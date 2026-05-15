@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { BlockEditor } from '@/components/admin/onboarding/BlockEditor'
-import { OnboardingTabNav } from './OnboardingRecipientsPage'
+import { OnboardingTabNav } from './OnboardingTabNav'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuth } from '@/lib/auth'
 
