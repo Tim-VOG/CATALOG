@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'motion/react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Calendar, Briefcase, AtSign, Eye,
+  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Eye, ChevronDown, ChevronUp,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
+import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
@@ -40,35 +42,126 @@ function requestToRecipient(req) {
   }
 }
 
-// ── Inline detail view ──────────────────────────────────────────
-function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, sentEmail, composing }) {
+const STATUS_COLORS = {
+  pending: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
+  in_progress: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
+  ready: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
+}
+
+// ── Info card (mirrors AdminMailboxRequestsPage RequestInfoCard) ──
+function OnboardingRequestInfoCard({ req, sentEmail }) {
+  const [expanded, setExpanded] = useState(false)
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const corporateEmail = data.email_local && data.email_domain
     ? `${data.email_local}@${data.email_domain}`
     : data.email_to_create || '—'
 
-  const InfoCard = ({ title, icon: Icon, rows }) => (
+  const mainFields = [
+    ['First Name', data.first_name],
+    ['Last Name', data.last_name],
+    ['Corporate Email', corporateEmail],
+    ['Personal Email', data.personal_email],
+    ['Profile', data.profile],
+    ['Company', data.company],
+    ['Job Title', data.job_title],
+    ['First Day', formatDate(data.first_day)],
+  ]
+
+  const extraFields = [
+    ['Business Unit', data.business_unit],
+    ['Signing Off As', data.signing_off_as],
+    ['Phone', data.phone],
+    ['Country Based', data.country_based],
+    ['Language', data.language],
+    ['Requested By', req.requester_name],
+    ['Requester Email', req.requester_email],
+    ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
+  ].filter(([, v]) => v)
+
+  return (
     <Card variant="elevated">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Icon className="h-4 w-4 text-muted-foreground" />
-          <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{title}</h3>
-        </div>
-        <div className="space-y-2.5">
-          {rows.filter(([, v]) => v && v !== '—').map(([label, value]) => (
-            <div key={label} className="flex items-start gap-3 text-sm">
-              <span className="text-muted-foreground w-36 shrink-0">{label}</span>
-              <span className="font-medium break-all">{value}</span>
+      <CardContent className="p-0">
+        {/* Header */}
+        <div className="p-5 pb-4 border-b border-border/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                <UserPlus className="h-5 w-5 text-cyan-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{fullName}</h3>
+                <p className="text-xs text-muted-foreground">{corporateEmail}</p>
+              </div>
             </div>
-          ))}
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[req.status])}>
+                {req.status}
+              </Badge>
+              {sentEmail && (
+                <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
+                  <Mail className="h-3 w-3" /> Sent
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Main fields */}
+        <div className="p-5 space-y-2.5">
+          {mainFields.map(([label, value]) => value ? (
+            <div key={label} className="flex items-start gap-3 text-sm">
+              <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">{label}</span>
+              <span className="text-foreground break-all">{value}</span>
+            </div>
+          ) : null)}
+        </div>
+
+        {/* Expand for more details */}
+        {extraFields.length > 0 && (
+          <>
+            <AnimatePresence>
+              {expanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-5 pb-4 space-y-2.5 border-t border-border/50 pt-4">
+                    {extraFields.map(([label, value]) => (
+                      <div key={label} className="flex items-start gap-3 text-sm">
+                        <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">{label}</span>
+                        <span className="text-foreground break-all">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground border-t border-border/50 transition-colors"
+            >
+              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {expanded ? 'Show less' : 'Show more details'}
+            </button>
+          </>
+        )}
       </CardContent>
     </Card>
   )
+}
+
+// ── Inline detail view (mirrors AdminMailboxRequestsPage detail) ──
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, sentEmail, composing }) {
+  const data = req.data || {}
+  const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
 
   return (
     <div className="space-y-5">
+      {/* Back + title */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5 text-xs">
           <ArrowLeft className="h-3.5 w-3.5" /> Back
@@ -82,70 +175,8 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome
         </Button>
       </div>
 
-      {/* Hero card with name + status */}
-      <Card variant="elevated">
-        <CardContent className="p-5 flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0">
-            <UserPlus className="h-6 w-6 text-cyan-500" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-base">{fullName}</span>
-              <StatusBadge status={req.status} />
-              {sentEmail && (
-                <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
-                  <Check className="h-2.5 w-2.5" /> Welcome email sent
-                </Badge>
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">{corporateEmail}</div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <InfoCard
-        title="Identity"
-        icon={UserPlus}
-        rows={[
-          ['First name', data.first_name],
-          ['Last name', data.last_name],
-          ['Corporate e-mail', corporateEmail],
-          ['Personal e-mail', data.personal_email],
-        ]}
-      />
-
-      <InfoCard
-        title="Role"
-        icon={Briefcase}
-        rows={[
-          ['Profile', data.profile],
-          ['Company', data.company],
-          ['Job title', data.job_title],
-          ['Business unit', data.business_unit],
-          ['Signing off as', data.signing_off_as],
-          ['Phone', data.phone],
-        ]}
-      />
-
-      <InfoCard
-        title="Dates"
-        icon={Calendar}
-        rows={[
-          ['First day', formatDate(data.first_day)],
-          ['Submitted', formatDate(req.created_at)],
-        ]}
-      />
-
-      {req.requester_name && (
-        <InfoCard
-          title="Submitted by"
-          icon={AtSign}
-          rows={[
-            ['Name', req.requester_name],
-            ['Email', req.requester_email],
-          ]}
-        />
-      )}
+      {/* Request info */}
+      <OnboardingRequestInfoCard req={req} sentEmail={sentEmail} />
 
       {/* Status actions banner */}
       {req.status === 'pending' && (
