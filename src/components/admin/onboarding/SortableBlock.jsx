@@ -22,6 +22,7 @@ function getIcon(iconName) {
 const BLOCK_COLORS = {
   salutation:      { bg: 'bg-emerald-500/10', border: 'border-l-emerald-500', text: 'text-emerald-500', accent: '#22c55e' },
   email_info:      { bg: 'bg-blue-500/10', border: 'border-l-blue-500', text: 'text-blue-500', accent: '#3b82f6' },
+  password:        { bg: 'bg-foreground/5', border: 'border-l-foreground', text: 'text-foreground', accent: '#0a0a0a' },
   building_info:   { bg: 'bg-amber-500/10', border: 'border-l-amber-500', text: 'text-amber-500', accent: '#f59e0b' },
   it_security:     { bg: 'bg-red-500/10', border: 'border-l-red-500', text: 'text-red-500', accent: '#ef4444' },
   email_signature: { bg: 'bg-violet-500/10', border: 'border-l-violet-500', text: 'text-violet-500', accent: '#8b5cf6' },
@@ -32,13 +33,14 @@ const BLOCK_COLORS = {
   faq_it:          { bg: 'bg-orange-500/10', border: 'border-l-orange-500', text: 'text-orange-500', accent: '#f97316' },
   cta_link:        { bg: 'bg-primary/10', border: 'border-l-primary', text: 'text-primary', accent: '#f97316' },
   closing:         { bg: 'bg-teal-500/10', border: 'border-l-teal-500', text: 'text-teal-500', accent: '#14b8a6' },
+  signature_admin: { bg: 'bg-slate-500/10', border: 'border-l-slate-500', text: 'text-slate-600', accent: '#0a2540' },
 }
 
 const DEFAULT_COLOR = { bg: 'bg-muted/20', border: 'border-l-muted-foreground', text: 'text-muted-foreground', accent: '#64748b' }
 
 // Blocks that display a section label in the email (all except salutation and closing)
 const BLOCKS_WITH_SECTION_LABEL = [
-  'email_info', 'building_info', 'it_security', 'email_signature',
+  'email_info', 'password', 'building_info', 'it_security', 'email_signature',
   'sharepoint', 'teams', 'wifi', 'image_rights', 'faq_it', 'cta_link',
 ]
 
@@ -206,6 +208,48 @@ function BlockOptions({ blockKey, options, onChange }) {
         </div>
       )
 
+    case 'password':
+      return (
+        <>
+          <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">1Password Link</Label>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Secure share URL</Label>
+                <Input
+                  value={options.url || ''}
+                  onChange={(e) => update('url', e.target.value)}
+                  placeholder="https://start.1password.com/..."
+                  className="text-sm"
+                />
+                <p className="text-[10px] text-muted-foreground">Paste the 1Password sharing link unlocked by the recipient's personal e-mail.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Label FR</Label>
+                  <Input
+                    value={options.label_fr || ''}
+                    onChange={(e) => update('label_fr', e.target.value)}
+                    placeholder="Récupérer mon mot de passe"
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Label EN</Label>
+                  <Input
+                    value={options.label_en || ''}
+                    onChange={(e) => update('label_en', e.target.value)}
+                    placeholder="Retrieve my password"
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {sectionLabel}
+        </>
+      )
+
     case 'cta_link':
       return (
         <>
@@ -343,19 +387,40 @@ function BlockOptions({ blockKey, options, onChange }) {
         </>
       )
 
+    case 'image_rights':
     case 'faq_it':
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Support Settings</Label>
-            <div className="space-y-1">
-              <Label className="text-xs">IT support email</Label>
-              <Input
-                value={options.support_email || ''}
-                onChange={(e) => update('support_email', e.target.value)}
-                placeholder="it-support@vo-group.be"
-                className="text-sm"
-              />
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Button Link</Label>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label className="text-xs">URL</Label>
+                <Input
+                  value={options.url || ''}
+                  onChange={(e) => update('url', e.target.value)}
+                  placeholder="https://..."
+                  className="text-sm"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Label FR</Label>
+                  <Input
+                    value={options.label_fr || ''}
+                    onChange={(e) => update('label_fr', e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Label EN</Label>
+                  <Input
+                    value={options.label_en || ''}
+                    onChange={(e) => update('label_en', e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           {sectionLabel}

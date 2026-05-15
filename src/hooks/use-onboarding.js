@@ -5,7 +5,6 @@ import {
   updateOnboardingRecipient,
   deleteOnboardingRecipient,
   getOnboardingBlockTemplates,
-  saveBlockTemplateDefaults,
   getOnboardingEmails,
   getOnboardingEmail,
   createOnboardingEmail,
@@ -55,14 +54,6 @@ export const useOnboardingBlockTemplates = () =>
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 min — block templates rarely change
   })
-
-export const useSaveBlockTemplateDefaults = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: saveBlockTemplateDefaults,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['onboarding-block-templates'] }),
-  })
-}
 
 // ── Emails ──
 
