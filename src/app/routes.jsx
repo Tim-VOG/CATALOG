@@ -24,10 +24,11 @@ import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 // AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
 import { AdminSubscriptionPlansPage } from '@/pages/admin/AdminSubscriptionPlansPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
-import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
 import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
 import { OnboardingRequestsPage } from '@/pages/admin/onboarding/OnboardingRequestsPage'
+import { WelcomeRequestsPage } from '@/pages/admin/welcome/WelcomeRequestsPage'
+// (Removed OnboardingHistoryPage — history merged into Welcome's "Sent" tab)
 import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
 import { OffboardingPage } from '@/pages/admin/offboarding/OffboardingPage'
@@ -52,7 +53,6 @@ import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingR
 import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
 import { CartPage } from '@/pages/cart/CartPage'
 import { TrackingPage } from '@/pages/track/TrackingPage'
-import { PersonalInfoPage } from '@/pages/personal-info/PersonalInfoPage'
 
 export function AppRoutes() {
   return (
@@ -61,7 +61,6 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/track/:token" element={<TrackingPage />} />
-      <Route path="/personal-info/:token" element={<PersonalInfoPage />} />
 
       {/* Protected routes */}
       <Route
@@ -118,11 +117,12 @@ export function AppRoutes() {
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
           <Route path="onboarding/compose" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/compose/:emailId" element={<Navigate to="/admin/onboarding/requests" replace />} />
-          <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
+          <Route path="onboarding/history" element={<Navigate to="/admin/welcome" replace />} />
           <Route path="onboarding/recipients" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/variables" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="it-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
+          <Route path="welcome" element={<WelcomeRequestsPage />} />
           <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
           <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
           <Route path="offboarding" element={<OffboardingPage />} />

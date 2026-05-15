@@ -26,7 +26,7 @@ import { useAppSettings } from '@/hooks/use-settings'
  *   onSent     — callback fired after a successful send
  *   onClose    — callback fired when the user clicks the close (X) button
  */
-export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
+export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
   const { user, profile } = useAuth()
   const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)

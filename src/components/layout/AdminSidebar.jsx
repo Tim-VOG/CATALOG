@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, ArrowLeft,
   UserPlus, UserMinus, Monitor, BarChart3,
-  Settings, QrCode, ScrollText,
+  Settings, QrCode, ScrollText, Sparkles,
   ChevronDown, CreditCard,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
@@ -41,6 +41,7 @@ export function AdminSidebar() {
       links: [
         { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
         { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding },
+        { to: '/admin/welcome', label: 'Welcome', icon: Sparkles },
         { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding },
         { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox },
       ],
