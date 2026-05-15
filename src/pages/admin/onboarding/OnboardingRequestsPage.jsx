@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
+import { useCreateRecipient, useOnboardingRecipients } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserPlus, Trash2, Eye, Package, Clock, Check,
+  Search, UserPlus, Trash2, Eye, Package, Clock, Check, Send, Mail,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,31 +16,53 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
-import { cn } from '@/lib/utils'
+import { OnboardingTabNav } from './OnboardingRecipientsPage'
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
-export function AdminOnboardingRequestsPage() {
+// Map an IT request (type=onboarding) into a recipient payload.
+function requestToRecipient(req) {
+  const data = req.data || {}
+  const email = data.email_local && data.email_domain
+    ? `${data.email_local}@${data.email_domain}`
+    : data.email || ''
+  return {
+    first_name: data.first_name || '',
+    last_name: data.last_name || '',
+    email,
+    personal_email: data.personal_email || '',
+    team: data.business_unit || data.company || '',
+    department: data.profile || data.job_title || '',
+    start_date: data.first_day || null,
+    language: (data.language || 'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en',
+    custom_links: [],
+  }
+}
+
+export function OnboardingRequestsPage() {
+  const navigate = useNavigate()
   const { data: allRequests = [], isLoading } = useItRequests()
+  const { data: recipients = [] } = useOnboardingRecipients()
+  const createRecipient = useCreateRecipient()
   const updateRequest = useUpdateItRequest()
   const deleteRequest = useDeleteItRequest()
   const showToast = useUIStore((s) => s.showToast)
+
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [detailRequest, setDetailRequest] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [composing, setComposing] = useState(false)
 
-  const requests = useMemo(() =>
-    allRequests.filter((r) => r.type === 'onboarding'),
+  const requests = useMemo(
+    () => allRequests.filter((r) => r.type === 'onboarding'),
     [allRequests]
   )
 
   const filtered = useMemo(() => {
     let result = requests
-    if (statusFilter !== 'all') {
-      result = result.filter((r) => r.status === statusFilter)
-    }
+    if (statusFilter !== 'all') result = result.filter((r) => r.status === statusFilter)
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter((r) => {
@@ -74,11 +98,40 @@ export function AdminOnboardingRequestsPage() {
     setDeleteConfirm(null)
   }
 
+  // Find or create a recipient for this request, then open the composer.
+  const handleComposeWelcome = async (req) => {
+    if (!req) return
+    setComposing(true)
+    try {
+      const payload = requestToRecipient(req)
+      let recipient = recipients.find(
+        (r) =>
+          (payload.email && r.email?.toLowerCase() === payload.email.toLowerCase()) ||
+          (payload.first_name && payload.last_name &&
+            r.first_name?.toLowerCase() === payload.first_name.toLowerCase() &&
+            r.last_name?.toLowerCase() === payload.last_name.toLowerCase())
+      )
+      if (!recipient) {
+        recipient = await createRecipient.mutateAsync(payload)
+      }
+      navigate(`/admin/onboarding/compose?recipientId=${recipient.id}`)
+    } catch (err) {
+      showToast(err.message, 'error')
+    } finally {
+      setComposing(false)
+    }
+  }
+
   if (isLoading) return <PageLoading />
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Onboarding Requests" description={`${requests.length} request${requests.length !== 1 ? 's' : ''}`} />
+      <AdminPageHeader
+        title="Onboarding"
+        description={`${requests.length} request${requests.length !== 1 ? 's' : ''}`}
+      />
+
+      <OnboardingTabNav />
 
       {/* Status filters */}
       <div className="flex flex-wrap items-center gap-2">
@@ -88,10 +141,17 @@ export function AdminOnboardingRequestsPage() {
           { value: 'in_progress', label: 'In Progress' },
           { value: 'ready', label: 'Ready' },
         ].map((s) => (
-          <Button key={s.value} variant={statusFilter === s.value ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(s.value)}>
+          <Button
+            key={s.value}
+            variant={statusFilter === s.value ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter(s.value)}
+          >
             {s.label}
             {s.value === 'pending' && pendingCount > 0 && (
-              <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground text-primary text-[10px] font-bold">{pendingCount}</span>
+              <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
+                {pendingCount}
+              </span>
             )}
           </Button>
         ))}
@@ -104,15 +164,14 @@ export function AdminOnboardingRequestsPage() {
         </div>
       </div>
 
-      {/* Request list */}
       {filtered.length === 0 ? (
         <EmptyState icon={UserPlus} title="No onboarding requests" description="No requests match the current filter" />
       ) : (
         <div className="space-y-3">
           {filtered.map((req) => {
             const data = req.data || {}
-            const name = data.name || req.requester_name || 'Unknown'
-            const company = data.company || ''
+            const name = data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || req.requester_name || 'Unknown'
+            const company = data.company || data.business_unit || ''
             const firstDay = data.first_day || ''
             const submitter = req.requester_name || ''
 
@@ -144,9 +203,14 @@ export function AdminOnboardingRequestsPage() {
                         </Button>
                       )}
                       {req.status === 'in_progress' && (
-                        <Button size="sm" variant="success" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'ready')}>
-                          <Check className="h-3 w-3" /> Ready
-                        </Button>
+                        <>
+                          <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8" onClick={() => handleComposeWelcome(req)} disabled={composing}>
+                            <Mail className="h-3 w-3" /> Welcome email
+                          </Button>
+                          <Button size="sm" variant="success" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'ready')}>
+                            <Check className="h-3 w-3" /> Ready
+                          </Button>
+                        </>
                       )}
                       <Button variant="ghost" size="sm" onClick={() => setDetailRequest(req)} className="gap-1 text-xs">
                         <Eye className="h-3.5 w-3.5" />
@@ -195,8 +259,19 @@ export function AdminOnboardingRequestsPage() {
               </div>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDetailRequest(null)}>Close</Button>
+            <Button
+              className="gap-2"
+              onClick={() => {
+                const req = detailRequest
+                setDetailRequest(null)
+                handleComposeWelcome(req)
+              }}
+              disabled={composing}
+            >
+              <Send className="h-4 w-4" /> Compose welcome email
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

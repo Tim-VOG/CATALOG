@@ -35,16 +35,18 @@ const emptyForm = {
 }
 
 const TABS = [
+  { key: 'requests',   label: 'Requests',   to: '/admin/onboarding/requests' },
   { key: 'recipients', label: 'Recipients', to: '/admin/onboarding' },
-  { key: 'compose', label: 'Compose', to: '/admin/onboarding/compose' },
-  { key: 'history', label: 'History', to: '/admin/onboarding/history' },
-  { key: 'variables', label: 'Variables', to: '/admin/onboarding/variables' },
+  { key: 'compose',    label: 'Compose',    to: '/admin/onboarding/compose' },
+  { key: 'history',    label: 'History',    to: '/admin/onboarding/history' },
+  { key: 'variables',  label: 'Variables',  to: '/admin/onboarding/variables' },
 ]
 
 export function OnboardingTabNav() {
   const location = useLocation()
 
   const getActiveTab = () => {
+    if (location.pathname.includes('/requests')) return 'requests'
     if (location.pathname.includes('/compose')) return 'compose'
     if (location.pathname.includes('/history')) return 'history'
     if (location.pathname.includes('/variables')) return 'variables'

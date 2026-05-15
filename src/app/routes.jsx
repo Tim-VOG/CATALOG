@@ -29,7 +29,7 @@ import { OnboardingComposerPage } from '@/pages/admin/onboarding/OnboardingCompo
 import { OnboardingHistoryPage } from '@/pages/admin/onboarding/OnboardingHistoryPage'
 import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
-import { AdminOnboardingRequestsPage } from '@/pages/admin/AdminOnboardingRequestsPage'
+import { OnboardingRequestsPage } from '@/pages/admin/onboarding/OnboardingRequestsPage'
 import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
 import { OnboardingVariablesPage } from '@/pages/admin/onboarding/OnboardingVariablesPage'
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
@@ -116,12 +116,13 @@ export function AppRoutes() {
           <Route path="planning" element={<Navigate to="/admin" replace />} />
           <Route path="forms" element={<Navigate to="/admin" replace />} />
           <Route path="onboarding" element={<OnboardingRecipientsPage />} />
+          <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
           <Route path="onboarding/compose" element={<OnboardingComposerPage />} />
           <Route path="onboarding/compose/:emailId" element={<OnboardingComposerPage />} />
           <Route path="onboarding/history" element={<OnboardingHistoryPage />} />
           <Route path="onboarding/variables" element={<OnboardingVariablesPage />} />
-          <Route path="it-requests" element={<Navigate to="/admin/onboarding-requests" replace />} />
-          <Route path="onboarding-requests" element={<AdminOnboardingRequestsPage />} />
+          <Route path="it-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
+          <Route path="onboarding-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
           <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
           <Route path="offboarding" element={<OffboardingPage />} />
