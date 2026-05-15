@@ -44,7 +44,7 @@ function textToHtml(text) {
       if (trimmed.match(/^[QR]:\s/m) || trimmed.match(/^[QA]:\s/m)) {
         const faqLines = trimmed.split('\n').map((line) => {
           if (line.match(/^Q:\s/)) {
-            return `<p style="margin:0 0 4px 0;color:#1e293b;font-weight:600;">&#x2753; ${line.slice(3)}</p>`
+            return `<p style="margin:0 0 4px 0;color:#0a2540;font-weight:600;">&#x2753; ${line.slice(3)}</p>`
           }
           if (line.match(/^[RA]:\s/)) {
             return `<p style="margin:0 0 12px 0;color:#64748b;padding-left:24px;">${line.slice(3)}</p>`
@@ -109,7 +109,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="20px 32px 8px 32px">
       <mj-column>
-        <mj-text color="#1e293b" font-size="16px" line-height="1.7" padding="0">
+        <mj-text color="#425466" font-size="16px" line-height="1.65" padding="0">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
@@ -121,7 +121,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="16px 32px 8px 32px">
       <mj-column>
-        <mj-divider border-color="#e2e8f0" border-width="1px" padding="0 0 16px 0" />
+        <mj-divider border-color="#eef2f7" border-width="1px" padding="0 0 16px 0" />
         <mj-text color="#64748b" font-size="14px" line-height="1.7" padding="0">
           ${textToHtml(rendered)}
         </mj-text>
@@ -137,10 +137,10 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 12px 20px" color="#334155" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 12px 20px" color="#425466" font-size="14px" line-height="1.65">
           ${textToHtml(rendered)}
         </mj-text>
         <mj-button
@@ -167,21 +167,20 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 12px 20px" color="#334155" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 12px 20px" color="#425466" font-size="14px" line-height="1.65">
           ${textToHtml(rendered)}
         </mj-text>
         <mj-button
-          background-color="transparent"
-          color="${theme.color}"
-          border="1px solid ${theme.color}"
-          border-radius="8px"
-          font-size="13px"
+          background-color="#0a0a0a"
+          color="#ffffff"
+          border-radius="10px"
+          font-size="14px"
           font-weight="600"
           padding="4px 20px 20px 20px"
-          inner-padding="10px 24px"
+          inner-padding="12px 28px"
           href="${escapeHtml(opts.url)}"
         >
           ${escapeHtml(btnLabel)} &#8594;
@@ -203,7 +202,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 12px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 12px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
         <mj-text padding="0 20px 16px 20px" color="#425466" font-size="14px" line-height="1.7">
@@ -242,7 +241,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
         <mj-text padding="0 20px 12px 20px" color="#425466" font-size="14px" line-height="1.65">
@@ -272,7 +271,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
         <mj-text padding="0 20px 12px 20px" color="#425466" font-size="14px" line-height="1.65">
@@ -332,9 +331,9 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
             .map((item) => `
               <tr>
                 <td style="padding:6px 0;vertical-align:top;width:24px;">
-                  <span style="color:${theme.color};font-size:14px;">&#x26A0;</span>
+                  <span style="color:#a16207;font-size:14px;">&#x26A0;</span>
                 </td>
-                <td style="padding:6px 0;color:#334155;font-size:13px;line-height:1.5;">${item}</td>
+                <td style="padding:6px 0;color:#425466;font-size:13px;line-height:1.5;">${item}</td>
               </tr>`)
             .join('')
           return `<table cellpadding="0" cellspacing="0" style="width:100%;margin:4px 0 8px 0;">${items}</table>`
@@ -346,11 +345,11 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
 
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
-      <mj-column background-color="#f8fafc" border-radius="12px" border="1px solid ${theme.color}30" padding="0">
-        <mj-text padding="16px 20px 4px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+      <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
+        <mj-text padding="16px 20px 4px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="4px 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
+        <mj-text padding="4px 20px 16px 20px" color="#425466" font-size="14px" line-height="1.65">
           ${htmlContent}
         </mj-text>
       </mj-column>
@@ -362,10 +361,10 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 16px 20px" color="#425466" font-size="14px" line-height="1.65">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
@@ -377,19 +376,19 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 16px 20px" color="#425466" font-size="14px" line-height="1.65">
           ${textToHtml(rendered)}
         </mj-text>
         ${opts.support_email ? `
         <mj-text padding="0 20px 16px 20px" color="#64748b" font-size="12px">
           <table cellpadding="0" cellspacing="0">
             <tr>
-              <td style="background:${theme.color}15;border-radius:6px;padding:8px 12px;border:1px solid ${theme.color}30;">
-                <span style="color:${theme.color};font-size:11px;font-weight:600;">&#x1F4E9; SUPPORT</span>
-                <span style="color:#1e293b;margin-left:8px;">${escapeHtml(opts.support_email)}</span>
+              <td style="background:#f6f9fc;border-radius:6px;padding:8px 12px;border:1px solid #e6ebf1;">
+                <span style="color:#0a2540;font-size:11px;font-weight:600;">&#x1F4E9; SUPPORT</span>
+                <span style="color:#0a2540;margin-left:8px;">${escapeHtml(opts.support_email)}</span>
               </td>
             </tr>
           </table>
@@ -402,10 +401,10 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
   return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
-        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="${theme.color}" letter-spacing="1px">
+        <mj-text padding="16px 20px 8px 20px" font-size="12px" font-weight="700" color="#0a2540" letter-spacing="1px">
           <span style="margin-right:6px;">${theme.emoji}</span> ${escapeHtml(sectionLabel.toUpperCase())}
         </mj-text>
-        <mj-text padding="0 20px 16px 20px" color="#334155" font-size="14px" line-height="1.7">
+        <mj-text padding="0 20px 16px 20px" color="#425466" font-size="14px" line-height="1.65">
           ${textToHtml(rendered)}
         </mj-text>
       </mj-column>
