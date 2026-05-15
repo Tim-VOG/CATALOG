@@ -37,7 +37,7 @@ export function OnboardingComposerPage() {
   const { emailId } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
 
   const { data: recipients = [] } = useOnboardingRecipients()
@@ -128,11 +128,18 @@ export function OnboardingComposerPage() {
         department: 'Technology',
         start_date: new Date().toISOString().split('T')[0],
       }
-      return buildMjmlFromBlocks(blocksConfig, language, recipient)
+      const sender = profile ? {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        job_title: profile.job_title,
+        phone: profile.phone,
+        email: profile.email || user?.email,
+      } : null
+      return buildMjmlFromBlocks(blocksConfig, language, recipient, sender)
     } catch {
       return ''
     }
-  }, [blocksConfig, language, selectedRecipient])
+  }, [blocksConfig, language, selectedRecipient, profile, user])
 
   // Lazy-load mjml-browser and render preview
   useEffect(() => {

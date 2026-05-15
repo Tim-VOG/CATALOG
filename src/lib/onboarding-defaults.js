@@ -1,23 +1,22 @@
 /**
  * Fallback block templates used when the DB table is unavailable
  * (e.g. schema cache not reloaded after migration).
- * These mirror the seed data in 020_onboarding_tables.sql.
+ * These mirror the seed data in 057_onboarding_real_content.sql.
+ *
+ * Content authored to match the real VO Group onboarding email
+ * (warm, casual, FR-first — by Tim Leskens).
  */
 export const DEFAULT_BLOCK_TEMPLATES = [
   {
     block_key: 'salutation',
     label_fr: 'Salutation',
     label_en: 'Greeting',
-    default_content_fr: `Bonjour {{first_name}},
+    default_content_fr: `Hey {{first_name}} 👋
 
-Bienvenue chez VO Group ! Nous sommes ravis de vous accueillir dans notre equipe. Votre premier jour est prevu le {{start_date}}.
+Bienvenue dans l'équipe ! Voici tout ce qu'il te faut pour démarrer chez VO Group.`,
+    default_content_en: `Hey {{first_name}} 👋
 
-Voici les informations essentielles pour bien demarrer.`,
-    default_content_en: `Hello {{first_name}},
-
-Welcome to VO Group! We are delighted to welcome you to our team. Your first day is scheduled for {{start_date}}.
-
-Here is the essential information to get you started.`,
+Welcome to the team! Here's everything you need to get started at VO Group.`,
     default_options: {},
     default_enabled: true,
     icon: 'Hand',
@@ -25,213 +24,182 @@ Here is the essential information to get you started.`,
   },
   {
     block_key: 'email_info',
-    label_fr: 'Informations email',
-    label_en: 'Email Information',
-    default_content_fr: `Votre adresse email professionnelle est : {{email}}
+    label_fr: 'Ton adresse e-mail',
+    label_en: 'Your email address',
+    default_content_fr: `**{{email}}**
 
-Vous pouvez acceder a votre boite mail via Outlook ou sur https://outlook.office.com. Votre mot de passe temporaire vous sera communique separement par le service IT.`,
-    default_content_en: `Your professional email address is: {{email}}
+Microsoft 365 · Business Premium (Outlook, Teams, Word, Excel… la totale !)`,
+    default_content_en: `**{{email}}**
 
-You can access your mailbox via Outlook or at https://outlook.office.com. Your temporary password will be communicated separately by the IT department.`,
+Microsoft 365 · Business Premium (Outlook, Teams, Word, Excel… the full pack!)`,
     default_options: {},
     default_enabled: true,
     icon: 'Mail',
     sort_order: 2,
   },
   {
-    block_key: 'building_info',
-    label_fr: 'Informations batiment',
-    label_en: 'Building Information',
-    default_content_fr: `Notre bureau est situe au VO Group. A votre arrivee, presentez-vous a la reception. Votre badge d'acces sera pret et vous sera remis le premier jour.
-
-Horaires d'ouverture du batiment : 7h30 - 19h00.`,
-    default_content_en: `Our office is located at VO Group. Upon arrival, please check in at the reception desk. Your access badge will be ready and handed to you on your first day.
-
-Building opening hours: 7:30 AM - 7:00 PM.`,
-    default_options: { building_address: '', reception_phone: '' },
+    block_key: 'password',
+    label_fr: 'Ton mot de passe',
+    label_en: 'Your password',
+    default_content_fr: `Il t'attend sur un lien sécurisé ! Clique ci-dessous et utilise ton adresse **{{personal_email}}** pour le déverrouiller.`,
+    default_content_en: `It's waiting for you on a secure link! Click below and use your address **{{personal_email}}** to unlock it.`,
+    default_options: { url: '', label_fr: 'Récupérer mon mot de passe', label_en: 'Retrieve my password' },
     default_enabled: true,
-    icon: 'Building2',
+    icon: 'KeyRound',
     sort_order: 3,
   },
   {
-    block_key: 'it_security',
-    label_fr: 'Securite IT',
-    label_en: 'IT Security',
-    default_content_fr: `Quelques regles importantes de securite informatique :
+    block_key: 'building_info',
+    label_fr: 'Jacqmotte Rules 🏢',
+    label_en: 'Jacqmotte Rules 🏢',
+    default_content_fr: `Le petit guide de survie au bureau !
 
-- Ne partagez jamais vos identifiants de connexion
-- Verrouillez votre poste lorsque vous vous absentez (Windows + L)
-- Signalez tout email suspect au service IT
-- Utilisez uniquement les logiciels approuves par l'entreprise
-- Activez l'authentification multi-facteurs (MFA) sur tous vos comptes`,
-    default_content_en: `A few important IT security rules:
+Notre bureau est situé **Rue Haute 139/16 — 1000 Brussels**. À ton arrivée, présente-toi à la réception : ton badge d'accès sera prêt et te sera remis le premier jour.
 
-- Never share your login credentials
-- Lock your workstation when you step away (Windows + L)
-- Report any suspicious emails to the IT department
-- Only use company-approved software
-- Enable multi-factor authentication (MFA) on all your accounts`,
+Horaires d'ouverture du bâtiment : **7h30 – 19h00**.`,
+    default_content_en: `Your little office survival guide!
+
+Our office is at **Rue Haute 139/16 — 1000 Brussels**. On arrival, check in at the reception desk: your access badge will be ready and handed to you on day one.
+
+Building hours: **7:30 AM – 7:00 PM**.`,
     default_options: {},
     default_enabled: true,
-    icon: 'Shield',
+    icon: 'Building2',
     sort_order: 4,
   },
   {
+    block_key: 'it_security',
+    label_fr: 'Sécurité IT',
+    label_en: 'IT Security',
+    default_content_fr: `Petit check-up avant de commencer : lance un scan antivirus complet sur ton ordi et envoie-moi une capture d'écran du résultat. Rien de compliqué, juste histoire de s'assurer que tout est clean !
+
+⚠️ Fais ça chez toi sur ton WiFi perso, pas sur le réseau du bureau 😊`,
+    default_content_en: `Quick check-up before we get started: run a full antivirus scan on your computer and send me a screenshot of the result. Nothing complicated — just to make sure everything is clean!
+
+⚠️ Do this from home on your personal WiFi, not on the office network 😊`,
+    default_options: {},
+    default_enabled: true,
+    icon: 'Shield',
+    sort_order: 5,
+  },
+  {
     block_key: 'email_signature',
-    label_fr: 'Signature email',
-    label_en: 'Email Signature',
-    default_content_fr: `Votre signature email a ete configuree automatiquement. Verifiez qu'elle contient les informations correctes :
-
-Nom : {{first_name}} {{last_name}}
-Equipe : {{team}}
-Departement : {{department}}
-
-Si des modifications sont necessaires, contactez le service IT.`,
-    default_content_en: `Your email signature has been automatically configured. Please verify that it contains the correct information:
-
-Name: {{first_name}} {{last_name}}
-Team: {{team}}
-Department: {{department}}
-
-If any changes are needed, contact the IT department.`,
+    label_fr: 'Signature mail',
+    label_en: 'Email signature',
+    default_content_fr: `Bonne nouvelle : ta signature Outlook est déjà configurée automatiquement. Une chose de moins à faire !`,
+    default_content_en: `Good news: your Outlook signature is already set up automatically. One less thing to worry about!`,
     default_options: {},
     default_enabled: true,
     icon: 'PenTool',
-    sort_order: 5,
+    sort_order: 6,
   },
   {
     block_key: 'sharepoint',
     label_fr: 'SharePoint',
     label_en: 'SharePoint',
-    default_content_fr: `Vous avez acces a notre espace SharePoint ou vous trouverez :
-
-- Les documents partages de votre equipe
-- Les procedures internes
-- Les templates de documents officiels
-
-Accedez a SharePoint via le lien ci-dessous.`,
-    default_content_en: `You have access to our SharePoint space where you will find:
-
-- Shared documents for your team
-- Internal procedures
-- Official document templates
-
-Access SharePoint via the link below.`,
+    default_content_fr: `Les dossiers et fichiers dont tu auras besoin te seront partagés par mail. Keep an eye on your inbox !`,
+    default_content_en: `The folders and files you need will be shared with you by email. Keep an eye on your inbox!`,
     default_options: { url: 'https://vogroup.sharepoint.com', label_fr: 'Ouvrir SharePoint', label_en: 'Open SharePoint' },
     default_enabled: true,
     icon: 'FolderOpen',
-    sort_order: 6,
+    sort_order: 7,
   },
   {
     block_key: 'teams',
     label_fr: 'Microsoft Teams',
     label_en: 'Microsoft Teams',
-    default_content_fr: `Microsoft Teams est notre outil principal de communication. Vous avez ete ajoute aux canaux de votre equipe ({{team}}).
+    default_content_fr: `Teams est notre outil principal pour discuter au quotidien. Tu as été ajouté aux canaux de ton équipe ({{team}}).
 
-Telechargez l'application Teams sur votre poste et votre telephone pour rester connecte.`,
-    default_content_en: `Microsoft Teams is our main communication tool. You have been added to your team channels ({{team}}).
+Télécharge l'app sur ton ordi et ton tel — comme ça tu rates rien !`,
+    default_content_en: `Teams is our main day-to-day chat tool. You've been added to your team's channels ({{team}}).
 
-Download the Teams application on your computer and phone to stay connected.`,
+Download the app on your computer and phone — that way you won't miss a thing!`,
     default_options: { url: 'https://teams.microsoft.com', label_fr: 'Ouvrir Teams', label_en: 'Open Teams' },
     default_enabled: true,
     icon: 'MessageSquare',
-    sort_order: 7,
-  },
-  {
-    block_key: 'wifi',
-    label_fr: 'WiFi',
-    label_en: 'WiFi',
-    default_content_fr: `Pour vous connecter au reseau WiFi de l'entreprise :
-
-Reseau : VO-Corporate
-Le mot de passe vous sera communique par le service IT a votre arrivee.
-
-Pour les visiteurs, utilisez le reseau VO-Guest.`,
-    default_content_en: `To connect to the company WiFi network:
-
-Network: VO-Corporate
-The password will be provided by the IT department upon your arrival.
-
-For visitors, use the VO-Guest network.`,
-    default_options: { network_name: 'VO-Corporate', guest_network: 'VO-Guest' },
-    default_enabled: true,
-    icon: 'Wifi',
     sort_order: 8,
   },
   {
+    block_key: 'wifi',
+    label_fr: 'WiFi — Les codes magiques',
+    label_en: 'WiFi — The magic codes',
+    default_content_fr: ``,
+    default_content_en: ``,
+    default_options: {
+      computer_network: 'VO – Jacqmotte',
+      computer_password: 'Stalle2Jacq#2024',
+      phone_network: 'VO Smart',
+      phone_password: 'Jacq#139',
+    },
+    default_enabled: true,
+    icon: 'Wifi',
+    sort_order: 9,
+  },
+  {
     block_key: 'image_rights',
-    label_fr: "Droit a l'image",
-    label_en: 'Image Rights',
-    default_content_fr: `Dans le cadre de la communication interne et externe, nous pourrions etre amenes a utiliser votre image (photos, videos). Un formulaire de consentement vous sera present le premier jour.
+    label_fr: "Droit à l'image",
+    label_en: 'Image rights',
+    default_content_fr: `Chez VO, on respecte ta vie privée. Ce petit formulaire nous permet de savoir si tu es OK (ou pas) pour apparaître sur nos photos et communications. C'est obligatoire, mais ça prend 30 secondes !
 
-Vous etes libre d'accepter ou de refuser, cela n'affectera en rien votre travail.`,
-    default_content_en: `For internal and external communications, we may use your image (photos, videos). A consent form will be presented to you on your first day.
+Tu changes d'avis plus tard ? Envoie un mail à {{it_contact_email}}.`,
+    default_content_en: `At VO we respect your privacy. This short form lets us know whether you're OK (or not) with appearing in our photos and communications. It's required, but it only takes 30 seconds!
 
-You are free to accept or decline — this will not affect your work in any way.`,
-    default_options: {},
+Change your mind later? Just email {{it_contact_email}}.`,
+    default_options: { url: '', label_fr: 'Remplir le formulaire', label_en: 'Fill in the form' },
     default_enabled: true,
     icon: 'Camera',
-    sort_order: 9,
+    sort_order: 10,
   },
   {
     block_key: 'faq_it',
     label_fr: 'FAQ IT',
     label_en: 'IT FAQ',
-    default_content_fr: `Questions frequentes :
-
-Q: Comment reinitialiser mon mot de passe ?
-R: Rendez-vous sur https://passwordreset.microsoftonline.com
-
-Q: Mon ecran ne s'allume pas, que faire ?
-R: Verifiez les branchements et contactez le support IT.
-
-Q: Comment installer une imprimante ?
-R: Suivez le guide disponible sur SharePoint > IT > Imprimantes.
-
-Pour toute autre question, contactez le support IT.`,
-    default_content_en: `Frequently asked questions:
-
-Q: How do I reset my password?
-A: Go to https://passwordreset.microsoftonline.com
-
-Q: My screen won't turn on, what should I do?
-A: Check the connections and contact IT support.
-
-Q: How do I install a printer?
-A: Follow the guide available on SharePoint > IT > Printers.
-
-For any other questions, contact IT support.`,
-    default_options: { support_email: 'it-support@vo-group.be' },
+    default_content_fr: `💡 Pro tip : j'ai compilé une FAQ qui répond à 90% des soucis IT du quotidien (imprimantes capricieuses, VPN qui fait des siennes…).`,
+    default_content_en: `💡 Pro tip: I've put together a FAQ that solves 90% of daily IT issues (moody printers, VPN drama…).`,
+    default_options: { url: '', label_fr: 'Voir la FAQ IT', label_en: 'See the IT FAQ' },
     default_enabled: true,
     icon: 'HelpCircle',
-    sort_order: 10,
+    sort_order: 11,
   },
   {
     block_key: 'cta_link',
     label_fr: 'Lien CTA',
     label_en: 'CTA Link',
-    default_content_fr: "Cliquez sur le bouton ci-dessous pour acceder a la ressource.",
+    default_content_fr: 'Clique sur le bouton ci-dessous pour accéder à la ressource.',
     default_content_en: 'Click the button below to access the resource.',
-    default_options: { url: 'https://', label_fr: 'Acceder', label_en: 'Access' },
-    default_enabled: true,
+    default_options: { url: 'https://', label_fr: 'Accéder', label_en: 'Access' },
+    default_enabled: false,
     icon: 'ExternalLink',
-    sort_order: 11,
+    sort_order: 12,
   },
   {
     block_key: 'closing',
     label_fr: 'Conclusion',
     label_en: 'Closing',
-    default_content_fr: `Nous avons hate de travailler avec vous ! Si vous avez des questions avant votre premier jour, n'hesitez pas a nous contacter.
+    default_content_fr: `Voilà, tu as toutes les clés en main ! 🔑
 
-A tres bientot,
-L'equipe VO Group`,
-    default_content_en: `We look forward to working with you! If you have any questions before your first day, please don't hesitate to reach out.
+Je suis au bureau quasi tous les jours, donc si tu as la moindre question ou un truc qui coince, passe me voir ou envoie-moi un message. Pas de question bête, promis !
 
-See you soon,
-The VO Group Team`,
+À demain,`,
+    default_content_en: `That's it, you've got everything you need! 🔑
+
+I'm at the office almost every day, so if you have any questions or run into anything, come by or drop me a message. No question is a silly question — promise!
+
+See you soon,`,
     default_options: {},
     default_enabled: true,
     icon: 'CheckCircle',
-    sort_order: 12,
+    sort_order: 13,
+  },
+  {
+    block_key: 'signature_admin',
+    label_fr: 'Signature expéditeur',
+    label_en: 'Sender signature',
+    default_content_fr: ``,
+    default_content_en: ``,
+    default_options: {},
+    default_enabled: true,
+    icon: 'Signature',
+    sort_order: 14,
   },
 ]
