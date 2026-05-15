@@ -486,7 +486,7 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
         <mj-text padding="32px 40px 0 40px">
           <span style="display:inline-block;padding:6px 12px;border-radius:8px;background:#0a0a0a;color:#ffffff;font-size:15px;font-weight:700;letter-spacing:-0.2px;">VO Hub</span>
         </mj-text>
-        <mj-text padding="24px 40px 28px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height:"1.2" letter-spacing="-0.5px">
+        <mj-text padding="24px 40px 28px 40px" font-size="28px" font-weight="700" color="#0a2540" line-height="1.2" letter-spacing="-0.5px">
           ${escapeHtml(welcomeTitle)}
         </mj-text>
       </mj-column>

@@ -193,12 +193,12 @@ export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline 
 
   const htmlBody = raw ? processedBody : formatTextToHtml(processedBody)
 
-  const h = logoHeight || 24
   const resolvedTagline = tagline || ''
 
-  const logoCell = logoUrl
-    ? `<img src="${escapeAttr(logoUrl)}" alt="${escapeAttr(appName)}" height="${h}" style="object-fit:contain;display:block;width:auto;max-width:160px;max-height:${h + 4}px;" />`
-    : `<div style="display:inline-block;padding:6px 12px;border-radius:8px;background:#0a0a0a;color:#ffffff;font-size:15px;font-weight:700;letter-spacing:-0.2px;">${escapeHtml(appName)}</div>`
+  // Always use the black pill badge regardless of settings.logo_url —
+  // uploaded brand logos rarely render well at email scale and break
+  // the consistent identity across every template.
+  const logoCell = `<div style="display:inline-block;padding:6px 12px;border-radius:8px;background:#0a0a0a;color:#ffffff;font-size:15px;font-weight:700;letter-spacing:-0.2px;">${escapeHtml(appName)}</div>`
 
   return `<!DOCTYPE html>
 <html>
