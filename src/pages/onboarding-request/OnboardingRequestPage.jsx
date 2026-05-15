@@ -207,6 +207,18 @@ function StepIdentity({ form, update }) {
         </div>
         <p className="text-[11px] text-muted-foreground">Local part auto-suggested from first/last name</p>
       </div>
+      <div className="space-y-2">
+        <Label>
+          Personal e-mail <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          type="email"
+          value={form.personal_email}
+          onChange={(e) => update('personal_email', e.target.value)}
+          placeholder="jdoe@gmail.com"
+        />
+        <p className="text-[11px] text-muted-foreground">Used to deliver the 1Password link before the corporate account is active</p>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>
@@ -422,6 +434,7 @@ function StepReview({ form, update }) {
     { label: 'First Name', value: form.first_name },
     { label: 'Last Name', value: form.last_name },
     { label: 'Mail to be created', value: form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : '' },
+    { label: 'Personal e-mail', value: form.personal_email },
     { label: 'Profile', value: form.profile },
     { label: 'Company', value: form.company },
     { label: 'Job Title', value: form.job_title },
@@ -495,6 +508,7 @@ export function OnboardingRequestPage() {
     // Identity
     first_name: '',
     last_name: '',
+    personal_email: '',
     email_local: '',
     email_domain: DEFAULT_DOMAIN,
     profile: '',
@@ -557,7 +571,7 @@ export function OnboardingRequestPage() {
 
     switch (step.id) {
       case 'identity':
-        return !!(form.first_name && form.last_name && form.email_local && form.email_domain && form.profile && form.company && form.job_title)
+        return !!(form.first_name && form.last_name && form.personal_email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.personal_email) && form.email_local && form.email_domain && form.profile && form.company && form.job_title)
       case 'project':
         return !!(form.language && form.country_based)
       case 'dates':
@@ -596,10 +610,11 @@ export function OnboardingRequestPage() {
           first_name: form.first_name || '',
           last_name: form.last_name || '',
           email: fullEmail || '',
+          personal_email: form.personal_email || '',
           team: form.company || '',
-          department: '',
+          department: form.profile || form.job_title || '',
           start_date: form.first_day || null,
-          language: form.language || 'en',
+          language: (form.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en',
         })
       } catch {}
 

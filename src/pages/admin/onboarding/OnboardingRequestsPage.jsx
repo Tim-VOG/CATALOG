@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
-import { useCreateRecipient, useOnboardingRecipients } from '@/hooks/use-onboarding'
+import { useCreateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserPlus, Trash2, Eye, Package, Clock, Check, Send, Mail,
+  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Send, Mail, Info, Clock, CheckCircle, Calendar, Briefcase, AtSign, Eye,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,7 +26,7 @@ function requestToRecipient(req) {
   const data = req.data || {}
   const email = data.email_local && data.email_domain
     ? `${data.email_local}@${data.email_domain}`
-    : data.email || ''
+    : data.email_to_create || data.email || ''
   return {
     first_name: data.first_name || '',
     last_name: data.last_name || '',
@@ -40,10 +40,172 @@ function requestToRecipient(req) {
   }
 }
 
+// ── Inline detail view ──────────────────────────────────────────
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onComposeWelcome, sentEmail, composing }) {
+  const data = req.data || {}
+  const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
+  const corporateEmail = data.email_local && data.email_domain
+    ? `${data.email_local}@${data.email_domain}`
+    : data.email_to_create || '—'
+
+  const InfoCard = ({ title, icon: Icon, rows }) => (
+    <Card variant="elevated">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{title}</h3>
+        </div>
+        <div className="space-y-2.5">
+          {rows.filter(([, v]) => v && v !== '—').map(([label, value]) => (
+            <div key={label} className="flex items-start gap-3 text-sm">
+              <span className="text-muted-foreground w-36 shrink-0">{label}</span>
+              <span className="font-medium break-all">{value}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5 text-xs">
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </Button>
+        <div className="flex-1">
+          <h2 className="text-lg font-display font-bold">{fullName}</h2>
+          <p className="text-xs text-muted-foreground">Onboarding Request Details</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
+          <Trash2 className="h-3.5 w-3.5" /> Delete
+        </Button>
+      </div>
+
+      {/* Hero card with name + status */}
+      <Card variant="elevated">
+        <CardContent className="p-5 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0">
+            <UserPlus className="h-6 w-6 text-cyan-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-base">{fullName}</span>
+              <StatusBadge status={req.status} />
+              {sentEmail && (
+                <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
+                  <Check className="h-2.5 w-2.5" /> Welcome email sent
+                </Badge>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">{corporateEmail}</div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <InfoCard
+        title="Identity"
+        icon={UserPlus}
+        rows={[
+          ['First name', data.first_name],
+          ['Last name', data.last_name],
+          ['Corporate e-mail', corporateEmail],
+          ['Personal e-mail', data.personal_email],
+        ]}
+      />
+
+      <InfoCard
+        title="Role"
+        icon={Briefcase}
+        rows={[
+          ['Profile', data.profile],
+          ['Company', data.company],
+          ['Job title', data.job_title],
+          ['Business unit', data.business_unit],
+          ['Signing off as', data.signing_off_as],
+          ['Phone', data.phone],
+        ]}
+      />
+
+      <InfoCard
+        title="Dates"
+        icon={Calendar}
+        rows={[
+          ['First day', formatDate(data.first_day)],
+          ['Submitted', formatDate(req.created_at)],
+        ]}
+      />
+
+      {req.requester_name && (
+        <InfoCard
+          title="Submitted by"
+          icon={AtSign}
+          rows={[
+            ['Name', req.requester_name],
+            ['Email', req.requester_email],
+          ]}
+        />
+      )}
+
+      {/* Status actions banner */}
+      {req.status === 'pending' && (
+        <Card variant="elevated">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Info className="h-4 w-4 text-amber-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">This request is pending review.</span>
+            <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
+              <Clock className="h-3.5 w-3.5" /> Start Processing
+            </Button>
+            <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
+              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {req.status === 'in_progress' && !sentEmail && (
+        <Card variant="elevated">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Info className="h-4 w-4 text-blue-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">Send the welcome email to complete the onboarding.</span>
+            <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
+              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Compose welcome email CTA */}
+      {sentEmail ? (
+        <Card variant="elevated" className="border-emerald-500/30">
+          <CardContent className="p-4 flex items-center gap-3">
+            <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">
+              Welcome email was sent on <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
+            </span>
+          </CardContent>
+        </Card>
+      ) : (
+        <Button
+          onClick={() => onComposeWelcome(req)}
+          variant="outline"
+          disabled={composing}
+          className="w-full gap-2 py-6 text-sm border-dashed hover:border-primary/40 hover:bg-primary/5 transition-all"
+        >
+          <Send className="h-4 w-4 text-primary" />
+          Compose Welcome Email
+        </Button>
+      )}
+    </div>
+  )
+}
+
+// ── Main page ───────────────────────────────────────────────────
 export function OnboardingRequestsPage() {
   const navigate = useNavigate()
   const { data: allRequests = [], isLoading } = useItRequests()
   const { data: recipients = [] } = useOnboardingRecipients()
+  const { data: emails = [] } = useOnboardingEmails()
   const createRecipient = useCreateRecipient()
   const updateRequest = useUpdateItRequest()
   const deleteRequest = useDeleteItRequest()
@@ -51,7 +213,7 @@ export function OnboardingRequestsPage() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [detailRequest, setDetailRequest] = useState(null)
+  const [selectedId, setSelectedId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [composing, setComposing] = useState(false)
 
@@ -59,6 +221,15 @@ export function OnboardingRequestsPage() {
     () => allRequests.filter((r) => r.type === 'onboarding'),
     [allRequests]
   )
+
+  // Index of sent emails by linked request id
+  const sentByRequestId = useMemo(() => {
+    const map = {}
+    for (const e of emails) {
+      if (e.it_request_id && e.status === 'sent') map[e.it_request_id] = e
+    }
+    return map
+  }, [emails])
 
   const filtered = useMemo(() => {
     let result = requests
@@ -77,6 +248,11 @@ export function OnboardingRequestsPage() {
 
   const pendingCount = requests.filter((r) => r.status === 'pending').length
 
+  const selectedRequest = useMemo(
+    () => requests.find((r) => r.id === selectedId),
+    [requests, selectedId]
+  )
+
   const handleStatusChange = async (req, newStatus) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
@@ -92,6 +268,7 @@ export function OnboardingRequestsPage() {
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
       showToast('Request deleted')
+      if (selectedId === deleteConfirm.id) setSelectedId(null)
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -114,7 +291,13 @@ export function OnboardingRequestsPage() {
       if (!recipient) {
         recipient = await createRecipient.mutateAsync(payload)
       }
-      navigate(`/admin/onboarding/compose?recipientId=${recipient.id}`)
+      // Auto-advance status: pending → in_progress
+      if (req.status === 'pending') {
+        try {
+          await updateRequest.mutateAsync({ id: req.id, updates: { status: 'in_progress' } })
+        } catch {}
+      }
+      navigate(`/admin/onboarding/compose?recipientId=${recipient.id}&requestId=${req.id}`)
     } catch (err) {
       showToast(err.message, 'error')
     } finally {
@@ -124,6 +307,37 @@ export function OnboardingRequestsPage() {
 
   if (isLoading) return <PageLoading />
 
+  // Detail view
+  if (selectedRequest) {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader title="Onboarding" description="Onboarding request details" />
+        <OnboardingTabNav />
+        <RequestDetail
+          req={selectedRequest}
+          sentEmail={sentByRequestId[selectedRequest.id]}
+          composing={composing}
+          onBack={() => setSelectedId(null)}
+          onDelete={(r) => setDeleteConfirm(r)}
+          onStatusChange={handleStatusChange}
+          onComposeWelcome={handleComposeWelcome}
+        />
+
+        <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+          <DialogContent className="p-6">
+            <DialogHeader><DialogTitle>Delete Request?</DialogTitle></DialogHeader>
+            <p className="text-sm text-muted-foreground">This will permanently delete this onboarding request.</p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    )
+  }
+
+  // List view
   return (
     <div className="space-y-6">
       <AdminPageHeader
@@ -133,7 +347,6 @@ export function OnboardingRequestsPage() {
 
       <OnboardingTabNav />
 
-      {/* Status filters */}
       <div className="flex flex-wrap items-center gap-2">
         {[
           { value: 'all', label: 'All' },
@@ -174,9 +387,15 @@ export function OnboardingRequestsPage() {
             const company = data.company || data.business_unit || ''
             const firstDay = data.first_day || ''
             const submitter = req.requester_name || ''
+            const sentEmail = sentByRequestId[req.id]
 
             return (
-              <Card key={req.id} variant="elevated" className="hover:shadow-card-hover transition-shadow">
+              <Card
+                key={req.id}
+                variant="elevated"
+                className="hover:shadow-card-hover transition-shadow cursor-pointer"
+                onClick={() => setSelectedId(req.id)}
+              >
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0">
@@ -188,6 +407,11 @@ export function OnboardingRequestsPage() {
                         <span className="font-semibold text-sm">{name}</span>
                         <StatusBadge status={req.status} />
                         {company && <Badge variant="secondary" className="text-[10px]">{company}</Badge>}
+                        {sentEmail && (
+                          <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
+                            <Check className="h-2.5 w-2.5" /> Email sent
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                         {submitter && <span>By {submitter}</span>}
@@ -196,23 +420,23 @@ export function OnboardingRequestsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                       {req.status === 'pending' && (
                         <Button size="sm" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'in_progress')}>
                           <Package className="h-3 w-3" /> Start
                         </Button>
                       )}
-                      {req.status === 'in_progress' && (
-                        <>
-                          <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8" onClick={() => handleComposeWelcome(req)} disabled={composing}>
-                            <Mail className="h-3 w-3" /> Welcome email
-                          </Button>
-                          <Button size="sm" variant="success" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'ready')}>
-                            <Check className="h-3 w-3" /> Ready
-                          </Button>
-                        </>
+                      {req.status === 'in_progress' && !sentEmail && (
+                        <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8" onClick={() => handleComposeWelcome(req)} disabled={composing}>
+                          <Mail className="h-3 w-3" /> Welcome email
+                        </Button>
                       )}
-                      <Button variant="ghost" size="sm" onClick={() => setDetailRequest(req)} className="gap-1 text-xs">
+                      {req.status === 'in_progress' && (
+                        <Button size="sm" variant="success" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'ready')}>
+                          <Check className="h-3 w-3" /> Ready
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedId(req.id)} className="gap-1 text-xs">
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(req)} className="text-destructive hover:text-destructive">
@@ -227,56 +451,6 @@ export function OnboardingRequestsPage() {
         </div>
       )}
 
-      {/* Detail dialog */}
-      <Dialog open={!!detailRequest} onOpenChange={() => setDetailRequest(null)}>
-        <DialogContent className="max-w-lg p-6">
-          <DialogHeader>
-            <DialogTitle>Onboarding Request</DialogTitle>
-          </DialogHeader>
-          {detailRequest && (
-            <div className="space-y-3">
-              {detailRequest.data && Object.entries(detailRequest.data)
-                .filter(([k, v]) => v !== '' && v !== null && k !== 'submitted_at')
-                .map(([key, value]) => (
-                  <div key={key} className="flex items-start gap-3 text-sm">
-                    <span className="font-semibold text-muted-foreground w-36 shrink-0 capitalize">{key.replace(/_/g, ' ')}</span>
-                    <span className="break-all">
-                      {Array.isArray(value) ? value.join(', ') : typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
-                    </span>
-                  </div>
-                ))}
-              <div className="border-t pt-3 space-y-2">
-                {detailRequest.requester_name && (
-                  <div className="flex items-start gap-3 text-sm">
-                    <span className="font-semibold text-muted-foreground w-36 shrink-0">Submitted by</span>
-                    <span>{detailRequest.requester_name} ({detailRequest.requester_email})</span>
-                  </div>
-                )}
-                <div className="flex items-start gap-3 text-sm">
-                  <span className="font-semibold text-muted-foreground w-36 shrink-0">Date</span>
-                  <span>{new Date(detailRequest.created_at).toLocaleString('en-GB')}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setDetailRequest(null)}>Close</Button>
-            <Button
-              className="gap-2"
-              onClick={() => {
-                const req = detailRequest
-                setDetailRequest(null)
-                handleComposeWelcome(req)
-              }}
-              disabled={composing}
-            >
-              <Send className="h-4 w-4" /> Compose welcome email
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="p-6">
           <DialogHeader><DialogTitle>Delete Request?</DialogTitle></DialogHeader>

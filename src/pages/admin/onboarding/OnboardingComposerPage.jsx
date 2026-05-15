@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
-import { useOnboardingRecipients, useOnboardingBlockTemplates, useOnboardingEmail, useCreateEmail, useUpdateEmail, useSaveBlockTemplateDefaults } from '@/hooks/use-onboarding'
+import { useOnboardingRecipients, useOnboardingBlockTemplates, useOnboardingEmail, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
+import { useUpdateItRequest } from '@/hooks/use-it-requests'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildMjmlFromBlocks } from '@/lib/onboarding-mjml'
 import { DEFAULT_BLOCK_TEMPLATES } from '@/lib/onboarding-defaults'
 import { motion } from 'motion/react'
-import { Save, Send, Eye, Globe, ArrowLeft, BookmarkPlus } from 'lucide-react'
+import { Save, Send, Eye, Globe, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -45,12 +46,13 @@ export function OnboardingComposerPage() {
   const { data: existingEmail, isLoading: emailLoading } = useOnboardingEmail(emailId)
   const createEmail = useCreateEmail()
   const updateEmail = useUpdateEmail()
-  const saveTemplateDefaults = useSaveBlockTemplateDefaults()
+  const updateItRequest = useUpdateItRequest()
 
   // Use DB templates if available, otherwise fallback to hardcoded defaults
   const blockTemplates = dbBlockTemplates.length > 0 ? dbBlockTemplates : DEFAULT_BLOCK_TEMPLATES
 
   const [recipientId, setRecipientId] = useState(searchParams.get('recipientId') || '')
+  const linkedRequestId = searchParams.get('requestId') || existingEmail?.it_request_id || null
   const [language, setLanguage] = useState('fr')
   const [subject, setSubject] = useState(() => {
     const lang = searchParams.get('lang') || 'fr'
@@ -65,8 +67,6 @@ export function OnboardingComposerPage() {
   const [sending, setSending] = useState(false)
   const [showSendDialog, setShowSendDialog] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
-  const [showTemplateDialog, setShowTemplateDialog] = useState(false)
-  const [savingTemplate, setSavingTemplate] = useState(false)
   const [previewHtml, setPreviewHtml] = useState('')
   const [initialized, setInitialized] = useState(false)
 
@@ -183,6 +183,7 @@ export function OnboardingComposerPage() {
         blocks_config: currentBlocks,
         status: 'draft',
         created_by: user?.id,
+        it_request_id: linkedRequestId,
       }
       if (emailDbId) {
         await updateEmail.mutateAsync({ id: emailDbId, ...payload })
@@ -231,6 +232,12 @@ export function OnboardingComposerPage() {
         if (emailDbId) {
           await updateEmail.mutateAsync({ id: emailDbId, status: 'sent', sent_at: new Date().toISOString(), rendered_html: html })
         }
+        // Auto-mark the linked onboarding request as ready
+        if (linkedRequestId) {
+          try {
+            await updateItRequest.mutateAsync({ id: linkedRequestId, updates: { status: 'ready' } })
+          } catch {}
+        }
         showToast('Email sent successfully!')
         navigate('/admin/onboarding/history')
       }
@@ -239,20 +246,6 @@ export function OnboardingComposerPage() {
     } finally {
       setSending(false)
       setShowSendDialog(false)
-    }
-  }
-
-  const handleSaveTemplate = async () => {
-    setSavingTemplate(true)
-    try {
-      const currentBlocks = blocksRef.current
-      await saveTemplateDefaults.mutateAsync(currentBlocks)
-      showToast('Default template updated — new emails will use this configuration')
-      setShowTemplateDialog(false)
-    } catch (err) {
-      showToast(err.message, 'error')
-    } finally {
-      setSavingTemplate(false)
     }
   }
 
@@ -380,15 +373,6 @@ export function OnboardingComposerPage() {
 
       {/* Bottom action bar */}
       <div className="flex items-center justify-end gap-3 p-4 rounded-xl border bg-card sticky bottom-4">
-        <Button
-          variant="outline"
-          className="gap-2 mr-auto"
-          onClick={() => setShowTemplateDialog(true)}
-          disabled={blocksConfig.length === 0}
-        >
-          <BookmarkPlus className="h-4 w-4" />
-          Save as Template
-        </Button>
         <Button variant="outline" className="gap-2" onClick={handleSave} disabled={saving}>
           <Save className="h-4 w-4" />
           {saving ? 'Saving...' : 'Save Draft'}
@@ -430,33 +414,6 @@ export function OnboardingComposerPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Save as Template confirmation dialog */}
-      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Save as Default Template</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              This will update the default template used for all new onboarding emails.
-              Existing drafts won&apos;t be affected.
-            </p>
-            <div className="p-3 rounded-lg bg-muted/30 text-sm space-y-1">
-              <p><strong>Enabled blocks:</strong> {blocksConfig.filter((b) => b.enabled).length}/{blocksConfig.length}</p>
-              <p className="text-xs text-muted-foreground">
-                Content, options, enabled state, and sort order will all be saved.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTemplateDialog(false)}>Cancel</Button>
-            <Button onClick={handleSaveTemplate} disabled={savingTemplate} className="gap-2">
-              <BookmarkPlus className="h-4 w-4" />
-              {savingTemplate ? 'Saving...' : 'Confirm & Save Template'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Full preview dialog */}
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
