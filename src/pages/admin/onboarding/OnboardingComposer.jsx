@@ -168,7 +168,7 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
       const subjectLine = subject || `Welcome to VO Group, ${recipient.first_name}!`
 
       const result = await sendEmail({
-        to: recipient.email,
+        to: deliveryEmail,
         subject: subjectLine,
         body: html,
         isHtml: true,
@@ -203,6 +203,9 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
     )
   }
 
+  const deliveryEmail = recipient.personal_email || recipient.email
+  const usingPersonal = !!recipient.personal_email
+
   return (
     <Card variant="elevated">
       <CardContent className="p-0">
@@ -213,7 +216,9 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
             <div>
               <h3 className="font-semibold text-sm">Compose Welcome Email</h3>
               <p className="text-[11px] text-muted-foreground">
-                To {recipient.first_name} {recipient.last_name} &mdash; {recipient.email}
+                To {recipient.first_name} {recipient.last_name} &mdash; {deliveryEmail}
+                {usingPersonal && <span className="ml-1 text-emerald-600">(personal)</span>}
+                {!usingPersonal && <span className="ml-1 text-amber-600">(corporate — add a personal email!)</span>}
               </p>
             </div>
           </div>
@@ -316,7 +321,7 @@ export function OnboardingComposer({ recipient, requestId, onSent, onClose }) {
             <p className="text-sm text-muted-foreground">Are you sure you want to send this email?</p>
             <div className="p-3 rounded-lg bg-muted/30 space-y-1 text-sm">
               <p><strong>To:</strong> {recipient.first_name} {recipient.last_name}</p>
-              <p><strong>Email:</strong> {recipient.email}</p>
+              <p><strong>Email:</strong> {deliveryEmail} {usingPersonal ? <span className="text-emerald-600 text-xs">(personal)</span> : <span className="text-amber-600 text-xs">(corporate — fallback)</span>}</p>
               <p><strong>Subject:</strong> {subject}</p>
               <p><strong>Language:</strong> <Badge variant="secondary" className="text-[10px] uppercase">{language}</Badge></p>
             </div>
