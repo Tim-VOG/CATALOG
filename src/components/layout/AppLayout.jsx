@@ -72,7 +72,7 @@ export function AppLayout() {
         {/* Footer */}
         <footer className="hidden md:block border-t border-border/20 px-6 py-4 text-center">
           <p className="text-[11px] text-muted-foreground/50">
-            VO Hub &middot; Powered by VO Group
+            VO Hub
           </p>
         </footer>
 

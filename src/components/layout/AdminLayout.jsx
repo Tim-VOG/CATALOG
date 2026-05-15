@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { AdminSidebar } from './AdminSidebar'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 export function AdminLayout() {
   const location = useLocation()
@@ -15,7 +16,9 @@ export function AdminLayout() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
         >
-          <Outlet />
+          <ErrorBoundary key={location.pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </motion.div>
       </main>
     </div>

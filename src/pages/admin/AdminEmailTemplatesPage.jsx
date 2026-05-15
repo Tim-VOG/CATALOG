@@ -54,7 +54,7 @@ const CATEGORIES = [
 ]
 
 export function AdminEmailTemplatesPage() {
-  const { data: templates = [], isLoading } = useEmailTemplates()
+  const { data: templates = [], isLoading, isError, error, refetch } = useEmailTemplates()
   const { data: settings } = useAppSettings()
   const updateTemplate = useUpdateEmailTemplate()
   const showToast = useUIStore((s) => s.showToast)
@@ -105,6 +105,23 @@ export function AdminEmailTemplatesPage() {
   }
 
   if (isLoading) return <PageLoading />
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader title="Communications" description="Email templates and notification settings" />
+        <Card variant="elevated" className="border-destructive/30">
+          <CardContent className="p-6 space-y-3">
+            <h3 className="font-semibold text-sm text-destructive">Couldn&apos;t load templates</h3>
+            <p className="text-xs text-muted-foreground">
+              {error?.message || 'Unknown error.'}
+            </p>
+            <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   const activeTemplates = templates.filter((t) => t.is_active)
   const byCategory = CATEGORIES.map((cat) => ({
