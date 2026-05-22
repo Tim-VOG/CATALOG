@@ -3,8 +3,9 @@ import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/u
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserMinus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye,
+  Search, UserMinus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye, Shield, ClipboardCheck,
 } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -100,8 +101,109 @@ function OffboardingRequestInfoCard({ req }) {
   )
 }
 
+// ── Auto-generated revoke checklist ──
+// Looks up the matching onboarding request by employee name and surfaces every
+// access / list the new hire was granted. Admins tick items off as they revoke
+// them; ticked items are persisted on the offboarding's data.revoked_accesses.
+function RevokeChecklist({ req, onboardingMatch, onToggle }) {
+  const data = req.data || {}
+  const onboardingData = onboardingMatch?.data || {}
+
+  // Pull every access-shaped field from the matching onboarding payload
+  const items = []
+  const push = (label, value) => {
+    if (!value) return
+    const list = Array.isArray(value) ? value : String(value).split(/[,;]\s*/).filter(Boolean)
+    for (const v of list) items.push({ id: `${label}::${v}`, group: label, label: v })
+  }
+  push('Access', onboardingData.what_access)
+  push('Emailing list', onboardingData.emailing)
+  push('Distribution list', onboardingData.distribution_lists)
+  push('SharePoint folder', onboardingData.sharepoint_folders)
+  push('Group', onboardingData.groups)
+  // If the offboarding form already had its own access_to_revoke, treat each as a checkbox too
+  if (Array.isArray(data.access_to_revoke)) {
+    for (const v of data.access_to_revoke) items.push({ id: `Manual::${v}`, group: 'Manual', label: v })
+  }
+
+  const revoked = new Set(data.revoked_accesses || [])
+
+  if (items.length === 0 && !onboardingMatch) {
+    return (
+      <Card variant="elevated" className="border-dashed">
+        <CardContent className="p-4 flex items-center gap-3 text-sm text-muted-foreground">
+          <Shield className="h-4 w-4 shrink-0" />
+          <span>No matching onboarding request found for <strong>{data.employee_name || data.name}</strong>. Add items manually to the offboarding form to populate this checklist.</span>
+        </CardContent>
+      </Card>
+    )
+  }
+  if (items.length === 0) {
+    return (
+      <Card variant="elevated">
+        <CardContent className="p-4 flex items-center gap-3 text-sm text-muted-foreground">
+          <Shield className="h-4 w-4 shrink-0 text-emerald-500" />
+          <span>Matching onboarding found but no access was granted. Nothing to revoke.</span>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Group items for display
+  const byGroup = {}
+  for (const it of items) (byGroup[it.group] = byGroup[it.group] || []).push(it)
+  const total = items.length
+  const done = items.filter((i) => revoked.has(i.id)).length
+
+  return (
+    <Card variant="elevated">
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-rose-500/10 flex items-center justify-center shrink-0">
+            <ClipboardCheck className="h-4 w-4 text-rose-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm">Access to revoke</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Auto-generated from {onboardingMatch ? "the matching onboarding request" : "the offboarding form"}.
+              {' '}{done}/{total} revoked.
+            </p>
+          </div>
+          {done === total && (
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
+              <CheckCircle className="h-3 w-3" /> All done
+            </Badge>
+          )}
+        </div>
+
+        {Object.entries(byGroup).map(([group, list]) => (
+          <div key={group} className="space-y-1.5">
+            <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{group}</div>
+            <div className="space-y-1">
+              {list.map((item) => {
+                const isRevoked = revoked.has(item.id)
+                return (
+                  <label key={item.id} className={cn(
+                    'flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all',
+                    isRevoked ? 'bg-emerald-500/5 border-emerald-500/20' : 'border-border/40 hover:border-primary/30 hover:bg-muted/30'
+                  )}>
+                    <Checkbox checked={isRevoked} onCheckedChange={() => onToggle(item.id)} className="mt-0.5" />
+                    <span className={cn('text-sm flex-1', isRevoked && 'line-through text-muted-foreground')}>
+                      {item.label}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
 // ── Inline detail view ──
-function RequestDetail({ req, onBack, onDelete, onStatusChange }) {
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch, onToggleRevoked }) {
   const data = req.data || {}
   const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
 
@@ -121,6 +223,8 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange }) {
       </div>
 
       <OffboardingRequestInfoCard req={req} />
+
+      <RevokeChecklist req={req} onboardingMatch={onboardingMatch} onToggle={onToggleRevoked} />
 
       {req.status === 'pending' && (
         <Card variant="elevated">
@@ -178,6 +282,36 @@ export function AdminOffboardingRequestsPage() {
     [allRequests]
   )
 
+  // Index onboarding requests by lowercased "first last" name for matching
+  const onboardingByName = useMemo(() => {
+    const map = {}
+    for (const r of allRequests) {
+      if (r.type !== 'onboarding') continue
+      const d = r.data || {}
+      const name = (d.name || `${d.first_name || ''} ${d.last_name || ''}`).trim().toLowerCase()
+      if (name) map[name] = r
+    }
+    return map
+  }, [allRequests])
+
+  const findOnboardingFor = (req) => {
+    const d = req.data || {}
+    const name = (d.employee_name || d.name || `${d.first_name || ''} ${d.last_name || ''}`).trim().toLowerCase()
+    return onboardingByName[name] || null
+  }
+
+  const handleToggleRevoked = async (req, itemId) => {
+    const current = new Set(req.data?.revoked_accesses || [])
+    if (current.has(itemId)) current.delete(itemId)
+    else current.add(itemId)
+    const newData = { ...req.data, revoked_accesses: Array.from(current) }
+    try {
+      await updateRequest.mutateAsync({ id: req.id, updates: { data: newData } })
+    } catch (err) {
+      showToast(err.message || 'Update failed', 'error')
+    }
+  }
+
   const filtered = useMemo(() => {
     let result = requests
     if (statusFilter !== 'all') result = result.filter((r) => r.status === statusFilter)
@@ -230,6 +364,8 @@ export function AdminOffboardingRequestsPage() {
         <AdminPageHeader title="Offboarding" description="Offboarding request details" />
         <RequestDetail
           req={selectedRequest}
+          onboardingMatch={findOnboardingFor(selectedRequest)}
+          onToggleRevoked={(itemId) => handleToggleRevoked(selectedRequest, itemId)}
           onBack={() => setSelectedId(null)}
           onDelete={(r) => setDeleteConfirm(r)}
           onStatusChange={handleStatusChange}
