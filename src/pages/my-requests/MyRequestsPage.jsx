@@ -1,16 +1,19 @@
 import { useState, useMemo } from 'react'
 import { useAuth } from '@/lib/auth'
-import { useMyLoanRequests } from '@/hooks/use-loan-requests'
-import { useMyItRequests } from '@/hooks/use-it-requests'
-import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
+import { useMyLoanRequests, useDeleteLoanRequest } from '@/hooks/use-loan-requests'
+import { useMyItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
+import { useMyMailboxRequests, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
+import { useUIStore } from '@/stores/ui-store'
 import { motion } from 'motion/react'
 import {
   Package, Clock, Loader2, CheckCircle, UserPlus,
   UserMinus, Mail, Inbox, ClipboardList, ThumbsUp, ThumbsDown,
+  Eye, Trash2, ArrowLeft,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ScrollFadeIn } from '@/components/ui/motion'
@@ -44,7 +47,7 @@ function getStepIndex(status) {
 }
 
 const formatDate = (d) =>
-  new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 function RequestStepper({ status }) {
   const currentStep = getStepIndex(status)
@@ -86,12 +89,7 @@ function RequestStepper({ status }) {
 function SatisfactionRating({ requestId }) {
   const key = `satisfaction-${requestId}`
   const [rating, setRating] = useState(() => localStorage.getItem(key))
-
-  const rate = (value) => {
-    localStorage.setItem(key, value)
-    setRating(value)
-  }
-
+  const rate = (value) => { localStorage.setItem(key, value); setRating(value) }
   if (rating) {
     return (
       <div className="mt-3 pl-14 flex items-center gap-2 text-xs text-muted-foreground">
@@ -100,7 +98,6 @@ function SatisfactionRating({ requestId }) {
       </div>
     )
   }
-
   return (
     <div className="mt-3 pl-14 flex items-center gap-3">
       <span className="text-xs text-muted-foreground">How was your experience?</span>
@@ -114,7 +111,45 @@ function SatisfactionRating({ requestId }) {
   )
 }
 
-function RequestCard({ request, type }) {
+// Pretty-print any request payload as a list of key/value rows
+function RequestDataRows({ request }) {
+  const data = request.data || {}
+  // Equipment requests use top-level columns instead of data{}
+  const isEquipment = request._type === 'equipment'
+  const entries = isEquipment
+    ? [
+        ['Project name', request.project_name],
+        ['Items', request.item_count],
+        ['Pickup date', formatDate(request.pickup_date)],
+        ['Return date', formatDate(request.return_date)],
+        ['Notes', request.notes],
+      ]
+    : Object.entries(data)
+        .filter(([k, v]) => v !== '' && v !== null && v !== undefined && k !== 'submitted_at' && k !== 'terms_accepted')
+        .map(([k, v]) => [
+          k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v),
+        ])
+
+  const submitted = new Date(request.created_at).toLocaleString('en-GB')
+
+  return (
+    <div className="space-y-2.5">
+      {entries.filter(([, v]) => v !== undefined && v !== null && v !== '').map(([label, value]) => (
+        <div key={label} className="flex items-start gap-3 text-sm">
+          <span className="font-medium text-muted-foreground w-32 shrink-0 text-xs uppercase tracking-wider pt-0.5">{label}</span>
+          <span className="text-foreground break-all">{value}</span>
+        </div>
+      ))}
+      <div className="flex items-start gap-3 text-sm border-t pt-2.5">
+        <span className="font-medium text-muted-foreground w-32 shrink-0 text-xs uppercase tracking-wider pt-0.5">Submitted</span>
+        <span className="text-foreground">{submitted}</span>
+      </div>
+    </div>
+  )
+}
+
+function RequestCard({ request, type, onOpen }) {
   const config = TYPE_CONFIG[type] || TYPE_CONFIG.equipment
   const TypeIcon = config.icon
   const data = request.data || {}
@@ -124,7 +159,7 @@ function RequestCard({ request, type }) {
     : (data.name || data.employee_name || data.project_name || request.requester_name || `${config.label} Request`)
 
   return (
-    <Card variant="elevated" className="overflow-hidden">
+    <Card variant="elevated" className="overflow-hidden cursor-pointer hover:shadow-card-hover transition-shadow" onClick={onOpen}>
       <CardContent className="p-5">
         <div className="flex items-start gap-4">
           <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', config.bg)}>
@@ -140,6 +175,9 @@ function RequestCard({ request, type }) {
               {type === 'equipment' && request.item_count && ` · ${request.item_count} item${request.item_count > 1 ? 's' : ''}`}
             </p>
           </div>
+          <Button variant="ghost" size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onOpen() }}>
+            <Eye className="h-4 w-4" />
+          </Button>
         </div>
         <div className="mt-4 pl-14">
           <RequestStepper status={request.status || 'pending'} />
@@ -154,11 +192,17 @@ function RequestCard({ request, type }) {
 
 export function MyRequestsPage() {
   const { user } = useAuth()
+  const showToast = useUIStore((s) => s.showToast)
   const [typeFilter, setTypeFilter] = useState('all')
+  const [detail, setDetail] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   const { data: loanRequests = [], isLoading: loansLoading } = useMyLoanRequests(user?.id)
   const { data: itRequests = [], isLoading: itLoading } = useMyItRequests(user?.id)
   const { data: mailboxRequests = [], isLoading: mailboxLoading } = useMyMailboxRequests(user?.id)
+  const deleteLoan = useDeleteLoanRequest()
+  const deleteIt = useDeleteItRequest()
+  const deleteMailbox = useDeleteMailboxRequest()
 
   const isLoading = loansLoading || itLoading || mailboxLoading
 
@@ -178,13 +222,34 @@ export function MyRequestsPage() {
 
   const typeCounts = useMemo(() => {
     const counts = {}
-    for (const r of allRequests) {
-      counts[r._type] = (counts[r._type] || 0) + 1
-    }
+    for (const r of allRequests) counts[r._type] = (counts[r._type] || 0) + 1
     return counts
   }, [allRequests])
 
+  const handleDelete = async () => {
+    if (!deleteConfirm) return
+    try {
+      const r = deleteConfirm
+      if (r._type === 'equipment') await deleteLoan.mutateAsync(r.id)
+      else if (r._type === 'mailbox') await deleteMailbox.mutateAsync(r.id)
+      else await deleteIt.mutateAsync(r.id)
+      showToast('Request cancelled')
+      if (detail?.id === r.id) setDetail(null)
+    } catch (err) {
+      showToast(err.message || 'Failed to cancel', 'error')
+    }
+    setDeleteConfirm(null)
+  }
+
   if (isLoading) return <PageLoading />
+
+  const canCancel = detail && detail.status === 'pending'
+  const detailType = detail ? (TYPE_CONFIG[detail._type] || TYPE_CONFIG.equipment) : null
+  const detailTitle = detail
+    ? (detail._type === 'equipment'
+        ? (detail.project_name || 'Equipment Request')
+        : (detail.data?.name || detail.data?.employee_name || detail.data?.project_name || `${detailType.label} Request`))
+    : ''
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4 space-y-6">
@@ -195,7 +260,6 @@ export function MyRequestsPage() {
         </p>
       </motion.div>
 
-      {/* Type filter tabs */}
       <div className="flex flex-wrap gap-1.5">
         {TYPE_FILTERS.filter((t) => t.key === 'all' || typeCounts[t.key]).map((t) => (
           <Button
@@ -223,11 +287,68 @@ export function MyRequestsPage() {
         <div className="space-y-3">
           {filtered.map((req, i) => (
             <ScrollFadeIn key={req.id} delay={i * 0.05}>
-              <RequestCard request={req} type={req._type} />
+              <RequestCard request={req} type={req._type} onOpen={() => setDetail(req)} />
             </ScrollFadeIn>
           ))}
         </div>
       )}
+
+      {/* Detail dialog */}
+      <Dialog open={!!detail} onOpenChange={() => setDetail(null)}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          {detail && detailType && (
+            <>
+              <div className="p-5 border-b border-border/50 flex items-center gap-3">
+                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center', detailType.bg)}>
+                  <detailType.icon className={cn('h-5 w-5', detailType.color)} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <DialogTitle className="text-base">{detailTitle}</DialogTitle>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className="text-[10px]">{detailType.label}</Badge>
+                    <Badge variant="outline" className={cn('text-[10px]',
+                      detail.status === 'pending' && 'bg-amber-500/10 text-amber-600 border-amber-500/30',
+                      detail.status === 'in_progress' && 'bg-blue-500/10 text-blue-600 border-blue-500/30',
+                      detail.status === 'ready' && 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
+                    )}>
+                      {detail.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="p-5 max-h-[60vh] overflow-y-auto">
+                <RequestDataRows request={detail} />
+              </div>
+              <DialogFooter className="p-5 border-t border-border/50 gap-2">
+                {canCancel ? (
+                  <>
+                    <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
+                    <Button variant="destructive" className="gap-2" onClick={() => setDeleteConfirm(detail)}>
+                      <Trash2 className="h-4 w-4" /> Cancel request
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
+                )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel confirm */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="p-6">
+          <DialogHeader><DialogTitle>Cancel this request?</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will delete the request permanently. You can submit a new one anytime.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Keep it</Button>
+            <Button variant="destructive" onClick={handleDelete}>Yes, cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
