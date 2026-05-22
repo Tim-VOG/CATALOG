@@ -3,7 +3,7 @@ import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/u
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import {
-  Search, UserMinus, Trash2, Eye, Package, Check,
+  Search, UserMinus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,9 +14,154 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { cn } from '@/lib/utils'
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
+
+const STATUS_COLORS = {
+  pending: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
+  in_progress: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
+  ready: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
+}
+
+// ── Info card (all fields visible, mirrors Onboarding/Mailbox pattern) ──
+function OffboardingRequestInfoCard({ req }) {
+  const data = req.data || {}
+  const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
+  const corporateEmail = data.email || data.corporate_email || data.email_to_revoke || '—'
+
+  // Show every field we have in data, in a consistent order. Booleans → Yes/No,
+  // arrays → comma list, dates → formatted.
+  const fields = [
+    ['Employee Name', fullName],
+    ['Corporate Email', corporateEmail],
+    ['Company', data.company],
+    ['Business Unit', data.business_unit],
+    ['Job Title', data.job_title],
+    ['Department', data.department],
+    ['Last Day', formatDate(data.last_day || data.departure_date)],
+    ['Reason', data.reason],
+    ['Replacement', data.replacement_name],
+    ['Manager', data.manager_name],
+    ['Equipment to recover', Array.isArray(data.equipment_to_recover) ? data.equipment_to_recover.join(', ') : data.equipment_to_recover],
+    ['Access to revoke', Array.isArray(data.access_to_revoke) ? data.access_to_revoke.join(', ') : data.access_to_revoke],
+    ['Notes', data.notes],
+    ['Requested By', req.requester_name],
+    ['Requester Email', req.requester_email],
+    ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
+  ]
+
+  // Catch any custom fields we don't know about, after the known ones
+  const knownKeys = new Set([
+    'employee_name','name','first_name','last_name','email','corporate_email','email_to_revoke',
+    'company','business_unit','job_title','department','last_day','departure_date','reason',
+    'replacement_name','manager_name','equipment_to_recover','access_to_revoke','notes',
+    'submitted_at','terms_accepted',
+  ])
+  const extras = Object.entries(data)
+    .filter(([k, v]) => !knownKeys.has(k) && v !== '' && v !== null && v !== undefined)
+    .map(([k, v]) => [
+      k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v),
+    ])
+
+  const allFields = [...fields, ...extras]
+
+  return (
+    <Card variant="elevated">
+      <CardContent className="p-0">
+        <div className="p-5 pb-4 border-b border-border/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                <UserMinus className="h-5 w-5 text-rose-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{fullName}</h3>
+                <p className="text-xs text-muted-foreground">{corporateEmail}</p>
+              </div>
+            </div>
+            <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[req.status])}>
+              {req.status}
+            </Badge>
+          </div>
+        </div>
+        <div className="p-5 space-y-2.5">
+          {allFields.map(([label, value]) => (
+            <div key={label} className="flex items-start gap-3 text-sm">
+              <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">{label}</span>
+              <span className="text-foreground break-all">{value || '—'}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Inline detail view ──
+function RequestDetail({ req, onBack, onDelete, onStatusChange }) {
+  const data = req.data || {}
+  const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5 text-xs">
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </Button>
+        <div className="flex-1">
+          <h2 className="text-lg font-display font-bold">{fullName}</h2>
+          <p className="text-xs text-muted-foreground">Offboarding Request Details</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
+          <Trash2 className="h-3.5 w-3.5" /> Delete
+        </Button>
+      </div>
+
+      <OffboardingRequestInfoCard req={req} />
+
+      {req.status === 'pending' && (
+        <Card variant="elevated">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Info className="h-4 w-4 text-amber-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">This request is pending review.</span>
+            <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
+              <Clock className="h-3.5 w-3.5" /> Start Processing
+            </Button>
+            <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
+              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {req.status === 'in_progress' && (
+        <Card variant="elevated">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Info className="h-4 w-4 text-blue-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">
+              Revoke access and recover equipment, then mark the request as ready.
+            </span>
+            <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
+              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {req.status === 'ready' && (
+        <Card variant="elevated" className="border-emerald-500/30">
+          <CardContent className="p-4 flex items-center gap-3">
+            <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">Offboarding complete.</span>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
 
 export function AdminOffboardingRequestsPage() {
   const { data: allRequests = [], isLoading } = useItRequests()
@@ -25,24 +170,22 @@ export function AdminOffboardingRequestsPage() {
   const showToast = useUIStore((s) => s.showToast)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [detailRequest, setDetailRequest] = useState(null)
+  const [selectedId, setSelectedId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
-  const requests = useMemo(() =>
-    allRequests.filter((r) => r.type === 'offboarding'),
+  const requests = useMemo(
+    () => allRequests.filter((r) => r.type === 'offboarding'),
     [allRequests]
   )
 
   const filtered = useMemo(() => {
     let result = requests
-    if (statusFilter !== 'all') {
-      result = result.filter((r) => r.status === statusFilter)
-    }
+    if (statusFilter !== 'all') result = result.filter((r) => r.status === statusFilter)
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter((r) => {
         const data = r.data || {}
-        return (data.employee_name || '').toLowerCase().includes(q) ||
+        return (data.employee_name || data.name || '').toLowerCase().includes(q) ||
           (r.requester_name || '').toLowerCase().includes(q) ||
           (data.company || '').toLowerCase().includes(q)
       })
@@ -51,6 +194,11 @@ export function AdminOffboardingRequestsPage() {
   }, [requests, search, statusFilter])
 
   const pendingCount = requests.filter((r) => r.status === 'pending').length
+
+  const selectedRequest = useMemo(
+    () => requests.find((r) => r.id === selectedId),
+    [requests, selectedId]
+  )
 
   const handleStatusChange = async (req, newStatus) => {
     try {
@@ -67,6 +215,7 @@ export function AdminOffboardingRequestsPage() {
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
       showToast('Request deleted')
+      if (selectedId === deleteConfirm.id) setSelectedId(null)
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -75,9 +224,33 @@ export function AdminOffboardingRequestsPage() {
 
   if (isLoading) return <PageLoading />
 
+  if (selectedRequest) {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader title="Offboarding" description="Offboarding request details" />
+        <RequestDetail
+          req={selectedRequest}
+          onBack={() => setSelectedId(null)}
+          onDelete={(r) => setDeleteConfirm(r)}
+          onStatusChange={handleStatusChange}
+        />
+        <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+          <DialogContent className="p-6">
+            <DialogHeader><DialogTitle>Delete Request?</DialogTitle></DialogHeader>
+            <p className="text-sm text-muted-foreground">This will permanently delete this offboarding request.</p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Offboarding Requests" description={`${requests.length} request${requests.length !== 1 ? 's' : ''}`} />
+      <AdminPageHeader title="Offboarding" description={`${requests.length} request${requests.length !== 1 ? 's' : ''}`} />
 
       <div className="flex flex-wrap items-center gap-2">
         {[
@@ -110,9 +283,13 @@ export function AdminOffboardingRequestsPage() {
             const company = data.company || ''
             const lastDay = data.last_day || data.departure_date || ''
             const submitter = req.requester_name || ''
-
             return (
-              <Card key={req.id} variant="elevated" className="hover:shadow-card-hover transition-shadow">
+              <Card
+                key={req.id}
+                variant="elevated"
+                className="hover:shadow-card-hover transition-shadow cursor-pointer"
+                onClick={() => setSelectedId(req.id)}
+              >
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0">
@@ -130,7 +307,7 @@ export function AdminOffboardingRequestsPage() {
                         <span>{formatDate(req.created_at)}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                       {req.status === 'pending' && (
                         <Button size="sm" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'in_progress')}>
                           <Package className="h-3 w-3" /> Start
@@ -141,7 +318,7 @@ export function AdminOffboardingRequestsPage() {
                           <Check className="h-3 w-3" /> Ready
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" onClick={() => setDetailRequest(req)} className="gap-1 text-xs">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedId(req.id)} className="gap-1 text-xs">
                         <Eye className="h-3.5 w-3.5" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(req)} className="text-destructive hover:text-destructive">
@@ -155,39 +332,6 @@ export function AdminOffboardingRequestsPage() {
           })}
         </div>
       )}
-
-      <Dialog open={!!detailRequest} onOpenChange={() => setDetailRequest(null)}>
-        <DialogContent className="max-w-lg p-6">
-          <DialogHeader><DialogTitle>Offboarding Request</DialogTitle></DialogHeader>
-          {detailRequest && (
-            <div className="space-y-3">
-              {detailRequest.data && Object.entries(detailRequest.data)
-                .filter(([k, v]) => v !== '' && v !== null && k !== 'submitted_at')
-                .map(([key, value]) => (
-                  <div key={key} className="flex items-start gap-3 text-sm">
-                    <span className="font-semibold text-muted-foreground w-36 shrink-0 capitalize">{key.replace(/_/g, ' ')}</span>
-                    <span className="break-all">
-                      {Array.isArray(value) ? value.join(', ') : typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
-                    </span>
-                  </div>
-                ))}
-              <div className="border-t pt-3 space-y-2">
-                {detailRequest.requester_name && (
-                  <div className="flex items-start gap-3 text-sm">
-                    <span className="font-semibold text-muted-foreground w-36 shrink-0">Submitted by</span>
-                    <span>{detailRequest.requester_name} ({detailRequest.requester_email})</span>
-                  </div>
-                )}
-                <div className="flex items-start gap-3 text-sm">
-                  <span className="font-semibold text-muted-foreground w-36 shrink-0">Date</span>
-                  <span>{new Date(detailRequest.created_at).toLocaleString('en-GB')}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter><Button variant="outline" onClick={() => setDetailRequest(null)}>Close</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="p-6">
