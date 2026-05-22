@@ -28,6 +28,7 @@ import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
 import { OnboardingRequestsPage } from '@/pages/admin/onboarding/OnboardingRequestsPage'
 import { WelcomeRequestsPage } from '@/pages/admin/welcome/WelcomeRequestsPage'
+import { AdminItInventoryPage } from '@/pages/admin/AdminItInventoryPage'
 // (Removed OnboardingHistoryPage — history merged into Welcome's "Sent" tab)
 import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
@@ -128,6 +129,7 @@ export function AppRoutes() {
           <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
           <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
           <Route path="local-it" element={<AdminLocalITPage />} />
+          <Route path="it-inventory" element={<AdminItInventoryPage />} />
           <Route path="qr-codes" element={<AdminQRCodesPage />} />
           <Route path="scan-logs" element={<AdminScanLogsPage />} />
           {/* QR Test Lab removed — dev-only tool */}
