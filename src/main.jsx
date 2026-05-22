@@ -28,6 +28,14 @@ window.addEventListener('error', (e) => recoverFromStaleChunk(e?.message || e?.e
 window.addEventListener('unhandledrejection', (e) => recoverFromStaleChunk(e?.reason?.message || String(e?.reason || '')))
 window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem(CHUNK_RELOAD_FLAG), 5000))
 
+// Register the PWA service worker (production only — keeps the dev
+// experience uncluttered by stale-cache surprises).
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
