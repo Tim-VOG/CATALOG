@@ -6,7 +6,10 @@ import { useAppSettings } from '@/hooks/use-settings'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
-import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Loader2, CheckCircle } from 'lucide-react'
+import {
+  Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus,
+  Loader2, CheckCircle, Sparkles, Bell, Clock,
+} from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,42 +24,62 @@ function getGreeting() {
   return 'Good evening'
 }
 
+function getDayLabel() {
+  return new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
+function StatCard({ icon: Icon, label, value, color, to }) {
+  const card = (
+    <Card variant="elevated" className={cn('h-full transition-all', to && 'hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer')}>
+      <CardContent className="p-4 flex items-center gap-3">
+        <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', color.bg)}>
+          <Icon className={cn('h-5 w-5', color.fg)} />
+        </div>
+        <div className="min-w-0">
+          <p className={cn('text-2xl font-display font-bold leading-none', color.fg)}>{value}</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+  return to ? <Link to={to} className="block h-full">{card}</Link> : card
+}
+
 function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel }) {
   const colorMap = {
-    primary: { iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/30', btnClass: 'border-primary/30 text-primary hover:bg-primary/10' },
-    blue: { iconBg: 'bg-gradient-to-br from-blue-500/20 to-blue-500/5', iconColor: 'text-blue-500', hoverBorder: 'hover:border-blue-500/30', btnClass: 'border-blue-500/30 text-blue-500 hover:bg-blue-500/10' },
-    cyan: { iconBg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-500/5', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/30', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
-    violet: { iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/30', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
-    amber: { iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/30', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
-    green: { iconBg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500', hoverBorder: 'hover:border-emerald-500/30', btnClass: 'border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10' },
-    rose: { iconBg: 'bg-gradient-to-br from-rose-500/20 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/30', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
+    primary: { iconBg: 'bg-gradient-to-br from-primary/30 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/40', btnClass: 'border-primary/30 text-primary hover:bg-primary/10' },
+    blue: { iconBg: 'bg-gradient-to-br from-blue-500/30 to-blue-500/5', iconColor: 'text-blue-500', hoverBorder: 'hover:border-blue-500/40', btnClass: 'border-blue-500/30 text-blue-500 hover:bg-blue-500/10' },
+    cyan: { iconBg: 'bg-gradient-to-br from-cyan-500/30 to-cyan-500/5', iconColor: 'text-cyan-500', hoverBorder: 'hover:border-cyan-500/40', btnClass: 'border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10' },
+    violet: { iconBg: 'bg-gradient-to-br from-violet-500/30 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/40', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
+    amber: { iconBg: 'bg-gradient-to-br from-amber-500/30 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/40', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
+    rose: { iconBg: 'bg-gradient-to-br from-rose-500/30 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/40', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
   }
   const c = colorMap[color] || colorMap.primary
 
   return (
-    <Link to={to} className="block h-full">
-      <Card variant="elevated" className={`h-full group ${c.hoverBorder} hover:shadow-elevated transition-all duration-300 cursor-pointer overflow-hidden`}>
-        <CardContent className="p-7 sm:p-8 flex items-start gap-5 h-full">
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-            className={`h-11 w-11 rounded-xl ${c.iconBg} flex items-center justify-center shrink-0`}
-          >
-            <Icon className={`h-5 w-5 ${c.iconColor}`} />
-          </motion.div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-[15px] font-display font-bold">{title}</h2>
-              {badge && (
-                <Badge variant="secondary" className="text-[10px] font-semibold">{badge}</Badge>
-              )}
-            </div>
-            <p className="text-muted-foreground text-xs leading-relaxed mb-3">{description}</p>
-            <Button variant="outline" size="sm" className={cn('gap-1.5 h-8 text-xs group-hover:gap-2.5 transition-all', c.btnClass)}>
-              {buttonLabel}
-              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-            </Button>
+    <Link to={to} className="block h-full group">
+      <Card variant="elevated" className={cn('h-full transition-all duration-300 cursor-pointer overflow-hidden hover:-translate-y-0.5 hover:shadow-elevated', c.hoverBorder)}>
+        <CardContent className="p-6 flex flex-col h-full gap-4">
+          <div className="flex items-start justify-between gap-3">
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: -3 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              className={cn('h-12 w-12 rounded-2xl flex items-center justify-center shrink-0', c.iconBg)}
+            >
+              <Icon className={cn('h-6 w-6', c.iconColor)} />
+            </motion.div>
+            {badge && (
+              <Badge variant="secondary" className="text-[10px] font-semibold">{badge}</Badge>
+            )}
           </div>
+          <div className="flex-1">
+            <h2 className="text-base font-display font-bold leading-tight">{title}</h2>
+            <p className="text-muted-foreground text-xs leading-relaxed mt-1">{description}</p>
+          </div>
+          <Button variant="outline" size="sm" className={cn('gap-1.5 h-8 text-xs w-fit group-hover:gap-2.5 transition-all', c.btnClass)}>
+            {buttonLabel}
+            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+          </Button>
         </CardContent>
       </Card>
     </Link>
@@ -68,150 +91,153 @@ export function HubPage() {
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
   const { data: settings } = useAppSettings()
 
-  // Live counters
   const { data: myLoanRequests = [] } = useMyLoanRequests(user?.id)
   const { data: myItRequests = [] } = useMyItRequests(user?.id)
   const { data: myMailboxRequests = [] } = useMyMailboxRequests(user?.id)
 
-  const allRequests = [...myLoanRequests, ...myItRequests, ...myMailboxRequests]
+  const allRequests = useMemo(() => {
+    const list = [
+      ...myLoanRequests.map((r) => ({ ...r, _type: 'equipment' })),
+      ...myItRequests.map((r) => ({ ...r, _type: r.type || 'onboarding' })),
+      ...myMailboxRequests.map((r) => ({ ...r, _type: 'mailbox' })),
+    ]
+    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    return list
+  }, [myLoanRequests, myItRequests, myMailboxRequests])
+
   const pendingRequests = allRequests.filter((r) => r.status === 'pending').length
   const inProgressRequests = allRequests.filter((r) => r.status === 'in_progress').length
+  const readyRequests = allRequests.filter((r) => r.status === 'ready').length
 
   const firstName = profile?.first_name || ''
   const greeting = getGreeting()
+  const day = getDayLabel()
 
   const cards = []
-
-  // Catalog — always visible
   cards.push(
-    <HubCard
-      key="catalog"
-      to="/catalog"
-      icon={Package}
+    <HubCard key="catalog" to="/catalog" icon={Package}
       title={settings?.hub_catalog_title || 'Equipment Catalog'}
-      description="Browse and request IT equipment."
-      color="primary"
-      buttonLabel="Open Catalog"
-    />
+      description="Browse and request IT equipment for events or projects."
+      color="primary" buttonLabel="Open Catalog" />
   )
-
-  // QR Scan — admin only
   if (isAdmin) {
     cards.push(
-      <HubCard
-        key="scan"
-        to="/scan"
-        icon={QrCode}
+      <HubCard key="scan" to="/scan" icon={QrCode}
         title="Scan QR"
         description="Take or return equipment via QR code."
-        color="blue"
-        buttonLabel="Start Scanning"
-      />
+        color="blue" buttonLabel="Start Scanning" />
     )
   }
-
-  // My Requests — non-admin
   if (!isAdmin) {
     cards.push(
-      <HubCard
-        key="my-requests"
-        to="/my-requests"
-        icon={Inbox}
+      <HubCard key="my-requests" to="/my-requests" icon={Inbox}
         title="My Requests"
-        description="Track your submitted requests."
-        color="amber"
-        buttonLabel="View Requests"
-      />
+        description="Track and cancel your submitted requests."
+        color="amber" buttonLabel="View Requests"
+        badge={(pendingRequests + inProgressRequests) > 0 ? `${pendingRequests + inProgressRequests} active` : null} />
     )
   }
-
-  // Onboarding
   cards.push(
-    <HubCard
-      key="onboarding-request"
-      to="/onboarding-request"
-      icon={UserPlus}
+    <HubCard key="onboarding-request" to="/onboarding-request" icon={UserPlus}
       title="Onboarding"
       description="IT setup for a new team member."
-      color="cyan"
-      buttonLabel="New Request"
-    />
+      color="cyan" buttonLabel="New Request" />
   )
-
-  // Offboarding
   cards.push(
-    <HubCard
-      key="offboarding-request"
-      to="/offboarding-request"
-      icon={UserMinus}
+    <HubCard key="offboarding-request" to="/offboarding-request" icon={UserMinus}
       title="Offboarding"
       description="Access revocation for a departing employee."
-      color="rose"
-      buttonLabel="New Request"
-    />
+      color="rose" buttonLabel="New Request" />
   )
-
-  // Functional Mailbox — visible to everyone
-  cards.push(
-    <HubCard
-      key="mailbox"
-      to="/functional-mailbox"
-      icon={Mail}
-      title="Mailbox Request"
-      description="Request a functional mailbox."
-      color="violet"
-      buttonLabel="New Request"
-    />
-  )
+  if (hasMailbox || isAdmin) {
+    cards.push(
+      <HubCard key="mailbox" to="/functional-mailbox" icon={Mail}
+        title="Mailbox Request"
+        description="Request a functional mailbox."
+        color="violet" buttonLabel="New Request" />
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-6 pb-24">
-      {/* Header */}
+      {/* Hero header */}
       <motion.div
-        className="mb-10"
+        className="mb-8"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <p className="text-muted-foreground text-sm">
-          {greeting}{firstName ? `, ${firstName}` : ''}
-        </p>
-        <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mt-1">
-          What do you need today?
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+          <Sparkles className="h-3.5 w-3.5" />
+          <span>{day}</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight leading-tight">
+          {greeting}{firstName ? <>, <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">{firstName}</span></> : ''}
         </h1>
+        <p className="text-muted-foreground text-sm mt-2">What do you need today?</p>
       </motion.div>
 
-      {/* Mini dashboard */}
-      {(pendingRequests > 0 || inProgressRequests > 0) && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {pendingRequests > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <Inbox className="h-5 w-5 text-amber-500 shrink-0" />
-              <div>
-                <p className="text-lg font-bold text-amber-500">{pendingRequests}</p>
-                <p className="text-[10px] text-muted-foreground">Pending</p>
-              </div>
-            </div>
-          )}
-          {inProgressRequests > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
-              <Loader2 className="h-5 w-5 text-primary shrink-0" />
-              <div>
-                <p className="text-lg font-bold text-primary">{inProgressRequests}</p>
-                <p className="text-[10px] text-muted-foreground">In Progress</p>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* Ready-to-pickup callout */}
+      {readyRequests > 0 && !isAdmin && (
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Link to="/my-requests" className="block">
+            <Card variant="elevated" className="border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent hover:shadow-card-hover transition-all cursor-pointer">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <Bell className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">
+                    {readyRequests} request{readyRequests > 1 ? 's' : ''} ready for pickup
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Drop by the IT desk to collect your equipment.
+                  </p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-emerald-600 shrink-0" />
+              </CardContent>
+            </Card>
+          </Link>
+        </motion.div>
       )}
 
-      {/* Cards — 2 columns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {cards.map((card, i) => (
-          <DynamicsItem key={card.key} index={i}>
-            {card}
-          </DynamicsItem>
-        ))}
+      {/* Stats dashboard — always shown for users */}
+      {!isAdmin && (
+        <motion.div
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+        >
+          <StatCard icon={Inbox} label="All requests" value={allRequests.length}
+            color={{ bg: 'bg-foreground/5', fg: 'text-foreground' }} to="/my-requests" />
+          <StatCard icon={Clock} label="Pending" value={pendingRequests}
+            color={{ bg: 'bg-amber-500/15', fg: 'text-amber-600' }} to="/my-requests" />
+          <StatCard icon={Loader2} label="In Progress" value={inProgressRequests}
+            color={{ bg: 'bg-blue-500/15', fg: 'text-blue-600' }} to="/my-requests" />
+          <StatCard icon={CheckCircle} label="Ready" value={readyRequests}
+            color={{ bg: 'bg-emerald-500/15', fg: 'text-emerald-600' }} to="/my-requests" />
+        </motion.div>
+      )}
+
+      {/* Quick actions */}
+      <div className="space-y-3 mb-8">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+          <div className="flex-1 h-px bg-border/40" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {cards.map((card, i) => (
+            <DynamicsItem key={card.key} index={i}>
+              {card}
+            </DynamicsItem>
+          ))}
+        </div>
       </div>
     </div>
   )
