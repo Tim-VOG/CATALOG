@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 import { useAppSettings } from '@/hooks/use-settings'
-import { useMyEquipment } from '@/hooks/use-user-equipment'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
-import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Monitor, Loader2, CheckCircle, Calendar } from 'lucide-react'
+import { Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus, Loader2, CheckCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -70,20 +69,13 @@ export function HubPage() {
   const { data: settings } = useAppSettings()
 
   // Live counters
-  const { data: myEquipment = [] } = useMyEquipment()
   const { data: myLoanRequests = [] } = useMyLoanRequests(user?.id)
   const { data: myItRequests = [] } = useMyItRequests(user?.id)
   const { data: myMailboxRequests = [] } = useMyMailboxRequests(user?.id)
 
-  const activeEquipment = myEquipment.filter((e) => e.status === 'active').length
   const allRequests = [...myLoanRequests, ...myItRequests, ...myMailboxRequests]
   const pendingRequests = allRequests.filter((r) => r.status === 'pending').length
   const inProgressRequests = allRequests.filter((r) => r.status === 'in_progress').length
-
-  // Nearest return date
-  const nearestReturn = myEquipment
-    .filter((e) => e.status === 'active' && e.expected_return_date)
-    .sort((a, b) => new Date(a.expected_return_date) - new Date(b.expected_return_date))[0]
 
   const firstName = profile?.first_name || ''
   const greeting = getGreeting()
@@ -117,20 +109,6 @@ export function HubPage() {
       />
     )
   }
-
-  // My Equipment — everyone
-  cards.push(
-    <HubCard
-      key="my-equipments"
-      to="/my-equipments"
-      icon={Monitor}
-      title="My Equipment"
-      description="Your assigned equipment."
-      color="green"
-      buttonLabel="View Equipment"
-      badge={activeEquipment > 0 ? `${activeEquipment} item${activeEquipment !== 1 ? 's' : ''}` : null}
-    />
-  )
 
   // My Requests — non-admin
   if (!isAdmin) {
@@ -204,17 +182,8 @@ export function HubPage() {
       </motion.div>
 
       {/* Mini dashboard */}
-      {(activeEquipment > 0 || pendingRequests > 0 || inProgressRequests > 0) && (
+      {(pendingRequests > 0 || inProgressRequests > 0) && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {activeEquipment > 0 && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-              <Monitor className="h-5 w-5 text-blue-500 shrink-0" />
-              <div>
-                <p className="text-lg font-bold text-blue-500">{activeEquipment}</p>
-                <p className="text-[10px] text-muted-foreground">Equipment</p>
-              </div>
-            </div>
-          )}
           {pendingRequests > 0 && (
             <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
               <Inbox className="h-5 w-5 text-amber-500 shrink-0" />
@@ -230,15 +199,6 @@ export function HubPage() {
               <div>
                 <p className="text-lg font-bold text-primary">{inProgressRequests}</p>
                 <p className="text-[10px] text-muted-foreground">In Progress</p>
-              </div>
-            </div>
-          )}
-          {nearestReturn && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/40">
-              <Calendar className="h-5 w-5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm font-bold">{new Date(nearestReturn.expected_return_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
-                <p className="text-[10px] text-muted-foreground">Next return</p>
               </div>
             </div>
           )}

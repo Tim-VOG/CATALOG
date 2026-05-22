@@ -47,7 +47,6 @@ import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 // ReservePage removed — booking via cart flow
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
-import { MyEquipmentsPage } from '@/pages/my-equipments/MyEquipmentsPage'
 import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequestPage'
 import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
 import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
@@ -81,7 +80,6 @@ export function AppRoutes() {
         <Route path="functional-mailbox" element={<FunctionalMailboxFormPage />} />
         <Route path="my-requests" element={<MyRequestsPage />} />
         <Route path="scan" element={<RequireAdmin><ScanPage /></RequireAdmin>} />
-        <Route path="my-equipments" element={<MyEquipmentsPage />} />
         <Route path="onboarding-request" element={<OnboardingRequestPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="equipment-request" element={<EquipmentRequestPage />} />
