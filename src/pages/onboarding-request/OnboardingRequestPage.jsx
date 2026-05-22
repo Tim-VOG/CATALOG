@@ -479,17 +479,6 @@ function StepReview({ form, update }) {
           </div>
         ))}
       </div>
-      <label className="flex items-start gap-3 p-4 rounded-lg border border-border hover:border-primary/30 cursor-pointer">
-        <Checkbox
-          checked={!!form.terms_accepted}
-          onCheckedChange={(checked) => update('terms_accepted', !!checked)}
-          className="mt-0.5"
-        />
-        <span className="text-sm">
-          I confirm the information above is accurate and accept the IT request terms.
-          <span className="text-destructive ml-1">*</span>
-        </span>
-      </label>
     </div>
   )
 }
@@ -533,8 +522,6 @@ export function OnboardingRequestPage() {
     // Requester
     requested_on: new Date().toISOString().split('T')[0],
     requested_by: '',
-    // Review
-    terms_accepted: false,
   })
 
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
@@ -580,7 +567,7 @@ export function OnboardingRequestPage() {
       case 'requester':
         return true
       case 'review':
-        return !!form.terms_accepted
+        return true
       default:
         return true
     }
@@ -753,7 +740,7 @@ export function OnboardingRequestPage() {
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={submitting || !form.terms_accepted}
+            disabled={submitting}
             className="gap-2"
           >
             {submitting ? (
