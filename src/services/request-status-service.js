@@ -102,33 +102,52 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
     null
   if (!key) return
 
-  const email = request.user_email || request.requester_email
-  if (!email) return
-
-  const name = request.user_first_name || request.requester_name || request.requested_by_name || email.split('@')[0]
+  // Try every known shape, then fall back to a profile lookup so older
+  // rows (created before requester_email existed on a given table) still
+  // trigger the email.
+  let email = request.user_email || request.requester_email
+  let name = request.user_first_name || request.requester_name || request.requested_by_name
+  const userId = request.user_id || request.requester_id || request.requested_by
+  if (!email && userId) {
+    try {
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('email, first_name')
+        .eq('id', userId)
+        .maybeSingle()
+      if (prof?.email) email = prof.email
+      if (!name && prof?.first_name) name = prof.first_name
+    } catch {}
+  }
+  if (!email) {
+    console.warn('[sendStatusChangeEmail] no email found for request', request.id, requestType)
+    return
+  }
+  if (!name) name = email.split('@')[0]
 
   const { subject, body } = await renderTemplate(key, {
     requester_name: name,
     request_type: requestType,
   })
 
-  try {
-    await sendEmail({
-      to: email,
-      subject,
-      body: wrapEmailHtml(body, { appName: 'VO Hub' }),
-      isHtml: true,
-    })
-  } catch {}
+  const result = await sendEmail({
+    to: email,
+    subject,
+    body: wrapEmailHtml(body, { appName: 'VO Hub' }),
+    isHtml: true,
+  })
+  if (!result?.success) {
+    console.warn('[sendStatusChangeEmail] send failed', result?.error)
+  }
 
   // Create in-app notification
-  const userId = request.user_id || request.requester_id
   const notifTitle = newStatus === 'in_progress' ? 'Request in progress' : 'Request ready'
   const notifMsg = newStatus === 'in_progress'
     ? `Your ${requestType} request is being prepared by the IT team.`
     : `Your ${requestType} request is ready! Come pick it up at the IT desk.`
   createNotification(userId, notifTitle, notifMsg)
 }
+
 
 export const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
