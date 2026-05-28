@@ -63,7 +63,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
 
   const appName = settings?.app_name || 'VO Hub'
   const logoUrl = settings?.logo_url || ''
-  const tagline = settings?.tagline || ''
+  const tagline = settings?.email_tagline || ''
   const logoHeight = settings?.email_logo_height || 0
 
   // Load default template or editing invitation data

@@ -207,13 +207,13 @@ export async function getEmailBranding() {
   try {
     const { data, error } = await supabase
       .from('app_settings')
-      .select('app_name, logo_url, tagline, email_logo_height')
+      .select('app_name, logo_url, email_tagline, email_logo_height')
       .maybeSingle()
     if (error) throw error
     const branding = {
       appName: data?.app_name || 'VO Hub',
       logoUrl: data?.logo_url || '',
-      tagline: data?.tagline || '',
+      tagline: data?.email_tagline || '',
       logoHeight: data?.email_logo_height || 0,
     }
     if (!branding.logoUrl) {

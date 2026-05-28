@@ -687,7 +687,7 @@ export function AdminMailboxRequestsPage() {
     try {
       const appName = settings?.app_name || 'VO Hub'
       const logoUrl = settings?.logo_url || ''
-      const tagline = settings?.tagline || ''
+      const tagline = settings?.email_tagline || ''
       const logoHeight = settings?.email_logo_height || 0
 
       // Prepare body — replace 1Password placeholder

@@ -74,7 +74,7 @@ export function AdminEmailTemplatesPage() {
     return wrapEmailHtml(resolved, {
       appName: settings?.app_name || 'VO Hub',
       logoUrl: settings?.logo_url || '',
-      tagline: settings?.tagline || '',
+      tagline: settings?.email_tagline || '',
       logoHeight: settings?.email_logo_height || 0,
       raw,
     })
