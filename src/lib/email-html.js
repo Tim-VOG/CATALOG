@@ -203,9 +203,11 @@ export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline 
   // Use the uploaded brand logo if available, capped to a sensible
   // email-friendly size so it can't blow out of the card. Fall back to
   // a black pill badge when no logo is configured.
-  const h = logoHeight || 36
+  // Hard-cap the logo so a misconfigured email_logo_height in settings
+  // (or an oversized SVG) can never blow out of the header.
+  const h = Math.min(Math.max(logoHeight || 36, 16), 48)
   const logoCell = logoUrl
-    ? `<img src="${escapeAttr(logoUrl)}" alt="${escapeAttr(appName)}" height="${h}" style="display:block;width:auto;height:${h}px;max-height:${h}px;max-width:180px;object-fit:contain;border:0;outline:none;text-decoration:none;" />`
+    ? `<img src="${escapeAttr(logoUrl)}" alt="${escapeAttr(appName)}" width="auto" height="${h}" style="display:block !important;width:auto !important;height:${h}px !important;max-height:${h}px !important;max-width:160px !important;object-fit:contain;border:0;outline:none;text-decoration:none;" />`
     : `<div style="display:inline-block;padding:6px 12px;border-radius:8px;background:#0a0a0a;color:#ffffff;font-size:15px;font-weight:700;letter-spacing:-0.2px;">${escapeHtml(appName)}</div>`
 
   return `<!DOCTYPE html>

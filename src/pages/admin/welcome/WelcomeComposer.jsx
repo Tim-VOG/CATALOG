@@ -103,7 +103,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
       const branding = {
         appName: settings?.app_name || 'VO Hub',
         logoUrl: settings?.logo_url || '',
-        logoHeight: settings?.logo_height || 36,
+        logoHeight: settings?.email_logo_height || 36,
       }
       return buildMjmlFromBlocks(blocksConfig, language, recipient, sender, branding)
     } catch {

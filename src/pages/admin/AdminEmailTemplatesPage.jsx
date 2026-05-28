@@ -75,7 +75,7 @@ export function AdminEmailTemplatesPage() {
       appName: settings?.app_name || 'VO Hub',
       logoUrl: settings?.logo_url || '',
       tagline: settings?.tagline || '',
-      logoHeight: settings?.logo_height || 0,
+      logoHeight: settings?.email_logo_height || 0,
       raw,
     })
   }, [body, settings])
