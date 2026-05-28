@@ -23,12 +23,9 @@ const TEMPLATE_ICONS = {
   request_in_progress: '⏳',
   request_ready: '✅',
   request_return_reminder: '🔔',
-  request_overdue: '⚠️',
-  request_return_confirmed: '📦',
   user_invitation: '📧',
   mailbox_confirmation: '📬',
-  onboarding_welcome: '👋',
-  dashboard_reminder: '⏰',
+  onboarding_confirmation: '👋',
 }
 
 const TEMPLATE_DESCRIPTIONS = {
@@ -36,12 +33,9 @@ const TEMPLATE_DESCRIPTIONS = {
   request_in_progress: 'Sent when admin starts processing',
   request_ready: 'Sent when the request is completed',
   request_return_reminder: 'Sent 3 days before the expected return date',
-  request_overdue: 'Sent when equipment is past the return date',
-  request_return_confirmed: 'Sent when equipment is returned',
   user_invitation: 'Sent when inviting a new user',
   mailbox_confirmation: 'Sent when a functional mailbox has been created',
-  onboarding_welcome: 'Sent to a new hire as a welcome (single email)',
-  dashboard_reminder: 'Quick reminder sent from the admin dashboard',
+  onboarding_confirmation: 'Sent to the requester when an onboarding request is submitted (with HR reminder)',
 }
 
 const CATEGORIES = [

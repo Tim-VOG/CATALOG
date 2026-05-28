@@ -17,7 +17,12 @@ let initialized = false
 async function loadSentry() {
   if (!DSN) return null
   if (sentryPromise) return sentryPromise
-  sentryPromise = import('@sentry/react').then((Sentry) => {
+  // Treat @sentry/react as fully optional. The /* @vite-ignore */ comment
+  // + variable specifier stops Vite/Rollup from attempting to resolve it
+  // at build time, so the bundle builds whether or not the package is
+  // installed. Catch branch handles the missing-package case at runtime.
+  const pkg = '@sentry/react'
+  sentryPromise = import(/* @vite-ignore */ pkg).then((Sentry) => {
     if (!initialized) {
       try {
         Sentry.init({
