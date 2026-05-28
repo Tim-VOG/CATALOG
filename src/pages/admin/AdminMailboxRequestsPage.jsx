@@ -5,6 +5,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml } from '@/lib/email-html'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
+import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   Search, Mail, Trash2, Eye, Calendar, Building2, ArrowLeft,
@@ -660,6 +661,7 @@ export function AdminMailboxRequestsPage() {
   const handleStatusChange = async (req, newStatus) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
+      sendStatusChangeEmail(newStatus, { request: req, requestType: 'mailbox' })
       showToast(`Request ${newStatus}`)
     } catch (err) {
       showToast(err.message || 'Update failed', 'error')

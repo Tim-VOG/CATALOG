@@ -110,7 +110,7 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
   const email = request.user_email || request.requester_email
   if (!email) return
 
-  const name = request.user_first_name || request.requester_name || email.split('@')[0]
+  const name = request.user_first_name || request.requester_name || request.requested_by_name || email.split('@')[0]
 
   const { subject, body } = await renderTemplate(key, {
     requester_name: name,
