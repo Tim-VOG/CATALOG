@@ -291,6 +291,66 @@ export function MyRequestsPage() {
         : (detail.data?.name || detail.data?.employee_name || detail.data?.project_name || `${detailType.label} Request`))
     : ''
 
+  // ── Inline detail view (replaces the list) ───────────────────
+  if (detail && detailType) {
+    return (
+      <div className="max-w-2xl mx-auto py-10 px-4 space-y-5">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setDetail(null)} className="gap-1.5 text-xs">
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to My Requests
+          </Button>
+        </div>
+
+        <div className="rounded-2xl border bg-card overflow-hidden">
+          <div className="p-5 border-b border-border/50 flex items-center gap-3">
+            <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center shrink-0', detailType.bg)}>
+              <detailType.icon className={cn('h-6 w-6', detailType.color)} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-display font-bold truncate">{detailTitle}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="text-[10px]">{detailType.label}</Badge>
+                <Badge variant="outline" className={cn('text-[10px]',
+                  detail.status === 'pending' && 'bg-amber-500/10 text-amber-600 border-amber-500/30',
+                  detail.status === 'in_progress' && 'bg-blue-500/10 text-blue-600 border-blue-500/30',
+                  detail.status === 'ready' && 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
+                )}>{detail.status}</Badge>
+              </div>
+            </div>
+          </div>
+          <div className="p-5">
+            <RequestDataRows request={detail} />
+          </div>
+          {canCancel && (
+            <div className="p-4 border-t border-border/50 bg-muted/20 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground flex-1">You can still edit or cancel this request.</span>
+              <Button variant="outline" className="gap-2" onClick={() => handleEdit(detail)}>
+                <Pencil className="h-4 w-4" /> Edit
+              </Button>
+              <Button variant="destructive" className="gap-2" onClick={() => setDeleteConfirm(detail)}>
+                <Trash2 className="h-4 w-4" /> Cancel request
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Cancel confirm */}
+        <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+          <DialogContent className="p-6">
+            <DialogHeader><DialogTitle>Cancel this request?</DialogTitle></DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              This will delete the request permanently. You can submit a new one anytime.
+            </p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Keep it</Button>
+              <Button variant="destructive" onClick={handleDelete}>Yes, cancel</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-2xl mx-auto py-10 px-4 space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
@@ -333,63 +393,6 @@ export function MyRequestsPage() {
         </div>
       )}
 
-      {/* Detail dialog */}
-      <Dialog open={!!detail} onOpenChange={() => setDetail(null)}>
-        <DialogContent className="max-w-lg p-0 overflow-hidden">
-          {detail && detailType && (
-            <>
-              <div className="p-5 border-b border-border/50 flex items-center gap-3">
-                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center', detailType.bg)}>
-                  <detailType.icon className={cn('h-5 w-5', detailType.color)} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <DialogTitle className="text-base">{detailTitle}</DialogTitle>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-[10px]">{detailType.label}</Badge>
-                    <Badge variant="outline" className={cn('text-[10px]',
-                      detail.status === 'pending' && 'bg-amber-500/10 text-amber-600 border-amber-500/30',
-                      detail.status === 'in_progress' && 'bg-blue-500/10 text-blue-600 border-blue-500/30',
-                      detail.status === 'ready' && 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
-                    )}>
-                      {detail.status}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <div className="p-5 max-h-[60vh] overflow-y-auto">
-                <RequestDataRows request={detail} />
-              </div>
-              <DialogFooter className="p-5 border-t border-border/50 gap-2 flex-wrap">
-                <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
-                {canCancel && (
-                  <>
-                    <Button variant="outline" className="gap-2" onClick={() => handleEdit(detail)}>
-                      <Pencil className="h-4 w-4" /> Edit
-                    </Button>
-                    <Button variant="destructive" className="gap-2" onClick={() => setDeleteConfirm(detail)}>
-                      <Trash2 className="h-4 w-4" /> Cancel request
-                    </Button>
-                  </>
-                )}
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Cancel confirm */}
-      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-        <DialogContent className="p-6">
-          <DialogHeader><DialogTitle>Cancel this request?</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            This will delete the request permanently. You can submit a new one anytime.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Keep it</Button>
-            <Button variant="destructive" onClick={handleDelete}>Yes, cancel</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

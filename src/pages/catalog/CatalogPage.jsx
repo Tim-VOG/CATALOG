@@ -83,7 +83,7 @@ export function CatalogPage() {
       return true
     })
     return sortProducts(list, sortBy)
-  }, [products, selectedCategory, inStockOnly, searchQuery, sortBy])
+  }, [products, favoritesOnly, favCount, selectedCategory, inStockOnly, searchQuery, sortBy])
 
   const totalInStock = products.filter((p) => p.total_stock > 0).length
 
