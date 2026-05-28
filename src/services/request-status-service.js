@@ -1,6 +1,6 @@
 import { sendEmail } from '@/lib/api/send-email'
 import { supabase } from '@/lib/supabase'
-import { wrapEmailHtml } from '@/lib/email-html'
+import { wrapEmailHtml, generateItemsHtml } from '@/lib/email-html'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 
 export async function createNotification(userId, title, message, type = 'status_change') {
@@ -42,11 +42,11 @@ const FALLBACK_TEMPLATES = {
   },
   request_in_progress: {
     subject: 'Your {{request_type}} request is being prepared',
-    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request is now being prepared by the IT team.\n\n${card([{ label: 'Status', value: 'In Progress', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\nWe'll let you know as soon as it's ready.\n\nBest,\nThe VO Hub Team`,
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request is now being prepared by the IT team.\n\n${card([{ label: 'Status', value: 'In Progress', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\n{{items_html}}\n\nWe'll let you know as soon as it's ready.\n\nBest,\nThe VO Hub Team`,
   },
   request_ready: {
     subject: 'Your {{request_type}} request is ready',
-    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been completed and is ready for pickup at the IT desk.\n\n${card([{ label: 'Status', value: 'Ready', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\nCome by the IT desk whenever you're ready.\n\nBest,\nThe VO Hub Team`,
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been completed and is ready for pickup at the IT desk.\n\n${card([{ label: 'Status', value: 'Ready', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\n{{items_html}}\n\nCome by the IT desk whenever you're ready.\n\nBest,\nThe VO Hub Team`,
   },
   request_return_reminder: {
     subject: 'Reminder: {{product_name}} due back on {{return_date}}',
@@ -178,11 +178,25 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
   }
   if (!name) name = email.split('@')[0]
 
+  // For equipment loan requests, include the list of items (with images)
+  // so the requester sees exactly what's being prepared / ready.
+  let itemsHtml = ''
+  if (requestType === 'equipment' && request?.id) {
+    try {
+      const { data: items } = await supabase
+        .from('loan_request_items_with_details')
+        .select('*')
+        .eq('request_id', request.id)
+      if (items?.length) itemsHtml = generateItemsHtml(items)
+    } catch {}
+  }
+
   const { subject, body } = await renderTemplate(key, {
     requester_name: name,
     request_type: requestType,
     subject_label: subjectLabelFor(requestType),
     subject_name: subjectNameFor(request, requestType),
+    items_html: itemsHtml,
   })
 
   console.log('[sendStatusChangeEmail] sending', { to: email, subject, key })
