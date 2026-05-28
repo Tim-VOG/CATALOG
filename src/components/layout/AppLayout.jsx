@@ -8,6 +8,7 @@ import { BottomTabBar } from './BottomTabBar'
 import { NavigationProgress } from '@/components/common/NavigationProgress'
 import { OnboardingTour } from '@/components/common/OnboardingTour'
 import { PageTransition } from '@/components/ui/motion'
+import { PageLoading } from '@/components/common/LoadingSpinner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
 import { useTheme, useThemeMode } from '@/hooks/use-theme'
@@ -65,7 +66,7 @@ export function AppLayout() {
         <main id="main-content" className="px-3 py-4 pb-20 sm:px-6 sm:py-6 md:pb-6 lg:px-10">
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname} direction={direction.current}>
-              <Suspense fallback={null}>
+              <Suspense fallback={<PageLoading />}>
                 <Outlet />
               </Suspense>
             </PageTransition>

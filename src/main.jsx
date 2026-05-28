@@ -32,8 +32,30 @@ window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem
 // Register the PWA service worker (production only — keeps the dev
 // experience uncluttered by stale-cache surprises).
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js')
+      // When a new SW takes over (after a deploy), reload once so the page
+      // is rendered from the fresh shell + chunks instead of the cached pair.
+      let reloaded = false
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloaded) return
+        reloaded = true
+        window.location.reload()
+      })
+      // Force the waiting SW to activate ASAP — it skipWaiting()s itself but
+      // we nudge it for browsers that hold off.
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing
+        if (!nw) return
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            nw.postMessage({ type: 'SKIP_WAITING' })
+          }
+        })
+      })
+    } catch {}
   })
 }
 
