@@ -503,7 +503,7 @@ export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = 
           Sent from <span style="color:#525f7f;font-weight:600;">VO Hub</span>
         </mj-text>
         <mj-text align="left" font-size="11px" color="#aab7c4" padding="0">
-          This is an automated message &mdash; please do not reply directly.
+          Need help? Just reply to this email and the IT team will get back to you.
         </mj-text>
       </mj-column>
     </mj-section>

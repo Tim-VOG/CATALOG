@@ -279,7 +279,7 @@ export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline 
                 Sent from <strong style="color:#525f7f;font-weight:600;">${escapeHtml(appName)}</strong>
               </div>
               <div style="font-size:11px;color:#aab7c4;margin-top:4px;">
-                This is an automated message &mdash; please do not reply directly.
+                Need help? Just reply to this email and the IT team will get back to you.
               </div>
             </td>
           </tr>
