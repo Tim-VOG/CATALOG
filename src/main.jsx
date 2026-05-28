@@ -14,20 +14,26 @@ import './lib/monitoring' // registers Sentry if VITE_SENTRY_DSN is set
 // old index.html try to lazy-import the now-404 chunk and Vite throws
 // "Failed to fetch dynamically imported module". A single forced reload
 // pulls the latest index.html + chunks.
-const CHUNK_RELOAD_FLAG = 'vo-hub-chunk-reload'
-function isStaleChunkError(message) {
+const CHUNK_RELOAD_COUNTER = 'vo-hub-chunk-reload-count'
+function isStaleChunkError(error) {
+  const message = typeof error === 'string' ? error : (error?.message || '')
+  const name = error?.name || ''
+  if (name === 'ChunkLoadError') return true
   if (!message) return false
-  return /Failed to fetch dynamically imported module|Importing a module script failed|Loading chunk \d+ failed/i.test(message)
+  return /Failed to (fetch|load) dynamically imported module|Importing a module script failed|Loading chunk \d+ failed|error loading dynamically imported module|Unable to preload CSS/i.test(message)
 }
-function recoverFromStaleChunk(message) {
-  if (!isStaleChunkError(message)) return
-  if (sessionStorage.getItem(CHUNK_RELOAD_FLAG)) return // already retried once
-  sessionStorage.setItem(CHUNK_RELOAD_FLAG, '1')
+function recoverFromStaleChunk(error) {
+  if (!isStaleChunkError(error)) return
+  const tries = parseInt(sessionStorage.getItem(CHUNK_RELOAD_COUNTER) || '0', 10)
+  if (tries >= 2) return // give up after 2 auto-reloads to avoid infinite loop
+  sessionStorage.setItem(CHUNK_RELOAD_COUNTER, String(tries + 1))
   window.location.reload()
 }
-window.addEventListener('error', (e) => recoverFromStaleChunk(e?.message || e?.error?.message))
-window.addEventListener('unhandledrejection', (e) => recoverFromStaleChunk(e?.reason?.message || String(e?.reason || '')))
-window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem(CHUNK_RELOAD_FLAG), 5000))
+window.addEventListener('error', (e) => recoverFromStaleChunk(e?.error || e?.message))
+window.addEventListener('unhandledrejection', (e) => recoverFromStaleChunk(e?.reason))
+// Reset the counter once the new page has rendered successfully, so future
+// deploys can still trigger auto-recovery from the same tab.
+window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem(CHUNK_RELOAD_COUNTER), 4000))
 
 // Register the PWA service worker (production only — keeps the dev
 // experience uncluttered by stale-cache surprises).

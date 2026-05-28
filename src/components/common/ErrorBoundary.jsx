@@ -16,6 +16,25 @@ export class ErrorBoundary extends Component {
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary]', error, errorInfo)
     captureException(error, { componentStack: errorInfo?.componentStack })
+
+    // If a lazy chunk failed to load (typical after a Vercel redeploy
+    // re-hashes /assets/*.js), the user lands on a blank error screen
+    // and has to refresh. Auto-recover by forcing one reload — same
+    // logic as main.jsx but here we catch it once it's already in the
+    // React tree (Suspense's promise rejection path).
+    const msg = error?.message || ''
+    const name = error?.name || ''
+    const isChunkError =
+      name === 'ChunkLoadError' ||
+      /Failed to (fetch|load) dynamically imported module|Importing a module script failed|Loading chunk \d+ failed|Unable to preload CSS/i.test(msg)
+    if (isChunkError) {
+      const KEY = 'vo-hub-chunk-reload-count'
+      const tries = parseInt(sessionStorage.getItem(KEY) || '0', 10)
+      if (tries < 2) {
+        sessionStorage.setItem(KEY, String(tries + 1))
+        window.location.reload()
+      }
+    }
   }
 
   handleRetry = () => {
