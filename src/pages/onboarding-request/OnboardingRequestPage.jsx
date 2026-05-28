@@ -6,6 +6,7 @@ import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail, buildConfirmationSubject } from '@/services/request-status-service'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useUIStore } from '@/stores/ui-store'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -631,7 +632,7 @@ export function OnboardingRequestPage() {
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `New Onboarding Request: ${fullName}`,
-        body: `<p><strong>${submitterName}</strong> submitted an onboarding request:</p>
+        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an onboarding request:
           <ul>
             <li><strong>Name:</strong> ${fullName}</li>
             <li><strong>Mail to be created:</strong> ${fullEmail || '—'}</li>
@@ -648,7 +649,8 @@ export function OnboardingRequestPage() {
             <li><strong>Emailing list:</strong> ${Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '—'}</li>
             <li><strong>Internal Newsletter:</strong> ${form.internal_newsletter === true ? 'Yes' : form.internal_newsletter === false ? 'No' : '—'}</li>
             <li><strong>Welcome Interview:</strong> ${form.welcome_interview === true ? 'Yes' : form.welcome_interview === false ? 'No' : '—'}</li>
-          </ul>`,
+          </ul>`, { ...(await getEmailBranding()), raw: true }),
+        isHtml: true,
       })
 
       navigate('/')

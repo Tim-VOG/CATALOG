@@ -6,6 +6,7 @@ import { useMailboxFormFields } from '@/hooks/use-mailbox-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { supabase } from '@/lib/supabase'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -624,7 +625,8 @@ export function FunctionalMailboxFormPage() {
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `Mailbox Request: ${form.email_to_create || form.project_name}`,
-        body: `<p><strong>${submitterName}</strong> submitted a mailbox request. Please review it in the admin panel.</p>`,
+        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted a mailbox request. Please review it in the admin panel.`, await getEmailBranding()),
+        isHtml: true,
       })
 
       navigate('/')

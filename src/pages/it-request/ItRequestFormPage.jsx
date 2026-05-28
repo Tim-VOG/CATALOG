@@ -5,6 +5,7 @@ import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useItFormFields } from '@/hooks/use-it-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { BUSINESS_UNITS } from '@/lib/constants/business-units'
@@ -462,7 +463,8 @@ export function ItRequestFormPage() {
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `New IT Request from ${submitterName}`,
-        body: `<p><strong>${submitterName}</strong> submitted an IT request. Please review it in the admin panel.</p>`,
+        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an IT request. Please review it in the admin panel.`, await getEmailBranding()),
+        isHtml: true,
       })
 
       // Auto-create onboarding recipient so they appear in the Compose dropdown

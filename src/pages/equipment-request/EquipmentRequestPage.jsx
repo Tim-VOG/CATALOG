@@ -7,6 +7,7 @@ import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   User, Calendar, Monitor, CheckCircle, CreditCard,
@@ -748,7 +749,8 @@ export function EquipmentRequestPage() {
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `Equipment Request: ${form.event_name}`,
-        body: `<p><strong>${submitterName}</strong> submitted an equipment request for event <strong>${form.event_name}</strong>.</p>`,
+        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an equipment request for event <strong>${form.event_name}</strong>.`, await getEmailBranding()),
+        isHtml: true,
       })
 
       navigate('/')

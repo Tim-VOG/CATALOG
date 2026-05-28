@@ -6,6 +6,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { useCart, useUpdateCartItem, useRemoveFromCart, useCheckoutCart } from '@/hooks/use-cart'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import {
   ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ArrowRight,
@@ -250,7 +251,8 @@ export function CartPage() {
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `New Equipment Request from ${submitterName}`,
-        body: `<p><strong>${submitterName}</strong> submitted an equipment request: <strong>${projectName || 'Equipment'}</strong> (${totalItems} items). Please review it in the admin panel.</p>`,
+        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an equipment request: <strong>${projectName || 'Equipment'}</strong> (${totalItems} items). Please review it in the admin panel.`, await getEmailBranding()),
+        isHtml: true,
       })
 
       navigate('/my-requests')

@@ -5,6 +5,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   UserMinus, Calendar, Shield, Monitor, User, CheckCircle,
@@ -438,9 +439,8 @@ export function OffboardingRequestPage() {
       sendEmail({
         to: 'admin@vo-group.be',
         subject: `Offboarding Request: ${form.name || 'Unknown'}`,
-        body: `<p><strong>${submitterName}</strong> submitted an offboarding request for <strong>${form.name}</strong> (${form.company}).</p>
-          <p>Departure date: ${form.departure_on}</p>
-          <p>Please review it in the admin panel.</p>`,
+        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an offboarding request for <strong>${form.name}</strong> (${form.company}).<br><br>Departure date: ${form.departure_on}<br><br>Please review it in the admin panel.`, await getEmailBranding()),
+        isHtml: true,
       })
 
       navigate('/')
