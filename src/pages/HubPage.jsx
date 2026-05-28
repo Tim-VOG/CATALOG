@@ -8,7 +8,7 @@ import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import {
   Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus,
-  Loader2, CheckCircle, Sparkles, Bell, Clock,
+  Loader2, CheckCircle, Sparkles, Clock,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -128,14 +128,7 @@ export function HubPage() {
         color="blue" buttonLabel="Start Scanning" />
     )
   }
-  // Always show My Requests so admins can review their own personal submissions
-  cards.push(
-    <HubCard key="my-requests" to="/my-requests" icon={Inbox}
-      title="My Requests"
-      description="Track and cancel your submitted requests."
-      color="amber" buttonLabel="View Requests"
-      badge={(pendingRequests + inProgressRequests) > 0 ? `${pendingRequests + inProgressRequests} active` : null} />
-  )
+  // 'My Requests' lives in the stats dashboard at the top — no card here.
   cards.push(
     <HubCard key="onboarding-request" to="/onboarding-request" icon={UserPlus}
       title="Onboarding"
@@ -175,35 +168,6 @@ export function HubPage() {
         </h1>
         <p className="text-muted-foreground text-sm mt-2">What do you need today?</p>
       </motion.div>
-
-      {/* Ready-to-pickup callout */}
-      {readyRequests > 0 && (
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <Link to="/my-requests" className="block">
-            <Card variant="elevated" className="border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent hover:shadow-card-hover transition-all cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
-                  <Bell className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold">
-                    {readyRequests} request{readyRequests > 1 ? 's' : ''} ready for pickup
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Drop by the IT desk to collect your equipment.
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-emerald-600 shrink-0" />
-              </CardContent>
-            </Card>
-          </Link>
-        </motion.div>
-      )}
 
       {/* Stats dashboard — shown to everyone (admins see their own personal requests too) */}
       {allRequests.length > 0 && (
