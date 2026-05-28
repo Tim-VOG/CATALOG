@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { sanitizeSearch } from '@/lib/sanitize'
 
 export const getProfile = async (userId) => {
   const { data, error } = await supabase
@@ -30,8 +31,9 @@ export const getProfiles = async ({ search, role } = {}) => {
   if (role && role !== 'all') {
     query = query.eq('role', role)
   }
-  if (search) {
-    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
+  const q = sanitizeSearch(search)
+  if (q) {
+    query = query.or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`)
   }
 
   const { data, error } = await query

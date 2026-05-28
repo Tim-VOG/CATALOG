@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { sanitizeSearch } from '@/lib/sanitize'
 
 // ── QR Codes ──────────────────────────────────────────
 
@@ -12,8 +13,9 @@ export const getQRCodes = async ({ search, active } = {}) => {
     query = query.eq('is_active', active)
   }
 
-  if (search) {
-    query = query.or(`code.ilike.%${search}%,label.ilike.%${search}%,product_name.ilike.%${search}%`)
+  const q = sanitizeSearch(search)
+  if (q) {
+    query = query.or(`code.ilike.%${q}%,label.ilike.%${q}%,product_name.ilike.%${q}%`)
   }
 
   const { data, error } = await query
@@ -129,8 +131,9 @@ export const getScanLogs = async ({ search, action, limit = 100 } = {}) => {
     query = query.eq('action', action)
   }
 
-  if (search) {
-    query = query.or(`qr_code.ilike.%${search}%,product_name.ilike.%${search}%,user_name.ilike.%${search}%,user_email.ilike.%${search}%`)
+  const q2 = sanitizeSearch(search)
+  if (q2) {
+    query = query.or(`qr_code.ilike.%${q2}%,product_name.ilike.%${q2}%,user_name.ilike.%${q2}%,user_email.ilike.%${q2}%`)
   }
 
   const { data, error } = await query

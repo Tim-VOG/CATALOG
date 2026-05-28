@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { sanitizeSearch } from '@/lib/sanitize'
 
 export const getProducts = async ({ search, category } = {}) => {
   let query = supabase
@@ -10,8 +11,9 @@ export const getProducts = async ({ search, category } = {}) => {
     query = query.eq('category_name', category)
   }
 
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+  const q = sanitizeSearch(search)
+  if (q) {
+    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`)
   }
 
   const { data, error } = await query

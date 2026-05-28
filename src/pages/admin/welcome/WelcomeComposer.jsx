@@ -303,6 +303,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
                 className="w-full border-0"
                 style={{ minHeight: '500px', height: '60vh' }}
                 title="Email preview"
+                sandbox=""
               />
             </div>
           </div>
@@ -355,6 +356,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
             className="w-full border rounded-lg"
             style={{ height: '70vh' }}
             title="Full email preview"
+            sandbox=""
           />
         </DialogContent>
       </Dialog>

@@ -420,6 +420,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                   className="w-full border-0"
                   style={{ minHeight: '480px', height: '55vh' }}
                   title="Invitation email preview"
+                  sandbox=""
                 />
               </div>
             </div>
@@ -463,6 +464,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
             className="w-full border rounded-lg"
             style={{ height: '70vh' }}
             title="Full invitation email preview"
+            sandbox=""
           />
         </DialogContent>
       </Dialog>
