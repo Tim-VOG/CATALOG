@@ -39,7 +39,7 @@ export async function checkAndSendReturnReminders() {
       await sendEmail({
         to: item.user_email,
         subject,
-        body: wrapEmailHtml(body, { appName: 'VO Hub', raw: true }),
+        body: wrapEmailHtml(body, { appName: 'VO Hub' }),
         isHtml: true,
       })
     }

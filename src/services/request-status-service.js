@@ -80,7 +80,7 @@ export async function buildConfirmationEmail({ name, type, detail, newHireName }
     new_hire_name: newHireName || detail || 'the new hire',
   }
   const { body } = await renderTemplate(key, vars)
-  return wrapEmailHtml(body, { appName: 'VO Hub', raw: true })
+  return wrapEmailHtml(body, { appName: 'VO Hub' })
 }
 
 export async function buildConfirmationSubject({ type, newHireName, detail }) {
@@ -121,7 +121,7 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
     await sendEmail({
       to: email,
       subject,
-      body: wrapEmailHtml(body, { appName: 'VO Hub', raw: true }),
+      body: wrapEmailHtml(body, { appName: 'VO Hub' }),
       isHtml: true,
     })
   } catch {}
