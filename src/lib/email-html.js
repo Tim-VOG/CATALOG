@@ -193,7 +193,7 @@ export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline 
   //  2. **bold** → <strong> (also in raw mode — DB templates use markdown bold
   //     inside their inline-HTML status boxes and shouldn't render as literal asterisks)
   let processedBody = (body || '')
-    .replace(/\{\{cta:([^|}]+)\|([^}]+)\}\}/g, (_, label, url) => ctaButton(label.trim(), url.trim()))
+    .replace(/\{\{cta:([^|]+?)\|((?:[^{}]|\{\{[^}]+\}\})+?)\}\}(?!\})/g, (_, label, url) => ctaButton(label.trim(), url.trim()))
     .replace(/\*\*([^*\n]+)\*\*/g, '<strong style="color:#0a2540;font-weight:600;">$1</strong>')
 
   const htmlBody = raw ? processedBody : formatTextToHtml(processedBody)
