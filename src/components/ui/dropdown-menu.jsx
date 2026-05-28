@@ -8,13 +8,23 @@ function DropdownMenu({ children }) {
   const [open, setOpen] = React.useState(false)
   const ref = React.useRef(null)
 
+  // Outside-click via 'click' (fires AFTER React's synthetic click handlers,
+  // so toggling the trigger doesn't race with this closer) — guard with
+  // !open so re-opens via the trigger aren't immediately re-closed.
   React.useEffect(() => {
+    if (!open) return
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+    // Defer attaching so the click that opened the menu doesn't get
+    // intercepted by this listener (the original click is still bubbling
+    // when we attach inside the same event tick).
+    const id = setTimeout(() => document.addEventListener('click', handler), 0)
+    return () => {
+      clearTimeout(id)
+      document.removeEventListener('click', handler)
+    }
+  }, [open])
 
   // ESC key to close
   React.useEffect(() => {
@@ -39,14 +49,8 @@ function DropdownMenu({ children }) {
 function DropdownMenuTrigger({ children, asChild, ...props }) {
   const { open, setOpen } = React.useContext(DropdownContext)
   const handleClick = (e) => {
-    e.stopPropagation()
+    e.preventDefault()
     setOpen((o) => !o)
-  }
-  const handleMouseDown = (e) => {
-    // Prevent the outside-click listener (mousedown) from racing with our
-    // own click handler — otherwise the very first tap can close the menu
-    // before onClick fires, making the user think it needs a double click.
-    e.stopPropagation()
   }
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
@@ -56,7 +60,6 @@ function DropdownMenuTrigger({ children, asChild, ...props }) {
   }
   const triggerProps = {
     onClick: handleClick,
-    onMouseDown: handleMouseDown,
     onKeyDown: handleKeyDown,
     'aria-haspopup': 'menu',
     'aria-expanded': open,

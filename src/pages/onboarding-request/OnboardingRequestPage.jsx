@@ -493,6 +493,16 @@ export function OnboardingRequestPage() {
   const [submitting, setSubmitting] = useState(false)
   const [emailLocalEdited, setEmailLocalEdited] = useState(false)
 
+  // Pre-fill from a "vo-edit-request" stash (set by My Requests > Edit)
+  const editStash = (() => {
+    try {
+      const raw = sessionStorage.getItem('vo-edit-request')
+      if (!raw) return null
+      sessionStorage.removeItem('vo-edit-request')
+      return JSON.parse(raw)
+    } catch { return null }
+  })()
+
   const [form, setForm] = useState({
     // Identity
     first_name: '',
@@ -522,6 +532,8 @@ export function OnboardingRequestPage() {
     // Requester
     requested_on: new Date().toISOString().split('T')[0],
     requested_by: '',
+    // Edit stash overrides any default
+    ...(editStash || {}),
   })
 
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))

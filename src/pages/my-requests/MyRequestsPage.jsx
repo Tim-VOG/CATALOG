@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests, useDeleteLoanRequest } from '@/hooks/use-loan-requests'
 import { useMyItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
@@ -8,7 +9,7 @@ import { motion } from 'motion/react'
 import {
   Package, Clock, Loader2, CheckCircle, UserPlus,
   UserMinus, Mail, Inbox, ClipboardList, ThumbsUp, ThumbsDown,
-  Eye, Trash2, ArrowLeft,
+  Eye, Trash2, Pencil, ArrowLeft,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -192,6 +193,7 @@ function RequestCard({ request, type, onOpen }) {
 
 export function MyRequestsPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const showToast = useUIStore((s) => s.showToast)
   const [typeFilter, setTypeFilter] = useState('all')
   const [detail, setDetail] = useState(null)
@@ -239,6 +241,44 @@ export function MyRequestsPage() {
       showToast(err.message || 'Failed to cancel', 'error')
     }
     setDeleteConfirm(null)
+  }
+
+  // Edit = stash payload in sessionStorage, delete the pending row, route to
+  // the matching form so the user can re-submit with values pre-filled.
+  const handleEdit = async (r) => {
+    if (!r) return
+    try {
+      const payload = r._type === 'equipment'
+        ? { project_name: r.project_name, pickup_date: r.pickup_date, return_date: r.return_date, notes: r.notes }
+        : (r.data || {})
+      sessionStorage.setItem('vo-edit-request', JSON.stringify(payload))
+
+      if (r._type === 'equipment') {
+        await deleteLoan.mutateAsync(r.id)
+        showToast('Request cancelled — re-add items to the cart and resubmit')
+        setDetail(null)
+        navigate('/catalog')
+        return
+      }
+      if (r._type === 'mailbox') {
+        await deleteMailbox.mutateAsync(r.id)
+        showToast('Request cancelled — refill the form to resubmit')
+        setDetail(null)
+        navigate('/functional-mailbox')
+        return
+      }
+      // IT-style: onboarding / offboarding / generic IT
+      await deleteIt.mutateAsync(r.id)
+      showToast('Request cancelled — refill the form to resubmit')
+      setDetail(null)
+      const route =
+        r._type === 'onboarding'  ? '/onboarding-request'  :
+        r._type === 'offboarding' ? '/offboarding-request' :
+        '/it-request'
+      navigate(route)
+    } catch (err) {
+      showToast(err.message || 'Failed to edit', 'error')
+    }
   }
 
   if (isLoading) return <PageLoading />
@@ -319,16 +359,17 @@ export function MyRequestsPage() {
               <div className="p-5 max-h-[60vh] overflow-y-auto">
                 <RequestDataRows request={detail} />
               </div>
-              <DialogFooter className="p-5 border-t border-border/50 gap-2">
-                {canCancel ? (
+              <DialogFooter className="p-5 border-t border-border/50 gap-2 flex-wrap">
+                <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
+                {canCancel && (
                   <>
-                    <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
+                    <Button variant="outline" className="gap-2" onClick={() => handleEdit(detail)}>
+                      <Pencil className="h-4 w-4" /> Edit
+                    </Button>
                     <Button variant="destructive" className="gap-2" onClick={() => setDeleteConfirm(detail)}>
                       <Trash2 className="h-4 w-4" /> Cancel request
                     </Button>
                   </>
-                ) : (
-                  <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
                 )}
               </DialogFooter>
             </>
