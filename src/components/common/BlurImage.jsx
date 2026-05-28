@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
  * Shows a blurred, slightly scaled placeholder that transitions
  * to the sharp image on load. Falls back to an icon on error.
  */
-export function BlurImage({ src, alt, className, containerClassName, ...props }) {
+export function BlurImage({ src, alt = '', className, containerClassName, ...props }) {
   const [loaded, setLoaded] = useState(false)
   const [errored, setErrored] = useState(false)
 

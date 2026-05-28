@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { RefreshCw, Lock, ShieldCheck } from 'lucide-react'
 import { motion } from 'motion/react'
 
-const ADMIN_PIN = '1357'
+const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '1357'
 const PIN_STORAGE_KEY = 'vo-admin-pin-verified'
 const PIN_EXPIRY_MS = 4 * 60 * 60 * 1000 // 4 hours
 

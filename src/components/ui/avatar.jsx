@@ -6,8 +6,8 @@ const Avatar = React.forwardRef(({ className, ...props }, ref) => (
 ))
 Avatar.displayName = 'Avatar'
 
-const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
-  <img ref={ref} className={cn('aspect-square h-full w-full', className)} {...props} />
+const AvatarImage = React.forwardRef(({ className, alt = '', ...props }, ref) => (
+  <img ref={ref} alt={alt} className={cn('aspect-square h-full w-full', className)} {...props} />
 ))
 AvatarImage.displayName = 'AvatarImage'
 
