@@ -1,4 +1,4 @@
-# VO Gear Hub — E2E Testing Issues Report
+# VO Hub — E2E Testing Issues Report
 
 **Date:** 2026-02-27
 **Tested by:** Claude (automated browser + code review)
