@@ -46,7 +46,7 @@ const STATUS_STYLE = {
   maintenance: { label: 'Maintenance', color: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20' },
 }
 
-const emptyForm = { code: '', product_id: '', label: '', is_active: true }
+const emptyForm = { code: '', product_id: '', label: '', serial_number: '', is_active: true }
 
 export function AdminQRCodesPage() {
   const [search, setSearch] = useState('')
@@ -69,7 +69,7 @@ export function AdminQRCodesPage() {
   const deleteQR = useDeleteQRCode()
 
   const openNew = () => { setEditing(null); setForm({ ...emptyForm, code: generateCode('VO') }); setShowDialog(true) }
-  const openEdit = (qr) => { setEditing(qr); setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', is_active: qr.is_active }); setShowDialog(true) }
+  const openEdit = (qr) => { setEditing(qr); setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', serial_number: qr.serial_number || '', is_active: qr.is_active }); setShowDialog(true) }
 
   const handleSave = async () => {
     try {
@@ -236,6 +236,16 @@ export function AdminQRCodesPage() {
             <div className="space-y-1">
               <Label>Label</Label>
               <Input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Optional label" />
+            </div>
+            <div className="space-y-1">
+              <Label>Serial number</Label>
+              <Input
+                value={form.serial_number}
+                onChange={(e) => setForm({ ...form, serial_number: e.target.value })}
+                placeholder="e.g. C02XL1ABCDEF"
+                className="font-mono text-xs"
+              />
+              <p className="text-[10px] text-muted-foreground">The physical asset's serial — shown when the QR is scanned.</p>
             </div>
           </div>
           <DialogFooter>

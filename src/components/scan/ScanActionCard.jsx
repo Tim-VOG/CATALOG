@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import {
-  ArrowDownToLine, ArrowUpFromLine, Package, Layers, AlertTriangle,
+  ArrowDownToLine, ArrowUpFromLine, Package, AlertTriangle,
   CheckCircle2, XCircle, Calendar, ArrowRight, Bell
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -84,11 +84,12 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
           )}
           <div className="flex-1 min-w-0">
             <h3 className="font-display font-semibold text-lg truncate">{qrData.product_name}</h3>
-              <div className="flex items-center gap-1.5 text-sm text-accent">
-                <Layers className="h-3.5 w-3.5" />
-              </div>
+            {qrData.serial_number && (
+              <p className="text-[11px] font-mono text-muted-foreground truncate mt-0.5">
+                SN: <span className="text-foreground">{qrData.serial_number}</span>
+              </p>
             )}
-            <div className="flex items-center gap-1.5 mt-1">
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               {qrData.category_name && (
                 <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                   style={{ backgroundColor: `${qrData.category_color}20`, color: qrData.category_color }}>
