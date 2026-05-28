@@ -128,6 +128,7 @@ export function ProductCard({ product }) {
     const next = isFav ? favs.filter((id) => id !== product.id) : [...favs, product.id]
     localStorage.setItem('vo-favorites', JSON.stringify(next))
     setIsFav(!isFav)
+    window.dispatchEvent(new Event('vo-favorites-changed'))
   }
 
   return (

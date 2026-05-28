@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
@@ -38,6 +38,21 @@ export function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [favoritesOnly, setFavoritesOnly] = useState(false)
+  // Reactive count so the favorites badge updates as the user hearts items
+  const [favCount, setFavCount] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('vo-favorites') || '[]').length } catch { return 0 }
+  })
+  useEffect(() => {
+    const refresh = () => {
+      try { setFavCount(JSON.parse(localStorage.getItem('vo-favorites') || '[]').length) } catch {}
+    }
+    window.addEventListener('storage', refresh)
+    window.addEventListener('vo-favorites-changed', refresh)
+    return () => {
+      window.removeEventListener('storage', refresh)
+      window.removeEventListener('vo-favorites-changed', refresh)
+    }
+  }, [])
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('name-asc')
 
@@ -114,9 +129,10 @@ export function CatalogPage() {
             </div>
             {cartCount > 0 && (
               <Link to="/cart">
-                <Button size="lg" className="h-11 rounded-xl gap-2 bg-primary hover:bg-primary/90 shadow-lg">
+                <Button size="lg" className="h-11 rounded-xl gap-2 bg-primary hover:bg-primary/90 shadow-lg whitespace-nowrap">
                   <ShoppingCart className="h-4 w-4" />
                   <span className="font-bold">{cartCount}</span>
+                  <span className="hidden sm:inline">Go to cart</span>
                 </Button>
               </Link>
             )}
@@ -165,15 +181,26 @@ export function CatalogPage() {
         <button
           type="button"
           onClick={() => setFavoritesOnly(!favoritesOnly)}
+          disabled={!favoritesOnly && favCount === 0}
           className={cn(
             'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
             favoritesOnly
               ? 'bg-rose-500/15 text-rose-500 ring-1 ring-rose-500/30'
-              : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+              : 'bg-muted/50 text-muted-foreground hover:bg-muted',
+            !favoritesOnly && favCount === 0 && 'opacity-50 cursor-not-allowed hover:bg-muted/50'
           )}
+          title={favCount === 0 ? 'Heart an item to add it to your favorites' : ''}
         >
           <Heart className={cn('h-3.5 w-3.5', favoritesOnly && 'fill-rose-500')} />
           Favorites
+          {favCount > 0 && (
+            <span className={cn(
+              'ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold',
+              favoritesOnly ? 'bg-rose-500/20 text-rose-500' : 'bg-foreground/10 text-foreground'
+            )}>
+              {favCount}
+            </span>
+          )}
         </button>
 
         {/* In stock toggle */}

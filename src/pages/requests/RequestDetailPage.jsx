@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems } from '@/hooks/use-loan-requests'
 import { ArrowLeft, Calendar, User, Clock, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ const formatDate = (d) =>
 
 export function RequestDetailPage() {
   const { requestId } = useParams()
+  const navigate = useNavigate()
   const requestQuery = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
   const request = requestQuery.data
@@ -42,11 +43,9 @@ export function RequestDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <Link to="/my-requests">
-        <Button variant="ghost" size="sm" className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Back to My Requests
-        </Button>
-      </Link>
+      <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate(-1)}>
+        <ArrowLeft className="h-4 w-4" /> Back
+      </Button>
 
       <div>
         <div className="flex items-center gap-3">

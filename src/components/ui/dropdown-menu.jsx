@@ -38,7 +38,16 @@ function DropdownMenu({ children }) {
 
 function DropdownMenuTrigger({ children, asChild, ...props }) {
   const { open, setOpen } = React.useContext(DropdownContext)
-  const handleClick = () => setOpen(!open)
+  const handleClick = (e) => {
+    e.stopPropagation()
+    setOpen((o) => !o)
+  }
+  const handleMouseDown = (e) => {
+    // Prevent the outside-click listener (mousedown) from racing with our
+    // own click handler — otherwise the very first tap can close the menu
+    // before onClick fires, making the user think it needs a double click.
+    e.stopPropagation()
+  }
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
@@ -47,6 +56,7 @@ function DropdownMenuTrigger({ children, asChild, ...props }) {
   }
   const triggerProps = {
     onClick: handleClick,
+    onMouseDown: handleMouseDown,
     onKeyDown: handleKeyDown,
     'aria-haspopup': 'menu',
     'aria-expanded': open,
