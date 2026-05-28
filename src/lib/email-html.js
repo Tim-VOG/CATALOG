@@ -130,12 +130,23 @@ export function generateItemsHtml(items, itemReturns = []) {
       )
       .join('')
 
+    const flattenOption = (v) => {
+      if (v == null) return []
+      if (Array.isArray(v)) return v.filter(Boolean).map((x) => (typeof x === 'object' ? flattenOption(x) : String(x))).flat()
+      if (typeof v === 'object') return Object.values(v).map(flattenOption).flat()
+      if (typeof v === 'boolean') return v ? [''] : []
+      return [String(v)]
+    }
     const optionsBadges = Object.entries(item.options || {})
-      .filter(([, v]) => v && !(Array.isArray(v) && v.length === 0))
-      .map(([k, v]) => {
-        const display = Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? k.replace(/_/g, ' ') : String(v)
-        return `<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eef4ff;border:1px solid #d9e4ff;color:#3955cf;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(display)}</span>`
+      .flatMap(([k, v]) => {
+        if (v == null || v === '' || v === false) return []
+        if (Array.isArray(v) && v.length === 0) return []
+        if (typeof v === 'object' && !Array.isArray(v)) return flattenOption(v).filter(Boolean)
+        if (typeof v === 'boolean') return v ? [k.replace(/_/g, ' ')] : []
+        if (Array.isArray(v)) return flattenOption(v).filter(Boolean)
+        return [String(v)]
       })
+      .map((display) => `<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eef4ff;border:1px solid #d9e4ff;color:#3955cf;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(display)}</span>`)
       .join('')
 
     const cs = conditionStyles[condition]
@@ -194,21 +205,28 @@ let _brandingCacheAt = 0
 export async function getEmailBranding() {
   if (_brandingCache && Date.now() - _brandingCacheAt < 60_000) return _brandingCache
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('app_settings')
       .select('app_name, logo_url, tagline, email_logo_height')
       .maybeSingle()
-    _brandingCache = {
+    if (error) throw error
+    const branding = {
       appName: data?.app_name || 'VO Hub',
       logoUrl: data?.logo_url || '',
       tagline: data?.tagline || '',
       logoHeight: data?.email_logo_height || 0,
     }
-  } catch {
-    _brandingCache = { appName: 'VO Hub' }
+    if (!branding.logoUrl) {
+      console.warn('[getEmailBranding] app_settings.logo_url is empty — emails will fall back to text header')
+    }
+    _brandingCache = branding
+    _brandingCacheAt = Date.now()
+    return branding
+  } catch (err) {
+    console.error('[getEmailBranding] failed to load branding from app_settings:', err)
+    // Don't cache the failure — try again on the next call.
+    return { appName: 'VO Hub', logoUrl: '', tagline: '', logoHeight: 0 }
   }
-  _brandingCacheAt = Date.now()
-  return _brandingCache
 }
 
 /**
