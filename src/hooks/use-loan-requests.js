@@ -45,6 +45,14 @@ export const useCreateLoanRequest = () => {
   })
 }
 
+export const useUpdateLoanRequest = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...updates }) => api.updateLoanRequest(id, updates),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['loan-requests'] }),
+  })
+}
+
 export const useUpdateRequestStatus = () => {
   const queryClient = useQueryClient()
   return useMutation({

@@ -1,20 +1,19 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
-import { useMyLoanRequests, useDeleteLoanRequest } from '@/hooks/use-loan-requests'
-import { useMyItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
-import { useMyMailboxRequests, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
+import { useMyLoanRequests, useUpdateLoanRequest } from '@/hooks/use-loan-requests'
+import { useMyItRequests, useUpdateItRequest } from '@/hooks/use-it-requests'
+import { useMyMailboxRequests, useUpdateMailboxRequest } from '@/hooks/use-mailbox-requests'
 import { useUIStore } from '@/stores/ui-store'
 import { motion } from 'motion/react'
 import {
   Package, Clock, Loader2, CheckCircle, UserPlus,
   UserMinus, Mail, Inbox, ClipboardList, ThumbsUp, ThumbsDown,
-  Eye, Trash2, Pencil, ArrowLeft,
+  Eye, ArrowLeft, MessageSquare,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ScrollFadeIn } from '@/components/ui/motion'
@@ -193,18 +192,18 @@ function RequestCard({ request, type, onOpen }) {
 
 export function MyRequestsPage() {
   const { user } = useAuth()
-  const navigate = useNavigate()
   const showToast = useUIStore((s) => s.showToast)
   const [typeFilter, setTypeFilter] = useState('all')
   const [detail, setDetail] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [noteDraft, setNoteDraft] = useState('')
+  const [noteSaving, setNoteSaving] = useState(false)
 
   const { data: loanRequests = [], isLoading: loansLoading } = useMyLoanRequests(user?.id)
   const { data: itRequests = [], isLoading: itLoading } = useMyItRequests(user?.id)
   const { data: mailboxRequests = [], isLoading: mailboxLoading } = useMyMailboxRequests(user?.id)
-  const deleteLoan = useDeleteLoanRequest()
-  const deleteIt = useDeleteItRequest()
-  const deleteMailbox = useDeleteMailboxRequest()
+  const updateLoan = useUpdateLoanRequest()
+  const updateIt = useUpdateItRequest()
+  const updateMailbox = useUpdateMailboxRequest()
 
   const isLoading = loansLoading || itLoading || mailboxLoading
 
@@ -228,56 +227,35 @@ export function MyRequestsPage() {
     return counts
   }, [allRequests])
 
-  const handleDelete = async () => {
-    if (!deleteConfirm) return
-    try {
-      const r = deleteConfirm
-      if (r._type === 'equipment') await deleteLoan.mutateAsync(r.id)
-      else if (r._type === 'mailbox') await deleteMailbox.mutateAsync(r.id)
-      else await deleteIt.mutateAsync(r.id)
-      showToast('Request cancelled')
-      if (detail?.id === r.id) setDetail(null)
-    } catch (err) {
-      showToast(err.message || 'Failed to cancel', 'error')
-    }
-    setDeleteConfirm(null)
-  }
+  // Read the persisted note for the currently-viewed request, depending on its type.
+  const currentNote = !detail ? '' : (
+    detail._type === 'equipment' ? (detail.user_notes || '') :
+    detail._type === 'mailbox'   ? (detail.user_notes || '') :
+    (detail.data?.user_note || '')
+  )
 
-  // Edit = stash payload in sessionStorage, delete the pending row, route to
-  // the matching form so the user can re-submit with values pre-filled.
-  const handleEdit = async (r) => {
-    if (!r) return
-    try {
-      const payload = r._type === 'equipment'
-        ? { project_name: r.project_name, pickup_date: r.pickup_date, return_date: r.return_date, notes: r.notes }
-        : (r.data || {})
-      sessionStorage.setItem('vo-edit-request', JSON.stringify(payload))
+  // When the detail changes, seed the textarea with what's already saved
+  // so users can edit instead of overwriting blindly.
+  useEffect(() => { setNoteDraft(currentNote) }, [detail?.id, currentNote])
 
-      if (r._type === 'equipment') {
-        await deleteLoan.mutateAsync(r.id)
-        showToast('Request cancelled — re-add items to the cart and resubmit')
-        setDetail(null)
-        navigate('/catalog')
-        return
+  const handleSaveNote = async () => {
+    if (!detail) return
+    setNoteSaving(true)
+    try {
+      const trimmed = noteDraft.trim()
+      if (detail._type === 'equipment') {
+        await updateLoan.mutateAsync({ id: detail.id, user_notes: trimmed })
+      } else if (detail._type === 'mailbox') {
+        await updateMailbox.mutateAsync({ id: detail.id, user_notes: trimmed })
+      } else {
+        const newData = { ...(detail.data || {}), user_note: trimmed }
+        await updateIt.mutateAsync({ id: detail.id, updates: { data: newData } })
       }
-      if (r._type === 'mailbox') {
-        await deleteMailbox.mutateAsync(r.id)
-        showToast('Request cancelled — refill the form to resubmit')
-        setDetail(null)
-        navigate('/functional-mailbox')
-        return
-      }
-      // IT-style: onboarding / offboarding / generic IT
-      await deleteIt.mutateAsync(r.id)
-      showToast('Request cancelled — refill the form to resubmit')
-      setDetail(null)
-      const route =
-        r._type === 'onboarding'  ? '/onboarding-request'  :
-        r._type === 'offboarding' ? '/offboarding-request' :
-        '/it-request'
-      navigate(route)
+      showToast(trimmed ? 'Note saved' : 'Note cleared')
     } catch (err) {
-      showToast(err.message || 'Failed to edit', 'error')
+      showToast(err.message || 'Failed to save note', 'error')
+    } finally {
+      setNoteSaving(false)
     }
   }
 
@@ -321,32 +299,45 @@ export function MyRequestsPage() {
           <div className="p-5">
             <RequestDataRows request={detail} />
           </div>
-          {canCancel && (
-            <div className="p-4 border-t border-border/50 bg-muted/20 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground flex-1">You can still edit or cancel this request.</span>
-              <Button variant="outline" className="gap-2" onClick={() => handleEdit(detail)}>
-                <Pencil className="h-4 w-4" /> Edit
-              </Button>
-              <Button variant="destructive" className="gap-2" onClick={() => setDeleteConfirm(detail)}>
-                <Trash2 className="h-4 w-4" /> Cancel request
-              </Button>
-            </div>
-          )}
-        </div>
 
-        {/* Cancel confirm */}
-        <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-          <DialogContent className="p-6">
-            <DialogHeader><DialogTitle>Cancel this request?</DialogTitle></DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              This will delete the request permanently. You can submit a new one anytime.
+          {/* Note to admin */}
+          <div className="p-5 border-t border-border/50 bg-muted/20 space-y-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">Note to the IT team</h3>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Need to add something or change details? Drop a note here — the IT team will see it when they pick up your request.
             </p>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Keep it</Button>
-              <Button variant="destructive" onClick={handleDelete}>Yes, cancel</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            {canCancel ? (
+              <>
+                <Textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                  rows={3}
+                  placeholder="e.g. The pickup date should actually be next Monday, sorry!"
+                  maxLength={1000}
+                />
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[10px] text-muted-foreground">{noteDraft.length}/1000</span>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveNote}
+                    disabled={noteSaving || noteDraft === currentNote}
+                    className="gap-2"
+                  >
+                    {noteSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                    {noteSaving ? 'Saving...' : currentNote ? 'Update note' : 'Save note'}
+                  </Button>
+                </div>
+              </>
+            ) : currentNote ? (
+              <div className="rounded-lg border border-border/40 bg-card p-3 text-sm">{currentNote}</div>
+            ) : (
+              <p className="text-xs text-muted-foreground italic">Notes can only be added while the request is still pending.</p>
+            )}
+          </div>
+        </div>
       </div>
     )
   }

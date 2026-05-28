@@ -86,6 +86,17 @@ export const updateRequestStatus = async (id, status, extraData = {}) => {
   return data
 }
 
+export const updateLoanRequest = async (id, updates) => {
+  const { data, error } = await supabase
+    .from('loan_requests')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 export const deleteLoanRequest = async (id) => {
   // Delete items first (foreign key), then the request
   const { error: itemsError } = await supabase
