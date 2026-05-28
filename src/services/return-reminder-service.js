@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml } from '@/lib/email-html'
+import { renderTemplate } from './request-status-service'
 
 const REMINDER_STORAGE_KEY = 'vo-last-reminder-check'
 
@@ -27,22 +28,18 @@ export async function checkAndSendReturnReminders() {
     for (const item of equipment) {
       if (!item.user_email) continue
 
-      const inner = `<h1 style="margin:0 0 14px 0;font-size:24px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">Return reminder</h1>
-<p style="margin:0 0 12px 0;font-size:15px;color:#425466;line-height:1.65;">Hi ${item.user_name || item.user_email.split('@')[0]},</p>
-<p style="margin:0 0 24px 0;font-size:15px;color:#425466;line-height:1.65;">This is a friendly reminder that <strong style="color:#0a2540;">${item.product_name}</strong> is due for return on <strong style="color:#0a2540;">${item.expected_return_date}</strong>.</p>
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center">
-  <div style="background:#fef6e0;border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">
-    <p style="margin:0;font-size:11px;font-weight:600;color:#a16207;letter-spacing:1px;text-transform:uppercase;">Return date</p>
-    <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#a16207;letter-spacing:-0.3px;">${item.expected_return_date}</p>
-  </div>
-</td></tr></table>
-<p style="margin:24px 0 6px;font-size:15px;color:#425466;line-height:1.65;">Please bring the equipment to the IT desk.</p>
-<p style="margin:18px 0 0;font-size:15px;color:#425466;line-height:1.65;">Best,<br>The VO Hub Team</p>`
+      // Load from the DB template (or fall back to FALLBACK_TEMPLATES) so admin
+      // edits in /admin/communications actually apply at runtime.
+      const { subject, body } = await renderTemplate('request_return_reminder', {
+        requester_name: item.user_name || item.user_email.split('@')[0],
+        product_name: item.product_name,
+        return_date: item.expected_return_date,
+      })
 
       await sendEmail({
         to: item.user_email,
-        subject: `Reminder: ${item.product_name} due back on ${item.expected_return_date}`,
-        body: wrapEmailHtml(inner, { appName: 'VO Hub', raw: true }),
+        subject,
+        body: wrapEmailHtml(body, { appName: 'VO Hub', raw: true }),
         isHtml: true,
       })
     }

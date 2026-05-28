@@ -41,6 +41,10 @@ const FALLBACK_TEMPLATES = {
     subject: 'Your {{request_type}} request is ready',
     body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been completed. Your equipment is ready for pickup at the IT desk.\n\n<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center">\n  <div style="background:#e7f6ec;border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">\n    <p style="margin:0;font-size:11px;font-weight:600;color:#0a7a3b;letter-spacing:1px;text-transform:uppercase;">Status</p>\n    <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#0a7a3b;letter-spacing:-0.3px;">Ready</p>\n  </div>\n</td></tr></table>\n\nCome by the IT desk whenever you're ready.\n\nBest,\nThe VO Hub Team`,
   },
+  request_return_reminder: {
+    subject: 'Reminder: {{product_name}} due back on {{return_date}}',
+    body: `Hi {{requester_name}},\n\nFriendly reminder that **{{product_name}}** is due for return on **{{return_date}}**.\n\n<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center">\n  <div style="background:#fef6e0;border-radius:12px;padding:22px 28px;display:inline-block;min-width:200px;">\n    <p style="margin:0;font-size:11px;font-weight:600;color:#a16207;letter-spacing:1px;text-transform:uppercase;">Return date</p>\n    <p style="margin:6px 0 0;font-size:22px;font-weight:700;color:#a16207;letter-spacing:-0.3px;">{{return_date}}</p>\n  </div>\n</td></tr></table>\n\nPlease bring the equipment to the IT desk.\n\nBest,\nThe VO Hub Team`,
+  },
 }
 
 function substitute(text, vars) {
@@ -53,7 +57,7 @@ function substitute(text, vars) {
  * Always returns { subject, body } where body is the inner content
  * (not yet wrapped by wrapEmailHtml).
  */
-async function renderTemplate(key, vars) {
+export async function renderTemplate(key, vars) {
   let tmpl = null
   try { tmpl = await getEmailTemplateByKey(key) } catch {}
   const source = tmpl || FALLBACK_TEMPLATES[key] || { subject: '', body: '' }
