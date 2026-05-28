@@ -211,7 +211,6 @@ export function CartPage() {
   const [returnDate, setReturnDate] = useState('')
   const [projectName, setProjectName] = useState('')
   const [globalComment, setGlobalComment] = useState('')
-  const [isUrgent, setIsUrgent] = useState(false)
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
 
@@ -238,7 +237,7 @@ export function CartPage() {
         pickupDate,
         returnDate: returnDate || null,
         locationId: null,
-        priority: isUrgent ? 'urgent' : 'normal',
+        priority: 'normal',
       })
 
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
@@ -383,13 +382,6 @@ export function CartPage() {
                     <Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
                   </div>
                 </div>
-                <label className="flex items-center gap-3 p-3 rounded-xl border border-rose-500/20 bg-rose-500/5 cursor-pointer hover:bg-rose-500/10 transition-colors">
-                  <input type="checkbox" checked={isUrgent} onChange={(e) => setIsUrgent(e.target.checked)} className="accent-rose-500 h-4 w-4" />
-                  <div>
-                    <span className="text-sm font-semibold text-rose-600">Mark as urgent</span>
-                    <p className="text-[11px] text-muted-foreground">The IT team will prioritize this request</p>
-                  </div>
-                </label>
               </CardContent>
             </Card>
             <div className="flex items-center justify-between pt-2">
