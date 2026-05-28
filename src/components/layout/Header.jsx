@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, ShoppingCart, HelpCircle } from 'lucide-react'
+import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, ShoppingCart, HelpCircle, Inbox } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 
 import { useUIStore } from '@/stores/ui-store'
@@ -298,6 +298,7 @@ export function Header({ onOpenTour }) {
             {[
               { to: '/', label: 'Hub', icon: Home, exact: true },
               { to: '/catalog', label: 'Catalog', icon: Package },
+              { to: '/my-requests', label: 'My Requests', icon: Inbox },
               ...(isAdmin ? [{ to: '/scan', label: 'Scan', icon: QrCode }] : []),
             ].map(({ to, label, icon: Icon, exact }) => (
               <Link key={to} to={to}>

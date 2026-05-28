@@ -141,14 +141,13 @@ export function HubPage() {
       description="Access revocation for a departing employee."
       color="rose" buttonLabel="New Request" />
   )
-  if (hasMailbox || isAdmin) {
-    cards.push(
-      <HubCard key="mailbox" to="/functional-mailbox" icon={Mail}
-        title="Mailbox Request"
-        description="Request a functional mailbox."
-        color="violet" buttonLabel="New Request" />
-    )
-  }
+  // Mailbox card always visible — module access is checked on the form itself
+  cards.push(
+    <HubCard key="mailbox" to="/functional-mailbox" icon={Mail}
+      title="Mailbox Request"
+      description="Request a functional mailbox."
+      color="violet" buttonLabel="New Request" />
+  )
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-6 pb-24">
@@ -169,24 +168,22 @@ export function HubPage() {
         <p className="text-muted-foreground text-sm mt-2">What do you need today?</p>
       </motion.div>
 
-      {/* Stats dashboard — shown to everyone (admins see their own personal requests too) */}
-      {allRequests.length > 0 && (
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.15 }}
-        >
+      {/* Stats dashboard — always shown so My Requests stays one click away */}
+      <motion.div
+        className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+      >
           <StatCard icon={Inbox} label="All requests" value={allRequests.length}
             color={{ bg: 'bg-foreground/5', fg: 'text-foreground' }} to="/my-requests" />
           <StatCard icon={Clock} label="Pending" value={pendingRequests}
             color={{ bg: 'bg-amber-500/15', fg: 'text-amber-600' }} to="/my-requests" />
           <StatCard icon={Loader2} label="In Progress" value={inProgressRequests}
             color={{ bg: 'bg-blue-500/15', fg: 'text-blue-600' }} to="/my-requests" />
-          <StatCard icon={CheckCircle} label="Ready" value={readyRequests}
-            color={{ bg: 'bg-emerald-500/15', fg: 'text-emerald-600' }} to="/my-requests" />
-        </motion.div>
-      )}
+        <StatCard icon={CheckCircle} label="Ready" value={readyRequests}
+          color={{ bg: 'bg-emerald-500/15', fg: 'text-emerald-600' }} to="/my-requests" />
+      </motion.div>
 
       {/* Quick actions */}
       <div className="space-y-3 mb-8">
