@@ -34,7 +34,7 @@ const card = (rows) => `${CARD_OPEN}${rows.map((r, i) => cardRow(r.label, r.valu
 const FALLBACK_TEMPLATES = {
   request_confirmed: {
     subject: 'Your {{request_type}} request has been received',
-    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been received and will be processed by the IT team.\n\n${card([{ label: 'Status', value: 'Pending', big: true }, { label: 'Request', value: '{{request_type}}' }])}\n\nYou can track your request anytime in the hub.\n\nBest,\nThe VO Hub Team`,
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been received and will be processed by the IT team.\n\n${card([{ label: 'Status', value: 'Pending', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\nYou can track your request anytime in the hub.\n\nBest,\nThe VO Hub Team`,
   },
   onboarding_confirmation: {
     subject: 'Onboarding request received for {{new_hire_name}}',
@@ -42,11 +42,11 @@ const FALLBACK_TEMPLATES = {
   },
   request_in_progress: {
     subject: 'Your {{request_type}} request is being prepared',
-    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request is now being prepared by the IT team.\n\n${card([{ label: 'Status', value: 'In Progress', big: true }, { label: 'Request', value: '{{request_type}}' }])}\n\nWe'll let you know as soon as it's ready.\n\nBest,\nThe VO Hub Team`,
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request is now being prepared by the IT team.\n\n${card([{ label: 'Status', value: 'In Progress', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\nWe'll let you know as soon as it's ready.\n\nBest,\nThe VO Hub Team`,
   },
   request_ready: {
     subject: 'Your {{request_type}} request is ready',
-    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been completed and is ready for pickup at the IT desk.\n\n${card([{ label: 'Status', value: 'Ready', big: true }, { label: 'Request', value: '{{request_type}}' }])}\n\nCome by the IT desk whenever you're ready.\n\nBest,\nThe VO Hub Team`,
+    body: `Hi {{requester_name}},\n\nYour **{{request_type}}** request has been completed and is ready for pickup at the IT desk.\n\n${card([{ label: 'Status', value: 'Ready', big: true }, { label: '{{subject_label}}', value: '{{subject_name}}' }])}\n\nCome by the IT desk whenever you're ready.\n\nBest,\nThe VO Hub Team`,
   },
   request_return_reminder: {
     subject: 'Reminder: {{product_name}} due back on {{return_date}}',
@@ -80,11 +80,14 @@ export async function renderTemplate(key, vars) {
 export async function buildConfirmationEmail({ name, type, detail, newHireName }) {
   const isOnboarding = type === 'onboarding'
   const key = isOnboarding ? 'onboarding_confirmation' : 'request_confirmed'
+  const subjectName = newHireName || detail || (type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Equipment')
   const vars = {
     requester_name: name || 'there',
     request_type: type || 'equipment',
     detail: detail || '',
     new_hire_name: newHireName || detail || 'the new hire',
+    subject_label: subjectLabelFor(type || 'equipment'),
+    subject_name: subjectName,
   }
   const { body } = await renderTemplate(key, vars)
   return wrapEmailHtml(body, { appName: 'VO Hub' })
@@ -99,6 +102,30 @@ export async function buildConfirmationSubject({ type, newHireName, detail }) {
     new_hire_name: newHireName || detail || 'the new hire',
   })
   return subject
+}
+
+// Per-request-type "subject of the action" — the person/thing the
+// request is about. Mirrors what onboarding shows via {{new_hire_name}}.
+function fullName(req) {
+  return [req?.first_name, req?.last_name].filter(Boolean).join(' ').trim()
+}
+function subjectLabelFor(requestType) {
+  if (requestType === 'onboarding') return 'New hire'
+  if (requestType === 'offboarding') return 'Person leaving'
+  if (requestType === 'mailbox') return 'Mailbox'
+  return 'Request'
+}
+function subjectNameFor(req, requestType) {
+  let v
+  if (requestType === 'onboarding' || requestType === 'offboarding') {
+    v = fullName(req) || req?.new_hire_name || req?.requested_by_name
+  } else if (requestType === 'mailbox') {
+    v = req?.email_to_create || req?.mailbox_email || req?.project_name
+  } else {
+    v = req?.project_name
+  }
+  // Always fall back to the request type label so the row is never blank.
+  return v || (requestType ? requestType.charAt(0).toUpperCase() + requestType.slice(1) : '—')
 }
 
 // ── Status change emails (in_progress / ready) ──
@@ -135,6 +162,8 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
   const { subject, body } = await renderTemplate(key, {
     requester_name: name,
     request_type: requestType,
+    subject_label: subjectLabelFor(requestType),
+    subject_name: subjectNameFor(request, requestType),
   })
 
   const result = await sendEmail({
