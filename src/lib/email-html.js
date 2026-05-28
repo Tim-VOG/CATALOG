@@ -205,9 +205,12 @@ let _brandingCacheAt = 0
 export async function getEmailBranding() {
   if (_brandingCache && Date.now() - _brandingCacheAt < 60_000) return _brandingCache
   try {
+    // Select '*' so a missing optional column (e.g. email_tagline or
+    // email_logo_height in an env where migration 014 hasn't run) can't
+    // turn the whole query into a 400 and leave us without a logoUrl.
     const { data, error } = await supabase
       .from('app_settings')
-      .select('app_name, logo_url, email_tagline, email_logo_height')
+      .select('*')
       .maybeSingle()
     if (error) throw error
     const branding = {
