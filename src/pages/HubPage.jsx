@@ -128,15 +128,14 @@ export function HubPage() {
         color="blue" buttonLabel="Start Scanning" />
     )
   }
-  if (!isAdmin) {
-    cards.push(
-      <HubCard key="my-requests" to="/my-requests" icon={Inbox}
-        title="My Requests"
-        description="Track and cancel your submitted requests."
-        color="amber" buttonLabel="View Requests"
-        badge={(pendingRequests + inProgressRequests) > 0 ? `${pendingRequests + inProgressRequests} active` : null} />
-    )
-  }
+  // Always show My Requests so admins can review their own personal submissions
+  cards.push(
+    <HubCard key="my-requests" to="/my-requests" icon={Inbox}
+      title="My Requests"
+      description="Track and cancel your submitted requests."
+      color="amber" buttonLabel="View Requests"
+      badge={(pendingRequests + inProgressRequests) > 0 ? `${pendingRequests + inProgressRequests} active` : null} />
+  )
   cards.push(
     <HubCard key="onboarding-request" to="/onboarding-request" icon={UserPlus}
       title="Onboarding"
@@ -178,7 +177,7 @@ export function HubPage() {
       </motion.div>
 
       {/* Ready-to-pickup callout */}
-      {readyRequests > 0 && !isAdmin && (
+      {readyRequests > 0 && (
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 8 }}
@@ -206,8 +205,8 @@ export function HubPage() {
         </motion.div>
       )}
 
-      {/* Stats dashboard — always shown for users */}
-      {!isAdmin && (
+      {/* Stats dashboard — shown to everyone (admins see their own personal requests too) */}
+      {allRequests.length > 0 && (
         <motion.div
           className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
           initial={{ opacity: 0, y: 8 }}

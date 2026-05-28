@@ -1,8 +1,16 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { RequireAuth } from '@/components/auth/RequireAuth'
 import { RequireAdmin } from '@/components/auth/RequireAdmin'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
+import { PageLoading } from '@/components/common/LoadingSpinner'
+
+// Heavy admin pages — lazy-loaded so the user-facing bundle stays slim.
+const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage').then((m) => ({ default: m.AdminDesignPage })))
+const AdminMailboxRequestsPage = lazy(() => import('@/pages/admin/AdminMailboxRequestsPage').then((m) => ({ default: m.AdminMailboxRequestsPage })))
+const AdminItInventoryPage = lazy(() => import('@/pages/admin/AdminItInventoryPage').then((m) => ({ default: m.AdminItInventoryPage })))
+const EquipmentRequestPage = lazy(() => import('@/pages/equipment-request/EquipmentRequestPage').then((m) => ({ default: m.EquipmentRequestPage })))
 
 import { HubPage } from '@/pages/HubPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
@@ -19,7 +27,7 @@ import { AdminRequestsPage } from '@/pages/admin/AdminRequestsPage'
 import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
 // AdminReturnsPage removed — returns handled via QR scan
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
-import { AdminDesignPage } from '@/pages/admin/AdminDesignPage'
+// AdminDesignPage — lazy-loaded above
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 // AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
 import { AdminSubscriptionPlansPage } from '@/pages/admin/AdminSubscriptionPlansPage'
@@ -28,7 +36,7 @@ import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
 import { OnboardingRequestsPage } from '@/pages/admin/onboarding/OnboardingRequestsPage'
 import { WelcomeRequestsPage } from '@/pages/admin/welcome/WelcomeRequestsPage'
-import { AdminItInventoryPage } from '@/pages/admin/AdminItInventoryPage'
+// AdminItInventoryPage — lazy-loaded above
 // (Removed OnboardingHistoryPage — history merged into Welcome's "Sent" tab)
 import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
 import { AdminItFormBuilderPage } from '@/pages/admin/AdminItFormBuilderPage'
@@ -36,7 +44,7 @@ import { OffboardingPage } from '@/pages/admin/offboarding/OffboardingPage'
 import { AdminOffboardingFormBuilderPage } from '@/pages/admin/AdminOffboardingFormBuilderPage'
 import { FunctionalMailboxFormPage } from '@/pages/functional-mailbox/FunctionalMailboxFormPage'
 import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
-import { AdminMailboxRequestsPage } from '@/pages/admin/AdminMailboxRequestsPage'
+// AdminMailboxRequestsPage — lazy-loaded above
 import { AdminMailboxFormBuilderPage } from '@/pages/admin/AdminMailboxFormBuilderPage'
 import { AdminAllRequestsPage } from '@/pages/admin/AdminAllRequestsPage'
 import { AdminQRCodesPage } from '@/pages/admin/AdminQRCodesPage'
@@ -50,7 +58,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
 import { OnboardingRequestPage } from '@/pages/onboarding-request/OnboardingRequestPage'
 import { OffboardingRequestPage } from '@/pages/offboarding-request/OffboardingRequestPage'
-import { EquipmentRequestPage } from '@/pages/equipment-request/EquipmentRequestPage'
+// EquipmentRequestPage — lazy-loaded above
 import { CartPage } from '@/pages/cart/CartPage'
 import { TrackingPage } from '@/pages/track/TrackingPage'
 

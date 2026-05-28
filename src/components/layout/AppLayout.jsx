@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, Suspense } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'motion/react'
 import { Toaster } from 'sonner'
@@ -65,7 +65,9 @@ export function AppLayout() {
         <main id="main-content" className="px-3 py-4 pb-20 sm:px-6 sm:py-6 md:pb-6 lg:px-10">
           <AnimatePresence mode="wait">
             <PageTransition key={location.pathname} direction={direction.current}>
-              <Outlet />
+              <Suspense fallback={null}>
+                <Outlet />
+              </Suspense>
             </PageTransition>
           </AnimatePresence>
         </main>

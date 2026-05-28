@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { captureException } from '@/lib/monitoring'
 
 export class ErrorBoundary extends Component {
   constructor(props) {
@@ -14,6 +15,7 @@ export class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary]', error, errorInfo)
+    captureException(error, { componentStack: errorInfo?.componentStack })
   }
 
   handleRetry = () => {

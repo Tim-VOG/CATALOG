@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { AdminSidebar } from './AdminSidebar'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
+import { PageLoading } from '@/components/common/LoadingSpinner'
 
 export function AdminLayout() {
   const location = useLocation()
@@ -17,7 +19,9 @@ export function AdminLayout() {
           transition={{ duration: 0.2, ease: 'easeOut' }}
         >
           <ErrorBoundary key={location.pathname}>
-            <Outlet />
+            <Suspense fallback={<PageLoading />}>
+              <Outlet />
+            </Suspense>
           </ErrorBoundary>
         </motion.div>
       </main>
