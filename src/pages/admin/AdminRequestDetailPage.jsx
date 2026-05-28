@@ -68,6 +68,57 @@ export function AdminRequestDetailPage() {
   const [assignedQRs, setAssignedQRs] = useState({})
   const [scanError, setScanError] = useState(null)
 
+  // ──────────────────────────────────────────────────────────────
+  // All hooks (including useCallback / useMemo) must run on every
+  // render before any conditional early-return — otherwise React
+  // throws "Rendered more hooks than during the previous render".
+  // ──────────────────────────────────────────────────────────────
+  const handleScannedCode = useCallback(async (scannedCode) => {
+    if (!assigningItem) return
+    setScanError(null)
+    const qr = allQRCodes.find(
+      (q) => q.code === scannedCode && q.product_id === assigningItem.product_id
+    )
+    if (!qr) {
+      setScanError(`"${scannedCode}" is not a valid QR code for ${assigningItem.product_name}`)
+      return
+    }
+    if ((qr.status || 'available') !== 'available') {
+      setScanError(`"${scannedCode}" is already assigned to ${qr.assigned_to_name || 'someone'}`)
+      return
+    }
+    try {
+      await updateQR.mutateAsync({
+        id: qr.id,
+        status: 'assigned',
+        assigned_to: request?.user_id,
+        assigned_to_name: `${request?.user_first_name || ''} ${request?.user_last_name || ''}`.trim(),
+        assigned_to_email: request?.user_email || '',
+        assigned_at: new Date().toISOString(),
+      })
+      await supabase.from('products').update({
+        total_stock: Math.max((qr.product_stock || 1) - 1, 0),
+      }).eq('id', qr.product_id)
+      setAssignedQRs((prev) => ({ ...prev, [assigningItem.product_id]: qr }))
+      setAssigningItem(null)
+      showToast(`${qr.code} assigned`)
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }, [assigningItem, allQRCodes, request, updateQR, showToast])
+
+  const filteredAssignQRs = useMemo(() => {
+    if (!assigningItem) return []
+    let qrs = allQRCodes.filter(
+      (qr) => qr.product_id === assigningItem.product_id && (qr.status || 'available') === 'available' && qr.is_active
+    )
+    if (qrSearch.trim()) {
+      const q = qrSearch.toLowerCase()
+      qrs = qrs.filter((qr) => qr.code.toLowerCase().includes(q) || (qr.label || '').toLowerCase().includes(q))
+    }
+    return qrs
+  }, [assigningItem, allQRCodes, qrSearch])
+
   if (isLoading || isFetching) return <PageLoading />
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
@@ -129,41 +180,11 @@ export function AdminRequestDetailPage() {
     }
   }
 
-  const handleScannedCode = useCallback(async (scannedCode) => {
-    if (!assigningItem) return
-    setScanError(null)
-
-    const qr = allQRCodes.find(
-      (q) => q.code === scannedCode && q.product_id === assigningItem.product_id
-    )
-
-    if (!qr) {
-      setScanError(`"${scannedCode}" is not a valid QR code for ${assigningItem.product_name}`)
-      return
-    }
-    if ((qr.status || 'available') !== 'available') {
-      setScanError(`"${scannedCode}" is already assigned to ${qr.assigned_to_name || 'someone'}`)
-      return
-    }
-
-    await handleAssignQR(qr)
-  }, [assigningItem, allQRCodes])
-
   const getAvailableQRsForProduct = (productId) => {
     return allQRCodes.filter(
       (qr) => qr.product_id === productId && (qr.status || 'available') === 'available' && qr.is_active
     )
   }
-
-  const filteredAssignQRs = useMemo(() => {
-    if (!assigningItem) return []
-    let qrs = getAvailableQRsForProduct(assigningItem.product_id)
-    if (qrSearch.trim()) {
-      const q = qrSearch.toLowerCase()
-      qrs = qrs.filter((qr) => qr.code.toLowerCase().includes(q) || (qr.label || '').toLowerCase().includes(q))
-    }
-    return qrs
-  }, [assigningItem, allQRCodes, qrSearch])
 
   const allItemsAssigned = items.every((item) => assignedQRs[item.product_id])
   const timeline = buildTimeline(request)
