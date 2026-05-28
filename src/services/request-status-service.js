@@ -139,6 +139,7 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
   // Try every known shape, then fall back to a profile lookup so older
   // rows (created before requester_email existed on a given table) still
   // trigger the email.
+  console.log('[sendStatusChangeEmail] start', { newStatus, requestType, id: request?.id, requester_email: request?.requester_email, requested_by: request?.requested_by })
   let email = request.user_email || request.requester_email
   let name = request.user_first_name || request.requester_name || request.requested_by_name
   const userId = request.user_id || request.requester_id || request.requested_by
@@ -166,15 +167,14 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
     subject_name: subjectNameFor(request, requestType),
   })
 
+  console.log('[sendStatusChangeEmail] sending', { to: email, subject, key })
   const result = await sendEmail({
     to: email,
     subject,
     body: wrapEmailHtml(body, { appName: 'VO Hub' }),
     isHtml: true,
   })
-  if (!result?.success) {
-    console.warn('[sendStatusChangeEmail] send failed', result?.error)
-  }
+  console.log('[sendStatusChangeEmail] result', result)
 
   // Create in-app notification
   const notifTitle = newStatus === 'in_progress' ? 'Request in progress' : 'Request ready'
