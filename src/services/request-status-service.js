@@ -138,7 +138,12 @@ function subjectNameFor(req, requestType) {
   } else {
     v = req?.project_name || data?.project_name || data?.name
   }
-  return v || (requestType ? requestType.charAt(0).toUpperCase() + requestType.slice(1) : '—')
+  // Last-resort fallback: short request id so the manager can still identify
+  // which request the email is about, even when the form left every name
+  // field blank.
+  if (v) return v
+  const shortId = req?.id ? `#${String(req.id).slice(0, 8)}` : ''
+  return shortId || '—'
 }
 
 // ── Status change emails (in_progress / ready) ──
