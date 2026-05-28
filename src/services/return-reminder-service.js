@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
-import { wrapEmailHtml } from '@/lib/email-html'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { renderTemplate } from './request-status-service'
 
 const REMINDER_STORAGE_KEY = 'vo-last-reminder-check'
@@ -39,7 +39,7 @@ export async function checkAndSendReturnReminders() {
       await sendEmail({
         to: item.user_email,
         subject,
-        body: wrapEmailHtml(body, { appName: 'VO Hub' }),
+        body: wrapEmailHtml(body, await getEmailBranding()),
         isHtml: true,
       })
     }

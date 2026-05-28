@@ -185,6 +185,33 @@ export function generateItemsHtml(items, itemReturns = []) {
 }
 
 /**
+ * Load brand settings (logo, app name) from the DB so every email
+ * caller doesn't have to re-fetch them. Cached for 60s per page load.
+ */
+import { supabase } from '@/lib/supabase'
+let _brandingCache = null
+let _brandingCacheAt = 0
+export async function getEmailBranding() {
+  if (_brandingCache && Date.now() - _brandingCacheAt < 60_000) return _brandingCache
+  try {
+    const { data } = await supabase
+      .from('app_settings')
+      .select('app_name, logo_url, tagline, email_logo_height')
+      .maybeSingle()
+    _brandingCache = {
+      appName: data?.app_name || 'VO Hub',
+      logoUrl: data?.logo_url || '',
+      tagline: data?.tagline || '',
+      logoHeight: data?.email_logo_height || 0,
+    }
+  } catch {
+    _brandingCache = { appName: 'VO Hub' }
+  }
+  _brandingCacheAt = Date.now()
+  return _brandingCache
+}
+
+/**
  * Wrap email body in a full HTML document (Stripe-inspired light theme).
  */
 export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline = '', logoHeight = 0, raw = false } = {}) {

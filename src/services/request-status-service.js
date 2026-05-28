@@ -1,6 +1,6 @@
 import { sendEmail } from '@/lib/api/send-email'
 import { supabase } from '@/lib/supabase'
-import { wrapEmailHtml, generateItemsHtml } from '@/lib/email-html'
+import { wrapEmailHtml, generateItemsHtml, getEmailBranding } from '@/lib/email-html'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 
 export async function createNotification(userId, title, message, type = 'status_change') {
@@ -90,7 +90,7 @@ export async function buildConfirmationEmail({ name, type, detail, newHireName }
     subject_name: subjectName,
   }
   const { body } = await renderTemplate(key, vars)
-  return wrapEmailHtml(body, { appName: 'VO Hub' })
+  return wrapEmailHtml(body, await getEmailBranding())
 }
 
 export async function buildConfirmationSubject({ type, newHireName, detail }) {
@@ -203,7 +203,7 @@ export async function sendStatusChangeEmail(newStatus, { request, requestType = 
   const result = await sendEmail({
     to: email,
     subject,
-    body: wrapEmailHtml(body, { appName: 'VO Hub' }),
+    body: wrapEmailHtml(body, await getEmailBranding()),
     isHtml: true,
   })
   console.log('[sendStatusChangeEmail] result', result)

@@ -87,6 +87,13 @@ export function AdminEmailTemplatesPage() {
     setEditTab('edit')
   }
 
+  const openPreview = (template) => {
+    setEditing(template)
+    setSubject(template.subject)
+    setBody(template.body)
+    setEditTab('preview')
+  }
+
   const handleSave = async () => {
     if (!editing) return
     try {
@@ -170,9 +177,14 @@ export function AdminEmailTemplatesPage() {
                               <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
                               <p className="text-xs text-muted-foreground mt-0.5 truncate">Subject: {template.subject}</p>
                             </div>
-                            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openEdit(template)}>
-                              <Pencil className="h-3 w-3" /> Edit
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => openPreview(template)}>
+                                <Eye className="h-3 w-3" /> Preview
+                              </Button>
+                              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openEdit(template)}>
+                                <Pencil className="h-3 w-3" /> Edit
+                              </Button>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
