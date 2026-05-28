@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { usePaginated } from '@/hooks/use-paginated'
 import { useProfiles, useUpdateProfile, useUpdateProfileRole, useToggleProfileActive, useDeleteProfile } from '@/hooks/use-profiles'
 import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-access'
 import { useInvitations, useDeleteInvitation } from '@/hooks/use-invitations'
@@ -152,6 +153,11 @@ export function AdminUsersPage() {
     if (buFilter === 'all') return profiles
     return profiles.filter((p) => p.business_unit === buFilter)
   }, [profiles, buFilter])
+
+  // Show 50 at a time to keep large tables snappy
+  const { items: visibleRows, hasMore, loadMore, total, reset: resetPagination } = usePaginated(filtered, 50)
+  // Reset to first page whenever the filter changes
+  useEffect(() => { resetPagination() }, [buFilter, search, resetPagination])
 
   /* ---------- handlers ---------- */
 
@@ -375,7 +381,7 @@ export function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((p) => {
+            {visibleRows.map((p) => {
               const isSelf = p.id === currentUser?.id
               const isUserAdmin = p.role === 'admin'
               const inactive = p.is_active === false
@@ -522,6 +528,13 @@ export function AdminUsersPage() {
             )}
           </TableBody>
         </Table>
+        {hasMore && (
+          <div className="flex items-center justify-center py-4 border-t border-border/30">
+            <Button variant="outline" size="sm" onClick={loadMore} className="text-xs">
+              Load more ({total - visibleRows.length} left)
+            </Button>
+          </div>
+        )}
         </div>
       </div>
 

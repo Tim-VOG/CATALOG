@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { usePaginated } from '@/hooks/use-paginated'
 import { motion, AnimatePresence } from 'motion/react'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useDeleteProducts } from '@/hooks/use-products'
 import { useCreateQRCodes } from '@/hooks/use-qr-codes'
@@ -205,13 +206,16 @@ export function AdminProductsPage() {
     }
   }
 
-  if (isLoading) return <PageLoading />
-
-  const filtered = products.filter((p) => {
+  const filtered = useMemo(() => products.filter((p) => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return p.name.toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q)
-  })
+  }), [products, search])
+
+  const { items: visibleProducts, hasMore, loadMore, total, reset: resetPagination } = usePaginated(filtered, 60)
+  useEffect(() => { resetPagination() }, [search, resetPagination])
+
+  if (isLoading) return <PageLoading />
 
   const suggestions = allIncludesItems.filter((item) => !form.includes.includes(item))
 
@@ -263,7 +267,7 @@ export function AdminProductsPage() {
         <EmptyState icon={Package} title="No products found" description={search ? 'Try a different search term' : 'Add your first product to get started'} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((p, i) => {
+          {visibleProducts.map((p, i) => {
             const isSelected = selectedIds.has(p.id)
             return (
               <ScrollFadeIn key={p.id} delay={i * 0.04}>
@@ -371,6 +375,14 @@ export function AdminProductsPage() {
               </ScrollFadeIn>
             )
           })}
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="flex items-center justify-center">
+          <Button variant="outline" size="sm" onClick={loadMore} className="text-xs">
+            Load more ({total - visibleProducts.length} left)
+          </Button>
         </div>
       )}
 
