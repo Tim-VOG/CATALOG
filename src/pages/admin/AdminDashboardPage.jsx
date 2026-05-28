@@ -14,7 +14,7 @@ import { CategoryChart } from '@/components/admin/dashboard/CategoryChart'
 import { LoansChart } from '@/components/admin/dashboard/LoansChart'
 import { QRUsageChart } from '@/components/admin/dashboard/QRUsageChart'
 import { sendEmail } from '@/lib/api/send-email'
-import { wrapEmailHtml } from '@/lib/email-html'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -575,6 +575,7 @@ export function AdminDashboardPage() {
                       onClick={async () => {
                         setSendingReminders(true)
                         const tmpl = await getEmailTemplateByKey('request_return_reminder').catch(() => null)
+                        const branding = await getEmailBranding()
                         let sent = 0
                         for (const scan of upcomingReturns) {
                           if (!scan.user_email) continue
@@ -591,7 +592,7 @@ export function AdminDashboardPage() {
                           await sendEmail({
                             to: scan.user_email,
                             subject,
-                            body: wrapEmailHtml(rawBody, { appName: 'VO Hub', raw: /^\s*</.test(rawBody) }),
+                            body: wrapEmailHtml(rawBody, { ...branding, raw: /^\s*</.test(rawBody) }),
                             isHtml: true,
                           })
                           sent++

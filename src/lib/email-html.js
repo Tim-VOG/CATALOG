@@ -233,7 +233,7 @@ export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline 
   const h = Math.min(Math.max(logoHeight || 32, 16), 40)
   const logoCell = logoUrl
     ? `<div style="display:block;width:160px;height:${h}px;line-height:${h}px;overflow:hidden;"><img src="${escapeAttr(logoUrl)}" alt="${escapeAttr(appName)}" width="auto" height="${h}" style="display:block;width:auto;height:${h}px;max-height:${h}px;max-width:160px;object-fit:contain;object-position:left center;border:0;outline:none;text-decoration:none;vertical-align:middle;" /></div>`
-    : `<div style="display:inline-block;padding:6px 12px;border-radius:8px;background:#0a0a0a;color:#ffffff;font-size:15px;font-weight:700;letter-spacing:-0.2px;">${escapeHtml(appName)}</div>`
+    : `<div style="display:inline-block;color:#0a2540;font-size:18px;font-weight:700;letter-spacing:-0.3px;line-height:${h}px;">${escapeHtml(appName)}</div>`
 
   return `<!DOCTYPE html>
 <html>
