@@ -96,11 +96,6 @@ export async function buildConfirmationSubject({ type, newHireName, detail }) {
 
 // ── Status change emails (in_progress / ready) ──
 export async function sendStatusChangeEmail(newStatus, { request, requestType = 'equipment' }) {
-  // For onboarding, the requester is the IT admin (not the new hire), so a
-  // generic "your request is in progress" email is noise. The admin sends a
-  // dedicated welcome email to the new hire from the composer instead.
-  if (requestType === 'onboarding') return
-
   const key =
     newStatus === 'in_progress' ? 'request_in_progress' :
     newStatus === 'ready' ? 'request_ready' :
