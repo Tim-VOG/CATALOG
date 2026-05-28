@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { updateProfile } from '@/lib/api/profiles'
 import { supabase } from '@/lib/supabase'
 import { Link } from 'react-router-dom'
-import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2, MessageSquare } from 'lucide-react'
+import { Mail, Phone, Briefcase, Building2, Shield, CalendarDays, ClipboardList, Clock, CheckCircle2, Save, Camera, Loader2, MessageSquare, Sun, Moon, Palette } from 'lucide-react'
+import { useThemeMode, useToggleTheme, useClearThemeOverride } from '@/hooks/use-theme'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,9 @@ export function ProfilePage() {
   const { user, profile, loading, refreshProfile } = useAuth()
   const { data: requests = [] } = useMyLoanRequests(user?.id)
   const showToast = useUIStore((s) => s.showToast)
+  const themeMode = useThemeMode()
+  const toggleTheme = useToggleTheme()
+  const clearThemeOverride = useClearThemeOverride()
 
   const [phone, setPhone] = useState(profile?.phone || '')
   const [saving, setSaving] = useState(false)
@@ -217,6 +221,41 @@ export function ProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Appearance */}
+      <Card>
+        <CardHeader className="px-6 pt-6 pb-4">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <Palette className="h-4 w-4" /> Appearance
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-6 pb-6">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/40">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+                  {themeMode === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Theme</p>
+                  <p className="text-xs text-muted-foreground">
+                    Currently {themeMode === 'dark' ? 'Dark' : 'Light'}.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={toggleTheme} className="gap-1.5">
+                  {themeMode === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                  Switch to {themeMode === 'dark' ? 'Light' : 'Dark'}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={clearThemeOverride} className="text-xs">
+                  Use default
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Contact */}
       <Card>
