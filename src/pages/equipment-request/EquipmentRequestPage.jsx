@@ -693,7 +693,9 @@ export function EquipmentRequestPage() {
       case 'requester':
         return !!(form.requested_by.trim() && form.from_company.trim())
       case 'event':
-        return !!(form.event_name.trim() && form.pick_up && form.deposit)
+        if (!form.event_name.trim() || !form.pick_up || !form.deposit) return false
+        // Return date must be on/after pickup date
+        return new Date(form.deposit) >= new Date(form.pick_up)
       case 'equipment':
         if (form.equipment_needed.length === 0) return false
         // If PC is selected, pc_type must be chosen

@@ -53,7 +53,7 @@ function AdminNotes({ requestId, initialNotes }) {
 
 export function AdminRequestDetailPage() {
   const { requestId } = useParams()
-  const { data: request, isLoading } = useLoanRequest(requestId)
+  const { data: request, isLoading, isFetching } = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
   const { data: allQRCodes = [] } = useQRCodes({})
   const updateStatus = useUpdateRequestStatus()
@@ -68,7 +68,7 @@ export function AdminRequestDetailPage() {
   const [assignedQRs, setAssignedQRs] = useState({})
   const [scanError, setScanError] = useState(null)
 
-  if (isLoading) return <PageLoading />
+  if (isLoading || isFetching) return <PageLoading />
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
 
   const requesterName = `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim()

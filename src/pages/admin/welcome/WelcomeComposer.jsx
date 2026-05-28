@@ -127,7 +127,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
           // Stale chunk after a deploy — let main.jsx reload handler kick in
           throw err
         }
-        if (!cancelled) setPreviewHtml(`<pre style="color:red;padding:20px;">${err.message}</pre>`)
+        if (!cancelled) setPreviewHtml(`<div style="padding:40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#525f7f;line-height:1.6;text-align:center;"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-weight:600;color:#0a2540;font-size:15px;margin-bottom:6px;">Preview unavailable</div><div style="font-size:13px;">Reload the page to retry. The email will still send correctly.</div><div style="font-size:11px;color:#aab7c4;margin-top:14px;">${(err.message || '').replace(/</g,'&lt;')}</div></div>`)
       }
     }
     const timer = setTimeout(render, 300)

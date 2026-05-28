@@ -44,10 +44,13 @@ function HeaderSearch() {
   }, [results])
 
   const handleSelect = useCallback((product) => {
-    setQuery('')
+    // The standalone product detail page is gone — drop the user on the
+    // catalog with the product name pre-filled in the search so they can
+    // act on it (heart, add to cart, etc.) without losing context.
     setIsOpen(false)
     setMobileOpen(false)
-    navigate(`/catalog/${product.id}`)
+    navigate(`/catalog?q=${encodeURIComponent(product.name || '')}`)
+    setTimeout(() => setQuery(''), 0)
   }, [navigate])
 
   const handleKeyDown = useCallback((e) => {

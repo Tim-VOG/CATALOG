@@ -576,8 +576,10 @@ export function OnboardingRequestPage() {
       case 'dates':
         return !!form.first_day
       case 'access':
-      case 'requester':
+        // Access selection is optional — admin can grant later
         return true
+      case 'requester':
+        return !!(form.requested_by && form.requested_on)
       case 'review':
         return true
       default:

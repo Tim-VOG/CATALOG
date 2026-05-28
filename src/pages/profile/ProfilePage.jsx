@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
+import { useMyItRequests } from '@/hooks/use-it-requests'
+import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { Badge } from '@/components/ui/badge'
 import { updateProfile } from '@/lib/api/profiles'
 import { supabase } from '@/lib/supabase'
@@ -25,7 +27,10 @@ const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export function ProfilePage() {
   const { user, profile, loading, refreshProfile } = useAuth()
-  const { data: requests = [] } = useMyLoanRequests(user?.id)
+  const { data: loanReqs = [] } = useMyLoanRequests(user?.id)
+  const { data: itReqs = [] } = useMyItRequests(user?.id)
+  const { data: mailboxReqs = [] } = useMyMailboxRequests(user?.id)
+  const requests = [...loanReqs, ...itReqs, ...mailboxReqs]
   const showToast = useUIStore((s) => s.showToast)
   const themeMode = useThemeMode()
   const toggleTheme = useToggleTheme()

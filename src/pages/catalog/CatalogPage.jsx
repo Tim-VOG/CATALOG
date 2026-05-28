@@ -53,7 +53,12 @@ export function CatalogPage() {
       window.removeEventListener('vo-favorites-changed', refresh)
     }
   }, [])
-  const [searchQuery, setSearchQuery] = useState('')
+  // Honor ?q=... so header search results land here pre-filtered
+  const initialSearch = (() => {
+    if (typeof window === 'undefined') return ''
+    return new URLSearchParams(window.location.search).get('q') || ''
+  })()
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [sortBy, setSortBy] = useState('name-asc')
 
   const { isAdmin } = useAuth()
