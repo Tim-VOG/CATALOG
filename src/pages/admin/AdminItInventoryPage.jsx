@@ -96,13 +96,14 @@ function SelectCell({ value, options, onChange }) {
 }
 
 // ── Column config: drives header + cell rendering ──
-const COMPANIES = ['VO GROUP', 'THE LITTLE VOICE', 'VO EVENT', 'VO CONSULTING', 'VO PRODUCTION', 'VO STUDIOS', 'KRAFTHAUS']
+const COMPANIES = ['VO GROUP', 'VO EUR', 'VO EVENT', 'THE LITTLE VOICE', 'VO CONSULTING', 'VO PRODUCTION', 'VO STUDIOS', 'KRAFTHAUS', 'SERIAL', 'MAX', 'AOP', 'SIGN', 'DEFECT', 'FREE']
 const DEVICE_TYPES = ['Mac', 'PC', 'Other']
 
 const COLUMNS = [
   { key: 'name',           label: 'Name',             type: 'text',    width: '160px' },
   { key: 'company',        label: 'Company',          type: 'select',  width: '140px', options: COMPANIES },
   { key: 'device_type',    label: 'Device',           type: 'select',  width: '90px',  options: DEVICE_TYPES },
+  { key: 'model',          label: 'Model',            type: 'text',    width: '180px' },
   { key: 'owner',          label: 'Propri.',          type: 'text',    width: '110px' },
   { key: 'ram',            label: 'RAM',              type: 'text',    width: '70px' },
   { key: 'serial_number',  label: 'Serial',           type: 'text',    width: '150px' },
@@ -140,7 +141,8 @@ export function AdminItInventoryPage() {
       r = r.filter((x) =>
         (x.name || '').toLowerCase().includes(q) ||
         (x.serial_number || '').toLowerCase().includes(q) ||
-        (x.owner || '').toLowerCase().includes(q),
+        (x.owner || '').toLowerCase().includes(q) ||
+        (x.model || '').toLowerCase().includes(q),
       )
     }
     return r
