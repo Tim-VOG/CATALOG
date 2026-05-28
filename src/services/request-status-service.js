@@ -106,8 +106,14 @@ export async function buildConfirmationSubject({ type, newHireName, detail }) {
 
 // Per-request-type "subject of the action" — the person/thing the
 // request is about. Mirrors what onboarding shows via {{new_hire_name}}.
-function fullName(req) {
-  return [req?.first_name, req?.last_name].filter(Boolean).join(' ').trim()
+function fullName(...sources) {
+  for (const s of sources) {
+    const n = [s?.first_name, s?.last_name].filter(Boolean).join(' ').trim()
+    if (n) return n
+    if (s?.name) return s.name
+    if (s?.full_name) return s.full_name
+  }
+  return ''
 }
 function subjectLabelFor(requestType) {
   if (requestType === 'onboarding') return 'New hire'
@@ -116,15 +122,22 @@ function subjectLabelFor(requestType) {
   return 'Request'
 }
 function subjectNameFor(req, requestType) {
+  // For IT requests the form payload lives in req.data (jsonb) — dig into
+  // it too so we never end up showing just the capitalised type.
+  const data = req?.data || {}
   let v
   if (requestType === 'onboarding' || requestType === 'offboarding') {
-    v = fullName(req) || req?.new_hire_name || req?.requested_by_name
+    v = fullName(req, data)
+      || req?.new_hire_name || data?.new_hire_name
+      || data?.email_to_create
+      || req?.requested_by_name
   } else if (requestType === 'mailbox') {
-    v = req?.email_to_create || req?.mailbox_email || req?.project_name
+    v = req?.email_to_create || data?.email_to_create
+      || req?.mailbox_email
+      || req?.project_name || data?.project_name
   } else {
-    v = req?.project_name
+    v = req?.project_name || data?.project_name || data?.name
   }
-  // Always fall back to the request type label so the row is never blank.
   return v || (requestType ? requestType.charAt(0).toUpperCase() + requestType.slice(1) : '—')
 }
 
