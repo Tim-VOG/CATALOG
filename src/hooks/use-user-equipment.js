@@ -17,6 +17,13 @@ export const useAllUserEquipment = () =>
     queryFn: api.getAllUserEquipment,
   })
 
+export const useUserEquipmentFor = (userId) =>
+  useQuery({
+    queryKey: ['user-equipment', 'for', userId],
+    queryFn: () => api.getUserEquipmentFor(userId),
+    enabled: !!userId,
+  })
+
 export const useAssignEquipment = () => {
   const queryClient = useQueryClient()
   return useMutation({

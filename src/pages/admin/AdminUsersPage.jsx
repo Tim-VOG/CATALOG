@@ -10,6 +10,7 @@ import {
   Package, UserPlus, ClipboardList, Mail, UserMinus,
   Check, Loader2, ShieldCheck, Clock, X, Send, Pencil,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -390,7 +391,7 @@ export function AdminUsersPage() {
                 <TableRow key={p.id} className={cn(inactive && 'opacity-50')}>
                   {/* User */}
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link to={`/admin/users/${p.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                       <UserAvatar
                         avatarUrl={p.avatar_url}
                         firstName={p.first_name}
@@ -399,7 +400,7 @@ export function AdminUsersPage() {
                         size="sm"
                       />
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">
+                        <div className="text-sm font-medium truncate hover:underline">
                           {p.full_name || 'Unnamed'}
                           {isSelf && (
                             <span className="text-[10px] text-muted-foreground ml-1">(you)</span>
@@ -407,7 +408,7 @@ export function AdminUsersPage() {
                         </div>
                         <div className="text-[10px] text-muted-foreground truncate">{p.email}</div>
                       </div>
-                    </div>
+                    </Link>
                   </TableCell>
 
                   {/* Business Unit */}

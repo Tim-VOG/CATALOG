@@ -18,6 +18,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { motion } from 'motion/react'
 import { AnimatedCounter } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
+import { UserEquipmentPanel } from '@/components/common/UserEquipmentPanel'
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -226,6 +227,9 @@ export function ProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* My equipment, QR codes, history */}
+      {user?.id && <UserEquipmentPanel userId={user.id} />}
 
       {/* Appearance */}
       <Card>

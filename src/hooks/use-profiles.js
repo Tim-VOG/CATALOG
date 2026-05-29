@@ -1,10 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getProfiles, updateProfile, updateProfileRole, toggleProfileActive, deleteProfile } from '@/lib/api/profiles'
+import { getProfile, getProfiles, updateProfile, updateProfileRole, toggleProfileActive, deleteProfile } from '@/lib/api/profiles'
 
 export const useProfiles = (filters = {}) =>
   useQuery({
     queryKey: ['profiles', filters],
     queryFn: () => getProfiles(filters),
+  })
+
+export const useProfile = (userId) =>
+  useQuery({
+    queryKey: ['profiles', 'one', userId],
+    queryFn: () => getProfile(userId),
+    enabled: !!userId,
   })
 
 export const useUpdateProfile = () => {

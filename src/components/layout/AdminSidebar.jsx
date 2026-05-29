@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, ArrowLeft,
   UserPlus, UserMinus, Monitor, BarChart3,
-  Settings, QrCode, ScrollText,
+  Settings, QrCode, ScrollText, CalendarRange,
   ChevronDown, CreditCard,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
@@ -43,6 +43,7 @@ export function AdminSidebar() {
       defaultOpen: true,
       links: [
         { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+        { to: '/admin/planning', label: 'Planning', icon: CalendarRange },
         { to: '/admin/stats', label: 'Statistics', icon: BarChart3 },
       ],
     },

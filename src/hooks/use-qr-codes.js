@@ -23,6 +23,13 @@ export const useQRCodeByCode = (code) =>
     enabled: !!code,
   })
 
+export const useQRCodesAssignedTo = (userId) =>
+  useQuery({
+    queryKey: ['qr-codes', 'assigned-to', userId],
+    queryFn: () => api.getQRCodesAssignedTo(userId),
+    enabled: !!userId,
+  })
+
 export const useCreateQRCode = () => {
   const queryClient = useQueryClient()
   return useMutation({

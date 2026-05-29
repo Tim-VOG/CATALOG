@@ -10,6 +10,17 @@ export const getMyEquipment = async (userId) => {
   return data
 }
 
+export const getUserEquipmentFor = async (userId) => {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('user_equipment')
+    .select('*')
+    .eq('user_id', userId)
+    .order('assigned_date', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
 export const getAllUserEquipment = async () => {
   const { data, error } = await supabase
     .from('user_equipment')

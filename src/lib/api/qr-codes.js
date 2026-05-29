@@ -1,6 +1,17 @@
 import { supabase } from '@/lib/supabase'
 import { sanitizeSearch } from '@/lib/sanitize'
 
+export const getQRCodesAssignedTo = async (userId) => {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('qr_codes_with_details')
+    .select('*')
+    .eq('assigned_to', userId)
+    .order('assigned_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
 // ── QR Codes ──────────────────────────────────────────
 
 export const getQRCodes = async ({ search, active } = {}) => {

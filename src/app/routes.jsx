@@ -27,6 +27,8 @@ import { AdminRequestsPage } from '@/pages/admin/AdminRequestsPage'
 import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
 // AdminReturnsPage removed — returns handled via QR scan
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
+import { AdminUserDetailPage } from '@/pages/admin/AdminUserDetailPage'
+import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
 // AdminDesignPage — lazy-loaded above
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 // AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
@@ -115,9 +117,10 @@ export function AppRoutes() {
           <Route path="new-request" element={<Navigate to="/admin/requests" replace />} />
           <Route path="returns" element={<Navigate to="/admin/requests" replace />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="users/:userId" element={<AdminUserDetailPage />} />
           <Route path="design" element={<AdminDesignPage />} />
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
-          <Route path="planning" element={<Navigate to="/admin" replace />} />
+          <Route path="planning" element={<AdminPlanningPage />} />
           <Route path="forms" element={<Navigate to="/admin" replace />} />
           <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
