@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { WelcomeEmailSection } from '@/pages/admin/welcome/WelcomeEmailSection'
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
@@ -133,7 +134,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail }) {
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-blue-500 shrink-0" />
             <span className="text-sm text-muted-foreground flex-1">
-              Once everything is set up, mark the request as ready. The welcome email is composed from <strong>Admin → Welcome</strong>.
+              Once everything is set up, mark the request as ready. You'll then be able to send the welcome email below.
             </span>
             <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
               <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
@@ -143,16 +144,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail }) {
       )}
 
       {req.status === 'ready' && (
-        <Card variant="elevated" className="border-emerald-500/30">
-          <CardContent className="p-4 flex items-center gap-3">
-            <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-            <span className="text-sm text-muted-foreground flex-1">
-              {sentEmail
-                ? <>Welcome email was sent on <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>.</>
-                : <>Request is ready. Compose the welcome email from <strong className="text-foreground">Admin → Welcome</strong>.</>}
-            </span>
-          </CardContent>
-        </Card>
+        <WelcomeEmailSection req={req} sentEmail={sentEmail} />
       )}
     </div>
   )

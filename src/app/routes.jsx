@@ -35,7 +35,6 @@ import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { ItRequestFormPage } from '@/pages/it-request/ItRequestFormPage'
 import { AdminItRequestsPage } from '@/pages/admin/AdminItRequestsPage'
 import { OnboardingRequestsPage } from '@/pages/admin/onboarding/OnboardingRequestsPage'
-import { WelcomeRequestsPage } from '@/pages/admin/welcome/WelcomeRequestsPage'
 // AdminItInventoryPage — lazy-loaded above
 // (Removed OnboardingHistoryPage — history merged into Welcome's "Sent" tab)
 import { AdminOffboardingRequestsPage } from '@/pages/admin/AdminOffboardingRequestsPage'
@@ -124,12 +123,12 @@ export function AppRoutes() {
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
           <Route path="onboarding/compose" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/compose/:emailId" element={<Navigate to="/admin/onboarding/requests" replace />} />
-          <Route path="onboarding/history" element={<Navigate to="/admin/welcome" replace />} />
+          <Route path="onboarding/history" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/recipients" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/variables" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="it-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
-          <Route path="welcome" element={<WelcomeRequestsPage />} />
+          <Route path="welcome" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
           <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
           <Route path="offboarding" element={<OffboardingPage />} />

@@ -4,12 +4,13 @@ import {
   LayoutDashboard, Package, Inbox,
   Users, Palette, Mail, ArrowLeft,
   UserPlus, UserMinus, Monitor, BarChart3,
-  Settings, QrCode, ScrollText, Sparkles,
+  Settings, QrCode, ScrollText,
   ChevronDown, CreditCard,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
+import { useOnboardingEmails } from '@/hooks/use-onboarding'
 import { cn } from '@/lib/utils'
 
 export function AdminSidebar() {
@@ -18,13 +19,23 @@ export function AdminSidebar() {
   const { data: loanReqs = [] } = useLoanRequests()
   const { data: itReqs = [] } = useItRequests()
   const { data: mailboxReqs = [] } = useMailboxRequests()
+  const { data: onboardingEmails = [] } = useOnboardingEmails()
 
-  const pendingCounts = useMemo(() => ({
-    equipment: loanReqs.filter((r) => r.status === 'pending').length,
-    onboarding: itReqs.filter((r) => r.type === 'onboarding' && r.status === 'pending').length,
-    offboarding: itReqs.filter((r) => r.type === 'offboarding' && r.status === 'pending').length,
-    mailbox: mailboxReqs.filter((r) => r.status === 'pending').length,
-  }), [loanReqs, itReqs, mailboxReqs])
+  const pendingCounts = useMemo(() => {
+    const sentRequestIds = new Set(
+      onboardingEmails.filter((e) => e.it_request_id && e.status === 'sent').map((e) => e.it_request_id)
+    )
+    const onboardingPending = itReqs.filter((r) => r.type === 'onboarding' && r.status === 'pending').length
+    const onboardingReadyToWelcome = itReqs.filter(
+      (r) => r.type === 'onboarding' && r.status === 'ready' && !sentRequestIds.has(r.id)
+    ).length
+    return {
+      equipment: loanReqs.filter((r) => r.status === 'pending').length,
+      onboarding: onboardingPending + onboardingReadyToWelcome,
+      offboarding: itReqs.filter((r) => r.type === 'offboarding' && r.status === 'pending').length,
+      mailbox: mailboxReqs.filter((r) => r.status === 'pending').length,
+    }
+  }, [loanReqs, itReqs, mailboxReqs, onboardingEmails])
 
   const sidebarSections = [
     {
@@ -41,7 +52,6 @@ export function AdminSidebar() {
       links: [
         { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
         { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding },
-        { to: '/admin/welcome', label: 'Welcome', icon: Sparkles },
         { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding },
         { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox },
       ],
