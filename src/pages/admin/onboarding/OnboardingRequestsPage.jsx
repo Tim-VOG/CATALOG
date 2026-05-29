@@ -25,7 +25,13 @@ const STATUS_COLORS = {
   pending: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
   in_progress: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
   ready: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
+  welcome: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
 }
+
+// Onboarding requests in 'ready' state without a welcome email sent yet
+// are surfaced as 'welcome' in the UI so admins know what's left to do.
+const displayStatus = (status, sentEmail) =>
+  status === 'ready' && !sentEmail ? 'welcome' : status
 
 // ── Info card (full request details, no expand) ──
 function OnboardingRequestInfoCard({ req, sentEmail }) {
@@ -68,8 +74,8 @@ function OnboardingRequestInfoCard({ req, sentEmail }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[req.status])}>
-                {req.status}
+              <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[displayStatus(req.status, sentEmail)])}>
+                {displayStatus(req.status, sentEmail)}
               </Badge>
               {sentEmail && (
                 <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
@@ -205,8 +211,14 @@ export function OnboardingRequestsPage() {
   const handleStatusChange = async (req, newStatus) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
-      showToast(`Request marked as ${newStatus.replace('_', ' ')}`)
-      sendStatusChangeEmail(newStatus, { request: req, requestType: 'onboarding' })
+      const label = newStatus === 'ready' ? 'welcome' : newStatus.replace('_', ' ')
+      showToast(`Request marked as ${label}`)
+      // For onboarding, the 'ready' step doesn't auto-notify the requester:
+      // the welcome email composed afterwards IS the user-facing notification.
+      // Only the in_progress transition triggers an auto status email.
+      if (newStatus !== 'ready') {
+        sendStatusChangeEmail(newStatus, { request: req, requestType: 'onboarding' })
+      }
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -329,7 +341,7 @@ export function OnboardingRequestsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm">{name}</span>
-                        <StatusBadge status={req.status} />
+                        <StatusBadge status={displayStatus(req.status, sentByRequestId[req.id])} />
                         {company && <Badge variant="secondary" className="text-[10px]">{company}</Badge>}
                         {sentEmail && (
                           <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
