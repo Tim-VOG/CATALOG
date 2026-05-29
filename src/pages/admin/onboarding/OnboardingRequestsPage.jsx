@@ -177,7 +177,11 @@ export function OnboardingRequestsPage() {
 
   const filtered = useMemo(() => {
     let result = requests
-    if (statusFilter !== 'all') result = result.filter((r) => r.status === statusFilter)
+    if (statusFilter === 'welcome') {
+      result = result.filter((r) => r.status === 'ready' && !sentByRequestId[r.id])
+    } else if (statusFilter !== 'all') {
+      result = result.filter((r) => r.status === statusFilter)
+    }
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter((r) => {
@@ -188,9 +192,10 @@ export function OnboardingRequestsPage() {
       })
     }
     return result
-  }, [requests, search, statusFilter])
+  }, [requests, search, statusFilter, sentByRequestId])
 
   const pendingCount = requests.filter((r) => r.status === 'pending').length
+  const welcomeCount = requests.filter((r) => r.status === 'ready' && !sentByRequestId[r.id]).length
 
   const selectedRequest = useMemo(
     () => requests.find((r) => r.id === selectedId),
@@ -256,20 +261,31 @@ export function OnboardingRequestsPage() {
       <div className="flex flex-wrap items-center gap-2">
         {[
           { value: 'all', label: 'All' },
-          { value: 'pending', label: 'Pending' },
+          { value: 'pending', label: 'Pending', count: pendingCount },
           { value: 'in_progress', label: 'In Progress' },
           { value: 'ready', label: 'Ready' },
+          { value: 'welcome', label: 'Welcome', count: welcomeCount, accent: true },
         ].map((s) => (
           <Button
             key={s.value}
             variant={statusFilter === s.value ? 'default' : 'outline'}
             size="sm"
             onClick={() => setStatusFilter(s.value)}
+            className={cn(
+              s.accent && statusFilter !== s.value && s.count > 0 && 'border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10'
+            )}
           >
             {s.label}
-            {s.value === 'pending' && pendingCount > 0 && (
-              <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
-                {pendingCount}
+            {s.count > 0 && (
+              <span className={cn(
+                'ml-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold',
+                statusFilter === s.value
+                  ? 'bg-primary-foreground text-primary'
+                  : s.accent
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-primary/15 text-primary'
+              )}>
+                {s.count}
               </span>
             )}
           </Button>
@@ -282,7 +298,13 @@ export function OnboardingRequestsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={UserPlus} title="No onboarding requests" description="No requests match the current filter" />
+        <EmptyState
+          icon={statusFilter === 'welcome' ? Mail : UserPlus}
+          title={statusFilter === 'welcome' ? 'No welcome emails to send' : 'No onboarding requests'}
+          description={statusFilter === 'welcome'
+            ? 'Onboarding requests marked as ready will appear here once their welcome email is pending.'
+            : 'No requests match the current filter'}
+        />
       ) : (
         <div className="space-y-3">
           {filtered.map((req) => {
