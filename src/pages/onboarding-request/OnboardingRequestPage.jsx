@@ -192,7 +192,7 @@ function YesNoField({ value, onChange }) {
 }
 
 // ── Step: Identity ──
-function StepIdentity({ form, update }) {
+function StepIdentity({ form, update, setEmailLocalEdited }) {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -770,7 +770,7 @@ export function OnboardingRequestPage() {
               transition={{ duration: 0.2 }}
             >
               {currentStepDef.id === 'identity' && (
-                <StepIdentity form={form} update={update} />
+                <StepIdentity form={form} update={update} setEmailLocalEdited={setEmailLocalEdited} />
               )}
               {currentStepDef.id === 'project' && (
                 <StepProject form={form} update={update} />

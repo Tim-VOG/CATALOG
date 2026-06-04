@@ -443,7 +443,7 @@ export function AdminOffboardingRequestsPage() {
             const data = req.data || {}
             const name = data.employee_name || data.name || req.requester_name || 'Unknown'
             const company = data.company || ''
-            const lastDay = data.last_day || data.departure_date || ''
+            const lastDay = data.departure_on || data.last_day || data.departure_date || ''
             const submitter = req.requester_name || ''
             return (
               <Card
