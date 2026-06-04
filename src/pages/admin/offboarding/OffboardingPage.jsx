@@ -206,10 +206,10 @@ export function OffboardingPage() {
                             {data.business_unit}
                           </span>
                         )}
-                        {data.departure_date && (
+                        {(data.departure_on || data.departure_date) && (
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {formatDate(data.departure_date)}
+                            {formatDate(data.departure_on || data.departure_date)}
                           </span>
                         )}
                       </div>
