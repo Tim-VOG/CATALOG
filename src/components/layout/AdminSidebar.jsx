@@ -63,6 +63,7 @@ export function AdminSidebar() {
       links: [
         { to: '/admin/local-it', label: 'Local IT', icon: Monitor },
         { to: '/admin/it-inventory', label: 'IT Inventory', icon: ScrollText },
+        { to: '/admin/shared-mailboxes', label: 'Shared Mailboxes', icon: Mail },
         { to: '/admin/products', label: 'Products', icon: Package },
         { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
         { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },

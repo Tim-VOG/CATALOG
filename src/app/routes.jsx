@@ -29,6 +29,7 @@ import { AdminRequestDetailPage } from '@/pages/admin/AdminRequestDetailPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { AdminUserDetailPage } from '@/pages/admin/AdminUserDetailPage'
 import { AdminPlanningPage } from '@/pages/admin/AdminPlanningPage'
+import { AdminSharedMailboxesPage } from '@/pages/admin/AdminSharedMailboxesPage'
 // AdminDesignPage — lazy-loaded above
 import { AdminEmailTemplatesPage } from '@/pages/admin/AdminEmailTemplatesPage'
 // AdminPlanningPage, AdminFormFieldsPage, AdminNewRequestPage removed
@@ -121,6 +122,7 @@ export function AppRoutes() {
           <Route path="design" element={<AdminDesignPage />} />
           <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
           <Route path="planning" element={<AdminPlanningPage />} />
+          <Route path="shared-mailboxes" element={<AdminSharedMailboxesPage />} />
           <Route path="forms" element={<Navigate to="/admin" replace />} />
           <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
           <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
