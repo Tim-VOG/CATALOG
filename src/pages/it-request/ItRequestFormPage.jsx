@@ -144,14 +144,20 @@ function DynamicField({ field, value, onChange, form }) {
       )
     }
 
-    case 'date':
+    case 'date': {
+      // Forward-only fields (entry / leaving / listing dates) shouldn't accept
+      // values in the past. Other admin-defined date fields stay free.
+      const forwardOnly = ['start_date', 'leaving_date', 'listing_date', 'first_day', 'last_day'].includes(field.field_key)
+      const minDate = forwardOnly ? new Date().toISOString().split('T')[0] : undefined
       return (
         <Input
           type="date"
           value={value || ''}
+          min={minDate}
           onChange={(e) => onChange(e.target.value)}
         />
       )
+    }
 
     case 'toggle':
       // Special: needs_computer renders as Yes/No buttons
