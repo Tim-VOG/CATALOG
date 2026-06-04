@@ -211,7 +211,11 @@ export function CartPage() {
   const [pickupDate, setPickupDate] = useState('')
   const [returnDate, setReturnDate] = useState('')
   const [projectName, setProjectName] = useState('')
+  const [pickupContact, setPickupContact] = useState('')
+  const [returnContact, setReturnContact] = useState('')
   const [globalComment, setGlobalComment] = useState('')
+
+  const todayIso = new Date().toISOString().split('T')[0]
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
 
@@ -230,7 +234,7 @@ export function CartPage() {
 
   const handleCheckout = async () => {
     try {
-      await checkout.mutateAsync({
+      const newRequestId = await checkout.mutateAsync({
         userId: user.id,
         projectName: projectName || 'Equipment Request',
         projectDescription: null,
@@ -240,6 +244,26 @@ export function CartPage() {
         locationId: null,
         priority: 'normal',
       })
+
+      // Save pickup / return contacts (when filled in) onto the loan_request
+      // row the RPC just created. Non-blocking — if it fails the request is
+      // still submitted, just without the contact info.
+      const pickupTrim = pickupContact.trim()
+      const returnTrim = returnContact.trim()
+      if (newRequestId && (pickupTrim || returnTrim)) {
+        try {
+          const { supabase } = await import('@/lib/supabase')
+          await supabase
+            .from('loan_requests')
+            .update({
+              pickup_contact: pickupTrim || null,
+              return_contact: returnTrim || null,
+            })
+            .eq('id', newRequestId)
+        } catch (e) {
+          console.warn('[CartPage] could not persist pickup/return contacts', e)
+        }
+      }
 
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
@@ -263,7 +287,10 @@ export function CartPage() {
   }
 
   const canGoToDetails = items.length > 0
-  const canGoToReview = pickupDate && returnDate && new Date(returnDate) > new Date(pickupDate)
+  const canGoToReview = pickupDate
+    && returnDate
+    && pickupDate >= todayIso
+    && new Date(returnDate) > new Date(pickupDate)
 
   if (isLoading) return <PageLoading />
 
@@ -377,11 +404,40 @@ export function CartPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Pickup Date *</Label>
-                    <Input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} />
+                    <Input
+                      type="date"
+                      value={pickupDate}
+                      min={todayIso}
+                      onChange={(e) => setPickupDate(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Return Date *</Label>
-                    <Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+                    <Input
+                      type="date"
+                      value={returnDate}
+                      min={pickupDate || todayIso}
+                      onChange={(e) => setReturnDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Pickup contact</Label>
+                    <Input
+                      value={pickupContact}
+                      onChange={(e) => setPickupContact(e.target.value)}
+                      placeholder="First & last name (if not you)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Return contact</Label>
+                    <Input
+                      value={returnContact}
+                      onChange={(e) => setReturnContact(e.target.value)}
+                      placeholder="First & last name (if not you)"
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -411,10 +467,16 @@ export function CartPage() {
                   <div>
                     <span className="text-muted-foreground">Pickup</span>
                     <p className="font-medium">{pickupDate}</p>
+                    {pickupContact.trim() && (
+                      <p className="text-xs text-muted-foreground mt-0.5">by {pickupContact}</p>
+                    )}
                   </div>
                   <div>
                     <span className="text-muted-foreground">Return</span>
                     <p className="font-medium">{returnDate}</p>
+                    {returnContact.trim() && (
+                      <p className="text-xs text-muted-foreground mt-0.5">by {returnContact}</p>
+                    )}
                   </div>
                 </div>
                 {globalComment && (

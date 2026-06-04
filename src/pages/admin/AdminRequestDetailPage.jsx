@@ -250,6 +250,16 @@ export function AdminRequestDetailPage() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span>{formatDate(request.pickup_date)} &rarr; {formatDate(request.return_date)}</span>
             </div>
+            {(request.pickup_contact || request.return_contact) && (
+              <div className="text-sm text-muted-foreground space-y-0.5">
+                {request.pickup_contact && (
+                  <div>Pickup by <strong className="text-foreground">{request.pickup_contact}</strong></div>
+                )}
+                {request.return_contact && (
+                  <div>Return by <strong className="text-foreground">{request.return_contact}</strong></div>
+                )}
+              </div>
+            )}
             {request.project_description && <p className="text-muted-foreground">{request.project_description}</p>}
             {request.global_comment && <p className="italic text-muted-foreground">&ldquo;{request.global_comment}&rdquo;</p>}
           </CardContent>
