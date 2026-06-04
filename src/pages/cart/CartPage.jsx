@@ -223,9 +223,16 @@ export function CartPage() {
     const newQty = item.quantity + delta
     if (newQty <= 0) {
       removeItem.mutate(item.id)
-    } else {
-      updateItem.mutate({ id: item.id, quantity: newQty })
+      return
     }
+    // Cap at the available stock — we don't want users to reserve more units
+    // than physically exist. product_stock is hydrated from the catalog view.
+    const stockCap = Number.isFinite(item.product_stock) ? Math.max(0, item.product_stock) : null
+    if (stockCap !== null && newQty > stockCap) {
+      showToast(`Only ${stockCap} available in stock`, 'error')
+      return
+    }
+    updateItem.mutate({ id: item.id, quantity: newQty })
   }
 
   const handleOptionsUpdate = (item, options) => {
@@ -357,10 +364,21 @@ export function CartPage() {
                           <Minus className="h-3 w-3" />
                         </Button>
                         <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleQuantityChange(item, 1)} disabled={updateItem.isPending}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleQuantityChange(item, 1)}
+                          disabled={updateItem.isPending || (Number.isFinite(item.product_stock) && item.quantity >= item.product_stock)}
+                        >
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
+                      {Number.isFinite(item.product_stock) && (
+                        <span className={`text-[10px] ${item.quantity >= item.product_stock ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>
+                          {item.quantity >= item.product_stock ? 'Max reached' : `${item.product_stock} in stock`}
+                        </span>
+                      )}
                       <Button variant="ghost" size="sm" className="h-6 text-[10px] text-muted-foreground hover:text-destructive gap-1" onClick={() => removeItem.mutate(item.id)}>
                         <Trash2 className="h-3 w-3" /> Remove
                       </Button>

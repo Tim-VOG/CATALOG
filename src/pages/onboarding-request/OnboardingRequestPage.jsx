@@ -61,16 +61,52 @@ const LANGUAGES = ['EN', 'FR', 'NL']
 // TLO removed per feedback — was confusing and rarely used.
 const ACCESS_OPTIONS = ['TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL']
 
-// Distribution lists shortlist drawn from Active Directory. Some are global
-// (offered for every company), others are tied to a specific company so we
-// don't show e.g. VO EU ALL when the user is onboarding to KRAFTHAUS.
-const DISTRIBUTION_LISTS_GLOBAL = ['VO', 'Reception', 'Referents', 'NATO']
+// Distribution lists drawn from the Active Directory list (VO.local).
+// The mapping below was reconciled against the real AD names so onboarders
+// don't end up subscribing a new hire to a list that doesn't apply to them.
+//   - DISTRIBUTION_LISTS_GLOBAL: lists everyone should see, regardless of
+//     company (the catch-all "VO" group + cross-company functions).
+//   - DISTRIBUTION_LISTS_BY_COMPANY: lists scoped to a specific entity.
+const DISTRIBUTION_LISTS_GLOBAL = ['VO', 'Reception', 'Referents']
 const DISTRIBUTION_LISTS_BY_COMPANY = {
   'VO GROUP': ['VO GROUP'],
-  'VO EUROPE': ['VO EU ALL', 'VO EU EMPLOYEES'],
-  'VO EVENT': ['VO EVENT', 'MAX-TEAM', 'NEB Event Core Team'],
+  'VO EUROPE': [
+    'VO EU ALL',
+    'VO EU EMPLOYEES',
+    'VO EU In-Person Monthly Meeting',
+    'VO EU MERCATO',
+    'CMO-CINEA-Life',
+    'CMO EISMEA',
+    'CMO-europaid',
+    'CMO-JUST',
+    'CMO-PRD',
+    'CMORTD',
+    'CMOSCIC',
+    'cmo-comm200',
+    'COFE',
+    'COP28-prog',
+    'DG-FS',
+    'EACEA',
+    'NEB Event Core Team',
+    'NEB-FAIR',
+    'NEB-FEST',
+    'NEB-FORUM',
+    'Internal.roadmap.eugreendeal',
+    'SUFW-OP',
+    'SUFW-RH',
+    'NATO',
+  ],
+  'VO EVENT': ['VO EVENT', 'VO EVENT MAX', 'MAX-TEAM'],
   'THE LITTLE VOICE': ['TheLittleVoice', 'Operations @ TLV'],
-  'MAX': ['MAX-TEAM'],
+  'MAX': ['MAX-TEAM', 'Hello - Max', 'VO EVENT MAX'],
+  'SIGN BRUSSELS': [],
+  'AOP': [],
+  'VO LAB': [],
+  'MIT': [],
+  'KRAFTHAUS': [],
+  'VO CONSULTING': [],
+  'VO PRODUCTION': [],
+  'VO STUDIOS': [],
 }
 const distributionListsFor = (company) => {
   const extra = DISTRIBUTION_LISTS_BY_COMPANY[company] || []
