@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
@@ -470,6 +470,7 @@ function StepRequester({ form, update }) {
 // ── Step: Review ──
 function StepReview({ form, update }) {
   const fmtBool = (v) => (v === true ? 'Yes' : v === false ? 'No' : '—')
+  const isVoEurope = form.company === 'VO EUROPE'
   const fields = [
     { label: 'First Name', value: form.first_name },
     { label: 'Last Name', value: form.last_name },
@@ -480,17 +481,20 @@ function StepReview({ form, update }) {
     { label: 'Job Title', value: form.job_title },
     { label: 'Signing off as', value: form.signing_off_as },
     { label: 'Phone', value: form.phone },
-    { label: 'Project Name / Mission', value: form.project_name },
-    { label: 'Language', value: form.language },
-    { label: 'Country Based', value: form.country_based },
-    { label: 'Manager', value: form.manager },
+    // VO EUROPE-only Project block
+    ...(isVoEurope ? [
+      { label: 'Project Name / Mission', value: form.project_name },
+      { label: 'Language', value: form.language },
+      { label: 'Country Based', value: form.country_based },
+      { label: 'Manager', value: form.manager },
+    ] : []),
     { label: 'Entry Date', value: form.first_day },
     { label: 'Exit Date', value: form.last_day },
     { label: 'What Access', value: Array.isArray(form.what_access) ? form.what_access.join(', ') : '' },
     ...(Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
       ? [{ label: 'Folder Access', value: form.which_folders }]
       : []),
-    { label: 'Emailing list', value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
+    { label: 'Distribution list', value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
     { label: 'Internal Newsletter', value: fmtBool(form.internal_newsletter) },
     { label: 'Welcome Interview', value: fmtBool(form.welcome_interview) },
     { label: 'Requested On', value: form.requested_on },
@@ -617,7 +621,20 @@ export function OnboardingRequestPage() {
 
   const fullEmail = form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : ''
 
-  const activeSteps = ALL_STEPS
+  // The Project step (mission name, language, country, manager) is only
+  // relevant for VO EUROPE onboardings. Skip it entirely for every other
+  // company so the wizard doesn't ask irrelevant questions.
+  const activeSteps = useMemo(
+    () => form.company === 'VO EUROPE' ? ALL_STEPS : ALL_STEPS.filter((s) => s.id !== 'project'),
+    [form.company]
+  )
+
+  // If the user moves Company away from VO EUROPE while sitting on the
+  // Project step, clamp the cursor to the last valid step so we don't
+  // render an undefined step.
+  useEffect(() => {
+    if (currentStep >= activeSteps.length) setCurrentStep(activeSteps.length - 1)
+  }, [activeSteps, currentStep])
 
   // Validation per step
   const canGoNext = () => {
