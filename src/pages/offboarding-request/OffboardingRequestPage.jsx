@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
@@ -300,7 +300,15 @@ function StepRevocation({ form, setField }) {
 }
 
 // ── Step 4: Equipment ──
-function StepEquipment({ form, setField }) {
+const matches = (text, keywords) => {
+  const t = (text || '').toLowerCase()
+  return keywords.some((k) => t.includes(k))
+}
+const LAPTOP_KEYWORDS = ['laptop', 'macbook', 'computer', 'pc', 'workstation']
+const PHONE_KEYWORDS = ['phone', 'iphone', 'smartphone', 'mobile']
+const BADGE_KEYWORDS = ['badge', 'keys', 'clé', 'access card', 'fob']
+
+function StepEquipment({ form, setField, setMultipleFields }) {
   const { data: equipment = [] } = useUserEquipmentFor(form.leaving_user_id)
   const { data: qrCodes = [] } = useQRCodesAssignedTo(form.leaving_user_id)
   const activeEquipment = useMemo(
@@ -308,6 +316,33 @@ function StepEquipment({ form, setField }) {
     [equipment]
   )
   const hasInventory = form.leaving_user_id && (activeEquipment.length > 0 || qrCodes.length > 0)
+
+  // Auto-detect which collect_* toggles to flip on, based on what the user
+  // actually has assigned. Only runs when we land on this step with a fresh
+  // user pick, so it doesn't override manual edits later on.
+  const autoDetectedKey = `${form.leaving_user_id || ''}::${activeEquipment.length}::${qrCodes.length}`
+  const lastAutoDetectedRef = useRef(null)
+  useEffect(() => {
+    if (!form.leaving_user_id) return
+    if (lastAutoDetectedRef.current === autoDetectedKey) return
+    lastAutoDetectedRef.current = autoDetectedKey
+
+    const allItems = [
+      ...activeEquipment.map((e) => `${e.product_name} ${e.category_name} ${e.notes || ''}`),
+      ...qrCodes.map((q) => `${q.product_name || ''} ${q.label || ''}`),
+    ]
+    if (allItems.length === 0) return
+
+    const hasLaptop = allItems.some((s) => matches(s, LAPTOP_KEYWORDS))
+    const hasPhone = allItems.some((s) => matches(s, PHONE_KEYWORDS))
+    const hasBadge = allItems.some((s) => matches(s, BADGE_KEYWORDS))
+
+    setMultipleFields({
+      collect_laptop: hasLaptop || form.collect_laptop,
+      collect_phone: hasPhone || form.collect_phone,
+      collect_badge_keys: hasBadge || form.collect_badge_keys,
+    })
+  }, [autoDetectedKey, form.leaving_user_id, activeEquipment, qrCodes, setMultipleFields])
 
   return (
     <div className="space-y-5">
@@ -647,7 +682,7 @@ export function OffboardingRequestPage() {
                 <StepRevocation form={form} setField={setField} />
               )}
               {currentStepDef.id === 'equipment' && (
-                <StepEquipment form={form} setField={setField} />
+                <StepEquipment form={form} setField={setField} setMultipleFields={setMultipleFields} />
               )}
               {currentStepDef.id === 'requester' && (
                 <StepRequester form={form} setField={setField} />

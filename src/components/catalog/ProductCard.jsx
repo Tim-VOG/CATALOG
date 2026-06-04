@@ -13,8 +13,11 @@ import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
 const PHONE_ROUTER_CATEGORIES = ['iphone', 'phone', 'smartphone', 'mobile', '5g router', 'router', 'modem']
+// Phones ship with their accessories pack already, so the only option a
+// requester needs to pick is the data plan. Routers still expose their
+// few accessories because the pack varies.
 const CATEGORY_CONFIG = {
-  phone: { match: ['iphone', 'phone', 'smartphone', 'mobile'], planTypes: ['call', 'data', 'both'], accessories: ['Charger', 'USB-C Cable', 'Protective Case', 'Screen Protector'] },
+  phone: { match: ['iphone', 'phone', 'smartphone', 'mobile'], planTypes: ['call', 'data', 'both'], accessories: [] },
   router: { match: ['5g router', 'router', 'modem'], planTypes: ['data'], accessories: ['Power Adapter', 'Ethernet Cable'] },
 }
 
