@@ -307,14 +307,21 @@ function DynamicField({ field, value, onChange }) {
       )
     }
 
-    case 'date':
+    case 'date': {
+      // Mailbox creation date is in the future by definition; block past
+      // values directly in the picker. Other admin-defined date fields
+      // stay unconstrained (e.g. signature dates, leaving date).
+      const forwardOnly = ['creation_date', 'archive_date', 'deletion_date'].includes(field.field_key)
+      const minDate = forwardOnly ? new Date().toISOString().split('T')[0] : undefined
       return (
         <Input
           type="date"
           value={value || ''}
+          min={minDate}
           onChange={(e) => onChange(e.target.value)}
         />
       )
+    }
 
     case 'toggle':
       return (

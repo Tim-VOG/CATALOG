@@ -22,27 +22,60 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 
 // ── Constants ──
-const PROFILES = ['FREELANCE', 'EMPLOYEE', 'TRAINEE', 'STUDENT', 'INTRAMUROS', 'CDD']
+const PROFILES = ['FREELANCE', 'EMPLOYEE CDI', 'EMPLOYEE CDD', 'TRAINEE', 'STUDENT']
+
+// Companies are sorted alphabetically and each has a default email domain.
+// Unmapped companies fall back to vo-group.be — update COMPANY_DOMAINS when
+// new mappings are confirmed.
 const COMPANIES = [
-  'AOP', 'MAX', 'MIT', 'SIGN BRUSSELS', 'VO EVENT',
-  'VO GROUP', 'VO LAB', 'THE LITTLE VOICE', 'VO EUROPE',
+  'AOP',
+  'KRAFTHAUS',
+  'MAX',
+  'MIT',
+  'SIGN BRUSSELS',
+  'THE LITTLE VOICE',
+  'VO CONSULTING',
+  'VO EUROPE',
+  'VO EVENT',
+  'VO GROUP',
+  'VO LAB',
+  'VO PRODUCTION',
+  'VO STUDIOS',
 ]
-const LANGUAGES = ['EN', 'FR', 'NL']
-const ACCESS_OPTIONS = [
-  'TLO - Timesheet Only', 'TLO - PM', 'TLO',
-  'TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL',
-]
-const EMAILING_OPTIONS = [
-  'Distribution List', 'ALL VO', 'VO EU ALL',
-]
-const EMAIL_DOMAINS = [
-  'vo-group.be', 'voice.be', 'vo-europe.eu', 'vo-citizen.be',
-  'designbysign.com', 'vo-event.be', 'studiogondo.be', 'artonpaper.be',
-  'vo-lab.be', 'vocommunication.com', 'vo-communication.com', 'sign.brussels',
-  'myimpacttool.com', 'thelittlevoice.be', 'vo-event-max.be', 'max.be',
-  '100ans-sncb.be', '100jaar-nmbs.be', 'eventfresco.be', 'VO.local',
-]
+
+const COMPANY_DOMAINS = {
+  'AOP': 'artonpaper.be',
+  'MAX': 'max-be.eu',
+  'SIGN BRUSSELS': 'sign.brussels',
+  'THE LITTLE VOICE': 'thelittlevoice.be',
+  'VO EUROPE': 'vo-europe.eu',
+  'VO EVENT': 'vo-event.be',
+  'VO GROUP': 'vo-group.be',
+  'VO LAB': 'vo-lab.be',
+}
 const DEFAULT_DOMAIN = 'vo-group.be'
+const domainForCompany = (company) => COMPANY_DOMAINS[company] || DEFAULT_DOMAIN
+
+const LANGUAGES = ['EN', 'FR', 'NL']
+
+// TLO removed per feedback — was confusing and rarely used.
+const ACCESS_OPTIONS = ['TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL']
+
+// Distribution lists shortlist drawn from Active Directory. Some are global
+// (offered for every company), others are tied to a specific company so we
+// don't show e.g. VO EU ALL when the user is onboarding to KRAFTHAUS.
+const DISTRIBUTION_LISTS_GLOBAL = ['VO', 'Reception', 'Referents', 'NATO']
+const DISTRIBUTION_LISTS_BY_COMPANY = {
+  'VO GROUP': ['VO GROUP'],
+  'VO EUROPE': ['VO EU ALL', 'VO EU EMPLOYEES'],
+  'VO EVENT': ['VO EVENT', 'MAX-TEAM', 'NEB Event Core Team'],
+  'THE LITTLE VOICE': ['TheLittleVoice', 'Operations @ TLV'],
+  'MAX': ['MAX-TEAM'],
+}
+const distributionListsFor = (company) => {
+  const extra = DISTRIBUTION_LISTS_BY_COMPANY[company] || []
+  return [...new Set([...DISTRIBUTION_LISTS_GLOBAL, ...extra])]
+}
 
 // ── Step definitions ──
 const ALL_STEPS = [
@@ -195,18 +228,13 @@ function StepIdentity({ form, update }) {
             placeholder="jdoe"
             className="rounded-r-none border-r-0 flex-1 min-w-0"
           />
-          <span className="inline-flex items-center px-2 bg-muted border border-input border-l-0 border-r-0 text-sm text-muted-foreground select-none">@</span>
-          <Select
-            value={form.email_domain}
-            onChange={(e) => update('email_domain', e.target.value)}
-            className="rounded-l-none w-auto min-w-[180px]"
-          >
-            {EMAIL_DOMAINS.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </Select>
+          <span className="inline-flex items-center px-3 bg-muted border border-input border-l-0 text-sm text-muted-foreground select-none rounded-r-md min-w-[180px]">
+            @{form.email_domain || DEFAULT_DOMAIN}
+          </span>
         </div>
-        <p className="text-[11px] text-muted-foreground">Local part auto-suggested from first/last name</p>
+        <p className="text-[11px] text-muted-foreground">
+          Local part auto-suggested from first/last name. Domain follows the selected Company.
+        </p>
       </div>
       <div className="space-y-2">
         <Label>
@@ -324,6 +352,9 @@ function StepProject({ form, update }) {
 
 // ── Step: Dates ──
 function StepDates({ form, update }) {
+  const todayIso = new Date().toISOString().split('T')[0]
+  const exitMin = form.first_day || todayIso
+  const exitInvalid = form.last_day && form.first_day && form.last_day < form.first_day
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -333,6 +364,7 @@ function StepDates({ form, update }) {
         <Input
           type="date"
           value={form.first_day}
+          min={todayIso}
           onChange={(e) => update('first_day', e.target.value)}
         />
       </div>
@@ -341,8 +373,12 @@ function StepDates({ form, update }) {
         <Input
           type="date"
           value={form.last_day}
+          min={exitMin}
           onChange={(e) => update('last_day', e.target.value)}
         />
+        {exitInvalid && (
+          <p className="text-[11px] text-destructive">Exit date must be on or after the entry date.</p>
+        )}
       </div>
     </div>
   )
@@ -378,9 +414,12 @@ function StepAccess({ form, update }) {
         </motion.div>
       )}
       <div className="space-y-2">
-        <Label>Emailing list</Label>
+        <Label>Distribution list</Label>
+        <p className="text-[11px] text-muted-foreground">
+          Mailing lists to subscribe the new hire to. Options depend on the selected Company.
+        </p>
         <MultiSelectField
-          options={EMAILING_OPTIONS}
+          options={distributionListsFor(form.company)}
           value={form.subscribe_to}
           onChange={(val) => update('subscribe_to', val)}
         />
@@ -560,6 +599,22 @@ export function OnboardingRequestPage() {
     setForm((prev) => prev.email_local === suggestion ? prev : { ...prev, email_local: suggestion })
   }, [form.first_name, form.last_name, emailLocalEdited])
 
+  // Domain follows the selected company — and a company change might also
+  // invalidate previously-picked distribution lists that aren't allowed for
+  // the new company, so we prune them too.
+  useEffect(() => {
+    const expectedDomain = domainForCompany(form.company)
+    setForm((prev) => {
+      const newDomain = prev.email_domain === expectedDomain ? prev.email_domain : expectedDomain
+      const allowed = distributionListsFor(prev.company)
+      const filteredSubscribe = (prev.subscribe_to || []).filter((s) => allowed.includes(s))
+      if (newDomain === prev.email_domain && filteredSubscribe.length === (prev.subscribe_to || []).length) {
+        return prev
+      }
+      return { ...prev, email_domain: newDomain, subscribe_to: filteredSubscribe }
+    })
+  }, [form.company])
+
   const fullEmail = form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : ''
 
   const activeSteps = ALL_STEPS
@@ -574,8 +629,12 @@ export function OnboardingRequestPage() {
         return !!(form.first_name && form.last_name && form.personal_email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.personal_email) && form.email_local && form.email_domain && form.profile && form.company && form.job_title)
       case 'project':
         return !!(form.language && form.country_based)
-      case 'dates':
-        return !!form.first_day
+      case 'dates': {
+        const today = new Date().toISOString().split('T')[0]
+        if (!form.first_day || form.first_day < today) return false
+        if (form.last_day && form.last_day < form.first_day) return false
+        return true
+      }
       case 'access':
         // Access selection is optional — admin can grant later
         return true

@@ -32,6 +32,18 @@ function OffboardingRequestInfoCard({ req }) {
   const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
   const corporateEmail = data.email || data.corporate_email || data.email_to_revoke || '—'
 
+  const fmtBool = (v) => (v === true ? 'Yes' : v === false ? 'No' : '—')
+  const ooo = data.ooo_enabled
+    ? [
+        ['Out Of Office', 'Yes'],
+        ['OOO From', formatDate(data.ooo_start)],
+        ['OOO Until', formatDate(data.ooo_end)],
+        ['OOO Message', data.ooo_message],
+      ]
+    : data.ooo_enabled === false
+      ? [['Out Of Office', 'No']]
+      : []
+
   // Show every field we have in data, in a consistent order. Booleans → Yes/No,
   // arrays → comma list, dates → formatted.
   const fields = [
@@ -41,10 +53,20 @@ function OffboardingRequestInfoCard({ req }) {
     ['Business Unit', data.business_unit],
     ['Job Title', data.job_title],
     ['Department', data.department],
-    ['Last Day', formatDate(data.last_day || data.departure_date)],
+    ['Departure On', formatDate(data.departure_on || data.last_day || data.departure_date)],
     ['Reason', data.reason],
     ['Replacement', data.replacement_name],
     ['Manager', data.manager_name],
+    ['Revoke Email Access', fmtBool(data.revoke_email_access)],
+    ['Revoke VPN / Tools', fmtBool(data.revoke_vpn_tools_access)],
+    ['Transfer Mailbox Data', fmtBool(data.transfer_mailbox_data)],
+    ['Transfer SharePoint Data', fmtBool(data.transfer_sharepoint_data)],
+    ['Transfer Details', data.transfer_details],
+    ...ooo,
+    ['Collect Laptop', fmtBool(data.collect_laptop)],
+    ['Collect Phone', fmtBool(data.collect_phone)],
+    ['Collect Badge/Keys', fmtBool(data.collect_badge_keys)],
+    ['Equipment Notes', data.equipment_notes],
     ['Equipment to recover', Array.isArray(data.equipment_to_recover) ? data.equipment_to_recover.join(', ') : data.equipment_to_recover],
     ['Access to revoke', Array.isArray(data.access_to_revoke) ? data.access_to_revoke.join(', ') : data.access_to_revoke],
     ['Notes', data.notes],
@@ -56,9 +78,13 @@ function OffboardingRequestInfoCard({ req }) {
   // Catch any custom fields we don't know about, after the known ones
   const knownKeys = new Set([
     'employee_name','name','first_name','last_name','email','corporate_email','email_to_revoke',
-    'company','business_unit','job_title','department','last_day','departure_date','reason',
+    'company','business_unit','job_title','department','last_day','departure_date','departure_on','reason',
     'replacement_name','manager_name','equipment_to_recover','access_to_revoke','notes',
-    'submitted_at','terms_accepted',
+    'revoke_email_access','revoke_vpn_tools_access','transfer_mailbox_data','transfer_sharepoint_data',
+    'transfer_details','ooo_enabled','ooo_start','ooo_end','ooo_message',
+    'collect_laptop','collect_phone','collect_badge_keys','equipment_notes',
+    'leaving_user_id','leaving_user_email','requested_by','requested_on',
+    'revoked_accesses','submitted_at','terms_accepted',
   ])
   const extras = Object.entries(data)
     .filter(([k, v]) => !knownKeys.has(k) && v !== '' && v !== null && v !== undefined)

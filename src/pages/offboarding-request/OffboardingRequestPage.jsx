@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
@@ -6,10 +6,13 @@ import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
+import { useUserEquipmentFor } from '@/hooks/use-user-equipment'
+import { useQRCodesAssignedTo } from '@/hooks/use-qr-codes'
+import { ProfileAutocomplete } from '@/components/common/ProfileAutocomplete'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   UserMinus, Calendar, Shield, Monitor, User, CheckCircle,
-  ArrowRight, ArrowLeft, Send, Loader2,
+  ArrowRight, ArrowLeft, Send, Loader2, Mail, Package, QrCode,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,16 +23,22 @@ import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 
-// ── Companies ──
+// ── Companies (alphabetical, aligned with onboarding) ──
 const COMPANIES = [
+  'AOP',
+  'KRAFTHAUS',
   'MAX',
+  'MIT',
   'SIGN BRUSSELS',
   'STUDIO GONDO',
+  'THE LITTLE VOICE',
+  'VO CONSULTING',
   'VO EUROPE',
   'VO EVENT',
   'VO GROUP',
-  'VO MIT',
-  'THE LITTLE VOICE',
+  'VO LAB',
+  'VO PRODUCTION',
+  'VO STUDIOS',
 ]
 
 // ── Step definitions ──
@@ -87,7 +96,17 @@ function StepProgress({ currentStep, steps }) {
 }
 
 // ── Step 1: Who ──
-function StepWho({ form, setField }) {
+function StepWho({ form, setField, setMultipleFields }) {
+  const handlePickProfile = (profile) => {
+    const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email
+    setMultipleFields({
+      name: fullName,
+      leaving_user_id: profile.id,
+      leaving_user_email: profile.email || '',
+      company: profile.business_unit || form.company || '',
+    })
+  }
+
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -95,12 +114,21 @@ function StepWho({ form, setField }) {
           Name
           <span className="text-destructive ml-1">*</span>
         </Label>
-        <Input
-          type="text"
+        <ProfileAutocomplete
           value={form.name}
-          onChange={(e) => setField('name', e.target.value)}
-          placeholder="Full name of the leaving collaborator"
+          onChange={(text) => {
+            // Typing free text: drop the previously linked user (their data
+            // may no longer match what's typed).
+            setMultipleFields({ name: text, leaving_user_id: null, leaving_user_email: '' })
+          }}
+          onSelect={handlePickProfile}
+          placeholder="Start typing the leaving person's name…"
         />
+        <p className="text-[11px] text-muted-foreground">
+          {form.leaving_user_id
+            ? 'Profile linked — company and assigned equipment have been auto-filled below.'
+            : 'Pick someone from the suggestions list to auto-fill company and pre-load their assigned equipment.'}
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -121,6 +149,7 @@ function StepWho({ form, setField }) {
 
 // ── Step 2: When ──
 function StepWhen({ form, setField }) {
+  const todayIso = new Date().toISOString().split('T')[0]
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -131,6 +160,7 @@ function StepWhen({ form, setField }) {
         <Input
           type="date"
           value={form.departure_on}
+          min={todayIso}
           onChange={(e) => setField('departure_on', e.target.value)}
         />
       </div>
@@ -199,23 +229,111 @@ function StepRevocation({ form, setField }) {
 
       {showTransferDetails && (
         <div className="space-y-2">
-          <Label>Transfer details</Label>
+          <Label>
+            Transfer details
+            <span className="text-destructive ml-1">*</span>
+          </Label>
           <Textarea
             value={form.transfer_details}
             onChange={(e) => setField('transfer_details', e.target.value)}
             placeholder="What data needs to be transferred and to whom?"
             rows={3}
           />
+          <p className="text-[11px] text-muted-foreground">
+            Required when mailbox or SharePoint data needs to be transferred.
+          </p>
         </div>
       )}
+
+      {/* Out of office auto-reply — many leavers forget to set it themselves */}
+      <div className="space-y-3 pt-3 border-t border-border/40">
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Mail className="h-4 w-4 text-muted-foreground" /> Out of office auto-reply
+          </Label>
+          <div className="flex items-center gap-3">
+            <Switch
+              checked={form.ooo_enabled}
+              onCheckedChange={(val) => setField('ooo_enabled', val)}
+            />
+            <span className="text-sm text-muted-foreground">
+              {form.ooo_enabled ? 'Yes — set up an auto-reply on the leaver\'s mailbox' : 'No'}
+            </span>
+          </div>
+        </div>
+
+        {form.ooo_enabled && (
+          <div className="space-y-3 pl-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>From</Label>
+                <Input
+                  type="date"
+                  value={form.ooo_start}
+                  onChange={(e) => setField('ooo_start', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Until (optional)</Label>
+                <Input
+                  type="date"
+                  value={form.ooo_end}
+                  min={form.ooo_start || undefined}
+                  onChange={(e) => setField('ooo_end', e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Auto-reply message</Label>
+              <Textarea
+                value={form.ooo_message}
+                onChange={(e) => setField('ooo_message', e.target.value)}
+                placeholder={`Example: I have left the company on ${form.departure_on || '[date]'}. For any inquiries, please contact …`}
+                rows={3}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 // ── Step 4: Equipment ──
 function StepEquipment({ form, setField }) {
+  const { data: equipment = [] } = useUserEquipmentFor(form.leaving_user_id)
+  const { data: qrCodes = [] } = useQRCodesAssignedTo(form.leaving_user_id)
+  const activeEquipment = useMemo(
+    () => equipment.filter((e) => e.status !== 'returned'),
+    [equipment]
+  )
+  const hasInventory = form.leaving_user_id && (activeEquipment.length > 0 || qrCodes.length > 0)
+
   return (
     <div className="space-y-5">
+      {hasInventory && (
+        <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
+          <div className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+            <Package className="h-3.5 w-3.5" /> Currently assigned to {form.name.split(' ')[0] || 'this person'}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {activeEquipment.map((e) => (
+              <Badge key={`eq-${e.id}`} variant="outline" className="text-[11px] gap-1">
+                <Package className="h-3 w-3" /> {e.product_name}
+              </Badge>
+            ))}
+            {qrCodes.map((q) => (
+              <Badge key={`qr-${q.id}`} variant="outline" className="text-[11px] gap-1 font-mono">
+                <QrCode className="h-3 w-3" /> {q.code}
+              </Badge>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Use this list to know what to collect. Toggle on the matching items below.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label>Collect laptop</Label>
         <div className="flex items-center gap-3">
@@ -312,6 +430,10 @@ const REVIEW_FIELDS = [
   { key: 'transfer_mailbox_data', label: 'Transfer Mailbox Data', type: 'toggle' },
   { key: 'transfer_sharepoint_data', label: 'Transfer SharePoint Data', type: 'toggle' },
   { key: 'transfer_details', label: 'Transfer Details', showIf: (f) => f.transfer_mailbox_data || f.transfer_sharepoint_data },
+  { key: 'ooo_enabled', label: 'Out Of Office Reply', type: 'toggle' },
+  { key: 'ooo_start', label: 'OOO From', showIf: (f) => f.ooo_enabled },
+  { key: 'ooo_end', label: 'OOO Until', showIf: (f) => f.ooo_enabled },
+  { key: 'ooo_message', label: 'OOO Message', showIf: (f) => f.ooo_enabled },
   { key: 'collect_laptop', label: 'Collect Laptop', type: 'toggle' },
   { key: 'collect_phone', label: 'Collect Phone', type: 'toggle' },
   { key: 'collect_badge_keys', label: 'Collect Badge/Keys', type: 'toggle' },
@@ -370,6 +492,8 @@ export function OffboardingRequestPage() {
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({
     name: '',
+    leaving_user_id: null,
+    leaving_user_email: '',
     company: '',
     departure_on: '',
     revoke_email_access: true,
@@ -377,6 +501,10 @@ export function OffboardingRequestPage() {
     transfer_mailbox_data: false,
     transfer_sharepoint_data: false,
     transfer_details: '',
+    ooo_enabled: true,
+    ooo_start: '',
+    ooo_end: '',
+    ooo_message: '',
     collect_laptop: true,
     collect_phone: false,
     collect_badge_keys: true,
@@ -386,6 +514,7 @@ export function OffboardingRequestPage() {
   })
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setMultipleFields = (updates) => setForm((prev) => ({ ...prev, ...updates }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {
@@ -404,8 +533,15 @@ export function OffboardingRequestPage() {
     switch (step.id) {
       case 'who':
         return !!form.name.trim() && !!form.company
-      case 'when':
-        return !!form.departure_on
+      case 'when': {
+        const today = new Date().toISOString().split('T')[0]
+        return !!form.departure_on && form.departure_on >= today
+      }
+      case 'revocation': {
+        const needsTransfer = form.transfer_mailbox_data || form.transfer_sharepoint_data
+        if (needsTransfer && !form.transfer_details.trim()) return false
+        return true
+      }
       case 'requester':
         return !!form.requested_by.trim() && !!form.requested_on
       default:
@@ -502,7 +638,7 @@ export function OffboardingRequestPage() {
               transition={{ duration: 0.2 }}
             >
               {currentStepDef.id === 'who' && (
-                <StepWho form={form} setField={setField} />
+                <StepWho form={form} setField={setField} setMultipleFields={setMultipleFields} />
               )}
               {currentStepDef.id === 'when' && (
                 <StepWhen form={form} setField={setField} />
