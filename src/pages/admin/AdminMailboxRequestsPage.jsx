@@ -58,7 +58,7 @@ const TEMPLATE_VARS = [
   { key: '{{mailbox_email}}', label: 'Mailbox Email', desc: 'The email address that was created' },
   { key: '{{project_name}}', label: 'Project Name', desc: 'Name of the project' },
   { key: '{{display_name}}', label: 'Display Name', desc: 'Display name for the mailbox' },
-  { key: '{{agency}}', label: 'Agency', desc: 'Agency / Business Unit' },
+  { key: '{{agency}}', label: 'Company', desc: 'Company / Business Unit' },
   { key: '{{onepassword_section}}', label: '1Password Section', desc: 'Auto-inserted if link is provided' },
   { key: '{{app_name}}', label: 'App Name', desc: 'Application name from settings' },
 ]
@@ -132,7 +132,7 @@ function RequestInfoCard({ req }) {
   const mainFields = [
     ['Project Name', req.project_name],
     ['Project Leader', req.project_leader],
-    ['Agency', req.agency],
+    ['Company', req.agency],
     ['Email to Create', req.email_to_create],
     ['Who Needs Access', req.who_needs_access],
     ['Creation Date', fmtDate(req.creation_date)],
@@ -932,7 +932,7 @@ export function AdminMailboxRequestsPage() {
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by project, email, agency..."
+          placeholder="Search by project, email, company..."
           className="pl-9"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

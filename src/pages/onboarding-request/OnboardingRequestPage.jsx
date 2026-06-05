@@ -22,7 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 
 // ── Constants ──
-const PROFILES = ['FREELANCE', 'EMPLOYEE CDI', 'EMPLOYEE CDD', 'TRAINEE', 'STUDENT']
+const PROFILES = ['FREELANCE', 'EMPLOYEE (Permanent)', 'EMPLOYEE (Fixed-term)', 'TRAINEE', 'STUDENT']
 
 // Companies are sorted alphabetically and each has a default email domain.
 // Unmapped companies fall back to vo-group.be — update COMPANY_DOMAINS when
@@ -43,6 +43,13 @@ const COMPANIES = [
   'VO STUDIOS',
 ]
 
+// Full names shown as a tooltip next to acronyms so non-IT requesters
+// recognise the entity behind the abbreviation.
+const COMPANY_FULL_NAMES = {
+  'AOP': 'Art on Paper',
+  'MIT': 'My Impact Tool',
+}
+
 const COMPANY_DOMAINS = {
   'AOP': 'artonpaper.be',
   'MAX': 'max-be.eu',
@@ -59,14 +66,13 @@ const domainForCompany = (company) => COMPANY_DOMAINS[company] || DEFAULT_DOMAIN
 const LANGUAGES = ['EN', 'FR', 'NL']
 
 // TLO removed per feedback — was confusing and rarely used.
-const ACCESS_OPTIONS = ['TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL']
+const ACCESS_OPTIONS = ['TEAMS VO CONNECT', 'TEAMS', 'SHAREPOINT', 'MAIL', 'Teamleader (CRM licence)']
 
 // Distribution lists drawn from the Active Directory list (VO.local).
 // The mapping below was reconciled against the real AD names so onboarders
 // don't end up subscribing a new hire to a list that doesn't apply to them.
-//   - DISTRIBUTION_LISTS_GLOBAL: lists everyone should see, regardless of
-//     company (the catch-all "VO" group + cross-company functions).
-//   - DISTRIBUTION_LISTS_BY_COMPANY: lists scoped to a specific entity.
+// Names are kept in their canonical AD casing (matching Outlook exactly)
+// so the IT admin can copy/paste straight into the AD console.
 const DISTRIBUTION_LISTS_GLOBAL = ['VO', 'Reception', 'Referents']
 const DISTRIBUTION_LISTS_BY_COMPANY = {
   'VO GROUP': ['VO GROUP'],
@@ -108,6 +114,47 @@ const DISTRIBUTION_LISTS_BY_COMPANY = {
   'VO PRODUCTION': [],
   'VO STUDIOS': [],
 }
+
+// Short, friendly description of each distribution list. Surfaced as a
+// secondary line below each checkbox so a requester knows what subscribing
+// the new hire to a given list actually means.
+const DISTRIBUTION_LIST_INFO = {
+  'VO': 'Everyone at VO — group-wide announcements',
+  'Reception': 'Brussels office reception team',
+  'Referents': 'Internal referents / point persons',
+  'NATO': 'NATO project team',
+  'VO GROUP': 'VO Group entity — all members',
+  'VO EU ALL': 'VO Europe — entire entity (employees + freelancers)',
+  'VO EU EMPLOYEES': 'VO Europe — employees only',
+  'VO EU In-Person Monthly Meeting': 'In-person monthly meeting invites (VO Europe)',
+  'VO EU MERCATO': 'VO Europe Mercato updates',
+  'VO EVENT': 'VO Event entity — all members',
+  'VO EVENT MAX': 'VO Event x MAX — cross-team',
+  'MAX-TEAM': 'MAX team announcements',
+  'Hello - Max': 'MAX welcome / external comms',
+  'TheLittleVoice': 'The Little Voice — all members',
+  'Operations @ TLV': 'The Little Voice Operations team',
+  'CMO-CINEA-Life': 'Communication for CINEA LIFE programme',
+  'CMO EISMEA': 'Communication for EISMEA',
+  'CMO-europaid': 'Communication for EuropAid',
+  'CMO-JUST': 'Communication for DG JUST',
+  'CMO-PRD': 'Communication production team',
+  'CMORTD': 'Communication for RTD',
+  'CMOSCIC': 'Communication for SCIC',
+  'cmo-comm200': 'COMM200 communication team',
+  'COFE': 'Conference on the Future of Europe',
+  'COP28-prog': 'COP28 programme team',
+  'DG-FS': 'DG Financial Services communication',
+  'EACEA': 'EACEA-related communication',
+  'NEB Event Core Team': 'New European Bauhaus event core team',
+  'NEB-FAIR': 'NEB Fair team',
+  'NEB-FEST': 'NEB Festival team',
+  'NEB-FORUM': 'NEB Forum team',
+  'Internal.roadmap.eugreendeal': 'EU Green Deal internal roadmap',
+  'SUFW-OP': 'SUFW Operations team',
+  'SUFW-RH': 'SUFW HR team',
+}
+
 const distributionListsFor = (company) => {
   const extra = DISTRIBUTION_LISTS_BY_COMPANY[company] || []
   return [...new Set([...DISTRIBUTION_LISTS_GLOBAL, ...extra])]
@@ -168,7 +215,7 @@ function StepProgress({ currentStep, steps }) {
 }
 
 // ── Multi-select field ──
-function MultiSelectField({ options, value, onChange }) {
+function MultiSelectField({ options, value, onChange, descriptions }) {
   const selected = Array.isArray(value) ? value : []
   const toggle = (opt) => {
     if (selected.includes(opt)) {
@@ -181,17 +228,23 @@ function MultiSelectField({ options, value, onChange }) {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {options.map((opt) => {
         const checked = selected.includes(opt)
+        const desc = descriptions?.[opt]
         return (
           <label
             key={opt}
-            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+            className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               checked
                 ? 'border-primary/40 bg-primary/5'
                 : 'border-border hover:border-muted-foreground/30'
             }`}
           >
-            <Checkbox checked={checked} onCheckedChange={() => toggle(opt)} />
-            <span className="text-sm font-medium">{opt}</span>
+            <Checkbox checked={checked} onCheckedChange={() => toggle(opt)} className="mt-0.5" />
+            <div className="min-w-0">
+              <span className="text-sm font-medium block">{opt}</span>
+              {desc && (
+                <span className="text-[11px] text-muted-foreground block mt-0.5">{desc}</span>
+              )}
+            </div>
           </label>
         )
       })}
@@ -303,7 +356,9 @@ function StepIdentity({ form, update, setEmailLocalEdited }) {
           <Select value={form.company} onChange={(e) => update('company', e.target.value)}>
             <option value="">Select...</option>
             {COMPANIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {COMPANY_FULL_NAMES[c] ? `${c} — ${COMPANY_FULL_NAMES[c]}` : c}
+              </option>
             ))}
           </Select>
         </div>
@@ -458,6 +513,7 @@ function StepAccess({ form, update }) {
           options={distributionListsFor(form.company)}
           value={form.subscribe_to}
           onChange={(val) => update('subscribe_to', val)}
+          descriptions={DISTRIBUTION_LIST_INFO}
         />
       </div>
       <div className="space-y-2">
