@@ -194,7 +194,11 @@ export function MyRequestsPage() {
   const { user } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
   const [typeFilter, setTypeFilter] = useState('all')
-  const [detail, setDetail] = useState(null)
+  // Keep only the open request's identity (id + type) so we can pull the
+  // freshest row from allRequests on every render — otherwise saving a
+  // note would leave the local `detail` snapshot stale and the UI wouldn't
+  // reflect what's already persisted.
+  const [selectedKey, setSelectedKey] = useState(null)
   const [noteDraft, setNoteDraft] = useState('')
   const [noteSaving, setNoteSaving] = useState(false)
 
@@ -226,6 +230,14 @@ export function MyRequestsPage() {
     for (const r of allRequests) counts[r._type] = (counts[r._type] || 0) + 1
     return counts
   }, [allRequests])
+
+  // Always look up the current detail in the freshly fetched list so any
+  // mutation (note save, cancel, status change) reflects immediately.
+  const detail = useMemo(() => {
+    if (!selectedKey) return null
+    return allRequests.find((r) => `${r._type}:${r.id}` === selectedKey) || null
+  }, [allRequests, selectedKey])
+  const setDetail = (req) => setSelectedKey(req ? `${req._type}:${req.id}` : null)
 
   // Read the persisted note for the currently-viewed request, depending on its type.
   const currentNote = !detail ? '' : (
