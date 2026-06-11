@@ -54,7 +54,7 @@ INSERT INTO categories (name, color) VALUES
 WITH cat AS (
   SELECT id, name FROM categories
 )
-INSERT INTO products (name, description, category_id, total_stock, is_active)
+INSERT INTO products (name, description, category_id, total_stock, is_visible)
 SELECT v.name, v.description, c.id, v.stock, true
 FROM (VALUES
   -- iPads -----------------------------------------------------
