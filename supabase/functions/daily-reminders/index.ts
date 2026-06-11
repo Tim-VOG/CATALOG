@@ -101,6 +101,28 @@ serve(async (req) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
+  // ── Rate limit: refuse to run more than once every 23h ──
+  // The cron schedules us once a day; anything tighter than 23h is a
+  // misfire / curl loop / replay attack with the token. Returning 200
+  // with a 'skipped' flag means the cron job still looks healthy in
+  // pg_cron and we don't blast users with duplicate reminders.
+  const { data: lastCall } = await supabase
+    .from('edge_function_calls')
+    .select('called_at')
+    .eq('function_name', 'daily-reminders')
+    .eq('success', true)
+    .order('called_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (lastCall && Date.now() - new Date(lastCall.called_at).getTime() < 23 * 60 * 60 * 1000) {
+    return new Response(
+      JSON.stringify({ ok: true, skipped: true, reason: 'already ran in the last 23h', last_run: lastCall.called_at }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
+  }
+  // ── End rate limit ──
+
   // ── Branding ──
   let branding = { appName: 'VO Hub', logoUrl: '' }
   try {
@@ -210,6 +232,12 @@ serve(async (req) => {
       }
     }
   }
+
+  // Log this successful run so the 23h rate-limit gate above blocks
+  // accidental double-fires.
+  await supabase.from('edge_function_calls').insert({
+    function_name: 'daily-reminders', user_id: null, success: true,
+  })
 
   return new Response(JSON.stringify({ ok: true, ...summary }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -39,6 +39,44 @@ serve(async (req) => {
     }
     // --- End auth verification ---
 
+    // --- Rate limit: 50 emails per user per hour, 200 per day ---
+    // A buggy effect loop in the front-end can dial Resend until the
+    // monthly quota is gone; cap both windows. Admins get a higher cap.
+    const { data: profile } = await supabaseAdmin
+      .from('profiles').select('role').eq('id', user.id).maybeSingle()
+    const isAdmin = profile?.role === 'admin'
+    const hourCap = isAdmin ? 200 : 50
+    const dayCap  = isAdmin ? 1000 : 200
+
+    const { count: hourCount } = await supabaseAdmin
+      .from('edge_function_calls')
+      .select('id', { count: 'exact', head: true })
+      .eq('function_name', 'send-email')
+      .eq('user_id', user.id)
+      .gte('called_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
+
+    if ((hourCount ?? 0) >= hourCap) {
+      return new Response(
+        JSON.stringify({ error: `Rate limit exceeded: ${hourCap} emails/hour. Try again later.` }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '3600' } }
+      )
+    }
+
+    const { count: dayCount } = await supabaseAdmin
+      .from('edge_function_calls')
+      .select('id', { count: 'exact', head: true })
+      .eq('function_name', 'send-email')
+      .eq('user_id', user.id)
+      .gte('called_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+
+    if ((dayCount ?? 0) >= dayCap) {
+      return new Response(
+        JSON.stringify({ error: `Daily limit exceeded: ${dayCap} emails/24h.` }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '86400' } }
+      )
+    }
+    // --- End rate limit ---
+
     if (!RESEND_API_KEY) {
       throw new Error('RESEND_API_KEY is not configured')
     }
@@ -78,8 +116,18 @@ serve(async (req) => {
 
     if (!res.ok) {
       console.error('Resend API error:', data)
+      // Log the failed call too so the rate limit can't be bypassed by
+      // looping on invalid recipients.
+      await supabaseAdmin.from('edge_function_calls').insert({
+        function_name: 'send-email', user_id: user.id, success: false,
+      })
       throw new Error(data.message || 'Failed to send email')
     }
+
+    // Log the successful send for rate-limit accounting.
+    await supabaseAdmin.from('edge_function_calls').insert({
+      function_name: 'send-email', user_id: user.id, success: true,
+    })
 
     return new Response(JSON.stringify({ success: true, id: data.id }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
