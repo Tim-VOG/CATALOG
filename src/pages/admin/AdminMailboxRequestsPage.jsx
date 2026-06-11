@@ -968,6 +968,16 @@ export function AdminMailboxRequestsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Add-to-FMB-inventory dialog needs to live inside the detail
+            branch — the list branch never gets a chance to mount it when
+            the user is sitting on a single request. */}
+        <AddToSharedMailboxDialog
+          request={showAddToInventory ? selectedRequest : null}
+          open={showAddToInventory}
+          onClose={() => setShowAddToInventory(false)}
+          onCreated={() => setShowAddToInventory(false)}
+        />
       </div>
     )
   }
@@ -1100,14 +1110,6 @@ export function AdminMailboxRequestsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Add-to-inventory dialog for the currently-selected request */}
-      <AddToSharedMailboxDialog
-        request={showAddToInventory ? selectedRequest : null}
-        open={showAddToInventory}
-        onClose={() => setShowAddToInventory(false)}
-        onCreated={() => setShowAddToInventory(false)}
-      />
     </div>
   )
 }
