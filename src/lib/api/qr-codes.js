@@ -84,6 +84,54 @@ export const updateQRCode = async (id, updates) => {
   return data
 }
 
+// Atomic 'assign': only flips a QR to assigned when it was still
+// available. Two admins trying to grab the same code at the same time
+// will see one win and one get an error — instead of silently
+// overwriting each other (which was the case with plain updateQRCode).
+export const claimQRCode = async (id, assignment) => {
+  const { data, error } = await supabase
+    .from('qr_codes')
+    .update({ ...assignment, status: 'assigned' })
+    .eq('id', id)
+    .eq('status', 'available')
+    .select()
+  if (error) throw error
+  if (!data || data.length === 0) {
+    // Either the code disappeared or it was just claimed by someone else
+    // — refetch to surface the current state in the error message.
+    const { data: row } = await supabase
+      .from('qr_codes_with_details')
+      .select('code, status, assigned_to_name')
+      .eq('id', id)
+      .maybeSingle()
+    const taker = row?.assigned_to_name ? ` (held by ${row.assigned_to_name})` : ''
+    throw new Error(`${row?.code || 'This QR code'} is already assigned${taker}`)
+  }
+  return data[0]
+}
+
+// Atomic 'release': flips an assigned QR back to available only when it
+// was still owned by the expected request. Prevents a desync after a
+// retry / network glitch.
+export const releaseQRCode = async (id, expectedLoanRequestId) => {
+  let query = supabase
+    .from('qr_codes')
+    .update({
+      status: 'available',
+      assigned_to: null,
+      assigned_to_name: null,
+      assigned_to_email: null,
+      assigned_at: null,
+      loan_request_id: null,
+      loan_request_item_id: null,
+    })
+    .eq('id', id)
+  if (expectedLoanRequestId) query = query.eq('loan_request_id', expectedLoanRequestId)
+  const { data, error } = await query.select()
+  if (error) throw error
+  return data?.[0] || null
+}
+
 export const deleteQRCode = async (id) => {
   const { error } = await supabase.from('qr_codes').delete().eq('id', id)
   if (error) throw error

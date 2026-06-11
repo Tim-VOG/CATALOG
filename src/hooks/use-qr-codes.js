@@ -54,6 +54,22 @@ export const useUpdateQRCode = () => {
   })
 }
 
+export const useClaimQRCode = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...assignment }) => api.claimQRCode(id, assignment),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
+  })
+}
+
+export const useReleaseQRCode = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, expectedLoanRequestId }) => api.releaseQRCode(id, expectedLoanRequestId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
+  })
+}
+
 export const useDeleteQRCode = () => {
   const queryClient = useQueryClient()
   return useMutation({

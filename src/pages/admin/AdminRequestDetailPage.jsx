@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
 import { useAssignEquipmentBatch } from '@/hooks/use-user-equipment'
-import { useQRCodes, useUpdateQRCode } from '@/hooks/use-qr-codes'
+import { useQRCodes, useUpdateQRCode, useClaimQRCode, useReleaseQRCode } from '@/hooks/use-qr-codes'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { supabase } from '@/lib/supabase'
@@ -58,6 +58,8 @@ export function AdminRequestDetailPage() {
   const { data: allQRCodes = [] } = useQRCodes({})
   const updateStatus = useUpdateRequestStatus()
   const updateQR = useUpdateQRCode()
+  const claimQR = useClaimQRCode()
+  const releaseQR = useReleaseQRCode()
   const assignBatch = useAssignEquipmentBatch()
   const { user } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
@@ -97,17 +99,15 @@ export function AdminRequestDetailPage() {
       return
     }
     try {
-      const updated = await updateQR.mutateAsync({
+      await claimQR.mutateAsync({
         id: qr.id,
-        status: 'assigned',
         assigned_to: request?.user_id,
         assigned_to_name: `${request?.user_first_name || ''} ${request?.user_last_name || ''}`.trim(),
         assigned_to_email: request?.user_email || '',
         assigned_at: new Date().toISOString(),
+        loan_request_id: request.id,
+        loan_request_item_id: assigningItem.id,
       })
-      if (!updated || updated.status !== 'assigned') {
-        throw new Error('QR assignment was not persisted — check the database / RLS')
-      }
       // Decrement the catalog stock so the cart can't reserve more than
       // physically exists. This is best-effort: even if the policy denies
       // the write we still consider the QR assignment a success because
@@ -144,6 +144,23 @@ export function AdminRequestDetailPage() {
     }
     return qrs
   }, [assigningItem, allQRCodes, qrSearch])
+
+  // Hydrate the assigned-QR map from the database every time the QR
+  // catalog or the request changes. Previously the page kept a purely
+  // local map that was reset to {} on every reload, so QRs assigned in
+  // an earlier session never showed up until the admin re-assigned them.
+  useEffect(() => {
+    if (!request?.id) return
+    const next = {}
+    for (const qr of allQRCodes) {
+      if (qr.loan_request_id !== request.id) continue
+      const key = qr.loan_request_item_id
+      if (!key) continue
+      if (!next[key]) next[key] = []
+      next[key].push(qr)
+    }
+    setAssignedQRs(next)
+  }, [allQRCodes, request?.id])
 
   if (isLoading || isFetching) return <PageLoading />
   if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
@@ -201,17 +218,15 @@ export function AdminRequestDetailPage() {
       return
     }
     try {
-      const updated = await updateQR.mutateAsync({
+      await claimQR.mutateAsync({
         id: qrCode.id,
-        status: 'assigned',
         assigned_to: request.user_id,
         assigned_to_name: requesterName,
         assigned_to_email: request.user_email || '',
         assigned_at: new Date().toISOString(),
+        loan_request_id: request.id,
+        loan_request_item_id: assigningItem.id,
       })
-      if (!updated || updated.status !== 'assigned') {
-        throw new Error('QR assignment was not persisted — check the database / RLS')
-      }
       // Best-effort stock decrement — don't fail the assignment if the
       // catalog row's RLS denies the write.
       try {
@@ -238,14 +253,7 @@ export function AdminRequestDetailPage() {
   // before marking the request as ready.
   const handleUnassignQR = async (item, qrCode) => {
     try {
-      await updateQR.mutateAsync({
-        id: qrCode.id,
-        status: 'available',
-        assigned_to: null,
-        assigned_to_name: null,
-        assigned_to_email: null,
-        assigned_at: null,
-      })
+      await releaseQR.mutateAsync({ id: qrCode.id, expectedLoanRequestId: request.id })
       try {
         await supabase.from('products').update({
           total_stock: (qrCode.product_stock || 0) + 1,
