@@ -307,13 +307,21 @@ export function AdminRequestDetailPage() {
             </Button>
           )}
           {request.status === 'in_progress' && (
-            <Button
-              variant="success"
-              className="gap-2"
-              onClick={() => handleStatusUpdate('ready')}
-            >
-              <Check className="h-4 w-4" /> Mark Ready
-            </Button>
+            <div className="flex items-center gap-2">
+              {!allItemsAssigned && (
+                <span className="text-xs text-amber-600">
+                  Assign a QR code to every item first
+                </span>
+              )}
+              <Button
+                variant="success"
+                className="gap-2"
+                onClick={() => handleStatusUpdate('ready')}
+                disabled={!allItemsAssigned}
+              >
+                <Check className="h-4 w-4" /> Mark Ready
+              </Button>
+            </div>
           )}
           {request.status === 'ready' && (
             <div className="flex items-center gap-2 text-sm text-emerald-500 font-medium">
@@ -403,8 +411,9 @@ export function AdminRequestDetailPage() {
                   </div>
                 </div>
 
-                {/* QR Assignment section — visible when in_progress */}
-                {request.status === 'in_progress' && (
+                {/* QR Assignment section — visible when in_progress AND when
+                    ready (in case the admin skipped the assignment step). */}
+                {(request.status === 'in_progress' || request.status === 'ready') && (
                   <div className="mt-3 ml-16 space-y-2">
                     {assignedList.map((qr) => (
                       <div key={qr.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
@@ -440,17 +449,6 @@ export function AdminRequestDetailPage() {
                   </div>
                 )}
 
-                {/* Show assigned QRs when ready */}
-                {request.status === 'ready' && assignedList.length > 0 && (
-                  <div className="mt-3 ml-16 space-y-1">
-                    {assignedList.map((qr) => (
-                      <div key={qr.id} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Link2 className="h-3 w-3" />
-                        <code className="font-mono">{qr.code}</code>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )
           })}
