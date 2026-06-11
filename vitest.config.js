@@ -12,5 +12,11 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.js'],
     css: false,
+    // Vitest only owns *.test.* under src/. The Playwright suite
+    // lives in e2e/ with *.spec.ts files and is driven by a
+    // separate runner — keep the boundaries clean so vitest
+    // doesn't try to import @playwright/test.
+    include: ['src/**/*.test.{js,jsx,ts,tsx}'],
+    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
   },
 })

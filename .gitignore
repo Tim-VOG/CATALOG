@@ -29,3 +29,12 @@ npm-debug.log*
 # Sensitive files
 supabase.rtf
 .vercel
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+
+# Vitest
+/coverage/
