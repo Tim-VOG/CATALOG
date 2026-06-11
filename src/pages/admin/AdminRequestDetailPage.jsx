@@ -108,14 +108,12 @@ export function AdminRequestDetailPage() {
         loan_request_id: request.id,
         loan_request_item_id: assigningItem.id,
       })
-      // Decrement the catalog stock so the cart can't reserve more than
-      // physically exists. This is best-effort: even if the policy denies
-      // the write we still consider the QR assignment a success because
-      // the qr_codes row is now correctly marked.
+      // Atomic decrement via SQL helper — read-modify-write from the
+      // JS side desynced the count when two assignments happened back
+      // to back on the same page load (both reads saw the same cached
+      // value). Best-effort: log warnings, don't block the assignment.
       try {
-        await supabase.from('products').update({
-          total_stock: Math.max((qr.product_stock || 1) - 1, 0),
-        }).eq('id', qr.product_id)
+        await supabase.rpc('decrement_product_stock', { p_id: qr.product_id })
       } catch (e) {
         console.warn('[handleScannedCode] could not decrement product stock', e)
       }
@@ -227,12 +225,10 @@ export function AdminRequestDetailPage() {
         loan_request_id: request.id,
         loan_request_item_id: assigningItem.id,
       })
-      // Best-effort stock decrement — don't fail the assignment if the
-      // catalog row's RLS denies the write.
+      // Atomic decrement via SQL helper (avoids the read-modify-write
+      // desync on multi-assign).
       try {
-        await supabase.from('products').update({
-          total_stock: Math.max((qrCode.product_stock || 1) - 1, 0),
-        }).eq('id', qrCode.product_id)
+        await supabase.rpc('decrement_product_stock', { p_id: qrCode.product_id })
       } catch (e) {
         console.warn('[handleAssignQR] could not decrement product stock', e)
       }
@@ -255,9 +251,7 @@ export function AdminRequestDetailPage() {
     try {
       await releaseQR.mutateAsync({ id: qrCode.id, expectedLoanRequestId: request.id })
       try {
-        await supabase.from('products').update({
-          total_stock: (qrCode.product_stock || 0) + 1,
-        }).eq('id', qrCode.product_id)
+        await supabase.rpc('increment_product_stock', { p_id: qrCode.product_id })
       } catch (e) {
         console.warn('[handleUnassignQR] could not bump product stock back', e)
       }
