@@ -5,7 +5,7 @@ import {
   Users, Palette, Mail, ArrowLeft,
   UserPlus, UserMinus, Monitor, BarChart3,
   Settings, QrCode, ScrollText, CalendarRange,
-  ChevronDown, CreditCard,
+  ChevronDown, CreditCard, KeyRound,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -66,6 +66,7 @@ export function AdminSidebar() {
         { to: '/admin/shared-mailboxes', label: 'Shared Mailboxes', icon: Mail },
         { to: '/admin/products', label: 'Products', icon: Package },
         { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
+        { to: '/admin/device-credentials', label: 'Device Credentials', icon: KeyRound },
         { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
       ],
     },
