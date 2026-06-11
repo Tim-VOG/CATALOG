@@ -1,7 +1,14 @@
 // Vitest global setup — minimal jsdom polyfills the app expects
 import { vi } from 'vitest'
 
-// import.meta.env shim for tests that read env vars
+// Stub Supabase env so modules that statically import `@/lib/supabase`
+// (eg. anything in src/lib/api or src/lib/email-html) can be loaded
+// from a test file without crashing the createClient call.
+if (typeof import.meta.env !== 'undefined') {
+  import.meta.env.VITE_SUPABASE_URL ||= 'http://test.local'
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||= 'test-anon-key'
+}
+
 if (!globalThis.localStorage) {
   const store = new Map()
   globalThis.localStorage = {
