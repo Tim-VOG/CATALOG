@@ -246,17 +246,22 @@ redeployed with the new key. Do it during a planned window.
 
 ## 6. Who to call
 
-| What broke                     | Owner   | Channel              |
-|--------------------------------|---------|----------------------|
-| Hub down / 5xx                 | Nadir   | Teams DM             |
-| Supabase outage                | Nadir   | Teams + status.supabase.com |
-| Vercel outage                  | Nadir   | Teams + vercel-status.com |
-| Resend / email delivery        | Nadir   | Teams + resend.com/status |
-| Microsoft SSO down             | Nadir   | Teams + Office 365 status |
-| Data loss / suspected breach   | Nadir + Tim Leskens | Teams (ASAP) |
+| What broke                     | Owner   | Escalation         | Channel              |
+|--------------------------------|---------|--------------------|----------------------|
+| Hub down / 5xx                 | Nadir   | Tim Leskens        | Teams DM             |
+| Supabase outage                | Nadir   | Tim Leskens        | Teams + status.supabase.com |
+| Vercel outage                  | Nadir   | Tim Leskens        | Teams + vercel-status.com |
+| Resend / email delivery        | Nadir   | Tim Leskens        | Teams + resend.com/status |
+| Microsoft SSO down             | Nadir   | Tim Leskens        | Teams + Office 365 status |
+| Data loss / suspected breach   | Nadir   | Tim Leskens (ASAP) | Teams (ASAP) |
 
-Bus factor is 1. If Nadir is out and the hub falls over, the
-team can:
+**Escalation rule**: DM Nadir first. If no reply within 30 minutes and
+the incident is user-facing, loop Tim Leskens in. For any data loss or
+suspected breach, loop Tim Leskens **immediately** — no 30-minute window.
+
+Bus factor is 1.5 (Nadir handles day-to-day, Tim is informed and can
+take over if needed). If Nadir is out and the hub falls over, Tim or
+whoever's covering can:
 
 1. Promote the last known-good Vercel deployment (see §3).
 2. Disable the `daily-reminders` cron so it stops nagging users:
