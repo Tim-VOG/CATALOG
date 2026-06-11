@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { sendStatusChangeEmail, buildTimeline, formatDate, formatDateTime } from '@/services/request-status-service'
 import { QRScanner } from '@/components/scan/QRScanner'
 import {
-  ArrowLeft, Calendar, Package, Check, QrCode, Search, Link2, Camera, List, MessageSquare, Save,
+  ArrowLeft, Calendar, Package, Check, QrCode, Search, Link2, Camera, List, MessageSquare, Save, X,
 } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import { UserAvatar } from '@/components/common/UserAvatar'
@@ -65,6 +65,9 @@ export function AdminRequestDetailPage() {
   const [assigningItem, setAssigningItem] = useState(null)
   const [assignMode, setAssignMode] = useState('scan')
   const [qrSearch, setQrSearch] = useState('')
+  // Track QR codes assigned per loan_request_item, keyed by the item id (not
+  // product_id — two items can carry the same product and we want them
+  // independent). Each value is an array sized up to item.quantity.
   const [assignedQRs, setAssignedQRs] = useState({})
   const [scanError, setScanError] = useState(null)
 
@@ -85,6 +88,12 @@ export function AdminRequestDetailPage() {
     }
     if ((qr.status || 'available') !== 'available') {
       setScanError(`"${scannedCode}" is already assigned to ${qr.assigned_to_name || 'someone'}`)
+      return
+    }
+    // Guard against double-assigning the same QR inside the same request
+    const alreadyHere = Object.values(assignedQRs).flat().some((q) => q?.id === qr.id)
+    if (alreadyHere) {
+      setScanError(`"${scannedCode}" is already used in this request`)
       return
     }
     try {
@@ -110,13 +119,19 @@ export function AdminRequestDetailPage() {
       } catch (e) {
         console.warn('[handleScannedCode] could not decrement product stock', e)
       }
-      setAssignedQRs((prev) => ({ ...prev, [assigningItem.product_id]: qr }))
-      setAssigningItem(null)
+      setAssignedQRs((prev) => {
+        const list = prev[assigningItem.id] || []
+        return { ...prev, [assigningItem.id]: [...list, qr] }
+      })
+      // If this slot fills the item's quantity, close the picker. Otherwise
+      // keep it open so the admin can scan the next unit immediately.
+      const nextCount = ((assignedQRs[assigningItem.id] || []).length) + 1
+      if (nextCount >= assigningItem.quantity) setAssigningItem(null)
       showToast(`${qr.code} assigned`)
     } catch (err) {
       showToast(err.message || 'Failed to assign QR code', 'error')
     }
-  }, [assigningItem, allQRCodes, request, updateQR, showToast])
+  }, [assigningItem, allQRCodes, assignedQRs, request, updateQR, showToast])
 
   const filteredAssignQRs = useMemo(() => {
     if (!assigningItem) return []
@@ -141,24 +156,34 @@ export function AdminRequestDetailPage() {
       showToast(`Request marked as ${status.replace('_', ' ')}`)
 
       if (status === 'ready' && items.length > 0) {
-        const assignments = items.map((item) => ({
-          user_id: request.user_id,
-          user_email: request.user_email || '',
-          user_name: requesterName,
-          product_id: item.product_id,
-          product_name: item.product_name || '',
-          product_image: item.product_image || '',
-          category_name: item.category_name || '',
-          assigned_date: request.pickup_date || new Date().toISOString().split('T')[0],
-          expected_return_date: request.return_date || null,
-          source_type: 'request',
-          source_id: request.id,
-          includes: item.product_includes || [],
-          assigned_by: user?.id,
-          notes: assignedQRs[item.product_id]
-            ? `QR: ${assignedQRs[item.product_id].code}`
-            : `From request #${request.request_number}`,
-        }))
+        // One user_equipment row per physical unit handed out — so an item
+        // with quantity 2 becomes two rows, each carrying its own QR code.
+        const assignments = items.flatMap((item) => {
+          const qrs = assignedQRs[item.id] || []
+          const rows = []
+          for (let i = 0; i < item.quantity; i++) {
+            const qr = qrs[i]
+            rows.push({
+              user_id: request.user_id,
+              user_email: request.user_email || '',
+              user_name: requesterName,
+              product_id: item.product_id,
+              product_name: item.product_name || '',
+              product_image: item.product_image || '',
+              category_name: item.category_name || '',
+              assigned_date: request.pickup_date || new Date().toISOString().split('T')[0],
+              expected_return_date: request.return_date || null,
+              source_type: 'request',
+              source_id: request.id,
+              includes: item.product_includes || [],
+              assigned_by: user?.id,
+              notes: qr
+                ? `QR: ${qr.code}`
+                : `From request #${request.request_number}`,
+            })
+          }
+          return rows
+        })
         assignBatch.mutateAsync(assignments).catch(() => {})
       }
 
@@ -169,6 +194,12 @@ export function AdminRequestDetailPage() {
   }
 
   const handleAssignQR = async (qrCode) => {
+    // Guard against double-assigning the same QR inside the same request
+    const alreadyHere = Object.values(assignedQRs).flat().some((q) => q?.id === qrCode.id)
+    if (alreadyHere) {
+      showToast(`${qrCode.code} is already used in this request`, 'error')
+      return
+    }
     try {
       const updated = await updateQR.mutateAsync({
         id: qrCode.id,
@@ -191,21 +222,63 @@ export function AdminRequestDetailPage() {
         console.warn('[handleAssignQR] could not decrement product stock', e)
       }
 
-      setAssignedQRs((prev) => ({ ...prev, [assigningItem.product_id]: qrCode }))
-      setAssigningItem(null)
+      setAssignedQRs((prev) => {
+        const list = prev[assigningItem.id] || []
+        return { ...prev, [assigningItem.id]: [...list, qrCode] }
+      })
+      const nextCount = ((assignedQRs[assigningItem.id] || []).length) + 1
+      if (nextCount >= assigningItem.quantity) setAssigningItem(null)
       showToast(`${qrCode.code} assigned to ${requesterName}`)
     } catch (err) {
       showToast(err.message || 'Failed to assign QR code', 'error')
     }
   }
 
+  // Free a previously-assigned QR so the admin can swap it for another
+  // before marking the request as ready.
+  const handleUnassignQR = async (item, qrCode) => {
+    try {
+      await updateQR.mutateAsync({
+        id: qrCode.id,
+        status: 'available',
+        assigned_to: null,
+        assigned_to_name: null,
+        assigned_to_email: null,
+        assigned_at: null,
+      })
+      try {
+        await supabase.from('products').update({
+          total_stock: (qrCode.product_stock || 0) + 1,
+        }).eq('id', qrCode.product_id)
+      } catch (e) {
+        console.warn('[handleUnassignQR] could not bump product stock back', e)
+      }
+      setAssignedQRs((prev) => {
+        const list = (prev[item.id] || []).filter((q) => q.id !== qrCode.id)
+        return { ...prev, [item.id]: list }
+      })
+      showToast(`${qrCode.code} unassigned`)
+    } catch (err) {
+      showToast(err.message || 'Failed to unassign QR code', 'error')
+    }
+  }
+
   const getAvailableQRsForProduct = (productId) => {
+    // Exclude QRs already used elsewhere in this request so the same code
+    // can't be picked twice for two slots of the same product.
+    const usedIds = new Set(Object.values(assignedQRs).flat().map((q) => q?.id).filter(Boolean))
     return allQRCodes.filter(
-      (qr) => qr.product_id === productId && (qr.status || 'available') === 'available' && qr.is_active
+      (qr) => qr.product_id === productId
+        && (qr.status || 'available') === 'available'
+        && qr.is_active
+        && !usedIds.has(qr.id)
     )
   }
 
-  const allItemsAssigned = items.every((item) => assignedQRs[item.product_id])
+  // An item is fully assigned when as many QR codes are linked as the
+  // quantity requested.
+  const isItemFullyAssigned = (item) => (assignedQRs[item.id]?.length || 0) >= item.quantity
+  const allItemsAssigned = items.every(isItemFullyAssigned)
   const timeline = buildTimeline(request)
 
   return (
@@ -299,8 +372,9 @@ export function AdminRequestDetailPage() {
         </CardHeader>
         <CardContent className="divide-y">
           {items.map((item) => {
-            const assigned = assignedQRs[item.product_id]
+            const assignedList = assignedQRs[item.id] || []
             const availableCount = getAvailableQRsForProduct(item.product_id).length
+            const slotsLeft = Math.max(item.quantity - assignedList.length, 0)
 
             return (
               <div key={item.id} className="py-4 first:pt-0 last:pb-0">
@@ -321,20 +395,32 @@ export function AdminRequestDetailPage() {
                       </div>
                     )}
                   </div>
-                  <span className="text-sm font-medium shrink-0">&times; {item.quantity}</span>
+                  <div className="text-right shrink-0">
+                    <span className="text-sm font-medium block">&times; {item.quantity}</span>
+                    {request.status === 'in_progress' && item.quantity > 1 && (
+                      <span className="text-[10px] text-muted-foreground">{assignedList.length} / {item.quantity} assigned</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* QR Assignment section — visible when in_progress */}
                 {request.status === 'in_progress' && (
-                  <div className="mt-3 ml-16">
-                    {assigned ? (
-                      <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="mt-3 ml-16 space-y-2">
+                    {assignedList.map((qr) => (
+                      <div key={qr.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                         <QrCode className="h-4 w-4 text-emerald-500" />
-                        <code className="text-xs font-mono font-semibold text-emerald-600">{assigned.code}</code>
+                        <code className="text-xs font-mono font-semibold text-emerald-600">{qr.code}</code>
                         <span className="text-xs text-emerald-600">assigned to {requesterName}</span>
-                        <Check className="h-3.5 w-3.5 text-emerald-500 ml-auto" />
+                        <button
+                          onClick={() => handleUnassignQR(item, qr)}
+                          className="ml-auto text-emerald-600/60 hover:text-destructive transition-colors"
+                          title="Unassign"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                    ) : (
+                    ))}
+                    {slotsLeft > 0 && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -343,6 +429,9 @@ export function AdminRequestDetailPage() {
                       >
                         <QrCode className="h-3.5 w-3.5" />
                         Assign QR Code
+                        {item.quantity > 1 && (
+                          <span className="text-[10px] text-muted-foreground">({slotsLeft} left)</span>
+                        )}
                         {availableCount > 0 && (
                           <Badge variant="secondary" className="text-[10px] ml-1">{availableCount} available</Badge>
                         )}
@@ -351,11 +440,15 @@ export function AdminRequestDetailPage() {
                   </div>
                 )}
 
-                {/* Show assigned QR when ready */}
-                {request.status === 'ready' && assigned && (
-                  <div className="mt-3 ml-16 flex items-center gap-2 text-xs text-muted-foreground">
-                    <Link2 className="h-3 w-3" />
-                    <code className="font-mono">{assigned.code}</code>
+                {/* Show assigned QRs when ready */}
+                {request.status === 'ready' && assignedList.length > 0 && (
+                  <div className="mt-3 ml-16 space-y-1">
+                    {assignedList.map((qr) => (
+                      <div key={qr.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Link2 className="h-3 w-3" />
+                        <code className="font-mono">{qr.code}</code>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
