@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
+import { createInvitation } from '@/lib/api/invitations'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail, buildConfirmationSubject } from '@/services/request-status-service'
@@ -787,6 +788,28 @@ export function OnboardingRequestPage() {
           language: (form.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en',
         })
       } catch {}
+
+      // 2b. Pre-register the new hire in user_invitations so they appear
+      // in Admin → Users → Pending Invitations right away. When they sign
+      // in via Microsoft SSO later, the invitation flips to 'accepted'
+      // and they become a full user. Non-blocking — if the email is
+      // already invited / already a user, the unique index throws and
+      // we just swallow it.
+      const invitationEmail = (fullEmail || form.personal_email || '').trim().toLowerCase()
+      if (invitationEmail) {
+        try {
+          await createInvitation({
+            email: invitationEmail,
+            first_name: form.first_name || '',
+            last_name: form.last_name || '',
+            business_unit: form.company || '',
+            invited_by: user.id,
+          })
+        } catch (e) {
+          // Most likely a duplicate-pending-email; silently ignore.
+          console.warn('[OnboardingRequest] invitation skipped', e?.message)
+        }
+      }
 
       // 3. Confirmation email to the requester (with HR personal-info reminder)
       sendEmail({
