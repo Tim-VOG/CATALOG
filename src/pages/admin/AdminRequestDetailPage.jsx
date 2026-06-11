@@ -88,7 +88,7 @@ export function AdminRequestDetailPage() {
       return
     }
     try {
-      await updateQR.mutateAsync({
+      const updated = await updateQR.mutateAsync({
         id: qr.id,
         status: 'assigned',
         assigned_to: request?.user_id,
@@ -96,14 +96,25 @@ export function AdminRequestDetailPage() {
         assigned_to_email: request?.user_email || '',
         assigned_at: new Date().toISOString(),
       })
-      await supabase.from('products').update({
-        total_stock: Math.max((qr.product_stock || 1) - 1, 0),
-      }).eq('id', qr.product_id)
+      if (!updated || updated.status !== 'assigned') {
+        throw new Error('QR assignment was not persisted — check the database / RLS')
+      }
+      // Decrement the catalog stock so the cart can't reserve more than
+      // physically exists. This is best-effort: even if the policy denies
+      // the write we still consider the QR assignment a success because
+      // the qr_codes row is now correctly marked.
+      try {
+        await supabase.from('products').update({
+          total_stock: Math.max((qr.product_stock || 1) - 1, 0),
+        }).eq('id', qr.product_id)
+      } catch (e) {
+        console.warn('[handleScannedCode] could not decrement product stock', e)
+      }
       setAssignedQRs((prev) => ({ ...prev, [assigningItem.product_id]: qr }))
       setAssigningItem(null)
       showToast(`${qr.code} assigned`)
     } catch (err) {
-      showToast(err.message, 'error')
+      showToast(err.message || 'Failed to assign QR code', 'error')
     }
   }, [assigningItem, allQRCodes, request, updateQR, showToast])
 
@@ -159,7 +170,7 @@ export function AdminRequestDetailPage() {
 
   const handleAssignQR = async (qrCode) => {
     try {
-      await updateQR.mutateAsync({
+      const updated = await updateQR.mutateAsync({
         id: qrCode.id,
         status: 'assigned',
         assigned_to: request.user_id,
@@ -167,16 +178,24 @@ export function AdminRequestDetailPage() {
         assigned_to_email: request.user_email || '',
         assigned_at: new Date().toISOString(),
       })
-
-      await supabase.from('products').update({
-        total_stock: Math.max((qrCode.product_stock || 1) - 1, 0),
-      }).eq('id', qrCode.product_id)
+      if (!updated || updated.status !== 'assigned') {
+        throw new Error('QR assignment was not persisted — check the database / RLS')
+      }
+      // Best-effort stock decrement — don't fail the assignment if the
+      // catalog row's RLS denies the write.
+      try {
+        await supabase.from('products').update({
+          total_stock: Math.max((qrCode.product_stock || 1) - 1, 0),
+        }).eq('id', qrCode.product_id)
+      } catch (e) {
+        console.warn('[handleAssignQR] could not decrement product stock', e)
+      }
 
       setAssignedQRs((prev) => ({ ...prev, [assigningItem.product_id]: qrCode }))
       setAssigningItem(null)
       showToast(`${qrCode.code} assigned to ${requesterName}`)
     } catch (err) {
-      showToast(err.message, 'error')
+      showToast(err.message || 'Failed to assign QR code', 'error')
     }
   }
 
