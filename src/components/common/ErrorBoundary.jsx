@@ -18,22 +18,12 @@ export class ErrorBoundary extends Component {
     captureException(error, { componentStack: errorInfo?.componentStack })
 
     // If a lazy chunk failed to load (typical after a Vercel redeploy
-    // re-hashes /assets/*.js), the user lands on a blank error screen
-    // and has to refresh. Auto-recover by forcing one reload — same
-    // logic as main.jsx but here we catch it once it's already in the
-    // React tree (Suspense's promise rejection path).
-    const msg = error?.message || ''
-    const name = error?.name || ''
-    const isChunkError =
-      name === 'ChunkLoadError' ||
-      /Failed to (fetch|load) dynamically imported module|Importing a module script failed|Loading chunk \d+ failed|Unable to preload CSS/i.test(msg)
-    if (isChunkError) {
-      const KEY = 'vo-hub-chunk-reload-count'
-      const tries = parseInt(sessionStorage.getItem(KEY) || '0', 10)
-      if (tries < 2) {
-        sessionStorage.setItem(KEY, String(tries + 1))
-        window.location.reload()
-      }
+    // re-hashes /assets/*.js), delegate to the shared recover helper
+    // installed in main.jsx so the counter is debounced across the two
+    // listening paths. Falling back to a local handler for old builds
+    // where window.__voChunkRecover isn't set yet.
+    if (typeof window !== 'undefined' && typeof window.__voChunkRecover === 'function') {
+      window.__voChunkRecover(error)
     }
   }
 
@@ -52,24 +42,41 @@ export class ErrorBoundary extends Component {
         return this.props.fallback
       }
 
+      const isChunkError =
+        typeof window !== 'undefined'
+          && typeof window.__voIsStaleChunkError === 'function'
+          && window.__voIsStaleChunkError(this.state.error)
+
       return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6 text-center px-4">
           <div className="flex items-center justify-center h-16 w-16 rounded-full bg-destructive/10">
             <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Something went wrong</h2>
+            <h2 className="text-xl font-semibold text-foreground">
+              {isChunkError ? 'Page failed to load' : 'Something went wrong'}
+            </h2>
             <p className="text-muted-foreground mt-1 max-w-md">
-              An unexpected error occurred. You can try again or go back to the home page.
+              {isChunkError
+                ? 'The hub was just updated and this page references the old version. A quick refresh should fix it.'
+                : 'An unexpected error occurred. You can try again or go back to the home page.'}
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2" onClick={this.handleRetry}>
-              <RefreshCw className="h-4 w-4" /> Try Again
-            </Button>
-            <Button className="gap-2" onClick={this.handleGoHome}>
-              <Home className="h-4 w-4" /> Home
-            </Button>
+            {isChunkError ? (
+              <Button className="gap-2" onClick={() => window.location.reload()}>
+                <RefreshCw className="h-4 w-4" /> Refresh page
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" className="gap-2" onClick={this.handleRetry}>
+                  <RefreshCw className="h-4 w-4" /> Try Again
+                </Button>
+                <Button className="gap-2" onClick={this.handleGoHome}>
+                  <Home className="h-4 w-4" /> Home
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )
