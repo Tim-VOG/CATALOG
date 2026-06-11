@@ -119,6 +119,12 @@ export const useUpcomingReturns = () =>
     queryFn: api.getUpcomingReturns,
   })
 
+export const useActiveLoans = () =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'active-loans'],
+    queryFn: api.getActiveLoans,
+  })
+
 export const useScanStatsByCategory = () =>
   useQuery({
     queryKey: ['qr-scan-logs', 'stats-by-category'],

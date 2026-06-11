@@ -276,6 +276,31 @@ export const getUpcomingReturns = async () => {
   })
 }
 
+// Get all currently-loaned material: takes without a matching later deposit.
+// Used by the dashboard "Matériel en cours" tile.
+export const getActiveLoans = async () => {
+  const { data: takes, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('action', 'take')
+    .order('pickup_date', { ascending: false })
+  if (error) throw error
+  if (!takes?.length) return []
+
+  const { data: deposits } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, user_id, created_at')
+    .eq('action', 'deposit')
+
+  return takes.filter((take) => {
+    return !deposits?.some((dep) =>
+      dep.product_id === take.product_id &&
+      dep.user_id === take.user_id &&
+      new Date(dep.created_at) > new Date(take.created_at)
+    )
+  })
+}
+
 // Get scan stats grouped by category (for dashboard chart)
 export const getScanStatsByCategory = async () => {
   const { data, error } = await supabase
