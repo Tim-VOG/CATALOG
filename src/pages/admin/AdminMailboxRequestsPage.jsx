@@ -1,8 +1,10 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useMailboxRequests, useUpdateMailboxRequest, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
+import { useSharedMailboxes } from '@/hooks/use-shared-mailboxes'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
+import { AddToSharedMailboxDialog } from '@/components/admin/AddToSharedMailboxDialog'
 import { wrapEmailHtml } from '@/lib/email-html'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
@@ -630,6 +632,8 @@ export function AdminMailboxRequestsPage() {
   const updateRequest = useUpdateMailboxRequest()
   const deleteRequest = useDeleteMailboxRequest()
   const { data: settings } = useAppSettings()
+  const { data: sharedMailboxes = [] } = useSharedMailboxes()
+  const [showAddToInventory, setShowAddToInventory] = useState(false)
   const showToast = useUIStore((s) => s.showToast)
 
   const [search, setSearch] = useState('')
@@ -839,7 +843,54 @@ export function AdminMailboxRequestsPage() {
 
         {/* Email section */}
         {selectedRequest.confirmation_email_sent ? (
-          <EmailSentBadge />
+          <>
+            <EmailSentBadge />
+            {(() => {
+              const alreadyInInventory = sharedMailboxes.some(
+                (m) => m.mail && selectedRequest.email_to_create && m.mail.toLowerCase() === selectedRequest.email_to_create.toLowerCase()
+              )
+              return (
+                <Card variant="elevated" className={alreadyInInventory ? 'border-emerald-500/30' : 'border-primary/30'}>
+                  <CardContent className="p-5">
+                    {alreadyInInventory ? (
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                          <CheckCircle className="h-5 w-5 text-emerald-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm text-emerald-600">Already in Shared Mailboxes inventory</p>
+                          <p className="text-xs text-muted-foreground">
+                            {selectedRequest.email_to_create} is tracked in <strong>Admin → Shared Mailboxes</strong>.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <Mail className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm">Log it in the FMB inventory</p>
+                            <p className="text-xs text-muted-foreground">
+                              Add this mailbox to <strong>Shared Mailboxes</strong> so it's tracked alongside the existing 130+ FMBs.
+                              You'll just fill the IT-side fields (category, licence, profile).
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => setShowAddToInventory(true)}
+                          className="w-full gap-2"
+                        >
+                          <Mail className="h-4 w-4" /> Add to Shared Mailboxes
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })()}
+          </>
         ) : (
           <>
             {!showEmail ? (
@@ -1049,6 +1100,14 @@ export function AdminMailboxRequestsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add-to-inventory dialog for the currently-selected request */}
+      <AddToSharedMailboxDialog
+        request={showAddToInventory ? selectedRequest : null}
+        open={showAddToInventory}
+        onClose={() => setShowAddToInventory(false)}
+        onCreated={() => setShowAddToInventory(false)}
+      />
     </div>
   )
 }
