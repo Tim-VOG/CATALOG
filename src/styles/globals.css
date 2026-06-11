@@ -403,72 +403,8 @@ html {
 
 
 /* ─────────────────────────────────────────────────────────
-   Admin panel — futuristic surface overrides.
-   Scoped to .admin-main so the rest of the app is untouched.
+   Admin panel — minimal scoped polish (Linear-ish feel).
    ───────────────────────────────────────────────────────── */
-
-/* Glassify every Card-like surface inside admin pages */
-.admin-main [class*="bg-card"]:not(.no-glass) {
-  background-color: color-mix(in srgb, var(--color-card) 40%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-/* Default border softening on admin surfaces */
-.admin-main .rounded-lg,
-.admin-main .rounded-xl,
-.admin-main .rounded-2xl,
-.admin-main .rounded-3xl {
-  border-color: color-mix(in srgb, var(--color-border) 50%, transparent);
-}
-
-/* Subtle neon accent on hover for cards in admin */
-.admin-main .hover\:shadow-lg:hover,
-.admin-main .hover\:shadow-md:hover {
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 25%, transparent),
-              0 10px 40px -10px color-mix(in srgb, var(--color-primary) 25%, transparent);
-}
-
-/* Tables — sharper, more data-vis feel */
-.admin-main table {
-  font-variant-numeric: tabular-nums;
-}
-.admin-main thead th {
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 10px;
-  color: color-mix(in srgb, var(--color-muted-foreground) 90%, transparent);
-}
-.admin-main tbody tr {
-  transition: background-color 0.15s ease;
-}
-.admin-main tbody tr:hover {
-  background-color: color-mix(in srgb, var(--color-primary) 4%, transparent);
-}
-
-/* Inputs / selects — flatter, with neon focus ring */
-.admin-main input:not([type="checkbox"]):not([type="radio"]):focus,
-.admin-main select:focus,
-.admin-main textarea:focus {
-  outline: none;
-  box-shadow: 0 0 0 1px var(--color-primary),
-              0 0 12px -2px color-mix(in srgb, var(--color-primary) 50%, transparent);
-}
-
-/* Primary buttons get a subtle glow */
-.admin-main button[class*="bg-primary"]:not([disabled]) {
-  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--color-primary) 60%, transparent);
-}
-
-/* Badges get a sharper monospace look in admin */
-.admin-main [data-slot="badge"],
-.admin-main .badge-mono {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  letter-spacing: 0.06em;
-}
-
-/* Scrollbar styling — thin, on-brand */
 .admin-main ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -477,9 +413,12 @@ html {
   background: transparent;
 }
 .admin-main ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-border) 60%, transparent);
+  background: color-mix(in srgb, var(--color-border) 70%, transparent);
   border-radius: 8px;
 }
 .admin-main ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--color-border) 90%, transparent);
+}
+.admin-main table {
+  font-variant-numeric: tabular-nums;
 }
