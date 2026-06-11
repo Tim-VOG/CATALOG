@@ -70,6 +70,7 @@ const BLOCK_THEME = {
   email_signature: { emoji: '&#x2709;',  color: '#8b5cf6', label_fr: 'Signature mail',      label_en: 'Email signature' },
   sharepoint:      { emoji: '&#x1F4C1;', color: '#2563eb', label_fr: 'SharePoint',          label_en: 'SharePoint' },
   teams:           { emoji: '&#x1F4AC;', color: '#6366f1', label_fr: 'Teams',               label_en: 'Teams' },
+  vo_hub:          { emoji: '&#x2728;',  color: '#f97316', label_fr: 'Le VO Hub',           label_en: 'The VO Hub' },
   wifi:            { emoji: '&#x1F4F6;', color: '#06b6d4', label_fr: 'WiFi',                label_en: 'WiFi' },
   image_rights:    { emoji: '&#x1F4F8;', color: '#ec4899', label_fr: 'Droit \u00e0 l\'image', label_en: 'Image Rights' },
   faq_it:          { emoji: '&#x1F4A1;', color: '#f97316', label_fr: 'FAQ IT',              label_en: 'IT FAQ' },
@@ -159,8 +160,8 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     </mj-section>`
   }
 
-  // SharePoint / Teams: card with outline button
-  if ((block.block_key === 'sharepoint' || block.block_key === 'teams') && opts.url) {
+  // SharePoint / Teams / VO Hub: card with outline button
+  if ((block.block_key === 'sharepoint' || block.block_key === 'teams' || block.block_key === 'vo_hub') && opts.url) {
     const btnLabel = language === 'fr'
       ? (opts.label_fr || 'Ouvrir')
       : (opts.label_en || 'Open')
