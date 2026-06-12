@@ -422,3 +422,22 @@ html {
 .admin-main table {
   font-variant-numeric: tabular-nums;
 }
+
+/* ─────────────────────────────────────────────────────────
+   White-screen safety net.
+   motion/framer sets inline `opacity:0` from an element's `initial`
+   prop and only overrides it to 1 once JS runs `animate`. If that
+   animation never fires (fast route re-keys, an error in a child
+   mid-transition, a stalled main thread), the element — and any page
+   wrapped in it — stays invisible: a blank screen.
+
+   This rule force-reveals anything still sitting at inline opacity:0
+   after 4s. By then any legitimate entrance animation has long
+   finished, so it only ever rescues a stuck element; it never
+   interferes with a normal fade-in.
+   ───────────────────────────────────────────────────────── */
+@keyframes vo-force-visible { to { opacity: 1; } }
+#root [style*="opacity: 0"],
+#root [style*="opacity:0"] {
+  animation: vo-force-visible 0.01s linear 4s forwards;
+}

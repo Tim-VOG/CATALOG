@@ -15,8 +15,8 @@ export function AdminLayout() {
         <div className="mx-auto w-full max-w-6xl">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 4 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <ErrorBoundary key={location.pathname}>

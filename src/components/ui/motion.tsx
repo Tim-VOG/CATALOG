@@ -102,12 +102,17 @@ AnimateListItem.displayName = 'AnimateListItem'
 // Wrapper pour transitions entre routes. Supporte direction forward/back.
 function PageTransition({ children, className, direction = 'forward'  }: any) {
   const yOffset = direction === 'back' ? -8 : 8
+  // IMPORTANT: do not gate visibility on opacity. If motion ever fails
+  // to run `animate` (fast re-keys, StrictMode double-mount, an error
+  // in a child mid-transition), an opacity:0 initial would leave the
+  // whole page invisible — a white screen. We animate only the
+  // harmless y-slide, so content is always painted.
   return (
     <motion.div
-      initial={{ opacity: 0, y: yOffset, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, y: -yOffset, filter: 'blur(4px)' }}
-      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any }}
+      initial={{ y: yOffset }}
+      animate={{ y: 0 }}
+      exit={{ y: -yOffset }}
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as any }}
       className={className}
     >
       {children}
