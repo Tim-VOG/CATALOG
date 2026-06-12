@@ -52,7 +52,7 @@ export function useScrollDirection(threshold = 10) {
  * Attach the ref to the element, and use the offset for translateY.
  */
 export function useParallax(speed = 0.3) {
-  const ref = useRef(null)
+  const ref = useRef<any>(null)
   const [offset, setOffset] = useState(0)
 
   useEffect(() => {

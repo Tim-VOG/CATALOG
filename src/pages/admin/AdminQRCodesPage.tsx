@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect } from 'react'
 import {
   QrCode, Plus, Pencil, Trash2, Search, Download,
@@ -33,7 +32,7 @@ function generateCode(prefix = 'VO') {
 }
 
 function QRPreview({ code, size = 56  }: any) {
-  const [src, setSrc] = useState(null)
+  const [src, setSrc] = useState<any>(null)
   useEffect(() => {
     QRCodeLib.toDataURL(code, { width: size, margin: 1 }).then(setSrc).catch(() => {})
   }, [code, size])
@@ -53,12 +52,12 @@ export function AdminQRCodesPage() {
   const [search, setSearch] = useState('')
   const [showDialog, setShowDialog] = useState(false)
   const [showBulkDialog, setShowBulkDialog] = useState(false)
-  const [editing, setEditing] = useState(null)
+  const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState(emptyForm)
   const [bulkProductId, setBulkProductId] = useState('')
   const [bulkCount, setBulkCount] = useState(5)
   const [bulkPrefix, setBulkPrefix] = useState('VO')
-  const [copiedId, setCopiedId] = useState(null)
+  const [copiedId, setCopiedId] = useState<any>(null)
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
 
@@ -83,7 +82,7 @@ export function AdminQRCodesPage() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this QR code?')) return
     try { await deleteQR.mutateAsync(id); toast.success('QR code deleted') }
-    catch (err) { toast.error(err.message) }
+    catch (err: any) { toast.error(err.message) }
   }
 
   const handleBulkGenerate = async () => {

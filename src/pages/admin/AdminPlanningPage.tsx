@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useAdminCalendarRequests } from '@/hooks/use-admin-calendar-requests'
 import { RequestsCalendar } from '@/components/calendar/RequestsCalendar'

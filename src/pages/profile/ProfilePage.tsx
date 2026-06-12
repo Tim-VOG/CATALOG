@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
@@ -41,7 +40,7 @@ export function ProfilePage() {
   const [phone, setPhone] = useState(profile?.phone || '')
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const avatarInputRef = useRef(null)
+  const avatarInputRef = useRef<any>(null)
 
   if (loading) return <PageLoading />
 
@@ -174,13 +173,13 @@ export function ProfilePage() {
               {profile?.job_title && (
                 <p className="text-sm flex items-center gap-1.5">
                   <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
-                  {profile.job_title}
+                  {String(profile.job_title)}
                 </p>
               )}
               {profile?.department && (
                 <p className="text-sm flex items-center gap-1.5">
                   <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  {profile.department}
+                  {String(profile.department)}
                 </p>
               )}
               <div className="flex items-center gap-3 pt-2">

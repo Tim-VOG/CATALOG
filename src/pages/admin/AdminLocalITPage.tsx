@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { useQRCodes, useUpdateQRCode } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
@@ -60,8 +59,8 @@ export function AdminLocalITPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
-  const [detailQR, setDetailQR] = useState(null)
-  const [statusChangeQR, setStatusChangeQR] = useState(null)
+  const [detailQR, setDetailQR] = useState<any>(null)
+  const [statusChangeQR, setStatusChangeQR] = useState<any>(null)
   const [newStatus, setNewStatus] = useState('')
 
   // Stats
@@ -76,12 +75,12 @@ export function AdminLocalITPage() {
 
   // Categories from QR data
   const categories = useMemo(() => {
-    const cats = {}
+    const cats: Record<string, number> = {}
     for (const qr of allQR) {
       const cat = qr.category_name || 'Other'
       cats[cat] = (cats[cat] || 0) + 1
     }
-    return Object.entries(cats).sort((a, b) => b[1] - a[1])
+    return Object.entries(cats as Record<string, any>).sort((a, b) => b[1] - a[1])
   }, [allQR])
 
   // Filter
@@ -110,7 +109,7 @@ export function AdminLocalITPage() {
   const handleStatusChange = async () => {
     if (!statusChangeQR || !newStatus) return
     try {
-      const updates = { status: newStatus }
+      const updates: Record<string, unknown> = { status: newStatus }
       if (newStatus === 'available') {
         updates.assigned_to = null
         updates.assigned_to_name = null

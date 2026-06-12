@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const ref = useRef(null)
+  const ref = useRef<any>(null)
 
   // Close on outside click
   useEffect(() => {

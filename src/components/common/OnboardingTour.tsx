@@ -230,7 +230,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
             initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.97 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as any }}
             className="relative w-full max-w-[420px] bg-card rounded-[20px] overflow-hidden"
             style={{ boxShadow: '0 25px 60px -12px rgba(0,0,0,0.35), 0 10px 20px -5px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)' }}
             onClick={(e) => e.stopPropagation()}
@@ -254,7 +254,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] as any }}
                   className="relative px-10 py-12 min-h-[180px] flex items-center justify-center"
                 >
                   <motion.div
@@ -282,7 +282,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] as any }}
                 >
                   <h2 className="font-display font-bold text-[22px] tracking-tight text-foreground">
                     {currentStep.title}
@@ -312,7 +312,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
                         backgroundColor: i === step ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
                         opacity: i === step ? 1 : 0.25,
                       }}
-                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] as any }}
                     />
                   </button>
                 ))}

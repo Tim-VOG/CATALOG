@@ -1,9 +1,8 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import * as React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 
-const TabsContext = React.createContext({})
+const TabsContext = React.createContext<any>({})
 
 function Tabs({ value, onValueChange, children, className, ...props  }: any) {
   return (

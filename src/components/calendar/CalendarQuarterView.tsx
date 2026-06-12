@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useMemo } from 'react'
 import { addMonths, format, isToday as checkIsToday, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { motion } from 'motion/react'
@@ -62,7 +61,7 @@ function MiniMonth({ monthDate, eventsMap, onDayClick  }: any) {
           const isToday = checkIsToday(date)
 
           // Collect unique type dots
-          const types = new Set()
+          const types = new Set<string>()
           for (const ev of dayEvents) types.add(ev.type)
 
           return (

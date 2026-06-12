@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -50,7 +49,7 @@ export function KeyboardShortcutsProvider({ children  }: any) {
       // / focuses the first visible "search" placeholder input
       if (e.key === '/') {
         const input = document.querySelector('input[placeholder*="earch" i]')
-        if (input) { e.preventDefault(); input.focus(); }
+        if (input) { e.preventDefault(); (input as any).focus(); }
         return
       }
 

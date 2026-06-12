@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -373,7 +372,7 @@ export function ItRequestFormPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [currentStep, setCurrentStep] = useState(0)
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     first_name: '',
     last_name: '',
     status: '',

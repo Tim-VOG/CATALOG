@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useUIStore } from '@/stores/ui-store'
@@ -39,8 +38,8 @@ export function OffboardingPage() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [expandedId, setExpandedId] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [expandedId, setExpandedId] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
 
   // Only show offboarding requests
   const offboardingRequests = useMemo(
@@ -242,7 +241,7 @@ export function OffboardingPage() {
                     <div className="mt-4 pt-4 border-t border-border/30 space-y-4">
                       {/* Request details */}
                       <div className="rounded-xl border bg-muted/20 overflow-hidden">
-                        {Object.entries(data).filter(([key]) => key !== 'submitted_at').map(([key, value], idx) => (
+                        {Object.entries(data as Record<string, any>).filter(([key]) => key !== 'submitted_at').map(([key, value], idx) => (
                           <div
                             key={key}
                             className={cn(

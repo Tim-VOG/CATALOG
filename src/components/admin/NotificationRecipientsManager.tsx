@@ -19,7 +19,7 @@ export function NotificationRecipientsManager() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [showRecipientDialog, setShowRecipientDialog] = useState(false)
-  const [recipientForm, setRecipientForm] = useState({ email: '', name: '' })
+  const [recipientForm, setRecipientForm] = useState<any>({ email: '', name: '' })
 
   const handleAddRecipient = async () => {
     if (!recipientForm.email.trim()) {

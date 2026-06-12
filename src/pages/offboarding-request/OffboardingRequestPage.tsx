@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -322,7 +321,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
   // actually has assigned. Only runs when we land on this step with a fresh
   // user pick, so it doesn't override manual edits later on.
   const autoDetectedKey = `${form.leaving_user_id || ''}::${activeEquipment.length}::${qrCodes.length}`
-  const lastAutoDetectedRef = useRef(null)
+  const lastAutoDetectedRef = useRef<any>(null)
   useEffect(() => {
     if (!form.leaving_user_id) return
     if (lastAutoDetectedRef.current === autoDetectedKey) return
@@ -526,7 +525,7 @@ export function OffboardingRequestPage() {
 
   const [currentStep, setCurrentStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     name: '',
     leaving_user_id: null,
     leaving_user_email: '',

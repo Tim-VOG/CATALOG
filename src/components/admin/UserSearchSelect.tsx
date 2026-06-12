@@ -17,7 +17,7 @@ export function UserSearchSelect({ value, onChange, placeholder = 'Search user b
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [open, setOpen] = useState(false)
-  const wrapperRef = useRef(null)
+  const wrapperRef = useRef<any>(null)
 
   // Debounce search input
   useEffect(() => {

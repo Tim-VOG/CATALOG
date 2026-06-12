@@ -47,7 +47,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   const showToast = useUIStore((s) => s.showToast)
 
   const [personalEmail, setPersonalEmail] = useState('')
-  const [recipientForCompose, setRecipientForCompose] = useState(null)
+  const [recipientForCompose, setRecipientForCompose] = useState<any>(null)
   const [preparing, setPreparing] = useState(false)
 
   const data = useMemo(() => req?.data || {}, [req])

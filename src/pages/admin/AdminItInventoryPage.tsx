@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   useItInventory, useCreateItInventoryItem, useUpdateItInventoryItem, useDeleteItInventoryItem,
@@ -25,7 +24,7 @@ const fmtNum = (n, d = 2) => {
 const monthDiff = (start, end) => {
   if (!start || !end) return null
   const s = new Date(start), e = new Date(end)
-  if (isNaN(s) || isNaN(e)) return null
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return null
   return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
 }
 
@@ -69,8 +68,8 @@ function EditableCell({ value, type = 'text', onChange, placeholder, className  
       onChange={(e) => setLocal(e.target.value)}
       onBlur={commit}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') e.target.blur()
-        if (e.key === 'Escape') { setLocal(initial.current); e.target.blur() }
+        if (e.key === 'Enter') (e.target as any).blur()
+        if (e.key === 'Escape') { setLocal(initial.current); (e.target as any).blur() }
       }}
       placeholder={placeholder}
       className={cn(

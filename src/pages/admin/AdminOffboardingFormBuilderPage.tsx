@@ -162,8 +162,8 @@ export function AdminOffboardingFormBuilderPage() {
   const deleteField = useDeleteOffboardingField()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [editDialog, setEditDialog] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [editDialog, setEditDialog] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
   const [optionsText, setOptionsText] = useState('')
 
   // Group fields by step for display

@@ -45,12 +45,12 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
     [existingEmails]
   )
 
-  const [emailDbId, setEmailDbId] = useState(null)
+  const [emailDbId, setEmailDbId] = useState<any>(null)
   const deliveryEmail = recipient?.personal_email || recipient?.email || ''
   const usingPersonal = !!recipient?.personal_email
   const [language, setLanguage] = useState((recipient?.language || 'fr') === 'fr' ? 'fr' : 'en')
   const [subject, setSubject] = useState('')
-  const [blocksConfig, setBlocksConfig] = useState([])
+  const [blocksConfig, setBlocksConfig] = useState<any[]>([])
   const blocksRef = useRef(blocksConfig)
   useEffect(() => { blocksRef.current = blocksConfig }, [blocksConfig])
 

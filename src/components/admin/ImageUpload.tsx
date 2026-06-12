@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Upload, X, Image, Loader2 } from 'lucide-react'
@@ -30,9 +29,9 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef<any>(null)
 
-  const validateDimensions = (file) =>
+  const validateDimensions = (file: File): Promise<true | string> =>
     new Promise((resolve) => {
       if (!requiredWidth && !requiredHeight) return resolve(true)
       const img = new window.Image()

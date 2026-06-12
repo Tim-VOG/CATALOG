@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
  */
 export function TagInput({ value = [], onChange, placeholder = 'Add item...', className  }: any) {
   const [input, setInput] = useState('')
-  const inputRef = useRef(null)
+  const inputRef = useRef<any>(null)
 
   const addTags = useCallback(
     (raw) => {

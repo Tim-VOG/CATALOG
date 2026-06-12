@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useMemo } from 'react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -65,7 +64,7 @@ export function AdminStatsPage() {
       const name = r.project_name || 'Unknown'
       productCounts[name] = (productCounts[name] || 0) + 1
     }
-    const topRequested = Object.entries(productCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    const topRequested = Object.entries(productCounts as Record<string, any>).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
     // Requests by type
     const byType = { equipment: loanReqs.length, onboarding: 0, offboarding: 0, mailbox: mailboxReqs.length }
@@ -111,7 +110,7 @@ export function AdminStatsPage() {
           <CardContent className="p-5">
             <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Requests by Type</h3>
             <div className="space-y-3">
-              {Object.entries(stats.byType).map(([type, count]) => (
+              {Object.entries(stats.byType as Record<string, any>).map(([type, count]) => (
                 <div key={type} className="flex items-center gap-3">
                   <div className="flex-1">
                     <div className="flex justify-between text-sm mb-1">

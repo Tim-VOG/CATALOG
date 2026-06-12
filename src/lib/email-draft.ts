@@ -17,7 +17,7 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
   }
 
   if (request.custom_fields && typeof request.custom_fields === 'object') {
-    Object.entries(request.custom_fields).forEach(([key, val]) => {
+    Object.entries(request.custom_fields as Record<string, any>).forEach(([key, val]) => {
       if (val !== undefined && val !== null) vars[key] = String(val)
     })
   }
@@ -132,7 +132,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
 
   // Inject custom field values as template variables (e.g. {{first_name}}, {{last_name}})
   if (request.custom_fields && typeof request.custom_fields === 'object') {
-    Object.entries(request.custom_fields).forEach(([key, val]) => {
+    Object.entries(request.custom_fields as Record<string, any>).forEach(([key, val]) => {
       if (val !== undefined && val !== null) vars[key] = String(val)
     })
   }

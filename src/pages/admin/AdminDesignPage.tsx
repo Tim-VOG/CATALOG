@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useRef } from 'react'
 import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
 import { uploadLogo } from '@/lib/api/settings'
@@ -136,10 +135,10 @@ export function AdminDesignPage() {
   const [destructiveColor, setDestructiveColor] = useState('')
 
   // Dark mode palette
-  const [darkPalette, setDarkPalette] = useState({ ...DARK_DEFAULTS })
+  const [darkPalette, setDarkPalette] = useState<any>({ ...DARK_DEFAULTS })
 
   // Light mode palette
-  const [lightPalette, setLightPalette] = useState({ ...LIGHT_DEFAULTS })
+  const [lightPalette, setLightPalette] = useState<any>({ ...LIGHT_DEFAULTS })
 
   // Border radius
   const [borderRadius, setBorderRadius] = useState('md')
@@ -151,9 +150,9 @@ export function AdminDesignPage() {
   const [dragOver, setDragOver] = useState(false)
   const [dragOverDark, setDragOverDark] = useState(false)
   const [dragOverLight, setDragOverLight] = useState(false)
-  const fileInputRef = useRef(null)
-  const darkFileInputRef = useRef(null)
-  const lightFileInputRef = useRef(null)
+  const fileInputRef = useRef<any>(null)
+  const darkFileInputRef = useRef<any>(null)
+  const lightFileInputRef = useRef<any>(null)
 
   // Active palette tab in the editor
   const [activePaletteTab, setActivePaletteTab] = useState('dark')
@@ -316,8 +315,8 @@ export function AdminDesignPage() {
   const updateDarkPalette = (key, value) => setDarkPalette((p) => ({ ...p, [key]: value }))
   const updateLightPalette = (key, value) => setLightPalette((p) => ({ ...p, [key]: value }))
 
-  const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map(k => [k, ''])))
-  const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map(k => [k, ''])))
+  const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map(k => [k, ''])) as any)
+  const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map(k => [k, ''])) as any)
 
   const handleSave = async () => {
     try {
@@ -567,7 +566,7 @@ export function AdminDesignPage() {
 
           {/* Palette color rows */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
-            {Object.entries(PALETTE_LABELS).map(([key, { label, desc }]) => (
+            {Object.entries(PALETTE_LABELS as Record<string, any>).map(([key, { label, desc }]) => (
               <ColorRow
                 key={`${activePaletteTab}-${key}`}
                 label={label}

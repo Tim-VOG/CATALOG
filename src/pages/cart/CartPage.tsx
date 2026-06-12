@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
@@ -101,7 +100,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
   }
 
   const handleSave = () => {
-    const newOptions = { services: {}, accessories: selectedAccessories }
+    const newOptions: any = { services: {}, accessories: selectedAccessories }
     if (subscriptionPlan) newOptions.services.subscription_plan = subscriptionPlan
     onSave(newOptions)
     setOpen(false)

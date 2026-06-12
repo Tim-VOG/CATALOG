@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -102,7 +101,7 @@ export function HubPage() {
       ...myItRequests.map((r) => ({ ...r, _type: r.type || 'onboarding' })),
       ...myMailboxRequests.map((r) => ({ ...r, _type: 'mailbox' })),
     ]
-    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     return list
   }, [myLoanRequests, myItRequests, myMailboxRequests])
 

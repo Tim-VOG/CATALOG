@@ -191,7 +191,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
     <div className="border rounded-xl overflow-hidden bg-card shadow-card">
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-3 border-b bg-muted/20 text-xs">
-        {Object.entries(STATUS_COLORS).map(([status, color]) => (
+        {Object.entries(STATUS_COLORS as Record<string, any>).map(([status, color]) => (
           <div key={status} className="flex items-center gap-2">
             <div className={cn('h-3 w-3 rounded-full', color)} />
             <span className="text-muted-foreground font-medium">{STATUS_LABELS[status]}</span>

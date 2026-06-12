@@ -73,7 +73,7 @@ export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasIt
       <div className="h-4 w-px bg-border/50 mx-1 hidden sm:block" />
 
       {/* Status filters */}
-      {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
+      {Object.entries(STATUS_CONFIG as Record<string, any>).map(([key, cfg]) => {
         const isActive = filters.statuses.includes(key)
         return (
           <button

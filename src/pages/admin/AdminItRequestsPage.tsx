@@ -22,8 +22,8 @@ export function AdminItRequestsPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
-  const [detailRequest, setDetailRequest] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [detailRequest, setDetailRequest] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
 
   const filtered = useMemo(() => {
     let result = requests
@@ -206,7 +206,7 @@ export function AdminItRequestsPage() {
             <div className="space-y-3">
               {/* Show JSONB data for new-format requests */}
               {detailRequest.data && Object.keys(detailRequest.data).length > 0 ? (
-                Object.entries(detailRequest.data)
+                Object.entries(detailRequest.data as Record<string, any>)
                   .filter(([k, v]) => v !== '' && v !== null && k !== 'submitted_at')
                   .map(([key, value]) => (
                     <div key={key} className="flex items-start gap-3 text-sm">

@@ -65,16 +65,16 @@ export function RequestsCalendar({
   storageKey = STORAGE_KEY,
   // Selection props (admin bulk delete)
   selectable = false,
-  selectedIds,
-  onToggleSelect,
-}) {
+  selectedIds = new Set(),
+  onToggleSelect = () => {},
+}: any) {
   const [viewMode, setViewMode] = useState(() => {
     try { return localStorage.getItem(storageKey) || 'month' } catch { return 'month' }
   })
   const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date()))
   const [direction, setDirection] = useState(0)
-  const [selectedDay, setSelectedDay] = useState(null)
-  const [filters, setFilters] = useState({
+  const [selectedDay, setSelectedDay] = useState<any>(null)
+  const [filters, setFilters] = useState<any>({
     types: ['catalog', 'it', 'mailbox'],
     statuses: [],
     users: [],

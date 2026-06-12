@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   useDeviceCredentials, useCreateDeviceCredential,
@@ -32,8 +31,8 @@ function EditableCell({ value, type = 'text', onChange, placeholder, masked = fa
       onChange={(e) => setLocal(e.target.value)}
       onBlur={commit}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') e.target.blur()
-        if (e.key === 'Escape') { setLocal(initial.current); e.target.blur() }
+        if (e.key === 'Enter') (e.target as any).blur()
+        if (e.key === 'Escape') { setLocal(initial.current); (e.target as any).blur() }
       }}
       placeholder={placeholder}
       className={cn(
@@ -81,9 +80,9 @@ export function AdminDeviceCredentialsPage() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [revealSecrets, setRevealSecrets] = useState(false)
 
-  const categories = useMemo(() => {
-    const set = new Set()
-    rows.forEach((r) => {
+  const categories = useMemo<string[]>(() => {
+    const set = new Set<string>()
+    rows.forEach((r: any) => {
       const name = r.qr_code?.product?.category?.name
       if (name) set.add(name)
     })

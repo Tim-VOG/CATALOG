@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useEffect } from 'react'
 import { usePaginated } from '@/hooks/use-paginated'
 import { useProfiles, useUpdateProfile, useUpdateProfileRole, useToggleProfileActive, useDeleteProfile } from '@/hooks/use-profiles'
@@ -104,7 +103,7 @@ export function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [buFilter, setBuFilter] = useState('all')
   const [inviteOpen, setInviteOpen] = useState(false)
-  const [editingInvitation, setEditingInvitation] = useState(null)
+  const [editingInvitation, setEditingInvitation] = useState<any>(null)
 
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles({ search: search.trim() || undefined, role: roleFilter })
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
@@ -121,7 +120,7 @@ export function AdminUsersPage() {
       else counts[log.user_id].deposits++
     }
     const result = {}
-    for (const [uid, c] of Object.entries(counts)) {
+    for (const [uid, c] of Object.entries(counts as Record<string, any>)) {
       result[uid] = { active: Math.max(0, c.takes - c.deposits), total: c.takes }
     }
     return result
@@ -137,9 +136,9 @@ export function AdminUsersPage() {
   const { user: currentUser } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [confirmDialog, setConfirmDialog] = useState(null)
-  const [deleteDialog, setDeleteDialog] = useState(null)
-  const [updatingKey, setUpdatingKey] = useState(null)
+  const [confirmDialog, setConfirmDialog] = useState<any>(null)
+  const [deleteDialog, setDeleteDialog] = useState<any>(null)
+  const [updatingKey, setUpdatingKey] = useState<any>(null)
 
   // Access map: "userId:moduleKey" -> granted
   const accessMap = useMemo(() => {

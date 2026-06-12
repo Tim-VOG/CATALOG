@@ -1,13 +1,12 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { Camera, CameraOff, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function QRScanner({ onScan, scanning = true  }: any) {
-  const scannerRef = useRef(null)
-  const html5QrRef = useRef(null)
-  const [error, setError] = useState(null)
+  const scannerRef = useRef<any>(null)
+  const html5QrRef = useRef<any>(null)
+  const [error, setError] = useState<any>(null)
   const [started, setStarted] = useState(false)
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export function QRScanner({ onScan, scanning = true  }: any) {
             if (navigator.vibrate) navigator.vibrate(100)
             // Short beep sound
             try {
-              const ctx = new (window.AudioContext || window.webkitAudioContext)()
+              const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
               const osc = ctx.createOscillator()
               const gain = ctx.createGain()
               osc.connect(gain)

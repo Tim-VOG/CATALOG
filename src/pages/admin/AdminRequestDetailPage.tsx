@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
@@ -65,14 +64,14 @@ export function AdminRequestDetailPage() {
   const { user } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [assigningItem, setAssigningItem] = useState(null)
+  const [assigningItem, setAssigningItem] = useState<any>(null)
   const [assignMode, setAssignMode] = useState('scan')
   const [qrSearch, setQrSearch] = useState('')
   // Track QR codes assigned per loan_request_item, keyed by the item id (not
   // product_id — two items can carry the same product and we want them
   // independent). Each value is an array sized up to item.quantity.
-  const [assignedQRs, setAssignedQRs] = useState({})
-  const [scanError, setScanError] = useState(null)
+  const [assignedQRs, setAssignedQRs] = useState<any>({})
+  const [scanError, setScanError] = useState<any>(null)
 
   // ──────────────────────────────────────────────────────────────
   // All hooks (including useCallback / useMemo) must run on every
@@ -94,7 +93,7 @@ export function AdminRequestDetailPage() {
       return
     }
     // Guard against double-assigning the same QR inside the same request
-    const alreadyHere = Object.values(assignedQRs).flat().some((q) => q?.id === qr.id)
+    const alreadyHere = Object.values(assignedQRs).flat().some((q: any) => q?.id === qr.id)
     if (alreadyHere) {
       setScanError(`"${scannedCode}" is already used in this request`)
       return
@@ -211,7 +210,7 @@ export function AdminRequestDetailPage() {
 
   const handleAssignQR = async (qrCode) => {
     // Guard against double-assigning the same QR inside the same request
-    const alreadyHere = Object.values(assignedQRs).flat().some((q) => q?.id === qrCode.id)
+    const alreadyHere = Object.values(assignedQRs).flat().some((q: any) => q?.id === qrCode.id)
     if (alreadyHere) {
       showToast(`${qrCode.code} is already used in this request`, 'error')
       return
@@ -269,7 +268,7 @@ export function AdminRequestDetailPage() {
   const getAvailableQRsForProduct = (productId) => {
     // Exclude QRs already used elsewhere in this request so the same code
     // can't be picked twice for two slots of the same product.
-    const usedIds = new Set(Object.values(assignedQRs).flat().map((q) => q?.id).filter(Boolean))
+    const usedIds = new Set(Object.values(assignedQRs).flat().map((q: any) => q?.id).filter(Boolean))
     return allQRCodes.filter(
       (qr) => qr.product_id === productId
         && (qr.status || 'available') === 'available'
@@ -398,7 +397,7 @@ export function AdminRequestDetailPage() {
                     <CategoryBadge name={item.category_name} color={item.category_color} />
                     {item.options && Object.keys(item.options).length > 0 && (
                       <div className="mt-1.5 flex flex-wrap gap-1">
-                        {Object.entries(item.options).map(([key, val]) => {
+                        {Object.entries(item.options as Record<string, any>).map(([key, val]) => {
                           if (!val || (Array.isArray(val) && val.length === 0) || (typeof val === 'object' && !Array.isArray(val) && Object.keys(val).length === 0)) return null
                           const display = Array.isArray(val) ? val.join(', ') : typeof val === 'object' ? Object.values(val).filter(Boolean).join(', ') : String(val)
                           return display ? <Badge key={key} variant="outline" className="text-xs font-normal">{display}</Badge> : null

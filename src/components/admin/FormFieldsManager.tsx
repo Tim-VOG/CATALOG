@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useFormFields, useCreateFormField, useUpdateFormField, useDeleteFormField } from '@/hooks/use-form-fields'
 import { Plus, Pencil, Trash2, GripVertical, Lock } from 'lucide-react'
@@ -57,7 +56,7 @@ const fieldTypeLabel = (type) => {
 function SortableFieldRow({ field, onToggle, onEdit, onDelete  }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 50 : undefined,
@@ -120,7 +119,7 @@ export function FormFieldsManager() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [showFieldDialog, setShowFieldDialog] = useState(false)
-  const [editingField, setEditingField] = useState(null)
+  const [editingField, setEditingField] = useState<any>(null)
   const [form, setForm] = useState(emptyField)
   const [optionInput, setOptionInput] = useState('')
 

@@ -165,8 +165,8 @@ export function OnboardingRequestsPage() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [selectedId, setSelectedId] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [selectedId, setSelectedId] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
 
   const requests = useMemo(
     () => allRequests.filter((r) => r.type === 'onboarding'),

@@ -57,7 +57,7 @@ export function NotificationBell() {
   const markAllAsRead = useMarkAllAsRead()
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState('all')
-  const ref = useRef(null)
+  const ref = useRef<any>(null)
 
   const unreadCount = notifications.filter((n) => !n.is_read).length
 

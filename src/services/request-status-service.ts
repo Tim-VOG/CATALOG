@@ -77,7 +77,7 @@ export async function renderTemplate(key, vars) {
 // ── Public: build a confirmation email (called from form pages) ──
 // For onboarding requests, uses the dedicated onboarding_confirmation
 // template (which includes the HR personal-information reminder).
-export async function buildConfirmationEmail({ name, type, detail, newHireName }) {
+export async function buildConfirmationEmail({ name, type, detail, newHireName }: { name: string; type: string; detail?: string; newHireName?: string }) {
   const isOnboarding = type === 'onboarding'
   const key = isOnboarding ? 'onboarding_confirmation' : 'request_confirmed'
   const subjectName = newHireName || detail || (type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Equipment')
@@ -93,7 +93,7 @@ export async function buildConfirmationEmail({ name, type, detail, newHireName }
   return wrapEmailHtml(body, await getEmailBranding())
 }
 
-export async function buildConfirmationSubject({ type, newHireName, detail }) {
+export async function buildConfirmationSubject({ type, newHireName, detail }: { type: string; newHireName?: string; detail?: string }) {
   const isOnboarding = type === 'onboarding'
   const key = isOnboarding ? 'onboarding_confirmation' : 'request_confirmed'
   const { subject } = await renderTemplate(key, {

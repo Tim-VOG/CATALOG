@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useMemo } from 'react'
 import { Package, QrCode, Clock, CheckCircle2, Calendar, Inbox, UserPlus, UserMinus, Mail, ClipboardList } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -79,7 +78,7 @@ export function UserEquipmentPanel({ userId  }: any) {
         date: r.created_at,
       })
     }
-    return items.sort((a, b) => new Date(b.date) - new Date(a.date))
+    return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [loanReqs, itReqs, mailboxReqs])
 
   return (

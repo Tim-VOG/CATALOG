@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { QrCode, ArrowLeft, Keyboard, Layers, X, Check, Trash2 } from 'lucide-react'
@@ -17,22 +16,22 @@ import { cn } from '@/lib/utils'
 
 export function ScanPage() {
   const { user, profile } = useAuth()
-  const [scannedCode, setScannedCode] = useState(null)
+  const [scannedCode, setScannedCode] = useState<any>(null)
   const [waitlistJoined, setWaitlistJoined] = useState(false)
   const [manualCode, setManualCode] = useState('')
   const [showManual, setShowManual] = useState(false)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<any>(null)
   const [scanning, setScanning] = useState(true)
 
   // Bulk mode state
   const [bulkMode, setBulkMode] = useState(false)
-  const [bulkItems, setBulkItems] = useState([]) // [{ code, qrData }]
-  const [bulkAction, setBulkAction] = useState(null) // 'take' | 'deposit'
+  const [bulkItems, setBulkItems] = useState<any[]>([]) // [{ code, qrData }]
+  const [bulkAction, setBulkAction] = useState<any>(null) // 'take' | 'deposit'
   const [bulkDatesStep, setBulkDatesStep] = useState(false)
   const [bulkPickupDate, setBulkPickupDate] = useState('')
   const [bulkReturnDate, setBulkReturnDate] = useState('')
   const [bulkProcessing, setBulkProcessing] = useState(false)
-  const [bulkResults, setBulkResults] = useState(null)
+  const [bulkResults, setBulkResults] = useState<any>(null)
 
   const { data: qrData, isLoading: loadingQR } = useQRCodeByCode(scannedCode)
   const joinWaitlist = useJoinWaitlist()
@@ -74,7 +73,7 @@ export function ScanPage() {
     setResult(null)
   }
 
-  const handleAction = async (action, extra = {}) => {
+  const handleAction = async (action: any, extra: any = {}) => {
     try {
       const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
       const response = await scanMutation.mutateAsync({

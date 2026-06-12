@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -29,11 +28,11 @@ const adminLinks = [
   { to: '/admin/qr-test', label: 'Test Lab', icon: FlaskConical },
 ]
 
-const linkVariants = {
+const linkVariants: any = {
   hidden: { opacity: 0, x: -16 },
-  visible: (i) => ({
+  visible: (i: number) => ({
     opacity: 1, x: 0,
-    transition: { delay: 0.05 + i * 0.04, duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { delay: 0.05 + i * 0.04, duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as any },
   }),
 }
 

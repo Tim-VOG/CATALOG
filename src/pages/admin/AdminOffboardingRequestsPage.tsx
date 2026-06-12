@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
@@ -87,7 +86,7 @@ function OffboardingRequestInfoCard({ req  }: any) {
     'leaving_user_id','leaving_user_email','requested_by','requested_on',
     'revoked_accesses','submitted_at','terms_accepted',
   ])
-  const extras = Object.entries(data)
+  const extras = Object.entries(data as Record<string, any>)
     .filter(([k, v]) => !knownKeys.has(k) && v !== '' && v !== null && v !== undefined)
     .map(([k, v]) => [
       k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
@@ -203,7 +202,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
           )}
         </div>
 
-        {Object.entries(byGroup).map(([group, list]) => (
+        {Object.entries(byGroup as Record<string, any>).map(([group, list]) => (
           <div key={group} className="space-y-1.5">
             <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{group}</div>
             <div className="space-y-1">
@@ -301,8 +300,8 @@ export function AdminOffboardingRequestsPage() {
   const showToast = useUIStore((s) => s.showToast)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [selectedId, setSelectedId] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [selectedId, setSelectedId] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
 
   const requests = useMemo(
     () => allRequests.filter((r) => r.type === 'offboarding'),

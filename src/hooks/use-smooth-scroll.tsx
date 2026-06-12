@@ -8,7 +8,7 @@ const SmoothScrollContext = createContext(null)
  * Place inside BrowserRouter but outside route components.
  */
 export function SmoothScrollProvider({ children  }: any) {
-  const lenisRef = useRef(null)
+  const lenisRef = useRef<any>(null)
 
   useEffect(() => {
     const lenis = new Lenis({

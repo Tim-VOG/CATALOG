@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -177,7 +176,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
 
 // ── File upload field ──
 function FileUploadField({ value, onChange, helpText  }: any) {
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef<any>(null)
   const [uploading, setUploading] = useState(false)
 
   const handleUpload = async (file) => {
@@ -513,7 +512,7 @@ export function FunctionalMailboxFormPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [currentStep, setCurrentStep] = useState(0)
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     project_name: '',
     project_leader: '',
     agency: '',

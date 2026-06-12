@@ -137,7 +137,7 @@ export function generateItemsHtml(items: any, itemReturns: any = []) {
       if (typeof v === 'boolean') return v ? [''] : []
       return [String(v)]
     }
-    const optionsBadges = Object.entries(item.options || {})
+    const optionsBadges = Object.entries(item.options || {} as Record<string, any>)
       .flatMap(([k, v]) => {
         if (v == null || v === '' || v === false) return []
         if (Array.isArray(v) && v.length === 0) return []

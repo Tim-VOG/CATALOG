@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useEffect } from 'react'
 import { usePaginated } from '@/hooks/use-paginated'
 import { motion, AnimatePresence } from 'motion/react'
@@ -103,13 +102,13 @@ export function AdminProductsPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [showForm, setShowForm] = useState(false)
-  const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState(emptyForm)
+  const [editing, setEditing] = useState<any>(null)
+  const [form, setForm] = useState<any>(emptyForm)
   const [search, setSearch] = useState('')
   const [selectedIds, setSelectedIds] = useState(new Set())
 
   const allIncludesItems = useMemo(() => {
-    const set = new Set()
+    const set = new Set<string>()
     for (const p of products) {
       for (const item of p.includes || []) {
         for (const part of item.split(/[;,]/)) {
@@ -170,7 +169,7 @@ export function AdminProductsPage() {
         showToast('Product updated')
       } else {
         const created = await createProduct.mutateAsync(form)
-        const stock = Math.max(0, parseInt(form.total_stock, 10) || 0)
+        const stock = Math.max(0, parseInt(String(form.total_stock), 10) || 0)
         if (created?.id && stock > 0) {
           const codes = Array.from({ length: stock }, () => ({
             code: generateQRCode('VO'),
@@ -218,7 +217,7 @@ export function AdminProductsPage() {
 
   if (isLoading) return <PageLoading />
 
-  const suggestions = allIncludesItems.filter((item) => !form.includes.includes(item))
+  const suggestions: string[] = allIncludesItems.filter((item: string) => !form.includes.includes(item))
 
   return (
     <div className="space-y-6">

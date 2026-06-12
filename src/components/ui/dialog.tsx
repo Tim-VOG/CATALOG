@@ -1,11 +1,10 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
 
-const DialogContext = React.createContext({})
+const DialogContext = React.createContext<any>({})
 
 function Dialog({ open, onOpenChange, children  }: any) {
   return (
@@ -34,8 +33,8 @@ const DIALOG_SIZES = {
 
 const DialogContent = React.forwardRef<any, any>(({ className, children, size = 'default', ...props }: any, ref: any) => {
   const { open, onOpenChange } = React.useContext(DialogContext)
-  const contentRef = React.useRef(null)
-  const previousFocusRef = React.useRef(null)
+  const contentRef = React.useRef<any>(null)
+  const previousFocusRef = React.useRef<any>(null)
 
   // Lock body scroll when dialog is open
   React.useEffect(() => {
@@ -101,9 +100,9 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
     const first = focusables[0]
     const last = focusables[focusables.length - 1]
     if (e.shiftKey) {
-      if (document.activeElement === first) { e.preventDefault(); last.focus() }
+      if (document.activeElement === first) { e.preventDefault(); (last as any).focus() }
     } else {
-      if (document.activeElement === last) { e.preventDefault(); first.focus() }
+      if (document.activeElement === last) { e.preventDefault(); (first as any).focus() }
     }
   }
 
@@ -141,7 +140,7 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
               initial={{ opacity: 0, scale: 0.96, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 4 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as any }}
               className={cn(
                 'relative w-full max-h-[85vh] overflow-y-auto pointer-events-auto',
                 'bg-card shadow-2xl',
@@ -173,7 +172,7 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
 })
 DialogContent.displayName = 'DialogContent'
 
-const DialogIdContext = React.createContext({})
+const DialogIdContext = React.createContext<any>({})
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />

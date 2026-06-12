@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -41,7 +40,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   // hover state for range preview
-  const [hoverDate, setHoverDate] = useState(null)
+  const [hoverDate, setHoverDate] = useState<any>(null)
 
   // Which click we're on: if no start or both set → next click sets start; if only start → next sets end
   const isSelectingEnd = startDate && !endDate
@@ -104,7 +103,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
     if (!endDate) return `${fmt(startDate)} — pick return`
     const s = new Date(startDate + 'T00:00:00')
     const e = new Date(endDate + 'T00:00:00')
-    const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24))
+    const diffDays = Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24))
     return `${fmt(startDate)} → ${fmt(endDate)} (${diffDays}d)`
   }
 

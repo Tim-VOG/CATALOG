@@ -1,13 +1,12 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import * as React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 
-const DropdownContext = React.createContext({})
+const DropdownContext = React.createContext<any>({})
 
 function DropdownMenu({ children  }: any) {
   const [open, setOpen] = React.useState(false)
-  const ref = React.useRef(null)
+  const ref = React.useRef<any>(null)
 
   // Outside-click via 'click' (fires AFTER React's synthetic click handlers,
   // so toggling the trigger doesn't race with this closer) — guard with
@@ -74,7 +73,7 @@ function DropdownMenuTrigger({ children, asChild, ...props  }: any) {
 
 function DropdownMenuContent({ className, align = 'end', children, ...props  }: any) {
   const { open, setOpen } = React.useContext(DropdownContext)
-  const contentRef = React.useRef(null)
+  const contentRef = React.useRef<any>(null)
 
   // Focus first item when opened
   React.useEffect(() => {
@@ -93,8 +92,8 @@ function DropdownMenuContent({ className, align = 'end', children, ...props  }: 
   const handleKeyDown = (e) => {
     const el = contentRef.current
     if (!el) return
-    const items = Array.from(el.querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])'))
-    const current = items.indexOf(document.activeElement)
+    const items = Array.from(el.querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])')) as HTMLElement[]
+    const current = items.indexOf(document.activeElement as HTMLElement)
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()

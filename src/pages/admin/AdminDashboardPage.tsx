@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
@@ -21,7 +20,7 @@ import { cn } from '@/lib/utils'
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.35, delay, ease: [0.22, 0.61, 0.36, 1] },
+  transition: { duration: 0.35, delay, ease: [0.22, 0.61, 0.36, 1] as any },
 })
 
 function useGreeting() {
@@ -103,8 +102,8 @@ function MaterialRow({ loan, now  }: any) {
 
   let progress = 0
   if (expected) {
-    const total = expected - pickup
-    const elapsed = now - pickup
+    const total = expected.getTime() - pickup.getTime()
+    const elapsed = now.getTime() - pickup.getTime()
     progress = Math.max(0, Math.min(100, (elapsed / total) * 100))
   }
 
@@ -213,7 +212,7 @@ export function AdminDashboardPage() {
     return [...activeLoans].sort((a, b) => {
       const da = a.expected_return_date ? new Date(a.expected_return_date) : new Date('2999-01-01')
       const db = b.expected_return_date ? new Date(b.expected_return_date) : new Date('2999-01-01')
-      return da - db
+      return da.getTime() - db.getTime()
     })
   }, [activeLoans])
 

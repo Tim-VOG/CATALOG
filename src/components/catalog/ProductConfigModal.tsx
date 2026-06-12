@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
 export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onClose  }: any) {
-  const [options, setOptions] = useState({
+  const [options, setOptions] = useState<any>({
     subscription: '',
     subscriptionType: 'call',
     apps: '',

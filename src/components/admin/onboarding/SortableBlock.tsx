@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -578,7 +577,7 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
                           onClick={() => {
                             const textarea = document.activeElement
                             if (textarea?.tagName === 'TEXTAREA') {
-                              const pos = textarea.selectionStart
+                              const pos = (textarea as any).selectionStart
                               const val = content || ''
                               const newVal = val.slice(0, pos) + `{{${v}}}` + val.slice(pos)
                               onContentChange(contentKey, newVal)

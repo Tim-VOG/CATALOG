@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -636,7 +635,7 @@ export function EquipmentRequestPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     requested_by: '',
     from_company: '',
     event_name: '',

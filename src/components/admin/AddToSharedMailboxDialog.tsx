@@ -31,7 +31,7 @@ export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }:
   const createMailbox = useCreateSharedMailbox()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     category: 'LEGER',
     licence: 'SHARED MAILBOX',
     created_in: 'AD',

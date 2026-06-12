@@ -188,8 +188,8 @@ export function AdminItFormBuilderPage() {
   const reorderFields = useReorderItFormFields()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [editDialog, setEditDialog] = useState(null) // null or field object
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [editDialog, setEditDialog] = useState<any>(null) // null or field object
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
   const [optionsText, setOptionsText] = useState('')
 
   const sensors = useSensors(

@@ -14,7 +14,7 @@ const formatDate = (s) => {
 
 export function CompactDateBar({ startDate, endDate, onChange  }: any) {
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const ref = useRef<any>(null)
 
   // Close on click outside
   useEffect(() => {

@@ -194,8 +194,8 @@ export function AdminMailboxFormBuilderPage() {
   const reorderFields = useReorderMailboxFormFields()
   const showToast = useUIStore((s) => s.showToast)
 
-  const [editDialog, setEditDialog] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [editDialog, setEditDialog] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
   const [optionsText, setOptionsText] = useState('')
 
   const sensors = useSensors(

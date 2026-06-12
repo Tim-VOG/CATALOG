@@ -371,7 +371,7 @@ function EditableCCEmails({ req, onSave  }: any) {
 function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: any) {
   const appName = settings?.app_name || 'VO Hub'
 
-  const [dbTemplate, setDbTemplate] = useState(null)
+  const [dbTemplate, setDbTemplate] = useState<any>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -637,8 +637,8 @@ export function AdminMailboxRequestsPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [search, setSearch] = useState('')
-  const [selectedId, setSelectedId] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [selectedId, setSelectedId] = useState<any>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
   const [sending, setSending] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
 

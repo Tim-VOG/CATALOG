@@ -19,9 +19,9 @@ function HeaderSearch() {
   const [isOpen, setIsOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
-  const inputRef = useRef(null)
-  const mobileInputRef = useRef(null)
-  const dropdownRef = useRef(null)
+  const inputRef = useRef<any>(null)
+  const mobileInputRef = useRef<any>(null)
+  const dropdownRef = useRef<any>(null)
   const navigate = useNavigate()
 
   const { results, hasResults } = useProductSearch(query)

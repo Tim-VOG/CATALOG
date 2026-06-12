@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 export function ProfileAutocomplete({ value, onChange, onSelect, placeholder  }: any) {
   const { data: profiles = [] } = useProfiles()
   const [open, setOpen] = useState(false)
-  const wrapperRef = useRef(null)
+  const wrapperRef = useRef<any>(null)
 
   // Close on outside click
   useEffect(() => {

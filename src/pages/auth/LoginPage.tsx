@@ -38,8 +38,8 @@ const MicrosoftIcon = () => (
 export function LoginPage() {
   const { user, signIn, signInWithMicrosoft } = useAuth()
   const { data: settings } = useAppSettings()
-  const [devLoading, setDevLoading] = useState(null)
-  const [devError, setDevError] = useState(null)
+  const [devLoading, setDevLoading] = useState<any>(null)
+  const [devError, setDevError] = useState<any>(null)
 
   // ── Force light mode on login page ──
   useEffect(() => {
@@ -62,7 +62,7 @@ export function LoginPage() {
       '--color-border': '#e2e8f0',
       '--color-input': '#e2e8f0',
     }
-    for (const [prop, value] of Object.entries(lightVars)) {
+    for (const [prop, value] of Object.entries(lightVars as Record<string, any>)) {
       root.style.setProperty(prop, value)
     }
 

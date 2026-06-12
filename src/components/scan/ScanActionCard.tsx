@@ -22,7 +22,7 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
   const [step, setStep] = useState('choose') // 'choose' | 'dates'
   const [pickupDate, setPickupDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [returnDate, setReturnDate] = useState('')
-  const [selectedDuration, setSelectedDuration] = useState(null)
+  const [selectedDuration, setSelectedDuration] = useState<any>(null)
 
   if (result) {
     return <ScanResult result={result} />

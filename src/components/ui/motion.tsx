@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import * as React from 'react'
 import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform, useScroll } from 'motion/react'
 import { cn } from '@/lib/utils'
@@ -108,7 +107,7 @@ function PageTransition({ children, className, direction = 'forward'  }: any) {
       initial={{ opacity: 0, y: yOffset, filter: 'blur(4px)' }}
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       exit={{ opacity: 0, y: -yOffset, filter: 'blur(4px)' }}
-      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as any }}
       className={className}
     >
       {children}
@@ -120,9 +119,9 @@ function PageTransition({ children, className, direction = 'forward'  }: any) {
 // Like FadeIn but viewport-triggered. For content below the fold.
 const ScrollFadeIn = React.forwardRef<any, any>(
   ({ children, className, delay = 0, duration = 0.4, y = 12, ...props }, ref) => {
-    const innerRef = React.useRef(null)
+    const innerRef = React.useRef<any>(null)
     const combinedRef = ref || innerRef
-    const isInView = useInView(combinedRef, { once: true, margin: '-60px' })
+    const isInView = useInView(combinedRef as any, { once: true, margin: '-60px' as any })
     return (
       <motion.div
         ref={combinedRef}
@@ -162,9 +161,9 @@ const ScrollReveal = React.forwardRef<any, any>(
     margin = '-80px',
     ...props
   }, ref) => {
-    const innerRef = React.useRef(null)
+    const innerRef = React.useRef<any>(null)
     const combinedRef = ref || innerRef
-    const isInView = useInView(combinedRef, { once, margin })
+    const isInView = useInView(combinedRef as any, { once, margin: margin as any })
 
     const directionOffset = REVEAL_DIRECTIONS[direction] || REVEAL_DIRECTIONS.up
     const initialState = {
@@ -186,7 +185,7 @@ const ScrollReveal = React.forwardRef<any, any>(
         transition={{
           duration,
           delay,
-          ease: [0.25, 0.46, 0.45, 0.94],
+          ease: [0.25, 0.46, 0.45, 0.94] as any,
         }}
         className={className}
         {...props}
@@ -209,8 +208,8 @@ function StaggerReveal({
   margin = '-60px',
   ...props
 }) {
-  const ref = React.useRef(null)
-  const isInView = useInView(ref, { once: true, margin })
+  const ref = React.useRef<any>(null)
+  const isInView = useInView(ref, { once: true, margin: margin as any })
 
   const dirOffset = REVEAL_DIRECTIONS[direction] || REVEAL_DIRECTIONS.up
 
@@ -236,7 +235,7 @@ function StaggerReveal({
                 opacity: 1,
                 x: 0,
                 y: 0,
-                transition: { duration, ease: [0.25, 0.46, 0.45, 0.94] },
+                transition: { duration, ease: [0.25, 0.46, 0.45, 0.94] as any },
               },
             }}
           >
@@ -251,7 +250,7 @@ function StaggerReveal({
 // ── ParallaxLayer ────────────────────────────────────────
 // Scroll-linked parallax effect. speed < 1 = slower, > 1 = faster.
 function ParallaxLayer({ children, className, speed = 0.5, ...props  }: any) {
-  const ref = React.useRef(null)
+  const ref = React.useRef<any>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
@@ -269,7 +268,7 @@ function ParallaxLayer({ children, className, speed = 0.5, ...props  }: any) {
 // ── Magnetic ─────────────────────────────────────────────
 // Wrapper that subtly follows cursor on hover. For buttons, icons.
 function Magnetic({ children, className, strength = 0.3, ...props  }: any) {
-  const ref = React.useRef(null)
+  const ref = React.useRef<any>(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -316,7 +315,7 @@ function CountUp({
   separator = ',',
   decimals = 0,
 }) {
-  const ref = React.useRef(null)
+  const ref = React.useRef<any>(null)
   const isInView = useInView(ref, { once: true, margin: '-40px' })
   const motionValue = useMotionValue(0)
   const springValue = useSpring(motionValue, { duration: duration * 1000 })
@@ -344,7 +343,7 @@ function CountUp({
 // ── TextReveal ───────────────────────────────────────────
 // Text that reveals word by word on scroll.
 function TextReveal({ text, className, stagger = 0.04, ...props  }: any) {
-  const ref = React.useRef(null)
+  const ref = React.useRef<any>(null)
   const isInView = useInView(ref, { once: true, margin: '-60px' })
 
   const words = text.split(' ')
@@ -368,7 +367,7 @@ function TextReveal({ text, className, stagger = 0.04, ...props  }: any) {
               opacity: 1,
               y: 0,
               filter: 'blur(0px)',
-              transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+              transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as any },
             },
           }}
         >
@@ -440,7 +439,7 @@ PressScale.displayName = 'PressScale'
 // creating a cascading wave effect — like iOS UIAttachmentBehavior with
 // varying attachment strengths. Items spring into view with natural physics.
 function DynamicsItem({ children, className, index = 0, once = true, ...props  }: any) {
-  const ref = React.useRef(null)
+  const ref = React.useRef<any>(null)
   const isInView = useInView(ref, { once, margin: '50px 0px -60px 0px' })
 
   // Per-item spring variation — mimics UIDynamics spring attachment behavior

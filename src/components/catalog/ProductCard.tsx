@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { Check, ShoppingCart, CreditCard, Clock, Plus, Heart } from 'lucide-react'
@@ -25,7 +24,7 @@ const CATEGORY_CONFIG = {
 function getCategoryConfig(categoryName) {
   if (!categoryName) return null
   const lower = categoryName.toLowerCase()
-  for (const [, config] of Object.entries(CATEGORY_CONFIG)) {
+  for (const [, config] of Object.entries(CATEGORY_CONFIG as Record<string, any>)) {
     if (config.match.some((m) => lower.includes(m))) return config
   }
   return null
@@ -38,7 +37,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   const { data: allPlans = [] } = useSubscriptionPlans()
   const config = getCategoryConfig(product.category_name)
   const [selectedPlan, setSelectedPlan] = useState('')
-  const [accessories, setAccessories] = useState([])
+  const [accessories, setAccessories] = useState<any[]>([])
   const plans = config ? allPlans.filter((p) => config.planTypes.includes(p.type)) : allPlans
   const availableAccessories = config?.accessories || []
   const toggleAcc = (a) => setAccessories((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a])
@@ -84,7 +83,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
         </div>
         <div className="px-6 py-4 border-t bg-muted/20 flex gap-3">
           <Button variant="outline" onClick={() => onConfirm({})} className="flex-1">Skip</Button>
-          <Button onClick={() => { const o = { services: {}, accessories }; if (selectedPlan) o.services.subscription_plan = selectedPlan; onConfirm(o) }} className="flex-1 gap-2"><ShoppingCart className="h-4 w-4" /> Add</Button>
+          <Button onClick={() => { const o: any = { services: {}, accessories }; if (selectedPlan) o.services.subscription_plan = selectedPlan; onConfirm(o) }} className="flex-1 gap-2"><ShoppingCart className="h-4 w-4" /> Add</Button>
         </div>
       </DialogContent>
     </Dialog>

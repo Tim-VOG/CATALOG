@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests, useUpdateLoanRequest } from '@/hooks/use-loan-requests'
@@ -125,7 +124,7 @@ function RequestDataRows({ request  }: any) {
         ['Return date', formatDate(request.return_date)],
         ['Notes', request.notes],
       ]
-    : Object.entries(data)
+    : Object.entries(data as Record<string, any>)
         .filter(([k, v]) => v !== '' && v !== null && v !== undefined && k !== 'submitted_at' && k !== 'terms_accepted')
         .map(([k, v]) => [
           k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
@@ -199,7 +198,7 @@ export function MyRequestsPage() {
   // freshest row from allRequests on every render — otherwise saving a
   // note would leave the local `detail` snapshot stale and the UI wouldn't
   // reflect what's already persisted.
-  const [selectedKey, setSelectedKey] = useState(null)
+  const [selectedKey, setSelectedKey] = useState<any>(null)
   const [noteDraft, setNoteDraft] = useState('')
   const [noteSaving, setNoteSaving] = useState(false)
 
@@ -217,7 +216,7 @@ export function MyRequestsPage() {
     for (const r of loanRequests) items.push({ ...r, _type: 'equipment' })
     for (const r of itRequests) items.push({ ...r, _type: r.type || 'onboarding' })
     for (const r of mailboxRequests) items.push({ ...r, _type: 'mailbox' })
-    items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     return items
   }, [loanRequests, itRequests, mailboxRequests])
 

@@ -46,9 +46,9 @@ export function WelcomeRequestsPage() {
 
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('todo') // todo | sent
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = useState<any>(null)
   const [personalEmail, setPersonalEmail] = useState('')
-  const [recipientForCompose, setRecipientForCompose] = useState(null)
+  const [recipientForCompose, setRecipientForCompose] = useState<any>(null)
   const [preparing, setPreparing] = useState(false)
 
   const onboardingRequests = useMemo(

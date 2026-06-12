@@ -47,7 +47,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
   const createInvitation = useCreateInvitation()
   const updateInvitation = useUpdateInvitation()
   const showToast = useUIStore((s) => s.showToast)
-  const bodyRef = useRef(null)
+  const bodyRef = useRef<any>(null)
 
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -147,16 +147,16 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
     const textarea = bodyRef.current
     if (!textarea) return
     const tag = `{{${varKey}}}`
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
+    const start = (textarea as any).selectionStart
+    const end = (textarea as any).selectionEnd
     const before = emailBody.substring(0, start)
     const after = emailBody.substring(end)
     setEmailBody(before + tag + after)
     // Restore cursor after the inserted variable
     requestAnimationFrame(() => {
-      textarea.focus()
+      ;(textarea as any).focus()
       const newPos = start + tag.length
-      textarea.setSelectionRange(newPos, newPos)
+      ;(textarea as any).setSelectionRange(newPos, newPos)
     })
   }
 

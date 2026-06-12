@@ -34,8 +34,8 @@ export function AdminSubscriptionPlansPage() {
   const showToast = useUIStore((s) => s.showToast)
 
   const [showDialog, setShowDialog] = useState(false)
-  const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState({ name: '', type: 'call', price: '', description: '' })
+  const [editing, setEditing] = useState<any>(null)
+  const [form, setForm] = useState<any>({ name: '', type: 'call', price: '', description: '' })
 
   const openCreate = () => {
     setEditing(null)

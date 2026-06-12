@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -640,7 +639,7 @@ export function OnboardingRequestPage() {
     } catch { return null }
   })()
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     // Identity
     first_name: '',
     last_name: '',
