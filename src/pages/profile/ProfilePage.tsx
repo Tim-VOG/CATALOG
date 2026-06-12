@@ -19,6 +19,7 @@ import { motion } from 'motion/react'
 import { AnimatedCounter } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
 import { UserEquipmentPanel } from '@/components/common/UserEquipmentPanel'
+import { ActivityTimeline } from '@/components/common/ActivityTimeline'
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -230,6 +231,9 @@ export function ProfilePage() {
 
       {/* My equipment, QR codes, history */}
       {user?.id && <UserEquipmentPanel userId={user.id} />}
+
+      {/* Full chronological activity feed (requests + pickups/returns) */}
+      {user?.id && <ActivityTimeline userId={user.id} />}
 
       {/* Appearance */}
       <Card>

@@ -8,6 +8,7 @@ import { UserAvatar } from '@/components/common/UserAvatar'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { UserEquipmentPanel } from '@/components/common/UserEquipmentPanel'
+import { ActivityTimeline } from '@/components/common/ActivityTimeline'
 import { UserFmbPanel } from '@/components/common/UserFmbPanel'
 
 const fmtDate = (d) =>
@@ -118,6 +119,7 @@ export function AdminUserDetailPage() {
 
       <UserFmbPanel user={profile} />
       <UserEquipmentPanel userId={userId} />
+      {userId && <ActivityTimeline userId={userId} />}
     </div>
   )
 }

@@ -107,6 +107,13 @@ export const useScanLogsForProduct = (productId: any) =>
     enabled: !!productId,
   })
 
+export const useScanLogsForUser = (userId: any) =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'user', userId],
+    queryFn: () => api.getScanLogsForUser(userId),
+    enabled: !!userId,
+  })
+
 export const useOverdueScans = () =>
   useQuery({
     queryKey: ['qr-scan-logs', 'overdue'],

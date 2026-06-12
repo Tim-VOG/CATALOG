@@ -200,6 +200,19 @@ export const getScanLogs = async ({ search, action, limit = 100 }: any = {}) => 
   return data
 }
 
+// Pick-up / return history for one user — feeds the profile activity feed.
+export const getScanLogsForUser = async (userId: any, limit = 50) => {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data || []
+}
+
 export const getScanLogsForProduct = async (productId: any) => {
   const { data, error } = await supabase
     .from('qr_scan_logs_with_details')
