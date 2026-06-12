@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Mail, Phone, Briefcase, Building2, Shield, CalendarDays, MapPin, IdCard, User as UserIcon } from 'lucide-react'
-import { useProfile } from '@/hooks/use-profiles'
+import { ArrowLeft, Mail, Phone, Briefcase, Building2, Shield, CalendarDays, MapPin, IdCard, User as UserIcon, UserMinus } from 'lucide-react'
+import { useProfile, useUpdateProfile } from '@/hooks/use-profiles'
+import { useUIStore } from '@/stores/ui-store'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/common/UserAvatar'
@@ -46,6 +49,23 @@ export function AdminUserDetailPage() {
   const { userId } = useParams()
   const navigate = useNavigate()
   const { data: profile, isLoading } = useProfile(userId)
+  const updateProfile = useUpdateProfile()
+  const showToast = useUIStore((s) => s.showToast)
+  const [departureDate, setDepartureDate] = useState('')
+
+  useEffect(() => {
+    setDepartureDate((profile as any)?.departure_date || '')
+  }, [profile])
+
+  const saveDeparture = async (value: string) => {
+    if (!userId) return
+    try {
+      await updateProfile.mutateAsync({ userId, departure_date: value || null } as any)
+      showToast(value ? 'Departure date saved — offboarding will auto-create 7 days before' : 'Departure date cleared', 'success')
+    } catch (err: any) {
+      showToast(err?.message || 'Could not save', 'error')
+    }
+  }
 
   if (isLoading) return <PageLoading />
   if (!profile) {
@@ -113,6 +133,33 @@ export function AdminUserDetailPage() {
             <Prop icon={CalendarDays} label="Date Out" value={fmtDate(profile.leaving_date)} />
             <Prop icon={CalendarDays} label="Birthday" value={fmtDate(profile.birthday)} />
             <Prop icon={CalendarDays} label="Joined VO Hub" value={fmtDate(profile.created_at)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Departure → auto-offboarding */}
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <UserMinus className="h-4 w-4 text-rose-500" />
+            <p className="text-sm font-medium">Departure</p>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            Set the last working day. An offboarding request is auto-created 7 days before it,
+            so equipment recovery + access revocation never slip.
+          </p>
+          <div className="flex items-center gap-2 max-w-xs">
+            <Input
+              type="date"
+              value={departureDate}
+              onChange={(e) => setDepartureDate(e.target.value)}
+              onBlur={(e) => { if (e.target.value !== ((profile as any)?.departure_date || '')) saveDeparture(e.target.value) }}
+            />
+            {departureDate && (
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => { setDepartureDate(''); saveDeparture('') }}>
+                Clear
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -11,6 +11,7 @@ import { useProducts } from '@/hooks/use-products'
 import { useQRCodes, useOverdueScans, useActiveLoans, useScanLogs } from '@/hooks/use-qr-codes'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { checkAndSendReturnReminders } from '@/services/return-reminder-service'
+import { runDailyMaintenance } from '@/services/daily-maintenance'
 import {
   ArrowRight, AlertTriangle, ScanLine, PackageCheck,
   Inbox, TrendingDown, Clock, UserPlus, Mail, Box, ChevronRight,
@@ -199,7 +200,7 @@ export function AdminDashboardPage() {
   const { data: sharedMailboxes = [] } = useSharedMailboxes()
   const { data: deviceCredentials = [] } = useDeviceCredentials()
 
-  useEffect(() => { checkAndSendReturnReminders() }, [])
+  useEffect(() => { checkAndSendReturnReminders(); runDailyMaintenance() }, [])
 
   const handleExportExcel = () => {
     exportInventoryWorkbook({
