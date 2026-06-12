@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 // Vitest global setup — minimal jsdom polyfills the app expects
 import { vi } from 'vitest'
 
@@ -11,32 +10,35 @@ if (typeof import.meta.env !== 'undefined') {
 }
 
 if (!globalThis.localStorage) {
-  const store = new Map()
-  globalThis.localStorage = {
-    getItem: (k) => (store.has(k) ? store.get(k) : null),
-    setItem: (k, v) => store.set(k, String(v)),
-    removeItem: (k) => store.delete(k),
+  const store = new Map<string, string>()
+  ;(globalThis as any).localStorage = {
+    getItem: (k: string) => (store.has(k) ? store.get(k)! : null),
+    setItem: (k: string, v: string) => store.set(k, String(v)),
+    removeItem: (k: string) => store.delete(k),
     clear: () => store.clear(),
-    key: (i) => Array.from(store.keys())[i] || null,
+    key: (i: number) => Array.from(store.keys())[i] || null,
     get length() { return store.size },
   }
 }
 
 // matchMedia stub for components reacting to viewport
 if (!globalThis.matchMedia) {
-  globalThis.matchMedia = () => ({
+  ;(globalThis as any).matchMedia = () => ({
     matches: false,
+    media: '',
+    onchange: null,
     addListener: () => {},
     removeListener: () => {},
     addEventListener: () => {},
     removeEventListener: () => {},
+    dispatchEvent: () => false,
   })
 }
 
 // crypto.randomUUID polyfill (some test envs miss it)
 if (!globalThis.crypto?.randomUUID) {
-  globalThis.crypto = globalThis.crypto || {}
-  globalThis.crypto.randomUUID = () =>
+  ;(globalThis as any).crypto = globalThis.crypto || {}
+  ;(globalThis as any).crypto.randomUUID = () =>
     'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0
       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
