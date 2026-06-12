@@ -16,7 +16,11 @@ export async function createNotification(userId, title, message, type = 'status_
 export const STATUS_TRANSITIONS = {
   pending: ['in_progress'],
   in_progress: ['ready'],
-  ready: [],
+  // 'ready' = ready for pickup. Once the gear comes back, the admin
+  // marks it 'returned' — a real terminal state, distinct from
+  // "ready for pickup".
+  ready: ['returned'],
+  returned: [],
 }
 
 export function getAvailableTransitions(currentStatus) {
@@ -228,11 +232,14 @@ export const formatDateTime = (d) =>
 
 export function buildTimeline(request) {
   const events = [{ label: 'Submitted', date: request.created_at }]
-  if (request.status === 'in_progress' || request.status === 'ready') {
+  if (['in_progress', 'ready', 'returned'].includes(request.status)) {
     events.push({ label: 'In Progress', date: request.updated_at })
   }
-  if (request.status === 'ready') {
+  if (['ready', 'returned'].includes(request.status)) {
     events.push({ label: 'Ready', date: request.updated_at })
+  }
+  if (request.status === 'returned') {
+    events.push({ label: 'Returned', date: request.updated_at })
   }
   return events
 }

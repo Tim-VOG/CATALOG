@@ -6,10 +6,11 @@ import {
 } from './request-status-service'
 
 describe('STATUS_TRANSITIONS', () => {
-  it('is a forward-only graph: pending → in_progress → ready', () => {
+  it('is a forward-only graph: pending → in_progress → ready → returned', () => {
     expect(STATUS_TRANSITIONS.pending).toEqual(['in_progress'])
     expect(STATUS_TRANSITIONS.in_progress).toEqual(['ready'])
-    expect(STATUS_TRANSITIONS.ready).toEqual([])
+    expect(STATUS_TRANSITIONS.ready).toEqual(['returned'])
+    expect(STATUS_TRANSITIONS.returned).toEqual([])
   })
 })
 
@@ -17,10 +18,11 @@ describe('getAvailableTransitions', () => {
   it('returns the configured next-states for known statuses', () => {
     expect(getAvailableTransitions('pending')).toEqual(['in_progress'])
     expect(getAvailableTransitions('in_progress')).toEqual(['ready'])
+    expect(getAvailableTransitions('ready')).toEqual(['returned'])
   })
 
   it('returns an empty array for terminal statuses', () => {
-    expect(getAvailableTransitions('ready')).toEqual([])
+    expect(getAvailableTransitions('returned')).toEqual([])
   })
 
   it('returns an empty array for unknown statuses (no crash)', () => {
@@ -49,5 +51,10 @@ describe('buildTimeline', () => {
   it('appends both "In Progress" and "Ready" when status is ready', () => {
     const events = buildTimeline({ status: 'ready', created_at: t0, updated_at: t1 })
     expect(events.map((e) => e.label)).toEqual(['Submitted', 'In Progress', 'Ready'])
+  })
+
+  it('appends "Returned" as the final event when status is returned', () => {
+    const events = buildTimeline({ status: 'returned', created_at: t0, updated_at: t1 })
+    expect(events.map((e) => e.label)).toEqual(['Submitted', 'In Progress', 'Ready', 'Returned'])
   })
 })

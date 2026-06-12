@@ -20,6 +20,7 @@ const STATUS_FILTERS = [
   { value: 'pending', label: 'Pending' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'ready', label: 'Ready' },
+  { value: 'returned', label: 'Returned' },
 ]
 
 export function AdminRequestsPage() {

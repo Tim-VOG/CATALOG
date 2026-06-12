@@ -326,8 +326,18 @@ export function AdminRequestDetailPage() {
             </div>
           )}
           {request.status === 'ready' && (
-            <div className="flex items-center gap-2 text-sm text-emerald-500 font-medium">
-              <Check className="h-4 w-4" /> Completed
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2 text-sm text-emerald-500 font-medium">
+                <Check className="h-4 w-4" /> Ready for pickup
+              </span>
+              <Button variant="outline" className="gap-2" onClick={() => handleStatusUpdate('returned')}>
+                <Check className="h-4 w-4" /> Mark returned
+              </Button>
+            </div>
+          )}
+          {request.status === 'returned' && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+              <Check className="h-4 w-4" /> Returned
             </div>
           )}
         </div>
