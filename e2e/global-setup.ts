@@ -59,6 +59,13 @@ export default async function globalSetup() {
         origin,
         localStorage: [
           { name: storageKey, value: JSON.stringify(data.session) },
+          // RequireAdmin gate — accept the PIN as already verified for
+          // the next 4 h (matching its expiry constant). Without this
+          // every admin route gets intercepted by the unlock form.
+          {
+            name: 'vo-admin-pin-verified',
+            value: JSON.stringify({ timestamp: Date.now() }),
+          },
         ],
       },
     ],
