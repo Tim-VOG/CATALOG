@@ -12,10 +12,12 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
 import { useTheme, useThemeMode, useSyncThemeFromProfile } from '@/hooks/use-theme'
+import { useRealtimeSync } from '@/hooks/use-realtime-sync'
 
 export function AppLayout() {
   useTheme()
   useSyncThemeFromProfile()
+  useRealtimeSync()
   const location = useLocation()
   const themeMode = useThemeMode()
   const prevPath = useRef(location.pathname)
