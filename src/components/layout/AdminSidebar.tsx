@@ -5,7 +5,7 @@ import {
   Users, Palette, Mail, ArrowLeft,
   UserPlus, UserMinus, Monitor, BarChart3,
   QrCode, ScrollText, CalendarRange,
-  ChevronRight, CreditCard, KeyRound,
+  ChevronRight, CreditCard, KeyRound, ShieldCheck,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -88,6 +88,7 @@ export function AdminSidebar() {
         { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
         { to: '/admin/email-templates', label: 'Communications', icon: Mail },
         { to: '/admin/design', label: 'Design & Branding', icon: Palette },
+        { to: '/admin/audit', label: 'Audit Log', icon: ShieldCheck },
       ],
     },
   ]

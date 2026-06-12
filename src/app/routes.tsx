@@ -62,6 +62,7 @@ const AdminQRCodesPage = lazy(() => import('@/pages/admin/AdminQRCodesPage').the
 const AdminLocalITPage = lazy(() => import('@/pages/admin/AdminLocalITPage').then((m) => ({ default: m.AdminLocalITPage })))
 const AdminStatsPage = lazy(() => import('@/pages/admin/AdminStatsPage').then((m) => ({ default: m.AdminStatsPage })))
 const AdminScanLogsPage = lazy(() => import('@/pages/admin/AdminScanLogsPage').then((m) => ({ default: m.AdminScanLogsPage })))
+const AdminAuditLogPage = lazy(() => import('@/pages/admin/AdminAuditLogPage').then((m) => ({ default: m.AdminAuditLogPage })))
 
 export function AppRoutes() {
   return (
@@ -150,6 +151,7 @@ export function AppRoutes() {
             <Route path="it-inventory" element={<AdminOnly><AdminItInventoryPage /></AdminOnly>} />
             <Route path="qr-codes" element={<AdminOnly><AdminQRCodesPage /></AdminOnly>} />
             <Route path="scan-logs" element={<AdminOnly><AdminScanLogsPage /></AdminOnly>} />
+            <Route path="audit" element={<AdminOnly><AdminAuditLogPage /></AdminOnly>} />
             <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
           </Route>
         </Route>
