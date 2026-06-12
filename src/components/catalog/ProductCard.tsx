@@ -90,9 +90,12 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   )
 }
 
-export function ProductCard({ product  }: any) {
-  const available = product.total_stock
+export function ProductCard({ product, forecast }: any) {
+  // Prefer the live available count (from QR statuses) when provided;
+  // fall back to total_stock so the card still works without it.
+  const available = forecast?.available ?? product.total_stock
   const outOfStock = available <= 0
+  const nextReturn = forecast?.nextReturn || null
   const { data: cartItems = [] } = useCart()
   const addToCart = useAddToCart()
   const showToast = useUIStore((s) => s.showToast)
@@ -118,6 +121,11 @@ export function ProductCard({ product  }: any) {
 
   const restockLabel = outOfStock && product.restock_date
     ? format(new Date(product.restock_date + 'T12:00:00'), 'MMM d, yyyy')
+    : null
+
+  // "Comeback soon": fully out but a unit is due back on `nextReturn`.
+  const comebackLabel = outOfStock && !restockLabel && nextReturn
+    ? format(new Date(nextReturn + 'T12:00:00'), 'MMM d, yyyy')
     : null
 
   const isNew = product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 24 * 60 * 60 * 1000
@@ -150,8 +158,15 @@ export function ProductCard({ product  }: any) {
           />
           {outOfStock && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/60 backdrop-blur-sm">
-              <span className="text-xs font-bold text-foreground bg-background/90 px-4 py-1.5 rounded-full border shadow-sm">Coming soon</span>
-              {restockLabel && <span className="mt-2 text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />{restockLabel}</span>}
+              <span className="text-xs font-bold text-foreground bg-background/90 px-4 py-1.5 rounded-full border shadow-sm">
+                {comebackLabel ? 'Back soon' : 'Coming soon'}
+              </span>
+              {(restockLabel || comebackLabel) && (
+                <span className="mt-2 text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {comebackLabel ? `Available from ${comebackLabel}` : restockLabel}
+                </span>
+              )}
             </div>
           )}
           {/* Favorite heart */}

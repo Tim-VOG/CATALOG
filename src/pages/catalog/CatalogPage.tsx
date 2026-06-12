@@ -3,6 +3,7 @@ import { motion } from 'motion/react'
 import { useProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
 import { useCart } from '@/hooks/use-cart'
+import { useQRCodes } from '@/hooks/use-qr-codes'
 import { useAuth } from '@/lib/auth'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { ScrollFadeIn } from '@/components/ui/motion'
@@ -66,7 +67,24 @@ export function CatalogPage() {
   const products = productsQuery.data || []
   const { data: categories = [] } = useCategories()
   const { data: cartItems = [] } = useCart()
+  const { data: qrCodes = [] } = useQRCodes()
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+
+  // Per-product live availability + earliest return date for the
+  // "back soon" forecast. Built from real QR statuses, not total_stock.
+  const forecastByProduct = useMemo(() => {
+    const map: Record<string, { available: number; nextReturn: string | null }> = {}
+    for (const qr of qrCodes as any[]) {
+      if (!qr.product_id) continue
+      const e = map[qr.product_id] || (map[qr.product_id] = { available: 0, nextReturn: null })
+      if ((qr.status || 'available') === 'available') {
+        e.available++
+      } else if (qr.status === 'assigned' && qr.expected_return_date) {
+        if (!e.nextReturn || qr.expected_return_date < e.nextReturn) e.nextReturn = qr.expected_return_date
+      }
+    }
+    return map
+  }, [qrCodes])
 
   const categoryCounts = useMemo(() => {
     const counts = { All: products.length }
@@ -247,7 +265,7 @@ export function CatalogPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {filtered.map((product, i) => (
             <ScrollFadeIn key={product.id} delay={i * 0.03}>
-              <ProductCard product={product} />
+              <ProductCard product={product} forecast={forecastByProduct[product.id]} />
             </ScrollFadeIn>
           ))}
         </div>
