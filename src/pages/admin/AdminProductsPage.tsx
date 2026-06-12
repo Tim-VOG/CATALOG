@@ -22,6 +22,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { ScrollFadeIn } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { NO_IMAGE_PLACEHOLDER } from '@/lib/image-placeholder'
 import { cn } from '@/lib/utils'
 
 function generateQRCode(prefix = 'VO') {
@@ -280,7 +281,7 @@ export function AdminProductsPage() {
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                     <BlurImage
-                      src={p.image_url || 'https://via.placeholder.com/400x300?text=No+Image'}
+                      src={p.image_url || NO_IMAGE_PLACEHOLDER}
                       alt={p.name}
                       className="transition-transform duration-300 group-hover:scale-105"
                     />

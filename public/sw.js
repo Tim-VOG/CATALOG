@@ -1,6 +1,27 @@
 // VO Hub service worker — bumps with every deploy to bust stale caches.
-const CACHE_NAME = 'vo-hub-v2'
+// Bumped to v3: harder guarantees that respondWith() never resolves to
+// undefined (the bug that froze the screen when a navigation request
+// failed and the cache was empty).
+const CACHE_NAME = 'vo-hub-v3'
 const CORE = ['/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg']
+
+// Tiny offline shell: a real HTML Response so respondWith() never
+// returns undefined on a failed navigation. Auto-reloads when the
+// network comes back so the user doesn't have to do it manually.
+const OFFLINE_SHELL = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>VO Hub — Offline</title>
+<style>body{font-family:system-ui,sans-serif;margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#0f1419;color:#f1f5f9;text-align:center;padding:24px}
+.card{max-width:380px}h1{font-size:18px;margin:0 0 8px}p{font-size:13px;color:#94a3b8;margin:0 0 16px}
+button{background:#f97316;color:#fff;border:0;padding:10px 18px;border-radius:8px;font-weight:600;cursor:pointer}</style>
+</head><body><div class="card"><h1>VO Hub is offline</h1>
+<p>Your browser couldn't reach the server. We'll reconnect automatically when the network is back.</p>
+<button onclick="location.reload()">Retry now</button></div>
+<script>
+addEventListener('online', () => location.reload());
+setTimeout(() => fetch('/').then((r) => { if (r.ok) location.reload() }).catch(() => {}), 3000);
+</script></body></html>`
+
+const offlineResponse = () =>
+  new Response(OFFLINE_SHELL, { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -35,7 +56,6 @@ self.addEventListener('notificationclick', (event) => {
   const url = event.notification.data?.url || '/'
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      // Focus an existing tab if one is open, else open a new one.
       for (const client of clients) {
         if ('focus' in client) { client.navigate(url); return client.focus() }
       }
@@ -58,39 +78,59 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return
   const url = new URL(req.url)
 
-  // Cross-origin (Supabase / Resend / etc.) — let the browser handle it
+  // Cross-origin (Supabase / Resend / etc.) — let the browser handle it.
   if (url.origin !== location.origin) return
 
-  // Hashed Vite chunks — always fresh from network
+  // Hashed Vite chunks — always fresh from network, no caching.
   if (url.pathname.startsWith('/assets/')) return
 
-  // API routes — never cache
+  // API routes — never cache.
   if (url.pathname.startsWith('/api/')) return
 
-  // Navigation requests (the user typing a URL or refreshing) MUST go to the
-  // network so we never serve a stale index.html after a deploy. The deploy
-  // re-hashes /assets/*.js filenames; a cached index.html still references
-  // the old hashes and we'd 404 those chunks → blank page until 2nd refresh.
+  // Navigation requests: network first, fall back to cached / on offline,
+  // and as a last resort the offline shell. We MUST always resolve to a
+  // Response so the browser never gets "Failed to convert value to
+  // 'Response'" (which manifests as a frozen white page).
   if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).catch(() =>
-        caches.match(req).then((c) => c || caches.match('/'))
-      )
-    )
+    event.respondWith((async () => {
+      try {
+        return await fetch(req)
+      } catch {
+        const cached = await caches.match(req)
+        if (cached) return cached
+        const root = await caches.match('/')
+        if (root) return root
+        return offlineResponse()
+      }
+    })())
     return
   }
 
-  // Static assets (icons, favicon, manifest): stale-while-revalidate
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req).then((res) => {
+  // Static assets (icons, favicon, manifest): stale-while-revalidate,
+  // with a guaranteed Response on every path.
+  event.respondWith((async () => {
+    const cached = await caches.match(req)
+    if (cached) {
+      // Refresh in the background, ignore failures.
+      fetch(req).then((res) => {
         if (res && res.status === 200) {
           const clone = res.clone()
           caches.open(CACHE_NAME).then((c) => c.put(req, clone))
         }
-        return res
-      }).catch(() => cached)
-      return cached || network
-    })
-  )
+      }).catch(() => {})
+      return cached
+    }
+    try {
+      const res = await fetch(req)
+      if (res && res.status === 200) {
+        const clone = res.clone()
+        caches.open(CACHE_NAME).then((c) => c.put(req, clone))
+      }
+      return res
+    } catch {
+      // Asset not in cache and the network is down. Return a 504
+      // instead of leaving the promise unresolved.
+      return new Response('Offline', { status: 504, statusText: 'Offline' })
+    }
+  })())
 })

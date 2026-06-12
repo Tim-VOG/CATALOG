@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { BlurImage } from '@/components/common/BlurImage'
+import { NO_IMAGE_PLACEHOLDER } from '@/lib/image-placeholder'
 import { useCart, useAddToCart } from '@/hooks/use-cart'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import { useUIStore } from '@/stores/ui-store'
@@ -152,7 +153,7 @@ export function ProductCard({ product, forecast }: any) {
         {/* Image */}
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted/50 to-muted">
           <BlurImage
-            src={product.image_url || 'https://via.placeholder.com/400?text=No+Image'}
+            src={product.image_url || NO_IMAGE_PLACEHOLDER}
             alt={product.name}
             className={cn('transition-transform duration-500', !outOfStock && 'group-hover:scale-110')}
           />
