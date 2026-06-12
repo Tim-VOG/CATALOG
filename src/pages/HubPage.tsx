@@ -120,6 +120,12 @@ export function HubPage() {
       description="Browse and request IT equipment for events or projects."
       color="primary" buttonLabel="Open Catalog" />
   )
+  cards.push(
+    <HubCard key="my-equipment" to="/my-equipment" icon={Package}
+      title="My equipment"
+      description="The devices currently in your hands — due dates, returns, problems."
+      color="emerald" buttonLabel="View my devices" />
+  )
   if (isAdmin) {
     cards.push(
       <HubCard key="scan" to="/scan" icon={QrCode}

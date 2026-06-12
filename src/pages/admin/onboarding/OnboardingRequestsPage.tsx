@@ -15,6 +15,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { reserveOnboardingKit } from '@/lib/api/onboarding-kit'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { WelcomeEmailSection } from '@/pages/admin/welcome/WelcomeEmailSection'
 
@@ -102,6 +103,24 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
 function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: any) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
+  const showToast = useUIStore((s) => s.showToast)
+  const [reserving, setReserving] = useState(false)
+
+  const handleReserveKit = async () => {
+    setReserving(true)
+    try {
+      const out = await reserveOnboardingKit(req)
+      const productNames = out.reserved.map((r) => r.product_name).join(', ')
+      showToast(`Kit reserved: ${productNames}`, 'success')
+      if (out.missing.length) {
+        showToast(`Missing in catalog: ${out.missing.map((m) => m.tag).join(', ')}`, 'info')
+      }
+    } catch (err: any) {
+      showToast(err?.message || 'Could not reserve the kit', 'error')
+    } finally {
+      setReserving(false)
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -119,6 +138,20 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
       </div>
 
       <OnboardingRequestInfoCard req={req} sentEmail={sentEmail} />
+
+      {(req.status === 'in_progress' || req.status === 'ready') && (
+        <Card variant="elevated">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Package className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">
+              Reserve the starter kit (laptop + charger). Phone stays manual.
+            </span>
+            <Button variant="outline" size="sm" onClick={handleReserveKit} disabled={reserving} className="gap-1.5 text-xs">
+              <Package className="h-3.5 w-3.5" /> {reserving ? 'Reserving…' : 'Reserve kit'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {req.status === 'pending' && (
         <Card variant="elevated">
