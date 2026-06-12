@@ -10,7 +10,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test/setup.js'],
+    setupFiles: ['./src/test/setup.ts'],
     css: false,
     // Vitest only owns *.test.* under src/. The Playwright suite
     // lives in e2e/ with *.spec.ts files and is driven by a
