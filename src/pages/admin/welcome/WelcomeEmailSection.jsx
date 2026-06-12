@@ -1,12 +1,18 @@
-import { useState, useMemo } from 'react'
-import { AtSign, CheckCircle, Send } from 'lucide-react'
+import { lazy, Suspense, useState, useMemo } from 'react'
+import { AtSign, CheckCircle, Send, Loader2 } from 'lucide-react'
 import { useOnboardingRecipients, useCreateRecipient, useUpdateRecipient } from '@/hooks/use-onboarding'
 import { useUIStore } from '@/stores/ui-store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
-import { WelcomeComposer } from './WelcomeComposer'
+
+// Lazy-load the composer: it pulls in the BlockEditor + mjml-browser
+// (700 kB+) which only matter once the admin actually clicks "Open
+// composer". Keeps the onboarding requests list snappy.
+const WelcomeComposer = lazy(() =>
+  import('./WelcomeComposer').then((m) => ({ default: m.WelcomeComposer }))
+)
 
 function requestToRecipient(req, personalEmail) {
   const data = req.data || {}
@@ -61,12 +67,21 @@ export function WelcomeEmailSection({ req, sentEmail, onSent }) {
 
   if (recipientForCompose) {
     return (
-      <WelcomeComposer
-        recipient={recipientForCompose}
-        requestId={req.id}
-        onSent={() => { setRecipientForCompose(null); onSent?.() }}
-        onClose={() => setRecipientForCompose(null)}
-      />
+      <Suspense fallback={
+        <Card variant="elevated">
+          <CardContent className="p-6 flex items-center gap-3 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Loading composer…</span>
+          </CardContent>
+        </Card>
+      }>
+        <WelcomeComposer
+          recipient={recipientForCompose}
+          requestId={req.id}
+          onSent={() => { setRecipientForCompose(null); onSent?.() }}
+          onClose={() => setRecipientForCompose(null)}
+        />
+      </Suspense>
     )
   }
 
