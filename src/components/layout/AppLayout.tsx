@@ -13,11 +13,24 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
 import { useTheme, useThemeMode, useSyncThemeFromProfile } from '@/hooks/use-theme'
 import { useRealtimeSync } from '@/hooks/use-realtime-sync'
+import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/lib/auth'
 
 export function AppLayout() {
   useTheme()
   useSyncThemeFromProfile()
   useRealtimeSync()
+
+  // Adopt the user's saved language on login (localStorage already
+  // covers the same device; this carries it across devices).
+  const { profile } = useAuth()
+  const { i18n } = useTranslation()
+  useEffect(() => {
+    const lang = (profile as any)?.language
+    if (lang && (lang === 'fr' || lang === 'en') && i18n.language !== lang) {
+      i18n.changeLanguage(lang)
+    }
+  }, [profile, i18n])
   const location = useLocation()
   const themeMode = useThemeMode()
   const prevPath = useRef(location.pathname)

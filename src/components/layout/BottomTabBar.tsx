@@ -1,18 +1,20 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { Package, Home, User, ShoppingCart } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { to: '/', label: 'Hub', icon: Home, exact: true },
-  { to: '/catalog', label: 'Catalog', icon: Package },
-  { to: '/cart', label: 'Cart', icon: ShoppingCart, showBadge: true },
-  { to: '/profile', label: 'Profile', icon: User },
+  { to: '/', labelKey: 'nav.hub', icon: Home, exact: true },
+  { to: '/catalog', labelKey: 'nav.catalog', icon: Package },
+  { to: '/cart', labelKey: 'nav.cart', icon: ShoppingCart, showBadge: true },
+  { to: '/profile', labelKey: 'nav.profile', icon: User },
 ]
 
 export function BottomTabBar() {
   const location = useLocation()
+  const { t } = useTranslation()
   const { data: cartItems = [] } = useCart()
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
 
@@ -21,7 +23,7 @@ export function BottomTabBar() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 md:hidden glass-panel border-t border-primary/10 shadow-[0_-4px_20px_0_rgb(var(--color-primary)/0.06)] pb-safe">
       <div className="flex items-center justify-around h-16 px-2">
-        {tabs.map(({ to, label, icon: Icon, exact, showBadge }) => {
+        {tabs.map(({ to, labelKey, icon: Icon, exact, showBadge }) => {
           const active = isActive(to, exact)
           return (
             <Link
@@ -47,7 +49,7 @@ export function BottomTabBar() {
                 )}
               </motion.span>
               <span className={cn('text-[10px] font-medium', active && 'font-semibold')}>
-                {label}
+                {t(labelKey)}
               </span>
               {active && (
                 <motion.div

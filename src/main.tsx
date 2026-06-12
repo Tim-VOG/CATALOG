@@ -7,6 +7,7 @@ import App from './App'
 import '@fontsource-variable/space-grotesk'
 import '@fontsource-variable/dm-sans'
 import './styles/globals.css'
+import './lib/i18n' // initialises i18next (FR default, FR/EN)
 import './lib/monitoring' // registers Sentry if VITE_SENTRY_DSN is set
 
 // Auto-recover from stale code-split chunks after a deploy.
