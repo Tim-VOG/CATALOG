@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'

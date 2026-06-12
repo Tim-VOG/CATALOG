@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api/loans'
 
@@ -19,7 +18,7 @@ export const useCreateLoan = () => {
 export const useUpdateLoanStatus = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, status, ...data }) => api.updateLoanStatus(id, status, data),
+    mutationFn: ({ id, status, ...data }: any) => api.updateLoanStatus(id, status, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['loans'] }),
   })
 }
@@ -27,7 +26,7 @@ export const useUpdateLoanStatus = () => {
 export const useReturnLoan = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }) => api.returnLoan(id, data),
+    mutationFn: ({ id, ...data }: any) => api.returnLoan(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['loans'] }),
   })
 }

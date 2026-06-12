@@ -1,4 +1,4 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
+// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
@@ -32,7 +32,7 @@ const DIALOG_SIZES = {
   full: 'max-w-6xl',
 }
 
-const DialogContent = React.forwardRef<any, any>(({ className, children, size = 'default', ...props }, ref) => {
+const DialogContent = React.forwardRef<any, any>(({ className, children, size = 'default', ...props }: any, ref: any) => {
   const { open, onOpenChange } = React.useContext(DialogContext)
   const contentRef = React.useRef(null)
   const previousFocusRef = React.useRef(null)
@@ -175,15 +175,15 @@ DialogContent.displayName = 'DialogContent'
 
 const DialogIdContext = React.createContext({})
 
-const DialogHeader = ({ className, ...props }) => (
+const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />
 )
 
-const DialogFooter = ({ className, ...props }) => (
+const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props} />
 )
 
-const DialogTitle = React.forwardRef<any, any>(({ className, ...props }, ref) => {
+const DialogTitle = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => {
   const { titleId } = React.useContext(DialogIdContext)
   return (
     <h2 ref={ref} id={titleId} className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />
@@ -191,7 +191,7 @@ const DialogTitle = React.forwardRef<any, any>(({ className, ...props }, ref) =>
 })
 DialogTitle.displayName = 'DialogTitle'
 
-const DialogDescription = React.forwardRef<any, any>(({ className, ...props }, ref) => {
+const DialogDescription = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => {
   const { descId } = React.useContext(DialogIdContext)
   return (
     <p ref={ref} id={descId} className={cn('text-sm text-muted-foreground', className)} {...props} />

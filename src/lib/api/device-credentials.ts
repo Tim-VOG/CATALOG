@@ -18,7 +18,7 @@ export const getDeviceCredentials = async () => {
   return data || []
 }
 
-export const createDeviceCredential = async (row) => {
+export const createDeviceCredential = async (row: any) => {
   const { data, error } = await supabase
     .from('it_device_credentials')
     .insert(row)
@@ -28,7 +28,7 @@ export const createDeviceCredential = async (row) => {
   return data
 }
 
-export const updateDeviceCredential = async (id, updates) => {
+export const updateDeviceCredential = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('it_device_credentials')
     .update(updates)
@@ -39,7 +39,7 @@ export const updateDeviceCredential = async (id, updates) => {
   return data
 }
 
-export const deleteDeviceCredential = async (id) => {
+export const deleteDeviceCredential = async (id: any) => {
   const { error } = await supabase
     .from('it_device_credentials')
     .delete()

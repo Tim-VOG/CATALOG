@@ -11,7 +11,7 @@ export const getItRequests = async () => {
 }
 
 // ── User: fetch own IT requests ──
-export const getMyItRequests = async (userId) => {
+export const getMyItRequests = async (userId: any) => {
   // Check both legacy column (requested_by) and new column (requester_id)
   const { data, error } = await supabase
     .from('it_requests')
@@ -23,7 +23,7 @@ export const getMyItRequests = async (userId) => {
 }
 
 // ── Fetch single IT request ──
-export const getItRequest = async (id) => {
+export const getItRequest = async (id: any) => {
   const { data, error } = await supabase
     .from('it_requests')
     .select('*')
@@ -34,7 +34,7 @@ export const getItRequest = async (id) => {
 }
 
 // ── Create IT request ──
-export const createItRequest = async (request) => {
+export const createItRequest = async (request: any) => {
   const { data, error } = await supabase
     .from('it_requests')
     .insert(request)
@@ -45,7 +45,7 @@ export const createItRequest = async (request) => {
 }
 
 // ── Update IT request ──
-export const updateItRequest = async (id, updates) => {
+export const updateItRequest = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('it_requests')
     .update(updates)
@@ -57,7 +57,7 @@ export const updateItRequest = async (id, updates) => {
 }
 
 // ── Delete IT request ──
-export const deleteItRequest = async (id) => {
+export const deleteItRequest = async (id: any) => {
   const { error } = await supabase
     .from('it_requests')
     .delete()
@@ -66,7 +66,7 @@ export const deleteItRequest = async (id) => {
 }
 
 // ── Bulk delete IT requests ──
-export const deleteItRequests = async (ids) => {
+export const deleteItRequests = async (ids: any) => {
   const { error } = await supabase
     .from('it_requests')
     .delete()

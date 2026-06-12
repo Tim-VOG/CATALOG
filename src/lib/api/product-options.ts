@@ -21,7 +21,7 @@ export const getAllProductOptions = async () => {
   return data
 }
 
-export const createProductOption = async (option) => {
+export const createProductOption = async (option: any) => {
   const { data, error } = await supabase
     .from('product_options')
     .insert(option)
@@ -31,7 +31,7 @@ export const createProductOption = async (option) => {
   return data
 }
 
-export const updateProductOption = async (id, updates) => {
+export const updateProductOption = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('product_options')
     .update(updates)
@@ -42,7 +42,7 @@ export const updateProductOption = async (id, updates) => {
   return data
 }
 
-export const deleteProductOption = async (id) => {
+export const deleteProductOption = async (id: any) => {
   const { error } = await supabase.from('product_options').delete().eq('id', id)
   if (error) throw error
 }

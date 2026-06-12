@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'

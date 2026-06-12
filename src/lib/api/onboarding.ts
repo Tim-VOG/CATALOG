@@ -11,7 +11,7 @@ export const getOnboardingRecipients = async () => {
   return data
 }
 
-export const createOnboardingRecipient = async (recipient) => {
+export const createOnboardingRecipient = async (recipient: any) => {
   const { data, error } = await supabase
     .from('onboarding_recipients')
     .insert(recipient)
@@ -21,7 +21,7 @@ export const createOnboardingRecipient = async (recipient) => {
   return data
 }
 
-export const updateOnboardingRecipient = async (id, updates) => {
+export const updateOnboardingRecipient = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('onboarding_recipients')
     .update(updates)
@@ -32,7 +32,7 @@ export const updateOnboardingRecipient = async (id, updates) => {
   return data
 }
 
-export const deleteOnboardingRecipient = async (id) => {
+export const deleteOnboardingRecipient = async (id: any) => {
   const { error } = await supabase
     .from('onboarding_recipients')
     .delete()
@@ -62,7 +62,7 @@ export const getOnboardingEmails = async () => {
   return data
 }
 
-export const getOnboardingEmail = async (id) => {
+export const getOnboardingEmail = async (id: any) => {
   const { data, error } = await supabase
     .from('onboarding_emails')
     .select('*')
@@ -72,7 +72,7 @@ export const getOnboardingEmail = async (id) => {
   return data
 }
 
-export const createOnboardingEmail = async (email) => {
+export const createOnboardingEmail = async (email: any) => {
   const { data, error } = await supabase
     .from('onboarding_emails')
     .insert(email)
@@ -82,7 +82,7 @@ export const createOnboardingEmail = async (email) => {
   return data
 }
 
-export const updateOnboardingEmail = async (id, updates) => {
+export const updateOnboardingEmail = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('onboarding_emails')
     .update(updates)
@@ -93,7 +93,7 @@ export const updateOnboardingEmail = async (id, updates) => {
   return data
 }
 
-export const deleteOnboardingEmail = async (id) => {
+export const deleteOnboardingEmail = async (id: any) => {
   const { error } = await supabase
     .from('onboarding_emails')
     .delete()
@@ -103,7 +103,7 @@ export const deleteOnboardingEmail = async (id) => {
 
 // ── Save Block Template Defaults ──
 
-export const saveBlockTemplateDefaults = async (blocksConfig) => {
+export const saveBlockTemplateDefaults = async (blocksConfig: any) => {
   // Batch-update each block template with current content, options, enabled state, and sort order
   const updates = blocksConfig.map((block, index) => ({
     block_key: block.block_key,

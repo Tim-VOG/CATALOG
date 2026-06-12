@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getInvitations, createInvitation, updateInvitation, deleteInvitation } from '@/lib/api/invitations'
 
@@ -20,7 +19,7 @@ export const useCreateInvitation = () => {
 export const useUpdateInvitation = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateInvitation(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateInvitation(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invitations'] }),
   })
 }

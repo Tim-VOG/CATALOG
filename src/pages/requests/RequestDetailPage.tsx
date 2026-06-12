@@ -1,4 +1,4 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
+// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useParams, useNavigate } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems } from '@/hooks/use-loan-requests'
 import { ArrowLeft, Calendar, User, Clock, Package } from 'lucide-react'

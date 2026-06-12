@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api/qr-reservations'
 
@@ -28,7 +27,7 @@ export const useCancelReservation = () => {
 
 // ── Waitlist ──
 
-export const useWaitlist = (productId) =>
+export const useWaitlist = (productId: any) =>
   useQuery({
     queryKey: ['qr-waitlist', productId],
     queryFn: () => api.getWaitlist(productId),
@@ -46,7 +45,7 @@ export const useJoinWaitlist = () => {
 export const useLeaveWaitlist = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ productId, userId }) => api.leaveWaitlist(productId, userId),
+    mutationFn: ({ productId, userId }: any) => api.leaveWaitlist(productId, userId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['qr-waitlist'] }),
   })
 }
@@ -62,7 +61,7 @@ export const useLostItems = () =>
 export const useReportLost = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ scanLogId, notes }) => api.reportLost(scanLogId, notes),
+    mutationFn: ({ scanLogId, notes }: any) => api.reportLost(scanLogId, notes),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['qr-lost-items'] })
       qc.invalidateQueries({ queryKey: ['qr-scan-logs'] })

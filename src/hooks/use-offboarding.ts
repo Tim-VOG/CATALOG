@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getOffboardingProcesses,
@@ -27,7 +26,7 @@ export const useCreateOffboarding = () => {
 export const useUpdateOffboarding = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateOffboardingProcess(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateOffboardingProcess(id, updates),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['offboarding-processes'] }),
   })
 }
@@ -56,7 +55,7 @@ export const useCreateOffboardingField = () => {
 export const useUpdateOffboardingField = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateOffboardingFormField(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateOffboardingFormField(id, updates),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['offboarding-form-fields'] }),
   })
 }

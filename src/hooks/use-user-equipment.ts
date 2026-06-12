@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api/user-equipment'
 import { useAuth } from '@/lib/auth'
@@ -18,7 +17,7 @@ export const useAllUserEquipment = () =>
     queryFn: api.getAllUserEquipment,
   })
 
-export const useUserEquipmentFor = (userId) =>
+export const useUserEquipmentFor = (userId: any) =>
   useQuery({
     queryKey: ['user-equipment', 'for', userId],
     queryFn: () => api.getUserEquipmentFor(userId),
@@ -44,7 +43,7 @@ export const useAssignEquipmentBatch = () => {
 export const useUpdateUserEquipment = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }) => api.updateUserEquipment(id, data),
+    mutationFn: ({ id, ...data }: any) => api.updateUserEquipment(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user-equipment'] }),
   })
 }

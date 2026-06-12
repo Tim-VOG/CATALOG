@@ -9,7 +9,7 @@ export const getCategories = async () => {
   return data
 }
 
-export const createCategory = async (category) => {
+export const createCategory = async (category: any) => {
   const { data, error } = await supabase
     .from('categories')
     .insert(category)
@@ -19,7 +19,7 @@ export const createCategory = async (category) => {
   return data
 }
 
-export const updateCategory = async (id, updates) => {
+export const updateCategory = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('categories')
     .update(updates)
@@ -30,7 +30,7 @@ export const updateCategory = async (id, updates) => {
   return data
 }
 
-export const deleteCategory = async (id) => {
+export const deleteCategory = async (id: any) => {
   const { error } = await supabase.from('categories').delete().eq('id', id)
   if (error) throw error
 }

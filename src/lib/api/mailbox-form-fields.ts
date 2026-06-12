@@ -11,7 +11,7 @@ export const getMailboxFormFields = async () => {
 }
 
 // ── Create a new form field ──
-export const createMailboxFormField = async (field) => {
+export const createMailboxFormField = async (field: any) => {
   const { data, error } = await supabase
     .from('mailbox_form_fields')
     .insert(field)
@@ -22,7 +22,7 @@ export const createMailboxFormField = async (field) => {
 }
 
 // ── Update a form field ──
-export const updateMailboxFormField = async (id, updates) => {
+export const updateMailboxFormField = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('mailbox_form_fields')
     .update(updates)
@@ -34,7 +34,7 @@ export const updateMailboxFormField = async (id, updates) => {
 }
 
 // ── Delete a form field ──
-export const deleteMailboxFormField = async (id) => {
+export const deleteMailboxFormField = async (id: any) => {
   const { error } = await supabase
     .from('mailbox_form_fields')
     .delete()
@@ -43,7 +43,7 @@ export const deleteMailboxFormField = async (id) => {
 }
 
 // ── Reorder fields: accepts array of { id, sort_order } ──
-export const reorderMailboxFormFields = async (orderedItems) => {
+export const reorderMailboxFormFields = async (orderedItems: any) => {
   const updates = orderedItems.map(({ id, sort_order }) =>
     supabase
       .from('mailbox_form_fields')

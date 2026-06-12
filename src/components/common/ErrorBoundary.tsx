@@ -1,28 +1,39 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
-import { Component } from 'react'
+import { Component, type ReactNode, type ErrorInfo } from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { captureException } from '@/lib/monitoring'
 
-export class ErrorBoundary extends Component {
-  constructor(props) {
+declare global {
+  interface Window {
+    __voChunkRecover?: (error: unknown) => void
+    __voIsStaleChunkError?: (error: unknown) => boolean
+  }
+}
+
+interface ErrorBoundaryProps {
+  children?: ReactNode
+  fallback?: ReactNode
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean
+  error: unknown
+}
+
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = { hasError: false, error: null }
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
     return { hasError: true, error }
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
     console.error('[ErrorBoundary]', error, errorInfo)
-    captureException(error, { componentStack: errorInfo?.componentStack })
+    captureException(error, { componentStack: errorInfo?.componentStack ?? undefined })
 
-    // If a lazy chunk failed to load (typical after a Vercel redeploy
-    // re-hashes /assets/*.js), delegate to the shared recover helper
-    // installed in main.jsx so the counter is debounced across the two
-    // listening paths. Falling back to a local handler for old builds
-    // where window.__voChunkRecover isn't set yet.
     if (typeof window !== 'undefined' && typeof window.__voChunkRecover === 'function') {
       window.__voChunkRecover(error)
     }

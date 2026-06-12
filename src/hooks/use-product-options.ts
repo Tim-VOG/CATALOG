@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api/product-options'
 
@@ -25,7 +24,7 @@ export const useCreateProductOption = () => {
 export const useUpdateProductOption = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }) => api.updateProductOption(id, data),
+    mutationFn: ({ id, ...data }: any) => api.updateProductOption(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['product-options'] }),
   })
 }

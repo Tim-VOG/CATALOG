@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getEmailTemplates, updateEmailTemplate } from '@/lib/api/email-templates'
 
@@ -13,7 +12,7 @@ export const useEmailTemplates = () =>
 export const useUpdateEmailTemplate = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateEmailTemplate(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateEmailTemplate(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['email-templates'] }),
   })
 }

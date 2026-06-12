@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-export const getMyEquipment = async (userId) => {
+export const getMyEquipment = async (userId: any) => {
   const { data, error } = await supabase
     .from('user_equipment')
     .select('*')
@@ -10,7 +10,7 @@ export const getMyEquipment = async (userId) => {
   return data
 }
 
-export const getUserEquipmentFor = async (userId) => {
+export const getUserEquipmentFor = async (userId: any) => {
   if (!userId) return []
   const { data, error } = await supabase
     .from('user_equipment')
@@ -30,7 +30,7 @@ export const getAllUserEquipment = async () => {
   return data
 }
 
-export const assignEquipment = async (assignment) => {
+export const assignEquipment = async (assignment: any) => {
   const { data, error } = await supabase
     .from('user_equipment')
     .insert(assignment)
@@ -40,7 +40,7 @@ export const assignEquipment = async (assignment) => {
   return data
 }
 
-export const assignEquipmentBatch = async (assignments) => {
+export const assignEquipmentBatch = async (assignments: any) => {
   if (!assignments.length) return []
   const { data, error } = await supabase
     .from('user_equipment')
@@ -50,7 +50,7 @@ export const assignEquipmentBatch = async (assignments) => {
   return data
 }
 
-export const updateUserEquipment = async (id, updates) => {
+export const updateUserEquipment = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('user_equipment')
     .update(updates)
@@ -61,7 +61,7 @@ export const updateUserEquipment = async (id, updates) => {
   return data
 }
 
-export const returnEquipment = async (id) => {
+export const returnEquipment = async (id: any) => {
   const { data, error } = await supabase
     .from('user_equipment')
     .update({
@@ -75,7 +75,7 @@ export const returnEquipment = async (id) => {
   return data
 }
 
-export const deleteUserEquipment = async (id) => {
+export const deleteUserEquipment = async (id: any) => {
   const { error } = await supabase
     .from('user_equipment')
     .delete()

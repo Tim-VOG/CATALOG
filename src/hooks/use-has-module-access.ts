@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useMemo } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useModuleAccess } from './use-module-access'
@@ -14,7 +13,7 @@ import { useModuleAccess } from './use-module-access'
  * @param {string} moduleKey - One of 'catalog', 'onboarding', 'it_form', 'functional_mailbox'
  * @returns {{ hasAccess: boolean, isLoading: boolean }}
  */
-export const useHasModuleAccess = (moduleKey) => {
+export const useHasModuleAccess = (moduleKey: any) => {
   const { user, isAdmin, loading: authLoading } = useAuth()
   const { data: accessRows = [], isLoading: accessLoading } = useModuleAccess(user?.id)
 

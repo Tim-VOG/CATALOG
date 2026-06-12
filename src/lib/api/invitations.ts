@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 
 export const getInvitations = async (status = 'pending') => {
@@ -16,8 +15,8 @@ export const getInvitations = async (status = 'pending') => {
   return data
 }
 
-export const createInvitation = async ({ email, first_name, last_name, business_unit, invited_by, email_subject, email_body }) => {
-  const row = { email: email.toLowerCase().trim(), first_name, last_name, business_unit, invited_by }
+export const createInvitation = async ({ email, first_name, last_name, business_unit, invited_by, email_subject, email_body }: any) => {
+  const row: Record<string, unknown> = { email: email.toLowerCase().trim(), first_name, last_name, business_unit, invited_by }
   if (email_subject) row.email_subject = email_subject
   if (email_body) row.email_body = email_body
   const { data, error } = await supabase
@@ -29,7 +28,7 @@ export const createInvitation = async ({ email, first_name, last_name, business_
   return data
 }
 
-export const updateInvitation = async (id, updates) => {
+export const updateInvitation = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('user_invitations')
     .update(updates)
@@ -40,7 +39,7 @@ export const updateInvitation = async (id, updates) => {
   return data
 }
 
-export const deleteInvitation = async (id) => {
+export const deleteInvitation = async (id: any) => {
   const { error } = await supabase
     .from('user_invitations')
     .delete()
@@ -48,7 +47,7 @@ export const deleteInvitation = async (id) => {
   if (error) throw error
 }
 
-export const getInvitationByEmail = async (email) => {
+export const getInvitationByEmail = async (email: any) => {
   const { data, error } = await supabase
     .from('user_invitations')
     .select('*')
@@ -59,7 +58,7 @@ export const getInvitationByEmail = async (email) => {
   return data
 }
 
-export const acceptInvitation = async (id) => {
+export const acceptInvitation = async (id: any) => {
   const { data, error } = await supabase
     .from('user_invitations')
     .update({ status: 'accepted' })

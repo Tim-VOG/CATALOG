@@ -1,12 +1,11 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { format } from 'date-fns'
 import { generateItemsHtml, generateStyledVars, wrapEmailHtml } from '@/lib/email-html'
 
 /**
  * Generate a status change email draft (picked_up, closed, etc.)
  */
-export function generateStatusEmailDraft({ template, request, items = [], appName, logoUrl, tagline, logoHeight }) {
-  const vars = {
+export function generateStatusEmailDraft({ template, request, items = [], appName, logoUrl, tagline, logoHeight }: any) {
+  const vars: Record<string, any> = {
     user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
     project_name: request.project_name || '',
     pickup_date: request.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
@@ -42,8 +41,8 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
 /**
  * Generate an extension decision email draft (approved or rejected)
  */
-export function generateExtensionEmailDraft({ template, extension, request, appName, logoUrl, tagline, logoHeight }) {
-  const vars = {
+export function generateExtensionEmailDraft({ template, extension, request, appName, logoUrl, tagline, logoHeight }: any) {
+  const vars: Record<string, any> = {
     user_name: `${extension.user_first_name || request?.user_first_name || ''} ${extension.user_last_name || request?.user_last_name || ''}`.trim(),
     project_name: extension.project_name || request?.project_name || '',
     pickup_date: (extension.pickup_date || request?.pickup_date) ? format(new Date(extension.pickup_date || request.pickup_date), 'dd MMM yyyy') : '',
@@ -84,7 +83,7 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
 /**
  * Generate a return email draft from template + request data
  */
-export function generateReturnDraft({ template, request, items, itemReturns, recipients, appName, logoUrl, tagline, logoHeight }) {
+export function generateReturnDraft({ template, request, items, itemReturns, recipients, appName, logoUrl, tagline, logoHeight }: any) {
   // Build item list text (plain text version)
   const itemLines = items.map((item) => {
     const ret = itemReturns.find((r) => r.id === item.id) || {}
@@ -118,7 +117,7 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
     : 'Good - no damage reported'
 
   // Variable substitution
-  const vars = {
+  const vars: Record<string, any> = {
     user_name: `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim(),
     project_name: request.project_name || '',
     pickup_date: request.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 
-const Select = React.forwardRef<any, any>(({ className, children, icon: Icon, ...props }, ref) => {
+const Select = React.forwardRef<any, any>(({ className, children, icon: Icon, ...props }: any, ref: any) => {
   return (
     <div className="relative">
       {Icon && (

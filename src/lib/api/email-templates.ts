@@ -9,7 +9,7 @@ export const getEmailTemplates = async () => {
   return data
 }
 
-export const getEmailTemplate = async (id) => {
+export const getEmailTemplate = async (id: any) => {
   const { data, error } = await supabase
     .from('email_templates')
     .select('*')
@@ -19,7 +19,7 @@ export const getEmailTemplate = async (id) => {
   return data
 }
 
-export const getEmailTemplateByKey = async (templateKey) => {
+export const getEmailTemplateByKey = async (templateKey: any) => {
   const { data, error } = await supabase
     .from('email_templates')
     .select('*')
@@ -29,7 +29,7 @@ export const getEmailTemplateByKey = async (templateKey) => {
   return data
 }
 
-export const updateEmailTemplate = async (id, updates) => {
+export const updateEmailTemplate = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('email_templates')
     .update(updates)

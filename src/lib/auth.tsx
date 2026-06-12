@@ -1,24 +1,66 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 // Authentication Context
-import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
+import {
+  createContext, useContext, useEffect, useState, useCallback, useRef,
+  type ReactNode,
+} from 'react'
+import type { User } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import { getProfile, updateProfile } from './api/profiles'
 import { getInvitationByEmail, acceptInvitation } from './api/invitations'
 import { upsertModuleAccess } from './api/module-access'
 
-const AuthContext = createContext({})
+// The profile shape is defined loosely on purpose — the API layer hands
+// us back whatever Supabase returns from the `profiles` row. Strict
+// row typing happens in src/types/supabase.ts and gets wired in when we
+// type the api layer (later Phase-3 follow-up).
+export interface AuthProfile {
+  id: string
+  email?: string | null
+  first_name?: string | null
+  last_name?: string | null
+  role?: string | null
+  business_unit?: string | null
+  phone?: string | null
+  avatar_url?: string | null
+  [key: string]: unknown
+}
 
-export const useAuth = () => useContext(AuthContext)
+export interface AuthContextValue {
+  user: User | null
+  profile: AuthProfile | null
+  loading: boolean
+  isAdmin: boolean
+  signIn: (email: string, password: string) => Promise<unknown>
+  signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<unknown>
+  signOut: () => Promise<void>
+  signInWithMicrosoft: () => Promise<void>
+  resetPassword: (email: string) => Promise<void>
+  refreshProfile: () => Promise<void>
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
+const AuthContext = createContext<AuthContextValue | null>(null)
+
+export const useAuth = (): AuthContextValue => {
+  const ctx = useContext(AuthContext)
+  if (!ctx) {
+    // The provider is mounted at the root of the app, so this branch
+    // should only trigger if something unusual is happening (test
+    // harness rendering outside <AuthProvider>). Returning a stub
+    // would silently hide real bugs, so we throw.
+    throw new Error('useAuth must be used inside <AuthProvider>')
+  }
+  return ctx
+}
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<AuthProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const invitationCheckedRef = useRef(false)
 
   // Background invitation check — runs after page is already loaded
   // so it never blocks the loading state
-  const checkInvitation = useCallback(async (profileData) => {
+  const checkInvitation = useCallback(async (profileData: AuthProfile | null) => {
     if (!profileData?.email || invitationCheckedRef.current) return
     invitationCheckedRef.current = true
     try {
@@ -35,7 +77,7 @@ export const AuthProvider = ({ children }) => {
         const refreshed = await getProfile(profileData.id)
         setProfile(refreshed)
       }
-    } catch (invErr) {
+    } catch (invErr: any) {
       // Silently ignore — table may not exist yet or network issue
       console.warn('[Auth] Invitation check skipped:', invErr?.message)
     }
@@ -43,14 +85,14 @@ export const AuthProvider = ({ children }) => {
 
   // Load profile — extracted so we can call it from multiple places
   // Also performs client-side name extraction if profile names are empty
-  const loadProfile = useCallback(async (userId) => {
+  const loadProfile = useCallback(async (userId: string) => {
     try {
       const profileData = await getProfile(userId)
 
       // Client-side fallback: if names are empty, try extracting from user_metadata
       if (profileData && (!profileData.first_name && !profileData.last_name)) {
         const { data: { user: currentUser } } = await supabase.auth.getUser()
-        const meta = currentUser?.user_metadata
+        const meta = currentUser?.user_metadata as Record<string, any> | undefined
         if (meta) {
           const fullName = meta.full_name || meta.name || ''
           if (fullName) {
@@ -64,7 +106,7 @@ export const AuthProvider = ({ children }) => {
               })
               setProfile(updated)
               return updated
-            } catch (updateErr) {
+            } catch (updateErr: any) {
               console.warn('[Auth] Could not update profile names:', updateErr?.message)
             }
           }
@@ -73,7 +115,7 @@ export const AuthProvider = ({ children }) => {
 
       setProfile(profileData)
       return profileData
-    } catch (err) {
+    } catch (err: any) {
       console.error('[Auth] Error loading profile:', err?.message || err)
       setProfile(null)
       return null
@@ -83,7 +125,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let mounted = true
 
-    // Safety timeout — never stay in loading state more than 10s
     const timeout = setTimeout(() => {
       if (mounted) {
         console.warn('[Auth] Safety timeout — forcing loading=false')
@@ -91,10 +132,6 @@ export const AuthProvider = ({ children }) => {
       }
     }, 10000)
 
-    // onAuthStateChange is the single source of truth.
-    // IMPORTANT: Do NOT await async operations inside this callback.
-    // Supabase v2 can deadlock if you make Supabase queries inside onAuthStateChange.
-    // Instead, update synchronous state and defer async work via setTimeout.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!mounted) return
@@ -103,29 +140,24 @@ export const AuthProvider = ({ children }) => {
         setUser(currentUser)
 
         if (!currentUser) {
-          // No user — clear profile and stop loading
           setProfile(null)
           setLoading(false)
           clearTimeout(timeout)
           return
         }
 
-        // Defer profile loading to next tick so Supabase client
-        // has fully committed its internal auth state
         setTimeout(async () => {
           if (!mounted) return
           const profileData = await loadProfile(currentUser.id)
           if (mounted) {
             setLoading(false)
             clearTimeout(timeout)
-            // Welcome toast on sign in
             if (event === 'SIGNED_IN' && profileData) {
               const name = profileData.first_name || currentUser.email?.split('@')[0]
               import('sonner').then(({ toast }) => {
                 toast.success(`Welcome back, ${name}!`)
               }).catch(() => {})
             }
-            // Background invitation check — never blocks page loading
             if (profileData) checkInvitation(profileData)
           }
         }, 0)
@@ -146,22 +178,17 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+  const signIn = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
     return data
   }
 
-  const signUp = async (email, password, metadata = {}) => {
+  const signUp = async (email: string, password: string, metadata: Record<string, unknown> = {}) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: metadata
-      }
+      options: { data: metadata },
     })
     if (error) throw error
     return data
@@ -186,14 +213,14 @@ export const AuthProvider = ({ children }) => {
     if (error) throw error
   }
 
-  const resetPassword = async (email) => {
+  const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email)
     if (error) throw error
   }
 
   const isAdmin = profile?.role === 'admin'
 
-  const value = {
+  const value: AuthContextValue = {
     user,
     profile,
     loading,
@@ -203,7 +230,7 @@ export const AuthProvider = ({ children }) => {
     signOut,
     signInWithMicrosoft,
     resetPassword,
-    refreshProfile: refreshUserProfile
+    refreshProfile: refreshUserProfile,
   }
 
   return (

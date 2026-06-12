@@ -1,11 +1,10 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 
 /**
  * Send an email via the Supabase Edge Function (Resend)
  * Fails gracefully — does not throw, returns { success, error }
  */
-export async function sendEmail({ to, cc, subject, body, isHtml = true }) {
+export async function sendEmail({ to, cc, subject, body, isHtml = true }: { to: string; cc?: string | string[]; subject: string; body: string; isHtml?: boolean }) {
   try {
     const { data, error } = await supabase.functions.invoke('send-email', {
       body: { to, cc, subject, body, isHtml },
@@ -22,7 +21,7 @@ export async function sendEmail({ to, cc, subject, body, isHtml = true }) {
     }
 
     return { success: true, id: data?.id }
-  } catch (err) {
+  } catch (err: any) {
     console.warn('[Email] Failed to send:', err?.message || err)
     return { success: false, error: err?.message || 'Unknown error' }
   }

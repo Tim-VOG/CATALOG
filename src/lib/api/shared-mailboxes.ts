@@ -9,7 +9,7 @@ export const getSharedMailboxes = async () => {
   return data || []
 }
 
-export const createSharedMailbox = async (row) => {
+export const createSharedMailbox = async (row: any) => {
   const { data, error } = await supabase
     .from('shared_mailboxes')
     .insert(row)
@@ -19,7 +19,7 @@ export const createSharedMailbox = async (row) => {
   return data
 }
 
-export const updateSharedMailbox = async (id, updates) => {
+export const updateSharedMailbox = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('shared_mailboxes')
     .update(updates)
@@ -30,7 +30,7 @@ export const updateSharedMailbox = async (id, updates) => {
   return data
 }
 
-export const deleteSharedMailbox = async (id) => {
+export const deleteSharedMailbox = async (id: any) => {
   const { error } = await supabase.from('shared_mailboxes').delete().eq('id', id)
   if (error) throw error
 }

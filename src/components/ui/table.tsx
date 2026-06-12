@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-const Table = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const Table = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <div className="relative w-full overflow-auto">
     <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
   </div>
 ))
 Table.displayName = 'Table'
 
-const TableHeader = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const TableHeader = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <thead
     ref={ref}
     className={cn(
@@ -21,12 +21,12 @@ const TableHeader = React.forwardRef<any, any>(({ className, ...props }, ref) =>
 ))
 TableHeader.displayName = 'TableHeader'
 
-const TableBody = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const TableBody = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <tbody ref={ref} className={cn('[&_tr:last-child]:border-0', className)} {...props} />
 ))
 TableBody.displayName = 'TableBody'
 
-const TableRow = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const TableRow = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <tr
     ref={ref}
     className={cn(
@@ -39,7 +39,7 @@ const TableRow = React.forwardRef<any, any>(({ className, ...props }, ref) => (
 ))
 TableRow.displayName = 'TableRow'
 
-const TableHead = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const TableHead = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <th
     ref={ref}
     className={cn(
@@ -52,7 +52,7 @@ const TableHead = React.forwardRef<any, any>(({ className, ...props }, ref) => (
 ))
 TableHead.displayName = 'TableHead'
 
-const TableCell = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const TableCell = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <td
     ref={ref}
     className={cn(

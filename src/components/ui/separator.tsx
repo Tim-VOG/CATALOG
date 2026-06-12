@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-const Separator = React.forwardRef<any, any>(({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
+const Separator = React.forwardRef<any, any>(({ className, orientation = 'horizontal', decorative = true, ...props }: any, ref: any) => (
   <div
     ref={ref}
     role={decorative ? 'none' : 'separator'}

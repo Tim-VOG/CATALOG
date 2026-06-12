@@ -11,7 +11,7 @@ export const getOffboardingProcesses = async () => {
   return data
 }
 
-export const getOffboardingProcess = async (id) => {
+export const getOffboardingProcess = async (id: any) => {
   const { data, error } = await supabase
     .from('offboarding_processes')
     .select('*')
@@ -21,7 +21,7 @@ export const getOffboardingProcess = async (id) => {
   return data
 }
 
-export const createOffboardingProcess = async (process) => {
+export const createOffboardingProcess = async (process: any) => {
   const { data, error } = await supabase
     .from('offboarding_processes')
     .insert(process)
@@ -31,7 +31,7 @@ export const createOffboardingProcess = async (process) => {
   return data
 }
 
-export const updateOffboardingProcess = async (id, updates) => {
+export const updateOffboardingProcess = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('offboarding_processes')
     .update(updates)
@@ -42,7 +42,7 @@ export const updateOffboardingProcess = async (id, updates) => {
   return data
 }
 
-export const deleteOffboardingProcess = async (id) => {
+export const deleteOffboardingProcess = async (id: any) => {
   const { error } = await supabase
     .from('offboarding_processes')
     .delete()
@@ -61,7 +61,7 @@ export const getOffboardingFormFields = async () => {
   return data
 }
 
-export const createOffboardingFormField = async (field) => {
+export const createOffboardingFormField = async (field: any) => {
   const { data, error } = await supabase
     .from('offboarding_form_fields')
     .insert(field)
@@ -71,7 +71,7 @@ export const createOffboardingFormField = async (field) => {
   return data
 }
 
-export const updateOffboardingFormField = async (id, updates) => {
+export const updateOffboardingFormField = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('offboarding_form_fields')
     .update(updates)
@@ -82,7 +82,7 @@ export const updateOffboardingFormField = async (id, updates) => {
   return data
 }
 
-export const deleteOffboardingFormField = async (id) => {
+export const deleteOffboardingFormField = async (id: any) => {
   const { error } = await supabase
     .from('offboarding_form_fields')
     .delete()

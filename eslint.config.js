@@ -66,7 +66,10 @@ export default [
         caughtErrorsIgnorePattern: '^_',
         ignoreRestSiblings: true,
       }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      // 'any' is used liberally during the Phase-3 migration to land
+      // the TS toolchain without typing every callsite. The follow-up
+      // pass tightens them per-file as @ts-nocheck banners come off.
+      '@typescript-eslint/no-explicit-any': 'off',
       // @ts-nocheck is acceptable during the Phase-3 migration —
       // each file marked with it is tracked as a follow-up to type
       // properly. Re-tighten to 'error' (or 'allow-with-description')

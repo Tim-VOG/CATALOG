@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api/qr-codes'
 
@@ -10,21 +9,21 @@ export const useQRCodes = (filters = {}) =>
     queryFn: () => api.getQRCodes(filters),
   })
 
-export const useQRCode = (id) =>
+export const useQRCode = (id: any) =>
   useQuery({
     queryKey: ['qr-codes', id],
     queryFn: () => api.getQRCode(id),
     enabled: !!id,
   })
 
-export const useQRCodeByCode = (code) =>
+export const useQRCodeByCode = (code: any) =>
   useQuery({
     queryKey: ['qr-codes', 'by-code', code],
     queryFn: () => api.getQRCodeByCode(code),
     enabled: !!code,
   })
 
-export const useQRCodesAssignedTo = (userId) =>
+export const useQRCodesAssignedTo = (userId: any) =>
   useQuery({
     queryKey: ['qr-codes', 'assigned-to', userId],
     queryFn: () => api.getQRCodesAssignedTo(userId),
@@ -50,7 +49,7 @@ export const useCreateQRCodes = () => {
 export const useUpdateQRCode = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }) => api.updateQRCode(id, data),
+    mutationFn: ({ id, ...data }: any) => api.updateQRCode(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
   })
 }
@@ -58,7 +57,7 @@ export const useUpdateQRCode = () => {
 export const useClaimQRCode = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...assignment }) => api.claimQRCode(id, assignment),
+    mutationFn: ({ id, ...assignment }: any) => api.claimQRCode(id, assignment),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
   })
 }
@@ -66,7 +65,7 @@ export const useClaimQRCode = () => {
 export const useReleaseQRCode = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, expectedLoanRequestId }) => api.releaseQRCode(id, expectedLoanRequestId),
+    mutationFn: ({ id, expectedLoanRequestId }: any) => api.releaseQRCode(id, expectedLoanRequestId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['qr-codes'] }),
   })
 }
@@ -101,7 +100,7 @@ export const useScanLogs = (filters = {}) =>
     queryFn: () => api.getScanLogs(filters),
   })
 
-export const useScanLogsForProduct = (productId) =>
+export const useScanLogsForProduct = (productId: any) =>
   useQuery({
     queryKey: ['qr-scan-logs', 'product', productId],
     queryFn: () => api.getScanLogsForProduct(productId),

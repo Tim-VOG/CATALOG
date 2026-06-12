@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getModuleAccessForUser,
@@ -6,7 +5,7 @@ import {
   upsertModuleAccess,
 } from '@/lib/api/module-access'
 
-export const useModuleAccess = (userId) =>
+export const useModuleAccess = (userId: any) =>
   useQuery({
     queryKey: ['module-access', userId],
     queryFn: () => getModuleAccessForUser(userId),
@@ -24,7 +23,7 @@ export const useAllModuleAccess = () =>
 export const useUpsertModuleAccess = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, moduleKey, granted }) =>
+    mutationFn: ({ userId, moduleKey, granted }: any) =>
       upsertModuleAccess(userId, moduleKey, granted),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['module-access'] })

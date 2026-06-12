@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getNotificationRecipients, createNotificationRecipient, updateNotificationRecipient, deleteNotificationRecipient } from '@/lib/api/notification-recipients'
 
@@ -19,7 +18,7 @@ export const useCreateNotificationRecipient = () => {
 export const useUpdateNotificationRecipient = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateNotificationRecipient(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateNotificationRecipient(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notification-recipients'] }),
   })
 }

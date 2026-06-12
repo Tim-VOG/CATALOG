@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getFormFields, getActiveFormFields, createFormField, updateFormField, deleteFormField } from '@/lib/api/form-fields'
 
@@ -25,7 +24,7 @@ export const useCreateFormField = () => {
 export const useUpdateFormField = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateFormField(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateFormField(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['form-fields'] }),
   })
 }

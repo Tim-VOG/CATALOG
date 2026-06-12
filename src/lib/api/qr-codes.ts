@@ -1,8 +1,7 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 import { sanitizeSearch } from '@/lib/sanitize'
 
-export const getQRCodesAssignedTo = async (userId) => {
+export const getQRCodesAssignedTo = async (userId: any) => {
   if (!userId) return []
   const { data, error } = await supabase
     .from('qr_codes_with_details')
@@ -15,7 +14,7 @@ export const getQRCodesAssignedTo = async (userId) => {
 
 // ── QR Codes ──────────────────────────────────────────
 
-export const getQRCodes = async ({ search, active } = {}) => {
+export const getQRCodes = async ({ search, active }: any = {}) => {
   let query = supabase
     .from('qr_codes_with_details')
     .select('*')
@@ -35,7 +34,7 @@ export const getQRCodes = async ({ search, active } = {}) => {
   return data
 }
 
-export const getQRCode = async (id) => {
+export const getQRCode = async (id: any) => {
   const { data, error } = await supabase
     .from('qr_codes_with_details')
     .select('*')
@@ -45,7 +44,7 @@ export const getQRCode = async (id) => {
   return data
 }
 
-export const getQRCodeByCode = async (code) => {
+export const getQRCodeByCode = async (code: any) => {
   const { data, error } = await supabase
     .from('qr_codes_with_details')
     .select('*')
@@ -55,7 +54,7 @@ export const getQRCodeByCode = async (code) => {
   return data
 }
 
-export const createQRCode = async (qrCode) => {
+export const createQRCode = async (qrCode: any) => {
   const { data, error } = await supabase
     .from('qr_codes')
     .insert(qrCode)
@@ -65,7 +64,7 @@ export const createQRCode = async (qrCode) => {
   return data
 }
 
-export const createQRCodes = async (qrCodes) => {
+export const createQRCodes = async (qrCodes: any) => {
   const { data, error } = await supabase
     .from('qr_codes')
     .insert(qrCodes)
@@ -74,7 +73,7 @@ export const createQRCodes = async (qrCodes) => {
   return data
 }
 
-export const updateQRCode = async (id, updates) => {
+export const updateQRCode = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('qr_codes')
     .update(updates)
@@ -89,7 +88,7 @@ export const updateQRCode = async (id, updates) => {
 // available. Two admins trying to grab the same code at the same time
 // will see one win and one get an error — instead of silently
 // overwriting each other (which was the case with plain updateQRCode).
-export const claimQRCode = async (id, assignment) => {
+export const claimQRCode = async (id: any, assignment: any) => {
   const { data, error } = await supabase
     .from('qr_codes')
     .update({ ...assignment, status: 'assigned' })
@@ -114,7 +113,7 @@ export const claimQRCode = async (id, assignment) => {
 // Atomic 'release': flips an assigned QR back to available only when it
 // was still owned by the expected request. Prevents a desync after a
 // retry / network glitch.
-export const releaseQRCode = async (id, expectedLoanRequestId) => {
+export const releaseQRCode = async (id: any, expectedLoanRequestId: any) => {
   let query = supabase
     .from('qr_codes')
     .update({
@@ -133,14 +132,14 @@ export const releaseQRCode = async (id, expectedLoanRequestId) => {
   return data?.[0] || null
 }
 
-export const deleteQRCode = async (id) => {
+export const deleteQRCode = async (id: any) => {
   const { error } = await supabase.from('qr_codes').delete().eq('id', id)
   if (error) throw error
 }
 
 // ── QR Scan ──────────────────────────────────────────
 
-export const processQRScan = async ({ code, action, userId, userEmail, userName, notes, pickupDate, expectedReturnDate }) => {
+export const processQRScan = async ({ code, action, userId, userEmail, userName, notes, pickupDate, expectedReturnDate }: any) => {
   const { data, error } = await supabase.rpc('process_qr_scan', {
     p_qr_code: code,
     p_action: action,
@@ -180,7 +179,7 @@ export const processQRScan = async ({ code, action, userId, userEmail, userName,
 
 // ── Scan Logs ──────────────────────────────────────────
 
-export const getScanLogs = async ({ search, action, limit = 100 } = {}) => {
+export const getScanLogs = async ({ search, action, limit = 100 }: any = {}) => {
   let query = supabase
     .from('qr_scan_logs_with_details')
     .select('*')
@@ -201,7 +200,7 @@ export const getScanLogs = async ({ search, action, limit = 100 } = {}) => {
   return data
 }
 
-export const getScanLogsForProduct = async (productId) => {
+export const getScanLogsForProduct = async (productId: any) => {
   const { data, error } = await supabase
     .from('qr_scan_logs_with_details')
     .select('*')

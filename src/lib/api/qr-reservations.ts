@@ -1,9 +1,8 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 
 // ── Reservations ──
 
-export const getReservations = async ({ productId, userId, status } = {}) => {
+export const getReservations = async ({ productId, userId, status }: any = {}) => {
   let query = supabase
     .from('qr_reservations_with_details')
     .select('*')
@@ -18,7 +17,7 @@ export const getReservations = async ({ productId, userId, status } = {}) => {
   return data
 }
 
-export const createReservation = async (reservation) => {
+export const createReservation = async (reservation: any) => {
   const { data, error } = await supabase
     .from('qr_reservations')
     .insert(reservation)
@@ -28,7 +27,7 @@ export const createReservation = async (reservation) => {
   return data
 }
 
-export const cancelReservation = async (id) => {
+export const cancelReservation = async (id: any) => {
   const { data, error } = await supabase
     .from('qr_reservations')
     .update({ status: 'cancelled', updated_at: new Date().toISOString() })
@@ -41,7 +40,7 @@ export const cancelReservation = async (id) => {
 
 // ── Waitlist ──
 
-export const getWaitlist = async (productId) => {
+export const getWaitlist = async (productId: any) => {
   let query = supabase.from('qr_waitlist').select('*').order('created_at')
   if (productId) query = query.eq('product_id', productId)
   const { data, error } = await query
@@ -49,7 +48,7 @@ export const getWaitlist = async (productId) => {
   return data
 }
 
-export const joinWaitlist = async ({ productId, userId, userEmail, userName }) => {
+export const joinWaitlist = async ({ productId, userId, userEmail, userName }: any) => {
   const { data, error } = await supabase
     .from('qr_waitlist')
     .insert({ product_id: productId, user_id: userId, user_email: userEmail, user_name: userName })
@@ -59,7 +58,7 @@ export const joinWaitlist = async ({ productId, userId, userEmail, userName }) =
   return data
 }
 
-export const leaveWaitlist = async (productId, userId) => {
+export const leaveWaitlist = async (productId: any, userId: any) => {
   const { error } = await supabase
     .from('qr_waitlist')
     .delete()
@@ -70,7 +69,7 @@ export const leaveWaitlist = async (productId, userId) => {
 
 // ── Lost Mode ──
 
-export const reportLost = async (scanLogId, notes) => {
+export const reportLost = async (scanLogId: any, notes: any) => {
   const { data, error } = await supabase
     .from('qr_scan_logs')
     .update({
@@ -85,7 +84,7 @@ export const reportLost = async (scanLogId, notes) => {
   return data
 }
 
-export const resolveLost = async (scanLogId) => {
+export const resolveLost = async (scanLogId: any) => {
   const { data, error } = await supabase
     .from('qr_scan_logs')
     .update({

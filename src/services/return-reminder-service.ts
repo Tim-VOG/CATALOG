@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'

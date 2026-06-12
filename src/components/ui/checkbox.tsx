@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
 
-const Checkbox = React.forwardRef<any, any>(({ className, checked, onCheckedChange, ...props }, ref) => {
+const Checkbox = React.forwardRef<any, any>(({ className, checked, onCheckedChange, ...props }: any, ref: any) => {
   const lastClick = React.useRef(0)
 
   return (

@@ -20,7 +20,7 @@ export const getAllSubscriptionPlans = async () => {
   return data
 }
 
-export const createSubscriptionPlan = async (plan) => {
+export const createSubscriptionPlan = async (plan: any) => {
   const { data, error } = await supabase
     .from('subscription_plans')
     .insert(plan)
@@ -30,7 +30,7 @@ export const createSubscriptionPlan = async (plan) => {
   return data
 }
 
-export const updateSubscriptionPlan = async (id, updates) => {
+export const updateSubscriptionPlan = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('subscription_plans')
     .update(updates)
@@ -41,7 +41,7 @@ export const updateSubscriptionPlan = async (id, updates) => {
   return data
 }
 
-export const deleteSubscriptionPlan = async (id) => {
+export const deleteSubscriptionPlan = async (id: any) => {
   const { error } = await supabase.from('subscription_plans').delete().eq('id', id)
   if (error) throw error
 }

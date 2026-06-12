@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 import { cn } from '@/lib/utils'
 
-const ScrollArea = React.forwardRef<any, any>(({ className, children, ...props }, ref) => (
+const ScrollArea = React.forwardRef<any, any>(({ className, children, ...props }: any, ref: any) => (
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn('relative overflow-hidden', className)}

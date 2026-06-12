@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-export const getPlanningData = async ({ startDate, endDate }) => {
+export const getPlanningData = async ({ startDate, endDate }: any) => {
   // Fetch all loan requests that overlap with the date range and have active statuses
   const { data: requests, error: reqError } = await supabase
     .from('loan_requests_with_details')

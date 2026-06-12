@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getItRequests,
@@ -19,7 +18,7 @@ export const useItRequests = () =>
     retry: 1,
   })
 
-export const useMyItRequests = (userId) =>
+export const useMyItRequests = (userId: any) =>
   useQuery({
     queryKey: ['my-it-requests', userId],
     queryFn: () => getMyItRequests(userId),
@@ -27,7 +26,7 @@ export const useMyItRequests = (userId) =>
     retry: 1,
   })
 
-export const useItRequest = (id) =>
+export const useItRequest = (id: any) =>
   useQuery({
     queryKey: ['it-request', id],
     queryFn: () => getItRequest(id),
@@ -51,7 +50,7 @@ export const useCreateItRequest = () => {
 export const useUpdateItRequest = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, updates }) => updateItRequest(id, updates),
+    mutationFn: ({ id, updates }: any) => updateItRequest(id, updates),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['it-requests'] })
       qc.invalidateQueries({ queryKey: ['my-it-requests'] })

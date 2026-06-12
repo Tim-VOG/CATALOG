@@ -11,7 +11,7 @@ export const getMailboxRequests = async () => {
 }
 
 // ── User: fetch own mailbox requests ──
-export const getMyMailboxRequests = async (userId) => {
+export const getMyMailboxRequests = async (userId: any) => {
   const { data, error } = await supabase
     .from('mailbox_requests')
     .select('*')
@@ -22,7 +22,7 @@ export const getMyMailboxRequests = async (userId) => {
 }
 
 // ── Fetch single mailbox request ──
-export const getMailboxRequest = async (id) => {
+export const getMailboxRequest = async (id: any) => {
   const { data, error } = await supabase
     .from('mailbox_requests')
     .select('*')
@@ -33,7 +33,7 @@ export const getMailboxRequest = async (id) => {
 }
 
 // ── Create mailbox request ──
-export const createMailboxRequest = async (request) => {
+export const createMailboxRequest = async (request: any) => {
   const { data, error } = await supabase
     .from('mailbox_requests')
     .insert(request)
@@ -44,7 +44,7 @@ export const createMailboxRequest = async (request) => {
 }
 
 // ── Update mailbox request ──
-export const updateMailboxRequest = async (id, updates) => {
+export const updateMailboxRequest = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('mailbox_requests')
     .update(updates)
@@ -56,7 +56,7 @@ export const updateMailboxRequest = async (id, updates) => {
 }
 
 // ── Delete mailbox request ──
-export const deleteMailboxRequest = async (id) => {
+export const deleteMailboxRequest = async (id: any) => {
   const { error } = await supabase
     .from('mailbox_requests')
     .delete()
@@ -65,7 +65,7 @@ export const deleteMailboxRequest = async (id) => {
 }
 
 // ── Bulk delete mailbox requests ──
-export const deleteMailboxRequests = async (ids) => {
+export const deleteMailboxRequests = async (ids: any) => {
   const { error } = await supabase
     .from('mailbox_requests')
     .delete()

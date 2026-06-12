@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import * as api from '@/lib/api/products'
 
@@ -8,7 +7,7 @@ export const useProducts = (filters = {}) =>
     queryFn: () => api.getProducts(filters),
   })
 
-export const useProduct = (id) =>
+export const useProduct = (id: any) =>
   useQuery({
     queryKey: ['products', id],
     queryFn: () => api.getProduct(id),
@@ -26,7 +25,7 @@ export const useCreateProduct = () => {
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }) => api.updateProduct(id, data),
+    mutationFn: ({ id, ...data }: any) => api.updateProduct(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
   })
 }
@@ -47,7 +46,7 @@ export const useDeleteProducts = () => {
   })
 }
 
-export const useProductReservations = (productId) =>
+export const useProductReservations = (productId: any) =>
   useQuery({
     queryKey: ['product-reservations', productId],
     queryFn: () => api.getProductReservations(productId),

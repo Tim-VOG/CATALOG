@@ -9,7 +9,7 @@ export const getAppSettings = async () => {
   return data
 }
 
-export const updateAppSettings = async (updates) => {
+export const updateAppSettings = async (updates: any) => {
   const { data: current } = await supabase
     .from('app_settings')
     .select('id')

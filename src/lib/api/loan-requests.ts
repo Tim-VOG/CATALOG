@@ -9,7 +9,7 @@ export const getLoanRequests = async () => {
   return data
 }
 
-export const getMyLoanRequests = async (userId) => {
+export const getMyLoanRequests = async (userId: any) => {
   const { data, error } = await supabase
     .from('loan_requests_with_details')
     .select('*')
@@ -19,7 +19,7 @@ export const getMyLoanRequests = async (userId) => {
   return data
 }
 
-export const getLoanRequest = async (id) => {
+export const getLoanRequest = async (id: any) => {
   const { data, error } = await supabase
     .from('loan_requests_with_details')
     .select('*')
@@ -29,7 +29,7 @@ export const getLoanRequest = async (id) => {
   return data
 }
 
-export const getLoanRequestItems = async (requestId) => {
+export const getLoanRequestItems = async (requestId: any) => {
   const { data, error } = await supabase
     .from('loan_request_items_with_details')
     .select('*')
@@ -38,7 +38,7 @@ export const getLoanRequestItems = async (requestId) => {
   return data
 }
 
-export const getBatchLoanRequestItems = async (requestIds) => {
+export const getBatchLoanRequestItems = async (requestIds: any) => {
   if (!requestIds.length) return []
   const { data, error } = await supabase
     .from('loan_request_items_with_details')
@@ -48,7 +48,7 @@ export const getBatchLoanRequestItems = async (requestIds) => {
   return data
 }
 
-export const createLoanRequest = async ({ request, items }) => {
+export const createLoanRequest = async ({ request, items }: any) => {
   // Create the request
   const { data: req, error: reqError } = await supabase
     .from('loan_requests')
@@ -73,7 +73,7 @@ export const createLoanRequest = async ({ request, items }) => {
   return req
 }
 
-export const updateRequestStatus = async (id, status, extraData = {}) => {
+export const updateRequestStatus = async (id: any, status: any, extraData: any = {}) => {
   const updates = { status, ...extraData }
 
   const { data, error } = await supabase
@@ -86,7 +86,7 @@ export const updateRequestStatus = async (id, status, extraData = {}) => {
   return data
 }
 
-export const updateLoanRequest = async (id, updates) => {
+export const updateLoanRequest = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('loan_requests')
     .update(updates)
@@ -97,7 +97,7 @@ export const updateLoanRequest = async (id, updates) => {
   return data
 }
 
-export const deleteLoanRequest = async (id) => {
+export const deleteLoanRequest = async (id: any) => {
   // Delete items first (foreign key), then the request
   const { error: itemsError } = await supabase
     .from('loan_request_items')
@@ -112,7 +112,7 @@ export const deleteLoanRequest = async (id) => {
   if (error) throw error
 }
 
-export const deleteLoanRequests = async (ids) => {
+export const deleteLoanRequests = async (ids: any) => {
   // Bulk delete: items first, then requests
   const { error: itemsError } = await supabase
     .from('loan_request_items')

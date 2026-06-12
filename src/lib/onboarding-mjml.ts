@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 /**
  * Build MJML markup from blocks config + recipient data.
  * This produces a rich, modular email with card-based blocks,
@@ -421,7 +420,7 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
  * @param {Object} recipient - { first_name, last_name, email, team, department, start_date }
  * @returns {string} MJML markup
  */
-export function buildMjmlFromBlocks(blocksConfig, language, recipient, sender = null, branding = {}) {
+export function buildMjmlFromBlocks(blocksConfig: any, language: any, recipient: any, sender: any = null, branding: any = {}) {
   const vars = {
     first_name: recipient.first_name || '',
     last_name: recipient.last_name || '',

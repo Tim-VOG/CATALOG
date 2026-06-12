@@ -1,4 +1,4 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
+// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useRef } from 'react'
 import { useProfiles } from '@/hooks/use-profiles'
 import { UserAvatar } from '@/components/common/UserAvatar'

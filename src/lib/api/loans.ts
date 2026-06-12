@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 
 export const getLoans = async () => {
@@ -10,7 +9,7 @@ export const getLoans = async () => {
   return data
 }
 
-export const createLoan = async (loan) => {
+export const createLoan = async (loan: any) => {
   const { data, error } = await supabase
     .from('loans')
     .insert(loan)
@@ -20,7 +19,7 @@ export const createLoan = async (loan) => {
   return data
 }
 
-export const updateLoanStatus = async (id, status, additionalData = {}) => {
+export const updateLoanStatus = async (id: any, status: any, additionalData: any = {}) => {
   const updates = { status, ...additionalData }
   if (status === 'active') {
     updates.approved_at = new Date().toISOString()
@@ -35,7 +34,7 @@ export const updateLoanStatus = async (id, status, additionalData = {}) => {
   return data
 }
 
-export const returnLoan = async (id, returnData) => {
+export const returnLoan = async (id: any, returnData: any) => {
   const { data, error } = await supabase
     .from('loans')
     .update({

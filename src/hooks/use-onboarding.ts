@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getOnboardingRecipients,
@@ -33,7 +32,7 @@ export const useCreateRecipient = () => {
 export const useUpdateRecipient = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateOnboardingRecipient(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateOnboardingRecipient(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['onboarding-recipients'] }),
   })
 }
@@ -65,7 +64,7 @@ export const useOnboardingEmails = () =>
     retry: 1,
   })
 
-export const useOnboardingEmail = (id) =>
+export const useOnboardingEmail = (id: any) =>
   useQuery({
     queryKey: ['onboarding-emails', id],
     queryFn: () => getOnboardingEmail(id),
@@ -73,7 +72,7 @@ export const useOnboardingEmail = (id) =>
     retry: 1,
   })
 
-export const useOnboardingEmailsByRequest = (requestId) =>
+export const useOnboardingEmailsByRequest = (requestId: any) =>
   useQuery({
     queryKey: ['onboarding-emails', 'by-request', requestId],
     queryFn: async () => {
@@ -95,7 +94,7 @@ export const useCreateEmail = () => {
 export const useUpdateEmail = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateOnboardingEmail(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateOnboardingEmail(id, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['onboarding-emails'] }),
   })
 }

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-export const getCartItems = async (userId) => {
+export const getCartItems = async (userId: any) => {
   const { data, error } = await supabase
     .from('cart_items_with_product')
     .select('*')
@@ -42,7 +42,7 @@ export const addToCart = async ({ userId, productId, quantity = 1, options = {} 
   return data
 }
 
-export const updateCartItem = async (id, updates) => {
+export const updateCartItem = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('cart_items')
     .update(updates)
@@ -53,7 +53,7 @@ export const updateCartItem = async (id, updates) => {
   return data
 }
 
-export const removeFromCart = async (id) => {
+export const removeFromCart = async (id: any) => {
   const { error } = await supabase
     .from('cart_items')
     .delete()
@@ -61,7 +61,7 @@ export const removeFromCart = async (id) => {
   if (error) throw error
 }
 
-export const clearCart = async (userId) => {
+export const clearCart = async (userId: any) => {
   const { error } = await supabase
     .from('cart_items')
     .delete()

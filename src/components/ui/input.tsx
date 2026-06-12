@@ -1,7 +1,11 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-const Input = React.forwardRef<any, any>(({ className, type, icon: Icon, ...props }, ref) => {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  icon?: React.ComponentType<{ className?: string }>
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon: Icon, ...props }, ref) => {
   return (
     <div className="relative">
       {Icon && (

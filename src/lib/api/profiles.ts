@@ -1,8 +1,7 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { supabase } from '@/lib/supabase'
 import { sanitizeSearch } from '@/lib/sanitize'
 
-export const getProfile = async (userId) => {
+export const getProfile = async (userId: any) => {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -12,7 +11,7 @@ export const getProfile = async (userId) => {
   return data
 }
 
-export const updateProfile = async (userId, updates) => {
+export const updateProfile = async (userId: any, updates: any) => {
   const { data, error } = await supabase
     .from('profiles')
     .update(updates)
@@ -23,7 +22,7 @@ export const updateProfile = async (userId, updates) => {
   return data
 }
 
-export const getProfiles = async ({ search, role } = {}) => {
+export const getProfiles = async ({ search, role }: any = {}) => {
   let query = supabase
     .from('profiles')
     .select('*')
@@ -42,7 +41,7 @@ export const getProfiles = async ({ search, role } = {}) => {
   return data
 }
 
-export const updateProfileRole = async (userId, role) => {
+export const updateProfileRole = async (userId: any, role: any) => {
   const { data, error } = await supabase
     .from('profiles')
     .update({ role })
@@ -53,7 +52,7 @@ export const updateProfileRole = async (userId, role) => {
   return data
 }
 
-export const toggleProfileActive = async (userId, isActive) => {
+export const toggleProfileActive = async (userId: any, isActive: any) => {
   const { data, error } = await supabase
     .from('profiles')
     .update({ is_active: isActive })
@@ -64,7 +63,7 @@ export const toggleProfileActive = async (userId, isActive) => {
   return data
 }
 
-export const deleteProfile = async (userId) => {
+export const deleteProfile = async (userId: any) => {
   // Delete module_access first (cascade should handle, but be explicit)
   await supabase.from('module_access').delete().eq('user_id', userId)
   // Delete profile — user will need to sign in again (trigger recreates profile)

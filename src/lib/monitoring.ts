@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 /**
  * Lightweight error monitoring shim.
  *
@@ -46,7 +45,7 @@ async function loadSentry() {
   return sentryPromise
 }
 
-export async function captureException(err, context) {
+export async function captureException(err: unknown, context?: Record<string, unknown>) {
   if (!DSN) {
     console.error('[captureException]', err, context)
     return
@@ -59,7 +58,7 @@ export async function captureException(err, context) {
   }
 }
 
-export async function setUser({ id, email } = {}) {
+export async function setUser({ id, email }: { id?: string; email?: string } = {}) {
   if (!DSN) return
   const Sentry = await loadSentry()
   if (Sentry) Sentry.setUser(id ? { id, email } : null)

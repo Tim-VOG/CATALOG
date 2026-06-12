@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getMailboxRequests,
@@ -19,7 +18,7 @@ export const useMailboxRequests = () =>
     retry: 1,
   })
 
-export const useMyMailboxRequests = (userId) =>
+export const useMyMailboxRequests = (userId: any) =>
   useQuery({
     queryKey: ['my-mailbox-requests', userId],
     queryFn: () => getMyMailboxRequests(userId),
@@ -27,7 +26,7 @@ export const useMyMailboxRequests = (userId) =>
     retry: 1,
   })
 
-export const useMailboxRequest = (id) =>
+export const useMailboxRequest = (id: any) =>
   useQuery({
     queryKey: ['mailbox-request', id],
     queryFn: () => getMailboxRequest(id),
@@ -51,7 +50,7 @@ export const useCreateMailboxRequest = () => {
 export const useUpdateMailboxRequest = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, updates }) => updateMailboxRequest(id, updates),
+    mutationFn: ({ id, updates }: any) => updateMailboxRequest(id, updates),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mailbox-requests'] })
       qc.invalidateQueries({ queryKey: ['my-mailbox-requests'] })

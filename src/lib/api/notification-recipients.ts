@@ -9,7 +9,7 @@ export const getNotificationRecipients = async () => {
   return data
 }
 
-export const createNotificationRecipient = async (recipient) => {
+export const createNotificationRecipient = async (recipient: any) => {
   const { data, error } = await supabase
     .from('notification_recipients')
     .insert(recipient)
@@ -19,7 +19,7 @@ export const createNotificationRecipient = async (recipient) => {
   return data
 }
 
-export const updateNotificationRecipient = async (id, updates) => {
+export const updateNotificationRecipient = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('notification_recipients')
     .update(updates)
@@ -30,7 +30,7 @@ export const updateNotificationRecipient = async (id, updates) => {
   return data
 }
 
-export const deleteNotificationRecipient = async (id) => {
+export const deleteNotificationRecipient = async (id: any) => {
   const { error } = await supabase
     .from('notification_recipients')
     .delete()

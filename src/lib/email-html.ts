@@ -1,9 +1,8 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 /**
  * Convert plain text with newlines into styled HTML paragraphs.
  * Preserves HTML blocks (tables, divs) as-is.
  */
-export function formatTextToHtml(text) {
+export function formatTextToHtml(text: any) {
   const blocks = text.split(/\n\n+/)
   return blocks
     .map((block) => {
@@ -24,17 +23,17 @@ export function formatTextToHtml(text) {
  * Build a CTA button (black solid, rounded). Used by templates via {{cta:Label|URL}}
  * or callable directly.
  */
-export function ctaButton(label, url) {
+export function ctaButton(label: any, url: any) {
   return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:28px 0;"><tr><td align="center">
     <a href="${escapeAttr(url)}" style="display:inline-block;padding:14px 32px;border-radius:10px;background:#0a0a0a;color:#ffffff;font-weight:600;font-size:15px;text-decoration:none;letter-spacing:-0.1px;box-shadow:0 1px 2px rgba(0,0,0,0.08);">${escapeHtml(label)}</a>
   </td></tr></table>`
 }
 
-export function styledDate(value) {
+export function styledDate(value: any) {
   return `<span style="display:inline-block;padding:4px 12px;border-radius:999px;background:#fef3ec;color:#c2410c;font-weight:600;font-size:13px;">&#128197; ${escapeHtml(value)}</span>`
 }
 
-export function styledCondition(value) {
+export function styledCondition(value: any) {
   const isGood = /good|no damage|bon/i.test(value)
   const color = isGood ? '#0a7a3b' : '#a16207'
   const bg = isGood ? '#e7f6ec' : '#fef6e0'
@@ -45,7 +44,7 @@ export function styledCondition(value) {
 /**
  * Info card: a clean white card with sections.
  */
-export function generateDetailsCard(vars) {
+export function generateDetailsCard(vars: any) {
   const rows = []
 
   if (vars.project_name) {
@@ -89,7 +88,7 @@ export function generateDetailsCard(vars) {
   </table>`
 }
 
-export function generateStyledVars(vars) {
+export function generateStyledVars(vars: any) {
   const styled = { ...vars }
   if (vars.pickup_date) styled.pickup_date = styledDate(vars.pickup_date)
   if (vars.return_date) styled.return_date = styledDate(vars.return_date)
@@ -101,7 +100,7 @@ export function generateStyledVars(vars) {
   return styled
 }
 
-export function styledItemList(items) {
+export function styledItemList(items: any) {
   if (!items || items.length === 0) return ''
   const badges = items.map((item) => {
     const qty = item.quantity > 1 ? ` &times;${item.quantity}` : ''
@@ -113,7 +112,7 @@ export function styledItemList(items) {
   return badges.join('')
 }
 
-export function generateItemsHtml(items, itemReturns = []) {
+export function generateItemsHtml(items: any, itemReturns: any = []) {
   const rows = items.map((item) => {
     const ret = itemReturns.find((r) => r.id === item.id)
     const condition = ret?.return_condition
@@ -236,7 +235,7 @@ export async function getEmailBranding() {
 /**
  * Wrap email body in a full HTML document (Stripe-inspired light theme).
  */
-export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline = '', logoHeight = 0, raw = false } = {}) {
+export function wrapEmailHtml(body: any, { appName = 'VO Hub', logoUrl = '', tagline = '', logoHeight = 0, raw = false }: any = {}) {
   // Pre-process body:
   //  1. {{cta:Label|URL}} → styled black button
   //  2. **bold** → <strong> (also in raw mode — DB templates use markdown bold
@@ -316,7 +315,7 @@ export function wrapEmailHtml(body, { appName = 'VO Hub', logoUrl = '', tagline 
 /**
  * Render a template with variable substitution, optionally wrapping in HTML
  */
-export function renderEmailTemplate(template, vars, { appName, logoUrl, tagline, logoHeight } = {}) {
+export function renderEmailTemplate(template: any, vars: any, { appName, logoUrl, tagline, logoHeight }: any = {}) {
   const resolvedVars = template.format === 'html' ? generateStyledVars(vars) : vars
 
   let body = template.body.replace(/\{\{(\w+)\}\}/g, (_, key) => resolvedVars[key] || `[${key}]`)
@@ -329,7 +328,7 @@ export function renderEmailTemplate(template, vars, { appName, logoUrl, tagline,
   return { subject, body }
 }
 
-export function escapeHtml(str) {
+export function escapeHtml(str: any) {
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -337,6 +336,6 @@ export function escapeHtml(str) {
     .replace(/"/g, '&quot;')
 }
 
-export function escapeAttr(str) {
+export function escapeAttr(str: any) {
   return escapeHtml(str)
 }

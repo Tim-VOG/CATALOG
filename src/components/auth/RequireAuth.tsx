@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { PageLoading } from '@/components/common/LoadingSpinner'

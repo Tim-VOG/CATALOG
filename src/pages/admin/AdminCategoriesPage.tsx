@@ -1,4 +1,4 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
+// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/use-categories'
 import { Plus, Trash2, FolderTree } from 'lucide-react'

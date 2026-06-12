@@ -11,7 +11,7 @@ export const getItFormFields = async () => {
 }
 
 // ── Create a new form field ──
-export const createItFormField = async (field) => {
+export const createItFormField = async (field: any) => {
   const { data, error } = await supabase
     .from('it_form_fields')
     .insert(field)
@@ -22,7 +22,7 @@ export const createItFormField = async (field) => {
 }
 
 // ── Update a form field ──
-export const updateItFormField = async (id, updates) => {
+export const updateItFormField = async (id: any, updates: any) => {
   const { data, error } = await supabase
     .from('it_form_fields')
     .update(updates)
@@ -34,7 +34,7 @@ export const updateItFormField = async (id, updates) => {
 }
 
 // ── Delete a form field ──
-export const deleteItFormField = async (id) => {
+export const deleteItFormField = async (id: any) => {
   const { error } = await supabase
     .from('it_form_fields')
     .delete()
@@ -43,7 +43,7 @@ export const deleteItFormField = async (id) => {
 }
 
 // ── Reorder fields: accepts array of { id, sort_order } ──
-export const reorderItFormFields = async (orderedItems) => {
+export const reorderItFormFields = async (orderedItems: any) => {
   // Use Promise.all for batch update
   const updates = orderedItems.map(({ id, sort_order }) =>
     supabase

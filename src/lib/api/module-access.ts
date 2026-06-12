@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-export const getModuleAccessForUser = async (userId) => {
+export const getModuleAccessForUser = async (userId: any) => {
   const { data, error } = await supabase
     .from('module_access')
     .select('*')
@@ -31,7 +31,7 @@ export const upsertModuleAccess = async (userId, moduleKey, granted) => {
   return data
 }
 
-export const deleteModuleAccess = async (id) => {
+export const deleteModuleAccess = async (id: any) => {
   const { error } = await supabase
     .from('module_access')
     .delete()

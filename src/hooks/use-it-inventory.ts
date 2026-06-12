@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getItInventory, createItInventoryItem, updateItInventoryItem, deleteItInventoryItem,
@@ -20,7 +19,7 @@ export const useCreateItInventoryItem = () => {
 export const useUpdateItInventoryItem = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...updates }) => updateItInventoryItem(id, updates),
+    mutationFn: ({ id, ...updates }: any) => updateItInventoryItem(id, updates),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   })
 }

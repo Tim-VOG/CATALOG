@@ -10,7 +10,7 @@ export const getNotifications = async () => {
   return data
 }
 
-export const markAsRead = async (id) => {
+export const markAsRead = async (id: any) => {
   const { error } = await supabase
     .from('notifications')
     .update({ is_read: true })

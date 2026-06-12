@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 migration in progress; this file will be properly typed in a follow-up pass.
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getProfile, getProfiles, updateProfile, updateProfileRole, toggleProfileActive, deleteProfile } from '@/lib/api/profiles'
 
@@ -8,7 +7,7 @@ export const useProfiles = (filters = {}) =>
     queryFn: () => getProfiles(filters),
   })
 
-export const useProfile = (userId) =>
+export const useProfile = (userId: any) =>
   useQuery({
     queryKey: ['profiles', 'one', userId],
     queryFn: () => getProfile(userId),
@@ -18,7 +17,7 @@ export const useProfile = (userId) =>
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, ...updates }) => updateProfile(userId, updates),
+    mutationFn: ({ userId, ...updates }: any) => updateProfile(userId, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
   })
 }
@@ -26,7 +25,7 @@ export const useUpdateProfile = () => {
 export const useUpdateProfileRole = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, role }) => updateProfileRole(userId, role),
+    mutationFn: ({ userId, role }: any) => updateProfileRole(userId, role),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
   })
 }
@@ -34,7 +33,7 @@ export const useUpdateProfileRole = () => {
 export const useToggleProfileActive = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, isActive }) => toggleProfileActive(userId, isActive),
+    mutationFn: ({ userId, isActive }: any) => toggleProfileActive(userId, isActive),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profiles'] }),
   })
 }

@@ -9,7 +9,7 @@ const SheetTrigger = DialogPrimitive.Trigger
 const SheetClose = DialogPrimitive.Close
 const SheetPortal = DialogPrimitive.Portal
 
-const SheetOverlay = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const SheetOverlay = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <DialogPrimitive.Overlay
     className={cn(
       'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm',
@@ -69,7 +69,7 @@ const SheetFooter = ({ className, ...props }) => (
   <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props} />
 )
 
-const SheetTitle = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const SheetTitle = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <DialogPrimitive.Title
     ref={ref}
     className={cn('text-lg font-semibold text-foreground', className)}
@@ -78,7 +78,7 @@ const SheetTitle = React.forwardRef<any, any>(({ className, ...props }, ref) => 
 ))
 SheetTitle.displayName = DialogPrimitive.Title.displayName
 
-const SheetDescription = React.forwardRef<any, any>(({ className, ...props }, ref) => (
+const SheetDescription = React.forwardRef<any, any>(({ className, ...props }: any, ref: any) => (
   <DialogPrimitive.Description
     ref={ref}
     className={cn('text-sm text-muted-foreground', className)}
