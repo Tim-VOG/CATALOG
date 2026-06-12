@@ -1,18 +1,23 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { format, differenceInDays } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useAuth } from '@/lib/auth'
 import { useQRCodesAssignedTo } from '@/hooks/use-qr-codes'
+import { useCreateEquipmentIssue } from '@/hooks/use-equipment-issues'
+import { uploadIssuePhoto } from '@/lib/api/equipment-issues'
+import { useUIStore } from '@/stores/ui-store'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { PickupPointMap } from '@/components/common/PickupPointMap'
 import {
-  Package, AlertCircle, Mail, ScanLine, Calendar, ArrowRight,
+  Package, AlertCircle, Mail, ScanLine, Calendar, ArrowRight, Upload, Loader2, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -121,6 +126,43 @@ interface EquipmentCardProps {
 }
 
 function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
+  const { user, profile } = useAuth()
+  const showToast = useUIStore((s) => s.showToast)
+  const createIssue = useCreateEquipmentIssue()
+  const [issueOpen, setIssueOpen] = useState(false)
+  const [desc, setDesc] = useState('')
+  const [photoUrl, setPhotoUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+
+  const productLineName = item.product_name || item.label || 'Device'
+
+  const handlePhoto = async (file: File) => {
+    setUploading(true)
+    try { setPhotoUrl(await uploadIssuePhoto(file)) }
+    catch (err: any) { showToast(err?.message || 'Upload failed', 'error') }
+    finally { setUploading(false) }
+  }
+
+  const submitIssue = async () => {
+    if (!desc.trim()) { showToast('Describe the problem first', 'error'); return }
+    try {
+      await createIssue.mutateAsync({
+        qr_code_id: item.id,
+        qr_code: item.code,
+        product_name: productLineName,
+        reported_by: user?.id,
+        reporter_name: [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || user?.email,
+        reporter_email: user?.email,
+        description: desc.trim(),
+        photo_url: photoUrl || null,
+      })
+      showToast('Problem reported — IT has been notified', 'success')
+      setIssueOpen(false); setDesc(''); setPhotoUrl('')
+    } catch (err: any) {
+      showToast(err?.message || 'Could not send the report', 'error')
+    }
+  }
+
   const dueBadge = {
     overdue:    { label: `${Math.abs(item.daysLeft || 0)} d overdue`, classes: 'bg-rose-500/12 text-rose-500 border-rose-500/30' },
     soon:       { label: item.daysLeft === 0 ? 'due today' : `${item.daysLeft} d left`, classes: 'bg-amber-500/12 text-amber-600 border-amber-500/30' },
@@ -128,10 +170,9 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
     'open-ended': { label: 'no return date set', classes: 'bg-muted text-muted-foreground border-border' },
   }[item.status as 'overdue' | 'soon' | 'ok' | 'open-ended']
 
-  const productLine = item.product_name || item.label || 'Device'
+  const productLine = productLineName
   const subject = `${subjectPrefix}${encodeURIComponent(`${productLine} — ${item.code}`)}`
   const returnBody = `${fromLine}${encodeURIComponent(`I'd like to return:\n  · ${productLine}\n  · QR ${item.code}\n\nWhen would suit you?`)}`
-  const issueBody = `${fromLine}${encodeURIComponent(`I'm having an issue with:\n  · ${productLine}\n  · QR ${item.code}\n\nDescription of the issue:\n`)}`
 
   return (
     <Card>
@@ -176,15 +217,53 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
                   <ScanLine className="h-3 w-3" /> Request return
                 </Button>
               </a>
-              <a href={`mailto:${SUPPORT_EMAIL}?subject=Issue%20-%20${subject}&body=${issueBody}`}>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
-                  <AlertCircle className="h-3 w-3" /> Report a problem
-                </Button>
-              </a>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => setIssueOpen(true)}>
+                <AlertCircle className="h-3 w-3" /> Report a problem
+              </Button>
             </div>
           </div>
         </div>
       </CardContent>
+
+      {/* Report a problem → opens an IT ticket */}
+      <Dialog open={issueOpen} onOpenChange={(v: boolean) => !v && setIssueOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report a problem — {productLineName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-1">
+            <p className="text-xs text-muted-foreground">
+              <span className="font-mono">{item.code}</span> · IT gets notified right away and can follow up.
+            </p>
+            <Textarea
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="What's wrong? (cracked screen, won't charge, missing charger…)"
+              rows={4}
+              autoFocus
+            />
+            {photoUrl ? (
+              <div className="relative inline-block">
+                <img src={photoUrl} alt="" className="h-24 rounded-lg border border-border/50" />
+                <button onClick={() => setPhotoUrl('')} className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="cursor-pointer inline-flex">
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.[0] && handlePhoto(e.target.files[0])} />
+                <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-input hover:bg-muted transition-colors">
+                  {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} Add a photo (optional)
+                </span>
+              </label>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIssueOpen(false)}>Cancel</Button>
+            <Button onClick={submitIssue} disabled={createIssue.isPending || uploading}>Send report</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }
