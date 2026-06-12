@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   QrCode, Plus, Pencil, Trash2, Search, Download,
-  Package, Copy, Check, Printer, User,
+  Package, Copy, Check, Printer, User, UserPlus, UserMinus,
 } from 'lucide-react'
 import QRCodeLib from 'qrcode'
 import { printBrandedQRCodes } from '@/lib/qr-branded'
@@ -20,8 +20,10 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ScrollFadeIn } from '@/components/ui/motion'
 import {
   useQRCodes, useCreateQRCode, useCreateQRCodes, useUpdateQRCode, useDeleteQRCode,
+  useClaimQRCode, useReleaseQRCode,
 } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
+import { useProfiles } from '@/hooks/use-profiles'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -61,13 +63,49 @@ export function AdminQRCodesPage() {
   const [copiedId, setCopiedId] = useState<any>(null)
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  // Desktop assign (no camera)
+  const [assignTarget, setAssignTarget] = useState<any>(null)
+  const [assignUserId, setAssignUserId] = useState('')
+  const [assignReturn, setAssignReturn] = useState('')
 
   const { data: qrCodes = [], isLoading } = useQRCodes({ search })
   const { data: products = [] } = useProducts()
+  const { data: profiles = [] } = useProfiles({})
   const createQR = useCreateQRCode()
   const createQRs = useCreateQRCodes()
   const updateQR = useUpdateQRCode()
   const deleteQR = useDeleteQRCode()
+  const claimQR = useClaimQRCode()
+  const releaseQR = useReleaseQRCode()
+
+  const handleAssign = async () => {
+    if (!assignTarget || !assignUserId) { toast.error('Pick a person'); return }
+    const u: any = profiles.find((p: any) => p.id === assignUserId)
+    try {
+      await claimQR.mutateAsync({
+        id: assignTarget.id,
+        assigned_to: u?.id,
+        assigned_to_name: [u?.first_name, u?.last_name].filter(Boolean).join(' ') || u?.email,
+        assigned_to_email: u?.email,
+        assigned_at: new Date().toISOString(),
+        expected_return_date: assignReturn || null,
+      })
+      toast.success('Assigned')
+      setAssignTarget(null); setAssignUserId(''); setAssignReturn('')
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not assign')
+    }
+  }
+
+  const handleRelease = async (qr: any) => {
+    if (!confirm(`Release ${qr.code} from ${qr.assigned_to_name || 'this person'}?`)) return
+    try {
+      await releaseQR.mutateAsync({ id: qr.id })
+      toast.success('Released — back to available')
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not release')
+    }
+  }
 
   const openNew = () => { setEditing(null); setForm({ ...emptyForm, code: generateCode('VO') }); setShowDialog(true) }
   const openEdit = (qr) => { setEditing(qr); setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', serial_number: qr.serial_number || '', is_active: qr.is_active }); setShowDialog(true) }
@@ -219,6 +257,16 @@ export function AdminQRCodesPage() {
                         )}
                       </div>
                       <div className="flex flex-col gap-1 shrink-0">
+                        {qrStatus === 'available' && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-500" title="Assign to a person" onClick={() => { setAssignTarget(qr); setAssignUserId(''); setAssignReturn('') }}>
+                            <UserPlus className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                        {qrStatus === 'assigned' && (
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600" title="Release (mark returned)" onClick={() => handleRelease(qr)}>
+                            <UserMinus className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => downloadQR(qr.code, qr.product_name)}>
                           <Download className="h-3.5 w-3.5" />
                         </Button>
@@ -237,6 +285,37 @@ export function AdminQRCodesPage() {
           })}
         </div>
       )}
+
+      {/* Desktop assign dialog (no camera) */}
+      <Dialog open={!!assignTarget} onOpenChange={(v: boolean) => !v && setAssignTarget(null)}>
+        <DialogContent className="max-w-md p-6">
+          <DialogHeader>
+            <DialogTitle>Assign {assignTarget?.code}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">{assignTarget?.product_name || assignTarget?.label}</p>
+            <div className="space-y-1">
+              <Label>Assign to *</Label>
+              <Select value={assignUserId} onChange={(e) => setAssignUserId(e.target.value)}>
+                <option value="">Select a person…</option>
+                {profiles.map((p: any) => (
+                  <option key={p.id} value={p.id}>
+                    {[p.first_name, p.last_name].filter(Boolean).join(' ') || p.email}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Expected return (optional)</Label>
+              <Input type="date" value={assignReturn} onChange={(e) => setAssignReturn(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignTarget(null)}>Cancel</Button>
+            <Button onClick={handleAssign} disabled={claimQR.isPending}>Assign</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Create/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
