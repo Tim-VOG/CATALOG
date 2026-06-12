@@ -15,6 +15,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { StatusBadge } from '@/components/common/StatusBadge'
+import { OffboardingChecklist } from '@/components/admin/OffboardingChecklist'
 import { cn } from '@/lib/utils'
 
 const formatDate = (d) =>
@@ -279,6 +280,10 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch,
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {(req.status === 'pending' || req.status === 'in_progress') && (
+        <OffboardingChecklist req={req} />
       )}
 
       {req.status === 'ready' && (
