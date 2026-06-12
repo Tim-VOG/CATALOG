@@ -65,6 +65,7 @@ const AdminScanLogsPage = lazy(() => import('@/pages/admin/AdminScanLogsPage').t
 const AdminAuditLogPage = lazy(() => import('@/pages/admin/AdminAuditLogPage').then((m) => ({ default: m.AdminAuditLogPage })))
 const AdminReservationsPage = lazy(() => import('@/pages/admin/AdminReservationsPage').then((m) => ({ default: m.AdminReservationsPage })))
 const AdminLostItemsPage = lazy(() => import('@/pages/admin/AdminLostItemsPage').then((m) => ({ default: m.AdminLostItemsPage })))
+const AdminUtilizationPage = lazy(() => import('@/pages/admin/AdminUtilizationPage').then((m) => ({ default: m.AdminUtilizationPage })))
 
 export function AppRoutes() {
   return (
@@ -156,6 +157,7 @@ export function AppRoutes() {
             <Route path="audit" element={<AdminOnly><AdminAuditLogPage /></AdminOnly>} />
             <Route path="reservations" element={<AdminOnly><AdminReservationsPage /></AdminOnly>} />
             <Route path="lost-items" element={<AdminOnly><AdminLostItemsPage /></AdminOnly>} />
+            <Route path="utilization" element={<AdminOnly><AdminUtilizationPage /></AdminOnly>} />
             <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
           </Route>
         </Route>

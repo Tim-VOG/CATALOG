@@ -114,6 +114,13 @@ export const useScanLogsForUser = (userId: any) =>
     enabled: !!userId,
   })
 
+export const useScanLogsForQrCode = (qrCodeId: any) =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'qr', qrCodeId],
+    queryFn: () => api.getScanLogsForQrCode(qrCodeId),
+    enabled: !!qrCodeId,
+  })
+
 export const useOverdueScans = () =>
   useQuery({
     queryKey: ['qr-scan-logs', 'overdue'],
@@ -136,4 +143,10 @@ export const useScanStatsByCategory = () =>
   useQuery({
     queryKey: ['qr-scan-logs', 'stats-by-category'],
     queryFn: api.getScanStatsByCategory,
+  })
+
+export const useTakeCounts = (days = 90) =>
+  useQuery({
+    queryKey: ['qr-scan-logs', 'take-counts', days],
+    queryFn: () => api.getTakeCounts(days),
   })

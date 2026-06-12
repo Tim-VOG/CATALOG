@@ -6,7 +6,7 @@ import {
   UserPlus, UserMinus, Monitor, BarChart3,
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
-  CalendarClock, PackageSearch,
+  CalendarClock, PackageSearch, Activity,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -50,6 +50,7 @@ export function AdminSidebar() {
         { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, managerOk: true },
         { to: '/admin/planning', label: 'Planning', icon: CalendarRange, managerOk: true },
         { to: '/admin/stats', label: 'Statistics', icon: BarChart3 },
+        { to: '/admin/utilization', label: 'Utilization', icon: Activity },
       ],
     },
     {

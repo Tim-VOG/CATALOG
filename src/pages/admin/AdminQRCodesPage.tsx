@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   QrCode, Plus, Pencil, Trash2, Search, Download,
   Package, Copy, Check, Printer, User, UserPlus, UserMinus,
+  History, ArrowDownToLine, ArrowUpFromLine,
 } from 'lucide-react'
 import QRCodeLib from 'qrcode'
 import { printBrandedQRCodes } from '@/lib/qr-branded'
@@ -20,7 +21,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { ScrollFadeIn } from '@/components/ui/motion'
 import {
   useQRCodes, useCreateQRCode, useCreateQRCodes, useUpdateQRCode, useDeleteQRCode,
-  useClaimQRCode, useReleaseQRCode,
+  useClaimQRCode, useReleaseQRCode, useScanLogsForQrCode,
 } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
 import { useProfiles } from '@/hooks/use-profiles'
@@ -67,6 +68,8 @@ export function AdminQRCodesPage() {
   const [assignTarget, setAssignTarget] = useState<any>(null)
   const [assignUserId, setAssignUserId] = useState('')
   const [assignReturn, setAssignReturn] = useState('')
+  // Per-device history
+  const [historyTarget, setHistoryTarget] = useState<any>(null)
 
   const { data: qrCodes = [], isLoading } = useQRCodes({ search })
   const { data: products = [] } = useProducts()
@@ -267,6 +270,9 @@ export function AdminQRCodesPage() {
                             <UserMinus className="h-3.5 w-3.5" />
                           </Button>
                         )}
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="History" onClick={() => setHistoryTarget(qr)}>
+                          <History className="h-3.5 w-3.5" />
+                        </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => downloadQR(qr.code, qr.product_name)}>
                           <Download className="h-3.5 w-3.5" />
                         </Button>
@@ -285,6 +291,16 @@ export function AdminQRCodesPage() {
           })}
         </div>
       )}
+
+      {/* Per-device history */}
+      <Dialog open={!!historyTarget} onOpenChange={(v: boolean) => !v && setHistoryTarget(null)}>
+        <DialogContent className="max-w-md p-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" /> {historyTarget?.code} history</DialogTitle>
+          </DialogHeader>
+          {historyTarget && <QrHistory qrCodeId={historyTarget.id} />}
+        </DialogContent>
+      </Dialog>
 
       {/* Desktop assign dialog (no camera) */}
       <Dialog open={!!assignTarget} onOpenChange={(v: boolean) => !v && setAssignTarget(null)}>
@@ -378,6 +394,43 @@ export function AdminQRCodesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+// ── Per-device lifecycle (take/deposit history for one QR) ──
+function QrHistory({ qrCodeId }: { qrCodeId: string }) {
+  const { data: logs = [], isLoading } = useScanLogsForQrCode(qrCodeId)
+  if (isLoading) return <p className="text-sm text-muted-foreground py-6 text-center">Loading…</p>
+  if (!logs.length) return <p className="text-sm text-muted-foreground py-6 text-center">No scan history for this unit yet.</p>
+  return (
+    <div className="max-h-80 overflow-auto -mx-1">
+      <div className="relative pl-2">
+        <div className="absolute left-[18px] top-1 bottom-1 w-px bg-border/50" aria-hidden />
+        <div className="space-y-1">
+          {logs.map((log: any) => {
+            const isTake = log.action === 'take'
+            const Icon = isTake ? ArrowDownToLine : ArrowUpFromLine
+            return (
+              <div key={log.id} className="relative flex items-start gap-3 py-1.5">
+                <div className={cn('relative z-10 h-8 w-8 rounded-lg flex items-center justify-center shrink-0',
+                  isTake ? 'bg-amber-500/10 text-amber-600' : 'bg-emerald-500/10 text-emerald-600')}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0 pt-0.5">
+                  <p className="text-sm truncate">
+                    {isTake ? 'Picked up' : 'Returned'}
+                    {log.user_name ? ` · ${log.user_name}` : log.user_email ? ` · ${log.user_email}` : ''}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {new Date(log.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }

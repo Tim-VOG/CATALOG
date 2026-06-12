@@ -224,6 +224,19 @@ export const getScanLogsForProduct = async (productId: any) => {
   return data
 }
 
+// Full lifecycle of one physical unit (one QR code).
+export const getScanLogsForQrCode = async (qrCodeId: any) => {
+  if (!qrCodeId) return []
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('qr_code_id', qrCodeId)
+    .order('created_at', { ascending: false })
+    .limit(100)
+  if (error) throw error
+  return data || []
+}
+
 // Get overdue equipment (taken but not returned past expected_return_date)
 // Filters out items that have been deposited after the take
 export const getOverdueScans = async () => {
@@ -312,6 +325,25 @@ export const getActiveLoans = async () => {
       new Date(dep.created_at) > new Date(take.created_at)
     )
   })
+}
+
+// Count 'take' events per product over the last N days — usage
+// frequency signal for the utilization report.
+export const getTakeCounts = async (days = 90): Promise<Record<string, number>> => {
+  const since = new Date()
+  since.setDate(since.getDate() - days)
+  const { data, error } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, action, created_at')
+    .eq('action', 'take')
+    .gte('created_at', since.toISOString())
+  if (error) throw error
+  const counts: Record<string, number> = {}
+  for (const row of (data || []) as any[]) {
+    if (!row.product_id) continue
+    counts[row.product_id] = (counts[row.product_id] || 0) + 1
+  }
+  return counts
 }
 
 // Get scan stats grouped by category (for dashboard chart)
