@@ -35,7 +35,7 @@ function getMonthGrid(year, month) {
  *   endDate    - ISO string 'YYYY-MM-DD' or ''
  *   onChange   - (startDate, endDate) => void
  */
-export function DateRangeCalendar({ startDate, endDate, onChange }) {
+export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
   const today = new Date()
   const todayStr = toDateStr(today)
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())

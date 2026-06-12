@@ -40,7 +40,7 @@ const EQUIPMENT_ITEMS = [
 ]
 
 // ── Step progress bar ──
-function StepProgress({ currentStep, steps }) {
+function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step, idx) => {
@@ -84,7 +84,7 @@ function StepProgress({ currentStep, steps }) {
 }
 
 // ── Step 1: Requester ──
-function StepRequester({ form, setField }) {
+function StepRequester({ form, setField  }: any) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -112,7 +112,7 @@ function StepRequester({ form, setField }) {
 }
 
 // ── Step 2: Event ──
-function StepEvent({ form, setField }) {
+function StepEvent({ form, setField  }: any) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -160,7 +160,7 @@ function StepEvent({ form, setField }) {
 }
 
 // ── Step 3: Equipment (with stock awareness) ──
-function StepEquipment({ form, setField, productsByCategory }) {
+function StepEquipment({ form, setField, productsByCategory  }: any) {
   const selected = form.equipment_needed || []
 
   const toggleEquipment = (id) => {
@@ -453,7 +453,7 @@ function StepEquipment({ form, setField, productsByCategory }) {
 }
 
 // ── Step: Subscription Plan (for phone/router) ──
-function StepSubscription({ form, setField, subscriptionPlans }) {
+function StepSubscription({ form, setField, subscriptionPlans  }: any) {
   const [filterType, setFilterType] = useState('all')
 
   const needsSubscription = (form.equipment_needed || []).some((id) => id === 'PHONE') ||
@@ -570,7 +570,7 @@ function StepSubscription({ form, setField, subscriptionPlans }) {
   )
 }
 
-function StepReview({ form, productsByCategory, subscriptionPlans }) {
+function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
   const equipmentLabels = (form.equipment_needed || [])
     .map((id) => EQUIPMENT_ITEMS.find((e) => e.id === id)?.label || id)
     .join(', ')
@@ -756,7 +756,7 @@ export function EquipmentRequestPage() {
 
       navigate('/')
       setTimeout(() => showToast('Equipment request submitted successfully!'), 100)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }
     setSubmitting(false)

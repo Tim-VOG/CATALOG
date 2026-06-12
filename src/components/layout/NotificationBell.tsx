@@ -174,7 +174,7 @@ export function NotificationBell() {
   )
 }
 
-function NotificationItem({ notification }) {
+function NotificationItem({ notification  }: any) {
   const category = getNotificationCategory(notification)
   const catConfig = REQUEST_CATEGORIES[category] || REQUEST_CATEGORIES.default
   const CatIcon = catConfig.icon

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
-export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onClose }) {
+export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onClose  }: any) {
   const [options, setOptions] = useState({
     subscription: '',
     subscriptionType: 'call',

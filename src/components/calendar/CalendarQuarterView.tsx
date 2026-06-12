@@ -34,7 +34,7 @@ function getMonthGrid(year, month) {
   return days
 }
 
-function MiniMonth({ monthDate, eventsMap, onDayClick }) {
+function MiniMonth({ monthDate, eventsMap, onDayClick  }: any) {
   const year = monthDate.getFullYear()
   const month = monthDate.getMonth()
   const days = useMemo(() => getMonthGrid(year, month), [year, month])
@@ -102,7 +102,7 @@ function MiniMonth({ monthDate, eventsMap, onDayClick }) {
   )
 }
 
-export function CalendarQuarterView({ currentDate, eventsMap, onDayClick, direction }) {
+export function CalendarQuarterView({ currentDate, eventsMap, onDayClick, direction  }: any) {
   const months = useMemo(() => [
     startOfMonth(currentDate),
     startOfMonth(addMonths(currentDate, 1)),

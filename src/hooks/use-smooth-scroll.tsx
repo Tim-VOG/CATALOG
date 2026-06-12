@@ -7,7 +7,7 @@ const SmoothScrollContext = createContext(null)
  * SmoothScrollProvider — wraps the app with Lenis smooth scroll.
  * Place inside BrowserRouter but outside route components.
  */
-export function SmoothScrollProvider({ children }) {
+export function SmoothScrollProvider({ children  }: any) {
   const lenisRef = useRef(null)
 
   useEffect(() => {

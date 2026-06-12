@@ -80,7 +80,7 @@ export function OffboardingPage() {
     try {
       await updateRequest.mutateAsync({ id: request.id, updates: { status: newStatus } })
       showToast(`Status updated to ${newStatus.replace('_', ' ')}`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Update failed', 'error')
     }
   }
@@ -90,7 +90,7 @@ export function OffboardingPage() {
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
       showToast('Offboarding request deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Delete failed', 'error')
     }
     setDeleteConfirm(null)

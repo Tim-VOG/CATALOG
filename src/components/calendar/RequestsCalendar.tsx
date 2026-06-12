@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   addMonths, subMonths, addWeeks, subWeeks, addDays, subDays,

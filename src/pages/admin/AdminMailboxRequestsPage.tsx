@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useMailboxRequests, useUpdateMailboxRequest, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
 import { useSharedMailboxes } from '@/hooks/use-shared-mailboxes'
@@ -88,7 +87,7 @@ function fillTemplate(template, req, appName) {
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : null
 
 // ── Banner download (fetch blob → Save As dialog) ──
-function BannerDownloadButton({ url, projectName }) {
+function BannerDownloadButton({ url, projectName  }: any) {
   const [downloading, setDownloading] = useState(false)
 
   const handleDownload = async () => {
@@ -129,7 +128,7 @@ function BannerDownloadButton({ url, projectName }) {
 // ══════════════════════════════════════════
 //  Request Info Card
 // ══════════════════════════════════════════
-function RequestInfoCard({ req }) {
+function RequestInfoCard({ req  }: any) {
   const [expanded, setExpanded] = useState(false)
 
   const mainFields = [
@@ -246,7 +245,7 @@ function RequestInfoCard({ req }) {
 // ══════════════════════════════════════════
 //  Editable CC Emails (Who Needs Access)
 // ══════════════════════════════════════════
-function EditableCCEmails({ req, onSave }) {
+function EditableCCEmails({ req, onSave  }: any) {
   const emails = extractEmails(req.who_needs_access)
   const [editing, setEditing] = useState(false)
   const [tags, setTags] = useState(emails)
@@ -369,7 +368,7 @@ function EditableCCEmails({ req, onSave }) {
 // ══════════════════════════════════════════
 //  Inline Email Editor
 // ══════════════════════════════════════════
-function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending }) {
+function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: any) {
   const appName = settings?.app_name || 'VO Hub'
 
   const [dbTemplate, setDbTemplate] = useState(null)
@@ -668,7 +667,7 @@ export function AdminMailboxRequestsPage() {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       sendStatusChangeEmail(newStatus, { request: req, requestType: 'mailbox' })
       showToast(`Request ${newStatus}`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Update failed', 'error')
     }
   }
@@ -679,7 +678,7 @@ export function AdminMailboxRequestsPage() {
     try {
       await updateRequest.mutateAsync({ id: selectedRequest.id, updates: draftData })
       showToast('Draft saved')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to save draft', 'error')
     }
   }
@@ -741,7 +740,7 @@ export function AdminMailboxRequestsPage() {
       } else {
         showToast(result.error || 'Failed to send email', 'error')
       }
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to send email', 'error')
     } finally {
       setSending(false)
@@ -757,7 +756,7 @@ export function AdminMailboxRequestsPage() {
       if (selectedId === deleteConfirm.id) {
         setSelectedId(null)
       }
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
     setDeleteConfirm(null)
@@ -809,7 +808,7 @@ export function AdminMailboxRequestsPage() {
             try {
               await updateRequest.mutateAsync({ id: selectedRequest.id, updates: { who_needs_access: newEmails } })
               showToast('CC emails updated')
-            } catch (err) {
+            } catch (err: any) {
               showToast(err.message || 'Update failed', 'error')
             }
           }}

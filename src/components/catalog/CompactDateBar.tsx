@@ -12,7 +12,7 @@ const formatDate = (s) => {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-export function CompactDateBar({ startDate, endDate, onChange }) {
+export function CompactDateBar({ startDate, endDate, onChange  }: any) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 

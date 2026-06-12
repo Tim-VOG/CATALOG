@@ -11,7 +11,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
  *   renderMobileCard: (item, i) => card content (for mobile)
  *   keyExtractor: (item) => unique key
  */
-export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobileCard, keyExtractor }) {
+export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobileCard, keyExtractor  }: any) {
   return (
     <>
       {/* Desktop table */}

@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/use-categories'
 import { Plus, Trash2, FolderTree } from 'lucide-react'
@@ -31,7 +30,7 @@ export function AdminCategoriesPage() {
       setShowForm(false)
       setName('')
       setColor('#6b7280')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -41,7 +40,7 @@ export function AdminCategoriesPage() {
     try {
       await deleteCategory.mutateAsync(id)
       showToast('Category deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

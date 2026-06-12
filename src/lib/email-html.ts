@@ -225,7 +225,7 @@ export async function getEmailBranding() {
     _brandingCache = branding
     _brandingCacheAt = Date.now()
     return branding
-  } catch (err) {
+  } catch (err: any) {
     console.error('[getEmailBranding] failed to load branding from app_settings:', err)
     // Don't cache the failure — try again on the next call.
     return { appName: 'VO Hub', logoUrl: '', tagline: '', logoHeight: 0 }

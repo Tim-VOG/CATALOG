@@ -33,7 +33,7 @@ async function loadSentry() {
           replaysOnErrorSampleRate: 0,
         })
         initialized = true
-      } catch (e) {
+      } catch (e: any) {
         console.warn('[monitoring] Sentry.init failed', e)
       }
     }
@@ -53,7 +53,7 @@ export async function captureException(err: unknown, context?: Record<string, un
   try {
     const Sentry = await loadSentry()
     if (Sentry) Sentry.captureException(err, { extra: context || {} })
-  } catch (e) {
+  } catch (e: any) {
     console.error('[captureException] backend failure', e, err)
   }
 }

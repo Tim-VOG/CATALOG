@@ -24,7 +24,7 @@ function getContrastColor(hex) {
  *   subType  — optional sub-type appended after " - "
  *   className — additional classes for positioning, etc.
  */
-export function CategoryBadge({ name, color, subType, className }) {
+export function CategoryBadge({ name, color, subType, className  }: any) {
   const bg = color || '#6b7280'
   const fg = getContrastColor(bg)
 

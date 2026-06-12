@@ -32,7 +32,7 @@ function generateCode(prefix = 'VO') {
   return `${prefix}-${code}`
 }
 
-function QRPreview({ code, size = 56 }) {
+function QRPreview({ code, size = 56  }: any) {
   const [src, setSrc] = useState(null)
   useEffect(() => {
     QRCodeLib.toDataURL(code, { width: size, margin: 1 }).then(setSrc).catch(() => {})
@@ -77,7 +77,7 @@ export function AdminQRCodesPage() {
       if (editing) { await updateQR.mutateAsync({ id: editing.id, ...form }); toast.success('QR code updated') }
       else { await createQR.mutateAsync(form); toast.success('QR code created') }
       setShowDialog(false)
-    } catch (err) { toast.error(err.message) }
+    } catch (err: any) { toast.error(err.message) }
   }
 
   const handleDelete = async (id) => {
@@ -93,7 +93,7 @@ export function AdminQRCodesPage() {
       await createQRs.mutateAsync(codes)
       toast.success(`${bulkCount} QR codes generated`)
       setShowBulkDialog(false)
-    } catch (err) { toast.error(err.message) }
+    } catch (err: any) { toast.error(err.message) }
   }
 
   const copyCode = (code) => { navigator.clipboard.writeText(code); setCopiedId(code); setTimeout(() => setCopiedId(null), 2000) }

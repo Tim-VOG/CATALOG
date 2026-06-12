@@ -172,7 +172,7 @@ const ALL_STEPS = [
 ]
 
 // ── Step progress bar ──
-function StepProgress({ currentStep, steps }) {
+function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step, idx) => {
@@ -216,7 +216,7 @@ function StepProgress({ currentStep, steps }) {
 }
 
 // ── Multi-select field ──
-function MultiSelectField({ options, value, onChange, descriptions }) {
+function MultiSelectField({ options, value, onChange, descriptions  }: any) {
   const selected = Array.isArray(value) ? value : []
   const toggle = (opt) => {
     if (selected.includes(opt)) {
@@ -254,7 +254,7 @@ function MultiSelectField({ options, value, onChange, descriptions }) {
 }
 
 // ── Yes/No toggle ──
-function YesNoField({ value, onChange }) {
+function YesNoField({ value, onChange  }: any) {
   return (
     <div className="flex gap-2">
       {[
@@ -282,7 +282,7 @@ function YesNoField({ value, onChange }) {
 }
 
 // ── Step: Identity ──
-function StepIdentity({ form, update, setEmailLocalEdited }) {
+function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -396,7 +396,7 @@ function StepIdentity({ form, update, setEmailLocalEdited }) {
 }
 
 // ── Step: Project & Location ──
-function StepProject({ form, update }) {
+function StepProject({ form, update  }: any) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -443,7 +443,7 @@ function StepProject({ form, update }) {
 }
 
 // ── Step: Dates ──
-function StepDates({ form, update }) {
+function StepDates({ form, update  }: any) {
   const todayIso = new Date().toISOString().split('T')[0]
   const exitMin = form.first_day || todayIso
   const exitInvalid = form.last_day && form.first_day && form.last_day < form.first_day
@@ -477,7 +477,7 @@ function StepDates({ form, update }) {
 }
 
 // ── Step: Access ──
-function StepAccess({ form, update }) {
+function StepAccess({ form, update  }: any) {
   const showFolders = Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
 
   return (
@@ -536,7 +536,7 @@ function StepAccess({ form, update }) {
 }
 
 // ── Step: Requester ──
-function StepRequester({ form, update }) {
+function StepRequester({ form, update  }: any) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -561,7 +561,7 @@ function StepRequester({ form, update }) {
 }
 
 // ── Step: Review ──
-function StepReview({ form, update }) {
+function StepReview({ form, update  }: any) {
   const fmtBool = (v) => (v === true ? 'Yes' : v === false ? 'No' : '—')
   const isVoEurope = form.company === 'VO EUROPE'
   const fields = [
@@ -829,7 +829,7 @@ export function OnboardingRequestPage() {
 
       navigate('/')
       setTimeout(() => showToast('Onboarding request submitted successfully!'), 100)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }
     setSubmitting(false)

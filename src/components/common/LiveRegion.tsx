@@ -8,7 +8,7 @@ const LiveRegionContext = createContext(null)
  *
  * Screen readers will read the announcement without interrupting the user.
  */
-export function LiveRegionProvider({ children }) {
+export function LiveRegionProvider({ children  }: any) {
   const [message, setMessage] = useState('')
 
   const announce = useCallback((text) => {

@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 
-export function RequireAuth({ children }) {
+export function RequireAuth({ children  }: any) {
   const { user, loading } = useAuth()
   const location = useLocation()
 

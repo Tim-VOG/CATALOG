@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
 
-export function RequireModuleAccess({ moduleKey, children }) {
+export function RequireModuleAccess({ moduleKey, children  }: any) {
   const { hasAccess, isLoading } = useHasModuleAccess(moduleKey)
 
   if (isLoading) {

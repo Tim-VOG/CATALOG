@@ -33,7 +33,7 @@ const STATUS_CONFIG = {
 
 const ALL_STATUSES = ['available', 'assigned', 'reserved', 'in_repair', 'lost']
 
-function StatCard({ label, value, icon: Icon, color, active, onClick }) {
+function StatCard({ label, value, icon: Icon, color, active, onClick  }: any) {
   return (
     <button onClick={onClick} className={cn(
       'flex items-center gap-3 p-4 rounded-xl border transition-all text-left w-full',
@@ -120,7 +120,7 @@ export function AdminLocalITPage() {
       await updateQR.mutateAsync({ id: statusChangeQR.id, ...updates })
       showToast(`Status updated to ${newStatus.replace('_', ' ')}`)
       setStatusChangeQR(null)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

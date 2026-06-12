@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
@@ -35,7 +34,7 @@ const displayStatus = (status, sentEmail) =>
   status === 'ready' && !sentEmail ? 'welcome' : status
 
 // ── Info card (full request details, no expand) ──
-function OnboardingRequestInfoCard({ req, sentEmail }) {
+function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const corporateEmail = data.email_local && data.email_domain
@@ -100,7 +99,7 @@ function OnboardingRequestInfoCard({ req, sentEmail }) {
 }
 
 // ── Inline detail view ──
-function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail }) {
+function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: any) {
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
 
@@ -220,7 +219,7 @@ export function OnboardingRequestsPage() {
       if (newStatus !== 'ready') {
         sendStatusChangeEmail(newStatus, { request: req, requestType: 'onboarding' })
       }
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -231,7 +230,7 @@ export function OnboardingRequestsPage() {
       await deleteRequest.mutateAsync(deleteConfirm.id)
       showToast('Request deleted')
       if (selectedId === deleteConfirm.id) setSelectedId(null)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
     setDeleteConfirm(null)

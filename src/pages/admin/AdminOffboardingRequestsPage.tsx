@@ -28,7 +28,7 @@ const STATUS_COLORS = {
 }
 
 // ── Info card (all fields visible, mirrors Onboarding/Mailbox pattern) ──
-function OffboardingRequestInfoCard({ req }) {
+function OffboardingRequestInfoCard({ req  }: any) {
   const data = req.data || {}
   const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
   const corporateEmail = data.email || data.corporate_email || data.email_to_revoke || '—'
@@ -132,7 +132,7 @@ function OffboardingRequestInfoCard({ req }) {
 // Looks up the matching onboarding request by employee name and surfaces every
 // access / list the new hire was granted. Admins tick items off as they revoke
 // them; ticked items are persisted on the offboarding's data.revoked_accesses.
-function RevokeChecklist({ req, onboardingMatch, onToggle }) {
+function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
   const data = req.data || {}
   const onboardingData = onboardingMatch?.data || {}
 
@@ -230,7 +230,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle }) {
 }
 
 // ── Inline detail view ──
-function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch, onToggleRevoked }) {
+function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch, onToggleRevoked  }: any) {
   const data = req.data || {}
   const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
 
@@ -334,7 +334,7 @@ export function AdminOffboardingRequestsPage() {
     const newData = { ...req.data, revoked_accesses: Array.from(current) }
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { data: newData } })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Update failed', 'error')
     }
   }
@@ -366,7 +366,7 @@ export function AdminOffboardingRequestsPage() {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       showToast(`Request marked as ${newStatus.replace('_', ' ')}`)
       sendStatusChangeEmail(newStatus, { request: req, requestType: 'offboarding' })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -377,7 +377,7 @@ export function AdminOffboardingRequestsPage() {
       await deleteRequest.mutateAsync(deleteConfirm.id)
       showToast('Request deleted')
       if (selectedId === deleteConfirm.id) setSelectedId(null)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
     setDeleteConfirm(null)

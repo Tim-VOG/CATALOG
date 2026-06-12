@@ -25,7 +25,7 @@ function isTyping(target) {
   return false
 }
 
-function Kbd({ children }) {
+function Kbd({ children  }: any) {
   return (
     <kbd className="inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded border border-border bg-muted/60 px-1.5 font-mono text-[10px] font-semibold text-foreground">
       {children}
@@ -33,7 +33,7 @@ function Kbd({ children }) {
   )
 }
 
-export function KeyboardShortcutsProvider({ children }) {
+export function KeyboardShortcutsProvider({ children  }: any) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [pendingG, setPendingG] = useState(false)

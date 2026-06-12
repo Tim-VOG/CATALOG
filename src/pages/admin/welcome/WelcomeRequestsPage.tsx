@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
@@ -116,7 +115,7 @@ export function WelcomeRequestsPage() {
         }
       }
       setRecipientForCompose(recipient)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setPreparing(false)
@@ -315,7 +314,7 @@ export function WelcomeRequestsPage() {
   )
 }
 
-function Row({ icon: Icon, label, value }) {
+function Row({ icon: Icon, label, value  }: any) {
   if (!value) return null
   return (
     <div className="flex items-start gap-2">

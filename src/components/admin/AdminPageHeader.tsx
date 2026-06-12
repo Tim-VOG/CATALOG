@@ -9,7 +9,7 @@ import { motion } from 'motion/react'
  *   section     — optional uppercase eyebrow
  *   children    — top-right action slot
  */
-export function AdminPageHeader({ title, description, section, children }) {
+export function AdminPageHeader({ title, description, section, children  }: any) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-8 pb-6 mb-6">
       <div className="min-w-0">

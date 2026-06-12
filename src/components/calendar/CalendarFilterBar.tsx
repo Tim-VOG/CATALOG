@@ -13,7 +13,7 @@ const STATUS_CONFIG = {
   ready: { label: 'Ready', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30' },
 }
 
-export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasItForm, hasMailbox }) {
+export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasItForm, hasMailbox  }: any) {
   const toggleType = (type) => {
     const current = filters.types
     const next = current.includes(type)

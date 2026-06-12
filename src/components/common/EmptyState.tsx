@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
  *   action     — { label: string, onClick: fn } — optional CTA button
  *   children   — fallback for custom content below the description
  */
-export function EmptyState({ icon: Icon, title, description, action, children, className }) {
+export function EmptyState({ icon: Icon, title, description, action, children, className  }: any) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

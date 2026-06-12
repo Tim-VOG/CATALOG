@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, ShoppingCart, HelpCircle } from 'lucide-react'
@@ -99,7 +98,7 @@ function HeaderSearch() {
     }
   }
 
-  const SearchResults = ({ className }) => (
+  const SearchResults = ({ className  }: any) => (
     <div className={cn(
       'absolute top-full left-0 right-0 mt-2 rounded-xl border bg-popover shadow-card overflow-hidden z-50',
       className
@@ -259,7 +258,7 @@ function CartButton() {
   )
 }
 
-export function Header({ onOpenTour }) {
+export function Header({ onOpenTour  }: any) {
   const { isAdmin } = useAuth()
   const location = useLocation()
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)

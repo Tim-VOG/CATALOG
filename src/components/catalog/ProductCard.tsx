@@ -34,7 +34,7 @@ function getCategoryConfig(categoryName) {
 export function needsOptions(categoryName) { return getCategoryConfig(categoryName) !== null }
 export { getCategoryConfig }
 
-function OptionsDialog({ product, open, onClose, onConfirm }) {
+function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   const { data: allPlans = [] } = useSubscriptionPlans()
   const config = getCategoryConfig(product.category_name)
   const [selectedPlan, setSelectedPlan] = useState('')
@@ -91,7 +91,7 @@ function OptionsDialog({ product, open, onClose, onConfirm }) {
   )
 }
 
-export function ProductCard({ product }) {
+export function ProductCard({ product  }: any) {
   const available = product.total_stock
   const outOfStock = available <= 0
   const { data: cartItems = [] } = useCart()

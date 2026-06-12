@@ -14,7 +14,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
-function EditableCell({ value, type = 'text', onChange, placeholder, masked = false, className }) {
+function EditableCell({ value, type = 'text', onChange, placeholder, masked = false, className  }: any) {
   const [local, setLocal] = useState(value ?? '')
   const initial = useRef(value ?? '')
   useEffect(() => { setLocal(value ?? ''); initial.current = value ?? '' }, [value])
@@ -126,7 +126,7 @@ export function AdminDeviceCredentialsPage() {
     if (Number.isNaN(idx) || idx < 0 || idx >= availableQrs.length) return
     try {
       await createItem.mutateAsync({ qr_code_id: availableQrs[idx].id })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to add', 'error')
     }
   }, [availableQrs, createItem, showToast])
@@ -134,7 +134,7 @@ export function AdminDeviceCredentialsPage() {
   const handleUpdate = useCallback(async (id, field, value) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Save failed', 'error')
     }
   }, [updateItem, showToast])
@@ -143,7 +143,7 @@ export function AdminDeviceCredentialsPage() {
     if (!confirm('Delete these credentials? The QR code itself stays.')) return
     try {
       await deleteItem.mutateAsync(id)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Delete failed', 'error')
     }
   }, [deleteItem, showToast])

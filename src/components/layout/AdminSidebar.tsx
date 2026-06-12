@@ -122,7 +122,7 @@ export function AdminSidebar() {
   )
 }
 
-function SidebarSection({ section, isActive }) {
+function SidebarSection({ section, isActive  }: any) {
   const hasActiveLink = section.links.some(l => isActive(l.to, l.exact))
   const [open, setOpen] = useState(section.defaultOpen || hasActiveLink)
 

@@ -4,7 +4,7 @@ import { Html5Qrcode } from 'html5-qrcode'
 import { Camera, CameraOff, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function QRScanner({ onScan, scanning = true }) {
+export function QRScanner({ onScan, scanning = true  }: any) {
   const scannerRef = useRef(null)
   const html5QrRef = useRef(null)
   const [error, setError] = useState(null)
@@ -49,7 +49,7 @@ export function QRScanner({ onScan, scanning = true }) {
         )
         setStarted(true)
         setError(null)
-      } catch (err) {
+      } catch (err: any) {
         setError(err?.message || 'Unable to access camera. Please grant camera permission.')
         setStarted(false)
       }

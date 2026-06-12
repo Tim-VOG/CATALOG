@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
  *   placeholder - input placeholder text
  *   className  - optional wrapper className
  */
-export function TagInput({ value = [], onChange, placeholder = 'Add item...', className }) {
+export function TagInput({ value = [], onChange, placeholder = 'Add item...', className  }: any) {
   const [input, setInput] = useState('')
   const inputRef = useRef(null)
 

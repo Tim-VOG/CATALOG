@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useAllSubscriptionPlans, useCreateSubscriptionPlan, useUpdateSubscriptionPlan, useDeleteSubscriptionPlan } from '@/hooks/use-subscription-plans'
 import { Plus, Pencil, Trash2, CreditCard, Phone, Wifi, PhoneCall } from 'lucide-react'
@@ -69,7 +68,7 @@ export function AdminSubscriptionPlansPage() {
         showToast('Plan created')
       }
       setShowDialog(false)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -77,7 +76,7 @@ export function AdminSubscriptionPlansPage() {
   const handleToggle = async (plan) => {
     try {
       await updatePlan.mutateAsync({ id: plan.id, is_active: !plan.is_active })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -87,7 +86,7 @@ export function AdminSubscriptionPlansPage() {
     try {
       await deletePlan.mutateAsync(plan.id)
       showToast('Plan deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

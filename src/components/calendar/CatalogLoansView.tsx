@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -36,7 +35,7 @@ const VIEW_MODES = [
 
 const STATUS_PILLS = ['pending', 'in_progress', 'ready']
 
-export function CatalogLoansView({ events }) {
+export function CatalogLoansView({ events  }: any) {
   const [viewMode, setViewMode] = useState('1M')
   const [baseDate, setBaseDate] = useState(new Date())
   const [search, setSearch] = useState('')

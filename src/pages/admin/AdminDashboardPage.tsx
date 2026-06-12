@@ -33,7 +33,7 @@ function useGreeting() {
 }
 
 // ── Card primitive (clean, simple) ────────────────────────────
-function Card({ className, children }) {
+function Card({ className, children  }: any) {
   return (
     <div className={cn('rounded-2xl border border-border/50 bg-card', className)}>
       {children}
@@ -41,7 +41,7 @@ function Card({ className, children }) {
   )
 }
 
-function CardHeader({ title, action }) {
+function CardHeader({ title, action  }: any) {
   return (
     <div className="flex items-center justify-between px-5 pt-5 pb-3">
       <h2 className="text-sm font-medium text-foreground">{title}</h2>
@@ -51,7 +51,7 @@ function CardHeader({ title, action }) {
 }
 
 // ── Stat block ────────────────────────────────────────────────
-function Stat({ label, value, trend, to, accent }) {
+function Stat({ label, value, trend, to, accent  }: any) {
   const content = (
     <div className="px-5 py-5">
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -78,7 +78,7 @@ function Stat({ label, value, trend, to, accent }) {
 }
 
 // ── Attention row ─────────────────────────────────────────────
-function AttentionRow({ icon: Icon, label, count, to }) {
+function AttentionRow({ icon: Icon, label, count, to  }: any) {
   if (!count) return null
   return (
     <Link
@@ -94,7 +94,7 @@ function AttentionRow({ icon: Icon, label, count, to }) {
 }
 
 // ── Material in use row ───────────────────────────────────────
-function MaterialRow({ loan, now }) {
+function MaterialRow({ loan, now  }: any) {
   const pickup = loan.pickup_date ? new Date(loan.pickup_date) : new Date(loan.created_at)
   const expected = loan.expected_return_date ? new Date(loan.expected_return_date + 'T18:00:00') : null
   const isOverdue = expected && expected < now
@@ -151,7 +151,7 @@ function MaterialRow({ loan, now }) {
 }
 
 // ── Activity feed row ─────────────────────────────────────────
-function ActivityRow({ log }) {
+function ActivityRow({ log  }: any) {
   const isTake = log.action === 'take'
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-0">

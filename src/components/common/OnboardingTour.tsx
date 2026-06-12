@@ -163,7 +163,7 @@ const STEPS = [
   },
 ]
 
-export function OnboardingTour({ forceOpen = false, onClose }) {
+export function OnboardingTour({ forceOpen = false, onClose  }: any) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1)

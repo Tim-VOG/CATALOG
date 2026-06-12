@@ -89,7 +89,7 @@ export function ScanPage() {
       if (extra.pickupDate) response.pickupDate = extra.pickupDate
       if (extra.returnDate) response.returnDate = extra.returnDate
       setResult(response)
-    } catch (err) {
+    } catch (err: any) {
       setResult({ success: false, error: err.message || 'An error occurred' })
     }
   }
@@ -120,7 +120,7 @@ export function ScanPage() {
           expectedReturnDate: action === 'take' ? bulkReturnDate : null,
         })
         results.push({ ...response, code: item.code, productName: item.qrData.product_name })
-      } catch (err) {
+      } catch (err: any) {
         results.push({ success: false, error: err.message, code: item.code, productName: item.qrData.product_name })
       }
     }

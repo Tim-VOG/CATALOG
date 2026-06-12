@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-function Skeleton({ className, variant = 'pulse', ...props }) {
+function Skeleton({ className, variant = 'pulse', ...props  }: any) {
   return (
     <div
       className={cn(
@@ -15,7 +15,7 @@ function Skeleton({ className, variant = 'pulse', ...props }) {
   )
 }
 
-function SkeletonText({ lines = 3, className, variant }) {
+function SkeletonText({ lines = 3, className, variant  }: any) {
   return (
     <div className={cn('space-y-2.5', className)}>
       {Array.from({ length: lines }).map((_, i) => (
@@ -33,7 +33,7 @@ function SkeletonText({ lines = 3, className, variant }) {
   )
 }
 
-function SkeletonCard({ className, variant }) {
+function SkeletonCard({ className, variant  }: any) {
   return (
     <div className={cn('rounded-xl border bg-card/50 p-4 space-y-3', className)}>
       <Skeleton variant={variant} className="h-40 w-full rounded-lg" />
@@ -47,13 +47,13 @@ function SkeletonCard({ className, variant }) {
   )
 }
 
-function SkeletonAvatar({ className, variant }) {
+function SkeletonAvatar({ className, variant  }: any) {
   return (
     <Skeleton variant={variant} className={cn('h-10 w-10 rounded-full', className)} />
   )
 }
 
-function SkeletonTableRow({ cols = 4, className, variant }) {
+function SkeletonTableRow({ cols = 4, className, variant  }: any) {
   return (
     <div className={cn('flex items-center gap-4 py-3', className)}>
       {Array.from({ length: cols }).map((_, i) => (

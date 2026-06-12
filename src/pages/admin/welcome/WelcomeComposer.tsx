@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useOnboardingBlockTemplates, useOnboardingEmailsByRequest, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
 import { useUpdateItRequest } from '@/hooks/use-it-requests'
@@ -27,7 +26,7 @@ import { useAppSettings } from '@/hooks/use-settings'
  *   onSent     — callback fired after a successful send
  *   onClose    — callback fired when the user clicks the close (X) button
  */
-export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
+export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any) {
   const { user, profile } = useAuth()
   const { data: settings } = useAppSettings()
   const showToast = useUIStore((s) => s.showToast)
@@ -123,7 +122,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
         const { default: mjml2html } = await import('mjml-browser')
         const { html } = mjml2html(mjmlSource, { validationLevel: 'soft' })
         if (!cancelled) setPreviewHtml(html)
-      } catch (err) {
+      } catch (err: any) {
         if (/Failed to fetch dynamically imported module|Importing a module script failed/i.test(err?.message || '')) {
           // Stale chunk after a deploy — let main.jsx reload handler kick in
           throw err
@@ -164,7 +163,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
         showToast('Draft saved')
         return created.id
       }
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
       return null
     } finally {
@@ -199,7 +198,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose }) {
         showToast('Email sent successfully!')
         if (onSent) onSent()
       }
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setSending(false)

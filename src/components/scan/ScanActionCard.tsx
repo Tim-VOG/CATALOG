@@ -18,7 +18,7 @@ const QUICK_DURATIONS = [
   { label: '1 month', days: 30 },
 ]
 
-export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitlist, waitlistJoined }) {
+export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitlist, waitlistJoined  }: any) {
   const [step, setStep] = useState('choose') // 'choose' | 'dates'
   const [pickupDate, setPickupDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [returnDate, setReturnDate] = useState('')
@@ -257,7 +257,7 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
   )
 }
 
-function ScanResult({ result }) {
+function ScanResult({ result  }: any) {
   const isSuccess = result.success
   const isTake = result.action === 'take'
 

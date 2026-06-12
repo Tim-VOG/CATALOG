@@ -28,7 +28,7 @@ const STATUS_LABELS = {
  *   viewMode    - '1D' | '1W' | '1M' | '3M'
  *   startDate   - Date object for the start of the visible range
  */
-export function PlanningTimeline({ items = [], allProducts = [], viewMode, startDate }) {
+export function PlanningTimeline({ items = [], allProducts = [], viewMode, startDate  }: any) {
   // Calculate the date columns based on view mode
   const { columns, endDate, cellWidth } = useMemo(() => {
     const start = startOfDay(startDate)

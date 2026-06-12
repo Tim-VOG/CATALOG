@@ -26,7 +26,7 @@ function setPinVerified() {
   localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify({ timestamp: Date.now() }))
 }
 
-export function RequireAdmin({ children }) {
+export function RequireAdmin({ children  }: any) {
   const { user, profile, isAdmin, loading, refreshProfile } = useAuth()
   const [retryCount, setRetryCount] = useState(0)
   const [retrying, setRetrying] = useState(false)

@@ -21,7 +21,7 @@ const COMPANIES = [
 ]
 
 // ── Editable cell (debounced commit on blur) ──
-function EditableCell({ value, type = 'text', onChange, placeholder, className }) {
+function EditableCell({ value, type = 'text', onChange, placeholder, className  }: any) {
   const [local, setLocal] = useState(value ?? '')
   const initial = useRef(value ?? '')
   useEffect(() => { setLocal(value ?? ''); initial.current = value ?? '' }, [value])
@@ -53,7 +53,7 @@ function EditableCell({ value, type = 'text', onChange, placeholder, className }
   )
 }
 
-function SelectCell({ value, options, onChange }) {
+function SelectCell({ value, options, onChange  }: any) {
   return (
     <select
       value={value ?? ''}
@@ -66,7 +66,7 @@ function SelectCell({ value, options, onChange }) {
   )
 }
 
-function CheckboxCell({ value, onChange }) {
+function CheckboxCell({ value, onChange  }: any) {
   return (
     <input
       type="checkbox"
@@ -144,7 +144,7 @@ export function AdminSharedMailboxesPage() {
   const handleAdd = useCallback(async () => {
     try {
       await createItem.mutateAsync({ name: 'New mailbox', category: 'LEGER' })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to add row', 'error')
     }
   }, [createItem, showToast])
@@ -152,7 +152,7 @@ export function AdminSharedMailboxesPage() {
   const handleUpdate = useCallback(async (id, field, value) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Save failed', 'error')
     }
   }, [updateItem, showToast])
@@ -161,7 +161,7 @@ export function AdminSharedMailboxesPage() {
     if (!confirm('Delete this shared mailbox row?')) return
     try {
       await deleteItem.mutateAsync(id)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Delete failed', 'error')
     }
   }, [deleteItem, showToast])

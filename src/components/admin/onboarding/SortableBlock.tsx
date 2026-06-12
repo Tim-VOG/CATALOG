@@ -46,7 +46,7 @@ const BLOCKS_WITH_SECTION_LABEL = [
 ]
 
 // Generic section label override — shown for every block that has a visible section header
-function SectionLabelOptions({ blockKey, options, update }) {
+function SectionLabelOptions({ blockKey, options, update  }: any) {
   if (!BLOCKS_WITH_SECTION_LABEL.includes(blockKey)) return null
   return (
     <div className="space-y-2 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
@@ -77,7 +77,7 @@ function SectionLabelOptions({ blockKey, options, update }) {
 }
 
 // Block-specific option fields
-function BlockOptions({ blockKey, options, onChange }) {
+function BlockOptions({ blockKey, options, onChange  }: any) {
   const update = (key, value) => onChange({ ...options, [key]: value })
 
   // Render specific options + generic section label options
@@ -435,7 +435,7 @@ function BlockOptions({ blockKey, options, onChange }) {
 }
 
 // Truncate content for preview
-function ContentPreview({ content }) {
+function ContentPreview({ content  }: any) {
   if (!content) return null
   const preview = content.replace(/\n+/g, ' ').trim()
   const truncated = preview.length > 100 ? preview.slice(0, 100) + '...' : preview
@@ -446,7 +446,7 @@ function ContentPreview({ content }) {
   )
 }
 
-export function SortableBlock({ block, blockTemplate, language, onToggle, onContentChange, onOptionChange }) {
+export function SortableBlock({ block, blockTemplate, language, onToggle, onContentChange, onOptionChange  }: any) {
   const [expanded, setExpanded] = useState(false)
 
   const {

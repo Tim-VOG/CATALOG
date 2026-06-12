@@ -45,7 +45,7 @@ const STEPS = [
   { id: 'review', label: 'Review', icon: CheckCircle },
 ]
 
-function StepProgress({ currentStep }) {
+function StepProgress({ currentStep  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
       {STEPS.map((step, idx) => {
@@ -78,7 +78,7 @@ function StepProgress({ currentStep }) {
 }
 
 // ── Item Options Editor (category-aware) ──
-function ItemOptionsEditor({ item, subscriptionPlans, onSave }) {
+function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
   const [open, setOpen] = useState(false)
   const options = item.options || {}
   const services = options.services || {}
@@ -268,7 +268,7 @@ export function CartPage() {
               return_contact: returnTrim || null,
             })
             .eq('id', newRequestId)
-        } catch (e) {
+        } catch (e: any) {
           console.warn('[CartPage] could not persist pickup/return contacts', e)
         }
       }
@@ -289,7 +289,7 @@ export function CartPage() {
 
       navigate('/my-requests')
       setTimeout(() => showToast('Request submitted successfully!'), 100)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }
   }

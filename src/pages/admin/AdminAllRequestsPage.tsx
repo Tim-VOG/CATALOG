@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { CalendarRange, Package, Trash2, X, CheckSquare, AlertTriangle } from 'lucide-react'
@@ -51,7 +50,7 @@ function LoadingSkeleton() {
   )
 }
 
-function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting }) {
+function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: any) {
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const counts = useMemo(() => {
@@ -174,7 +173,7 @@ export function AdminAllRequestsPage() {
       if (mailboxIds.length > 0) promises.push(deleteMail.mutateAsync(mailboxIds))
       await Promise.all(promises)
       setSelectedIds(new Set())
-    } catch (err) {
+    } catch (err: any) {
       console.error('Bulk delete error:', err)
     }
   }, [selectedIds, events, deleteLoan, deleteIt, deleteMail])

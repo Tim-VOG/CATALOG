@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { motion } from 'motion/react'
@@ -24,7 +23,7 @@ const STATUS_MAP = {
   ready: { color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2 },
 }
 
-function EventCard({ event, showUser, selectable, isSelected, onToggleSelect }) {
+function EventCard({ event, showUser, selectable, isSelected, onToggleSelect  }: any) {
   const typeCfg = TYPE_CONFIG[event.type] || TYPE_CONFIG.catalog
   const statusCfg = STATUS_MAP[event.status] || STATUS_MAP.pending
   const StatusIcon = statusCfg.icon

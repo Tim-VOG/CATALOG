@@ -61,7 +61,7 @@ export function ProfilePage() {
       await updateProfile(user.id, { phone })
       await refreshProfile()
       showToast('Phone number updated')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setSaving(false)
@@ -99,7 +99,7 @@ export function ProfilePage() {
       await updateProfile(user.id, { avatar_url: data.publicUrl })
       await refreshProfile()
       showToast('Profile photo updated')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setUploadingAvatar(false)

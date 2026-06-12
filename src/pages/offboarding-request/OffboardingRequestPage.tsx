@@ -53,7 +53,7 @@ const STEPS = [
 ]
 
 // ── Step progress bar ──
-function StepProgress({ currentStep, steps }) {
+function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step, idx) => {
@@ -97,7 +97,7 @@ function StepProgress({ currentStep, steps }) {
 }
 
 // ── Step 1: Who ──
-function StepWho({ form, setField, setMultipleFields }) {
+function StepWho({ form, setField, setMultipleFields  }: any) {
   const handlePickProfile = (profile) => {
     const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email
     setMultipleFields({
@@ -149,7 +149,7 @@ function StepWho({ form, setField, setMultipleFields }) {
 }
 
 // ── Step 2: When ──
-function StepWhen({ form, setField }) {
+function StepWhen({ form, setField  }: any) {
   const todayIso = new Date().toISOString().split('T')[0]
   return (
     <div className="space-y-5">
@@ -170,7 +170,7 @@ function StepWhen({ form, setField }) {
 }
 
 // ── Step 3: Revocation ──
-function StepRevocation({ form, setField }) {
+function StepRevocation({ form, setField  }: any) {
   const showTransferDetails =
     form.transfer_mailbox_data || form.transfer_sharepoint_data
 
@@ -309,7 +309,7 @@ const LAPTOP_KEYWORDS = ['laptop', 'macbook', 'computer', 'pc', 'workstation']
 const PHONE_KEYWORDS = ['phone', 'iphone', 'smartphone', 'mobile']
 const BADGE_KEYWORDS = ['badge', 'keys', 'clé', 'access card', 'fob']
 
-function StepEquipment({ form, setField, setMultipleFields }) {
+function StepEquipment({ form, setField, setMultipleFields  }: any) {
   const { data: equipment = [] } = useUserEquipmentFor(form.leaving_user_id)
   const { data: qrCodes = [] } = useQRCodesAssignedTo(form.leaving_user_id)
   const activeEquipment = useMemo(
@@ -423,7 +423,7 @@ function StepEquipment({ form, setField, setMultipleFields }) {
 }
 
 // ── Step 5: Requester ──
-function StepRequester({ form, setField }) {
+function StepRequester({ form, setField  }: any) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -478,7 +478,7 @@ const REVIEW_FIELDS = [
   { key: 'requested_on', label: 'Requested On' },
 ]
 
-function StepReview({ form }) {
+function StepReview({ form  }: any) {
   const rows = REVIEW_FIELDS
     .filter((f) => !f.showIf || f.showIf(form))
     .map((f) => {
@@ -617,7 +617,7 @@ export function OffboardingRequestPage() {
 
       navigate('/')
       setTimeout(() => showToast('Offboarding request submitted successfully!'), 100)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     } finally {
       setSubmitting(false)

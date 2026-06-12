@@ -66,7 +66,7 @@ ScaleIn.displayName = 'ScaleIn'
 
 // ── AnimateList ───────────────────────────────────────────
 // Animation staggered pour listes d'éléments.
-function AnimateList({ children, className, stagger = 0.04, ...props }) {
+function AnimateList({ children, className, stagger = 0.04, ...props  }: any) {
   return (
     <motion.div
       initial="hidden"
@@ -101,7 +101,7 @@ AnimateListItem.displayName = 'AnimateListItem'
 
 // ── PageTransition ────────────────────────────────────────
 // Wrapper pour transitions entre routes. Supporte direction forward/back.
-function PageTransition({ children, className, direction = 'forward' }) {
+function PageTransition({ children, className, direction = 'forward'  }: any) {
   const yOffset = direction === 'back' ? -8 : 8
   return (
     <motion.div
@@ -250,7 +250,7 @@ function StaggerReveal({
 
 // ── ParallaxLayer ────────────────────────────────────────
 // Scroll-linked parallax effect. speed < 1 = slower, > 1 = faster.
-function ParallaxLayer({ children, className, speed = 0.5, ...props }) {
+function ParallaxLayer({ children, className, speed = 0.5, ...props  }: any) {
   const ref = React.useRef(null)
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -268,7 +268,7 @@ function ParallaxLayer({ children, className, speed = 0.5, ...props }) {
 
 // ── Magnetic ─────────────────────────────────────────────
 // Wrapper that subtly follows cursor on hover. For buttons, icons.
-function Magnetic({ children, className, strength = 0.3, ...props }) {
+function Magnetic({ children, className, strength = 0.3, ...props  }: any) {
   const ref = React.useRef(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -343,7 +343,7 @@ function CountUp({
 
 // ── TextReveal ───────────────────────────────────────────
 // Text that reveals word by word on scroll.
-function TextReveal({ text, className, stagger = 0.04, ...props }) {
+function TextReveal({ text, className, stagger = 0.04, ...props  }: any) {
   const ref = React.useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-60px' })
 
@@ -380,7 +380,7 @@ function TextReveal({ text, className, stagger = 0.04, ...props }) {
 }
 
 // ── AnimatedCounter (legacy, kept for backward compat) ───
-function AnimatedCounter({ value, duration = 1.2, className }) {
+function AnimatedCounter({ value, duration = 1.2, className  }: any) {
   const motionValue = useMotionValue(0)
   const springValue = useSpring(motionValue, { duration: duration * 1000 })
   const display = useTransform(springValue, (v) => Math.round(v))
@@ -400,7 +400,7 @@ function AnimatedCounter({ value, duration = 1.2, className }) {
 
 // ── ScalePop ─────────────────────────────────────────────
 // For badge/count changes. Pops with spring physics.
-function ScalePop({ children, className, motionKey }) {
+function ScalePop({ children, className, motionKey  }: any) {
   return (
     <AnimatePresence mode="wait">
       <motion.span
@@ -439,7 +439,7 @@ PressScale.displayName = 'PressScale'
 // Each item has unique spring characteristics (stiffness, damping, mass)
 // creating a cascading wave effect — like iOS UIAttachmentBehavior with
 // varying attachment strengths. Items spring into view with natural physics.
-function DynamicsItem({ children, className, index = 0, once = true, ...props }) {
+function DynamicsItem({ children, className, index = 0, once = true, ...props  }: any) {
   const ref = React.useRef(null)
   const isInView = useInView(ref, { once, margin: '50px 0px -60px 0px' })
 

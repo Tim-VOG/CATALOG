@@ -50,7 +50,7 @@ function getStepIndex(status) {
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
-function RequestStepper({ status }) {
+function RequestStepper({ status  }: any) {
   const currentStep = getStepIndex(status)
   return (
     <div className="flex items-center gap-1 w-full">
@@ -87,7 +87,7 @@ function RequestStepper({ status }) {
   )
 }
 
-function SatisfactionRating({ requestId }) {
+function SatisfactionRating({ requestId  }: any) {
   const key = `satisfaction-${requestId}`
   const [rating, setRating] = useState(() => localStorage.getItem(key))
   const rate = (value) => { localStorage.setItem(key, value); setRating(value) }
@@ -113,7 +113,7 @@ function SatisfactionRating({ requestId }) {
 }
 
 // Pretty-print any request payload as a list of key/value rows
-function RequestDataRows({ request }) {
+function RequestDataRows({ request  }: any) {
   const data = request.data || {}
   // Equipment requests use top-level columns instead of data{}
   const isEquipment = request._type === 'equipment'
@@ -150,7 +150,7 @@ function RequestDataRows({ request }) {
   )
 }
 
-function RequestCard({ request, type, onOpen }) {
+function RequestCard({ request, type, onOpen  }: any) {
   const config = TYPE_CONFIG[type] || TYPE_CONFIG.equipment
   const TypeIcon = config.icon
   const data = request.data || {}
@@ -265,7 +265,7 @@ export function MyRequestsPage() {
         await updateIt.mutateAsync({ id: detail.id, updates: { data: newData } })
       }
       showToast(trimmed ? 'Note saved' : 'Note cleared')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to save note', 'error')
     } finally {
       setNoteSaving(false)

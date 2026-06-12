@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { useNotificationRecipients, useCreateNotificationRecipient, useUpdateNotificationRecipient, useDeleteNotificationRecipient } from '@/hooks/use-notification-recipients'
 import { Plus, Trash2, Mail } from 'lucide-react'
@@ -32,7 +31,7 @@ export function NotificationRecipientsManager() {
       showToast('Recipient added')
       setShowRecipientDialog(false)
       setRecipientForm({ email: '', name: '' })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -40,7 +39,7 @@ export function NotificationRecipientsManager() {
   const handleToggleRecipientNotif = async (recipient, key) => {
     try {
       await updateRecipient.mutateAsync({ id: recipient.id, [key]: !recipient[key] })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -50,7 +49,7 @@ export function NotificationRecipientsManager() {
     try {
       await deleteRecipient.mutateAsync(id)
       showToast('Recipient removed')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
  *   onChange  - callback(newValue)
  *   error     - error message string
  */
-export function DynamicField({ field, value, onChange, error }) {
+export function DynamicField({ field, value, onChange, error  }: any) {
   const fieldId = `custom_${field.field_key}`
   const options = field.options || []
 

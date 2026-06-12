@@ -38,7 +38,7 @@ const emptyForm = {
   has_subscription: false, has_apps: false, wifi_only: false, printer_info: false,
 }
 
-function BulkDeleteBar({ count, onClear, onDelete, isDeleting }) {
+function BulkDeleteBar({ count, onClear, onDelete, isDeleting  }: any) {
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
@@ -182,7 +182,7 @@ export function AdminProductsPage() {
         showToast(stock > 0 ? `Product created with ${stock} QR code${stock > 1 ? 's' : ''}` : 'Product created')
       }
       setShowForm(false)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -192,7 +192,7 @@ export function AdminProductsPage() {
     try {
       await deleteProduct.mutateAsync(id)
       showToast('Product deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -202,7 +202,7 @@ export function AdminProductsPage() {
       await bulkDelete.mutateAsync(Array.from(selectedIds))
       showToast(`${selectedIds.size} product${selectedIds.size > 1 ? 's' : ''} deleted`)
       setSelectedIds(new Set())
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

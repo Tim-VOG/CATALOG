@@ -3,7 +3,7 @@ import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrate
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { SortableBlock } from './SortableBlock'
 
-export function BlockEditor({ blocks, blockTemplates, language, onChange }) {
+export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {

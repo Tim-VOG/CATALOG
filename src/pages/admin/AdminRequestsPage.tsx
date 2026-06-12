@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLoanRequests } from '@/hooks/use-loan-requests'

@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useRef } from 'react'
 import { useProfiles } from '@/hooks/use-profiles'
 import { UserAvatar } from '@/components/common/UserAvatar'
@@ -14,7 +13,7 @@ import { Input } from '@/components/ui/input'
  *   placeholder - input placeholder text
  *   className  - additional className
  */
-export function UserSearchSelect({ value, onChange, placeholder = 'Search user by name or email...', className = '' }) {
+export function UserSearchSelect({ value, onChange, placeholder = 'Search user by name or email...', className = ''  }: any) {
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [open, setOpen] = useState(false)

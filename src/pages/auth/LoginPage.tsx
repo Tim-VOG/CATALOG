@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
@@ -78,7 +77,7 @@ export function LoginPage() {
     setDevError(null)
     try {
       await signIn(account.email, account.password)
-    } catch (err) {
+    } catch (err: any) {
       console.error('[Dev Login]', err)
       setDevError(err.message || 'Login failed')
       setDevLoading(null)

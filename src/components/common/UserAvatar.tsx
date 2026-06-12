@@ -18,6 +18,15 @@ const SIZES = {
  *   size       - 'sm' | 'md' | 'lg' (default: 'md')
  *   className  - Additional className
  */
+interface UserAvatarProps {
+  avatarUrl?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  email?: string | null
+  size?: 'sm' | 'md' | 'lg' | 'xs'
+  className?: string
+}
+
 export function UserAvatar({
   avatarUrl,
   firstName,
@@ -25,7 +34,7 @@ export function UserAvatar({
   email,
   size = 'md',
   className,
-}) {
+}: UserAvatarProps) {
   const initials =
     `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() ||
     email?.[0]?.toUpperCase() ||

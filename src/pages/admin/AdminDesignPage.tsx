@@ -69,7 +69,7 @@ const RADIUS_OPTIONS = [
 
 // ── Color picker row ──────────────────────────────────────
 
-function ColorRow({ label, desc, value, onChange, defaultValue }) {
+function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
   const isDefault = !value || value === defaultValue
   return (
     <div className="flex items-center gap-3">
@@ -297,7 +297,7 @@ export function AdminDesignPage() {
       else if (variant === 'light') setLogoUrlLight(url)
       else setLogoUrl(url)
       showToast(`${variant ? variant.charAt(0).toUpperCase() + variant.slice(1) + ' mode l' : 'L'}ogo uploaded`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setLoading(false)
@@ -367,7 +367,7 @@ export function AdminDesignPage() {
         hub_it_request_description: hubItRequestDescription || null,
       })
       showToast('Design settings saved')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

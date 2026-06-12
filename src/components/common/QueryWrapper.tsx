@@ -10,7 +10,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
  *   skeleton     — optional React element shown while loading (defaults to PageLoading)
  *   children     — render function receiving `data`, or plain JSX (data passed via render prop)
  */
-export function QueryWrapper({ query, skeleton, children }) {
+export function QueryWrapper({ query, skeleton, children  }: any) {
   if (query.isLoading) {
     return skeleton || <PageLoading />
   }

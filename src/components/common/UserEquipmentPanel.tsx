@@ -33,7 +33,7 @@ const STATUS_COLOR = {
  * codes and the full request history across types. Drop it inside a
  * profile or admin user-detail page.
  */
-export function UserEquipmentPanel({ userId }) {
+export function UserEquipmentPanel({ userId  }: any) {
   const { data: equipment = [], isLoading: equipLoading } = useUserEquipmentFor(userId)
   const { data: qrCodes = [], isLoading: qrLoading } = useQRCodesAssignedTo(userId)
   const { data: loanReqs = [] } = useMyLoanRequests(userId)

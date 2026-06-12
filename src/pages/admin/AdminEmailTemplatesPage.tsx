@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useEmailTemplates, useUpdateEmailTemplate } from '@/hooks/use-email-templates'
@@ -101,7 +100,7 @@ export function AdminEmailTemplatesPage() {
       await updateTemplate.mutateAsync({ id: editing.id, subject, body })
       showToast('Template updated')
       setEditing(null)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

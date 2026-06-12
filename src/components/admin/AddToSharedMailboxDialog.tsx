@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect } from 'react'
 import { Mail, Loader2 } from 'lucide-react'
 import { useCreateSharedMailbox } from '@/hooks/use-shared-mailboxes'
@@ -28,7 +27,7 @@ const CREATED_IN = ['AD', 'Cloud']
  *   onClose      — called on cancel / esc
  *   onCreated    — called with the new shared_mailbox row on success
  */
-export function AddToSharedMailboxDialog({ request, open, onClose, onCreated }) {
+export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }: any) {
   const createMailbox = useCreateSharedMailbox()
   const showToast = useUIStore((s) => s.showToast)
 
@@ -82,7 +81,7 @@ export function AddToSharedMailboxDialog({ request, open, onClose, onCreated }) 
       showToast('Mailbox added to Shared Mailboxes inventory')
       onCreated?.(created)
       onClose?.()
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to add to inventory', 'error')
     }
   }

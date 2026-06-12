@@ -29,7 +29,7 @@ function toDateStr(date) {
   return date.toISOString().slice(0, 10)
 }
 
-export function AvailabilityCalendar({ reservations = [], totalStock = 1, compact = false, headerExtra }) {
+export function AvailabilityCalendar({ reservations = [], totalStock = 1, compact = false, headerExtra  }: any) {
   const today = new Date()
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
   const [currentYear, setCurrentYear] = useState(today.getFullYear())

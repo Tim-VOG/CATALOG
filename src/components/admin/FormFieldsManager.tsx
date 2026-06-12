@@ -54,7 +54,7 @@ const fieldTypeLabel = (type) => {
   return FIELD_TYPES.find((t) => t.value === type)?.label || type
 }
 
-function SortableFieldRow({ field, onToggle, onEdit, onDelete }) {
+function SortableFieldRow({ field, onToggle, onEdit, onDelete  }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
 
   const style = {
@@ -198,7 +198,7 @@ export function FormFieldsManager() {
         showToast('Field created')
       }
       setShowFieldDialog(false)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -212,7 +212,7 @@ export function FormFieldsManager() {
     try {
       await deleteField.mutateAsync(field.id)
       showToast('Field deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -220,7 +220,7 @@ export function FormFieldsManager() {
   const handleToggleField = async (field) => {
     try {
       await updateField.mutateAsync({ id: field.id, is_active: !field.is_active })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -244,7 +244,7 @@ export function FormFieldsManager() {
           f.sort_order !== i ? updateField.mutateAsync({ id: f.id, sort_order: i }) : null
         ).filter(Boolean)
       )
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }

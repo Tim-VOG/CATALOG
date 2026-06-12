@@ -37,7 +37,7 @@ const gridVariants = {
   exit: (dir) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 }
 
-export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay, direction, showLabels = false }) {
+export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay, direction, showLabels = false  }: any) {
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 

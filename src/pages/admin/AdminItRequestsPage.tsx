@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
@@ -68,7 +67,7 @@ export function AdminItRequestsPage() {
       })
       showToast('Onboarding recipient created!')
       navigate(`/admin/onboarding/requests`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to create recipient', 'error')
     }
   }
@@ -78,7 +77,7 @@ export function AdminItRequestsPage() {
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
       showToast('Request deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
     setDeleteConfirm(null)

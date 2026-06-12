@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import {
   useOffboardingFormFields,
@@ -90,7 +89,7 @@ const EMPTY_FIELD = {
 }
 
 // ── Field row component (no drag) ──
-function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive }) {
+function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) {
   const hasCondition = !!field.condition_field
   const conditionField = hasCondition ? allFields.find((f) => f.field_key === field.condition_field) : null
 
@@ -251,7 +250,7 @@ export function AdminOffboardingFormBuilderPage() {
         showToast('Field updated')
       }
       setEditDialog(null)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Save failed', 'error')
     }
   }
@@ -260,7 +259,7 @@ export function AdminOffboardingFormBuilderPage() {
   const handleToggleActive = async (field) => {
     try {
       await updateField.mutateAsync({ id: field.id, is_active: !field.is_active })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Toggle failed', 'error')
     }
   }
@@ -271,7 +270,7 @@ export function AdminOffboardingFormBuilderPage() {
     try {
       await deleteField.mutateAsync(deleteConfirm.id)
       showToast('Field deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Delete failed', 'error')
     }
     setDeleteConfirm(null)

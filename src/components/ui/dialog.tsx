@@ -7,7 +7,7 @@ import { X } from 'lucide-react'
 
 const DialogContext = React.createContext({})
 
-function Dialog({ open, onOpenChange, children }) {
+function Dialog({ open, onOpenChange, children  }: any) {
   return (
     <DialogContext.Provider value={{ open, onOpenChange }}>
       {children}
@@ -15,7 +15,7 @@ function Dialog({ open, onOpenChange, children }) {
   )
 }
 
-function DialogTrigger({ children, asChild, ...props }) {
+function DialogTrigger({ children, asChild, ...props  }: any) {
   const { onOpenChange } = React.useContext(DialogContext)
   if (asChild) {
     return React.cloneElement(children, { onClick: () => onOpenChange?.(true), ...props })

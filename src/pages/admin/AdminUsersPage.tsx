@@ -48,7 +48,7 @@ const MODULES = [
 /* ------------------------------------------------------------------ */
 /*  ModuleToggle – small 7x7 icon button per module                   */
 /* ------------------------------------------------------------------ */
-function ModuleToggle({ userId, mod, granted, isAdmin, onToggle, isUpdating }) {
+function ModuleToggle({ userId, mod, granted, isAdmin, onToggle, isUpdating  }: any) {
   const Icon = mod.icon
 
   // Catalog is always on for everyone
@@ -172,7 +172,7 @@ export function AdminUsersPage() {
     try {
       await updateRole.mutateAsync({ userId: confirmDialog.userId, role: confirmDialog.newRole })
       showToast(`Role updated to ${confirmDialog.newRole}`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
     setConfirmDialog(null)
@@ -182,7 +182,7 @@ export function AdminUsersPage() {
     try {
       await toggleActive.mutateAsync({ userId, isActive: !currentActive })
       showToast(currentActive ? 'User deactivated' : 'User activated')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -191,7 +191,7 @@ export function AdminUsersPage() {
     try {
       await updateProfile.mutateAsync({ userId, business_unit: value || null })
       showToast('Business unit updated')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -202,7 +202,7 @@ export function AdminUsersPage() {
     try {
       await upsertAccess.mutateAsync({ userId, moduleKey, granted })
       showToast(granted ? 'Access granted' : 'Access revoked')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to update access', 'error')
     } finally {
       setUpdatingKey(null)
@@ -218,7 +218,7 @@ export function AdminUsersPage() {
     try {
       await deleteProfile.mutateAsync(deleteDialog.userId)
       showToast('User deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
     setDeleteDialog(null)
@@ -230,7 +230,7 @@ export function AdminUsersPage() {
     try {
       await cancelInvitation.mutateAsync(inv.id)
       showToast('Invitation cancelled')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to cancel invitation', 'error')
     }
   }

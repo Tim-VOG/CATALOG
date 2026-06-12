@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo } from 'react'
 import {
   useItFormFields,
@@ -97,7 +96,7 @@ const EMPTY_FIELD = {
 }
 
 // ── Sortable row component ──
-function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive }) {
+function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
 
   const style = {
@@ -220,7 +219,7 @@ export function AdminItFormBuilderPage() {
       await reorderFields.mutateAsync(
         reordered.map((f, i) => ({ id: f.id, sort_order: (i + 1) * 10 }))
       )
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Reorder failed', 'error')
     }
   }
@@ -300,7 +299,7 @@ export function AdminItFormBuilderPage() {
         showToast('Field updated')
       }
       setEditDialog(null)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Save failed', 'error')
     }
   }
@@ -309,7 +308,7 @@ export function AdminItFormBuilderPage() {
   const handleToggleActive = async (field) => {
     try {
       await updateField.mutateAsync({ id: field.id, updates: { is_active: !field.is_active } })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Toggle failed', 'error')
     }
   }
@@ -320,7 +319,7 @@ export function AdminItFormBuilderPage() {
     try {
       await deleteField.mutateAsync(deleteConfirm.id)
       showToast('Field deleted')
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Delete failed', 'error')
     }
     setDeleteConfirm(null)

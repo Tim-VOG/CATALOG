@@ -29,7 +29,7 @@ function getDayLabel() {
   return new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-function StatCard({ icon: Icon, label, value, color, to }) {
+function StatCard({ icon: Icon, label, value, color, to  }: any) {
   const card = (
     <Card variant="elevated" className={cn('h-full transition-all', to && 'hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer')}>
       <CardContent className="p-4 flex items-center gap-3">
@@ -46,7 +46,7 @@ function StatCard({ icon: Icon, label, value, color, to }) {
   return to ? <Link to={to} className="block h-full">{card}</Link> : card
 }
 
-function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel }) {
+function HubCard({ to, icon: Icon, title, description, color = 'primary', badge, buttonLabel  }: any) {
   const colorMap = {
     primary: { iconBg: 'bg-gradient-to-br from-primary/30 to-primary/5', iconColor: 'text-primary', hoverBorder: 'hover:border-primary/40', btnClass: 'border-primary/30 text-primary hover:bg-primary/10' },
     blue: { iconBg: 'bg-gradient-to-br from-blue-500/30 to-blue-500/5', iconColor: 'text-blue-500', hoverBorder: 'hover:border-blue-500/40', btnClass: 'border-blue-500/30 text-blue-500 hover:bg-blue-500/10' },

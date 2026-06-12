@@ -4,7 +4,7 @@ import { UserAvatar } from '@/components/common/UserAvatar'
 import { CalendarFilterBar } from './CalendarFilterBar'
 import { cn } from '@/lib/utils'
 
-function UserFilterDropdown({ users, selectedUsers, onChange }) {
+function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef(null)
@@ -126,7 +126,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange }) {
   )
 }
 
-export function AdminCalendarFilterBar({ filters, onChange, counts, users }) {
+export function AdminCalendarFilterBar({ filters, onChange, counts, users  }: any) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Base type + status filters */}

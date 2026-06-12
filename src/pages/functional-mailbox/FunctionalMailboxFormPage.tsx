@@ -75,7 +75,7 @@ function evaluateCondition(field, formValues) {
 }
 
 // ── Email tags field ──
-function EmailTagsField({ value, onChange, placeholder }) {
+function EmailTagsField({ value, onChange, placeholder  }: any) {
   const [inputValue, setInputValue] = useState('')
   const [error, setError] = useState('')
 
@@ -176,7 +176,7 @@ function EmailTagsField({ value, onChange, placeholder }) {
 }
 
 // ── File upload field ──
-function FileUploadField({ value, onChange, helpText }) {
+function FileUploadField({ value, onChange, helpText  }: any) {
   const fileInputRef = useRef(null)
   const [uploading, setUploading] = useState(false)
 
@@ -243,7 +243,7 @@ function FileUploadField({ value, onChange, helpText }) {
 }
 
 // ── Render a single dynamic field ──
-function DynamicField({ field, value, onChange }) {
+function DynamicField({ field, value, onChange  }: any) {
   const options = Array.isArray(field.options) ? field.options : []
 
   switch (field.field_type) {
@@ -370,7 +370,7 @@ function DynamicField({ field, value, onChange }) {
 }
 
 // ── Dynamic step: renders all fields for a given step ──
-function DynamicFormStep({ fields, form, setField }) {
+function DynamicFormStep({ fields, form, setField  }: any) {
   return (
     <div className="space-y-5">
       {fields.map((field) => {
@@ -409,7 +409,7 @@ function DynamicFormStep({ fields, form, setField }) {
 }
 
 // ── Step progress bar ──
-function StepProgress({ currentStep, steps }) {
+function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step, idx) => {
@@ -453,7 +453,7 @@ function StepProgress({ currentStep, steps }) {
 }
 
 // ── Review step ──
-function StepReview({ form, profile, allFields }) {
+function StepReview({ form, profile, allFields  }: any) {
   const rows = allFields
     .filter((f) => f.is_active && evaluateCondition(f, form))
     .map((f) => {
@@ -639,7 +639,7 @@ export function FunctionalMailboxFormPage() {
 
       navigate('/')
       setTimeout(() => showToast('Mailbox request submitted successfully!'), 100)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }
   }

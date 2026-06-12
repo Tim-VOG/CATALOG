@@ -1,13 +1,12 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { Loader2 } from 'lucide-react'
 import { FadeIn } from '@/components/ui/motion'
 import { cn } from '@/lib/utils'
 
-export function LoadingSpinner({ className, size = 24 }) {
+export function LoadingSpinner({ className, size = 24  }: any) {
   return <Loader2 className={cn('animate-spin text-muted-foreground', className)} size={size} />
 }
 
-export function PageLoading({ message = 'Loading...' }) {
+export function PageLoading({ message = 'Loading...'  }: any) {
   return (
     <FadeIn>
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">

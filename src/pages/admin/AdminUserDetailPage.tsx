@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Mail, Phone, Briefcase, Building2, Shield, CalendarDays, MapPin, IdCard, User as UserIcon } from 'lucide-react'
 import { useProfile } from '@/hooks/use-profiles'
@@ -15,7 +14,7 @@ const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 // Notion-style property row: small uppercase label on the left, value on the right
-function Prop({ icon: Icon, label, value, accent }) {
+function Prop({ icon: Icon, label, value, accent  }: any) {
   if (value == null || value === '' || (Array.isArray(value) && value.length === 0)) {
     return (
       <div className="flex items-center gap-3 py-1.5">

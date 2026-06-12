@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const TabsContext = React.createContext({})
 
-function Tabs({ value, onValueChange, children, className, ...props }) {
+function Tabs({ value, onValueChange, children, className, ...props  }: any) {
   return (
     <TabsContext.Provider value={{ value, onValueChange }}>
       <div className={cn('', className)} {...props}>
@@ -15,7 +15,7 @@ function Tabs({ value, onValueChange, children, className, ...props }) {
   )
 }
 
-function TabsList({ children, className, ...props }) {
+function TabsList({ children, className, ...props  }: any) {
   return (
     <div
       className={cn(
@@ -30,7 +30,7 @@ function TabsList({ children, className, ...props }) {
   )
 }
 
-function TabsTrigger({ value, children, className, ...props }) {
+function TabsTrigger({ value, children, className, ...props  }: any) {
   const { value: activeValue, onValueChange } = React.useContext(TabsContext)
   const isActive = activeValue === value
 
@@ -61,7 +61,7 @@ function TabsTrigger({ value, children, className, ...props }) {
   )
 }
 
-function TabsContent({ value, children, className, ...props }) {
+function TabsContent({ value, children, className, ...props  }: any) {
   const { value: activeValue } = React.useContext(TabsContext)
   if (activeValue !== value) return null
 

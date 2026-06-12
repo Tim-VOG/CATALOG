@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
@@ -42,7 +41,7 @@ If you have any questions, just reply to this email — we're here to help.
 Best,
 The VO Hub Team`
 
-export function InviteUserDialog({ open, onOpenChange, invitation: editingInvitation }) {
+export function InviteUserDialog({ open, onOpenChange, invitation: editingInvitation  }: any) {
   const { user } = useAuth()
   const { data: settings } = useAppSettings()
   const createInvitation = useCreateInvitation()
@@ -203,7 +202,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
         showToast('Invitation draft saved')
       }
       onOpenChange(false)
-    } catch (err) {
+    } catch (err: any) {
       const msg = err?.message || 'Failed to save draft'
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('23505')) {
         showToast('An invitation is already pending for this email', 'error')
@@ -276,7 +275,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
 
       showToast(`Invitation sent to ${trimmedEmail}`)
       onOpenChange(false)
-    } catch (err) {
+    } catch (err: any) {
       const msg = err?.message || 'Failed to send invitation'
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('23505')) {
         showToast('An invitation is already pending for this email', 'error')

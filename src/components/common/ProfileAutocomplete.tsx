@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { Check, ChevronDown, X } from 'lucide-react'
 import { useProfiles } from '@/hooks/use-profiles'
@@ -17,7 +16,7 @@ import { cn } from '@/lib/utils'
  *   onSelect(profile) — called when a profile is picked from the dropdown
  *   placeholder
  */
-export function ProfileAutocomplete({ value, onChange, onSelect, placeholder }) {
+export function ProfileAutocomplete({ value, onChange, onSelect, placeholder  }: any) {
   const { data: profiles = [] } = useProfiles()
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)

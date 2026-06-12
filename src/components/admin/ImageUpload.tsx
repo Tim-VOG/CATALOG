@@ -84,7 +84,7 @@ export function ImageUpload({
       if (uploadError) throw uploadError
       const { data } = supabase.storage.from(bucket).getPublicUrl(path)
       onChange(data.publicUrl)
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message)
     } finally {
       setUploading(false)

@@ -25,7 +25,7 @@ import { StatusBadge } from '@/components/common/StatusBadge'
 import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { cn } from '@/lib/utils'
 
-function AdminNotes({ requestId, initialNotes }) {
+function AdminNotes({ requestId, initialNotes  }: any) {
   const [notes, setNotes] = useState(initialNotes)
   const [saving, setSaving] = useState(false)
   const showToast = useUIStore((s) => s.showToast)
@@ -36,7 +36,7 @@ function AdminNotes({ requestId, initialNotes }) {
     try {
       await supabase.from('loan_requests').update({ admin_notes: notes }).eq('id', requestId)
       showToast('Notes saved')
-    } catch (err) { showToast(err.message, 'error') }
+    } catch (err: any) { showToast(err.message, 'error') }
     setSaving(false)
   }
 
@@ -115,7 +115,7 @@ export function AdminRequestDetailPage() {
       // value). Best-effort: log warnings, don't block the assignment.
       try {
         await supabase.rpc('decrement_product_stock', { p_id: qr.product_id })
-      } catch (e) {
+      } catch (e: any) {
         console.warn('[handleScannedCode] could not decrement product stock', e)
       }
       setAssignedQRs((prev) => {
@@ -127,7 +127,7 @@ export function AdminRequestDetailPage() {
       const nextCount = ((assignedQRs[assigningItem.id] || []).length) + 1
       if (nextCount >= assigningItem.quantity) setAssigningItem(null)
       showToast(`${qr.code} assigned`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to assign QR code', 'error')
     }
   }, [assigningItem, allQRCodes, assignedQRs, request, updateQR, showToast])
@@ -204,7 +204,7 @@ export function AdminRequestDetailPage() {
       }
 
       sendStatusChangeEmail(status, { request, requestType: 'equipment' })
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     }
   }
@@ -230,7 +230,7 @@ export function AdminRequestDetailPage() {
       // desync on multi-assign).
       try {
         await supabase.rpc('decrement_product_stock', { p_id: qrCode.product_id })
-      } catch (e) {
+      } catch (e: any) {
         console.warn('[handleAssignQR] could not decrement product stock', e)
       }
 
@@ -241,7 +241,7 @@ export function AdminRequestDetailPage() {
       const nextCount = ((assignedQRs[assigningItem.id] || []).length) + 1
       if (nextCount >= assigningItem.quantity) setAssigningItem(null)
       showToast(`${qrCode.code} assigned to ${requesterName}`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to assign QR code', 'error')
     }
   }
@@ -253,7 +253,7 @@ export function AdminRequestDetailPage() {
       await releaseQR.mutateAsync({ id: qrCode.id, expectedLoanRequestId: request.id })
       try {
         await supabase.rpc('increment_product_stock', { p_id: qrCode.product_id })
-      } catch (e) {
+      } catch (e: any) {
         console.warn('[handleUnassignQR] could not bump product stock back', e)
       }
       setAssignedQRs((prev) => {
@@ -261,7 +261,7 @@ export function AdminRequestDetailPage() {
         return { ...prev, [item.id]: list }
       })
       showToast(`${qrCode.code} unassigned`)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message || 'Failed to unassign QR code', 'error')
     }
   }

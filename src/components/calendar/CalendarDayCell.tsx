@@ -21,7 +21,7 @@ const TYPE_BARS = {
   mailbox: 'bg-violet-500/50',
 }
 
-export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, events, onSelect, showLabels = false }) {
+export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, events, onSelect, showLabels = false  }: any) {
   // Separate multi-day (bar) events from single-day (icon) events
   const { barEvents, dotEvents } = useMemo(() => {
     const bars = []

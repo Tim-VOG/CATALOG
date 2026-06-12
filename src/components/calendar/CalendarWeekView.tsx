@@ -9,7 +9,7 @@ const TYPE_COLORS = {
   mailbox: { bg: 'bg-violet-500/20', border: 'border-violet-500/40', text: 'text-violet-500', dot: 'bg-violet-500' },
 }
 
-export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelectDay, showUser = false }) {
+export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelectDay, showUser = false  }: any) {
   const weekStart = useMemo(() => startOfWeek(currentDate, { weekStartsOn: 1 }), [currentDate])
 
   const days = useMemo(() => {

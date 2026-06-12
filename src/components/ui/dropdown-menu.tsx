@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const DropdownContext = React.createContext({})
 
-function DropdownMenu({ children }) {
+function DropdownMenu({ children  }: any) {
   const [open, setOpen] = React.useState(false)
   const ref = React.useRef(null)
 
@@ -47,7 +47,7 @@ function DropdownMenu({ children }) {
   )
 }
 
-function DropdownMenuTrigger({ children, asChild, ...props }) {
+function DropdownMenuTrigger({ children, asChild, ...props  }: any) {
   const { open, setOpen } = React.useContext(DropdownContext)
   const handleClick = (e) => {
     e.preventDefault()
@@ -72,7 +72,7 @@ function DropdownMenuTrigger({ children, asChild, ...props }) {
   return <button {...triggerProps}>{children}</button>
 }
 
-function DropdownMenuContent({ className, align = 'end', children, ...props }) {
+function DropdownMenuContent({ className, align = 'end', children, ...props  }: any) {
   const { open, setOpen } = React.useContext(DropdownContext)
   const contentRef = React.useRef(null)
 
@@ -140,7 +140,7 @@ function DropdownMenuContent({ className, align = 'end', children, ...props }) {
   )
 }
 
-function DropdownMenuItem({ className, children, onClick, disabled, ...props }) {
+function DropdownMenuItem({ className, children, onClick, disabled, ...props  }: any) {
   const { setOpen } = React.useContext(DropdownContext)
   const handleClick = (e) => {
     if (disabled) return
@@ -174,7 +174,7 @@ function DropdownMenuItem({ className, children, onClick, disabled, ...props }) 
   )
 }
 
-function DropdownMenuSeparator({ className, ...props }) {
+function DropdownMenuSeparator({ className, ...props  }: any) {
   return (
     <div
       role="separator"
@@ -184,7 +184,7 @@ function DropdownMenuSeparator({ className, ...props }) {
   )
 }
 
-function DropdownMenuLabel({ className, ...props }) {
+function DropdownMenuLabel({ className, ...props  }: any) {
   return <div className={cn('px-2 py-1.5 text-xs font-semibold text-muted-foreground', className)} {...props} />
 }
 

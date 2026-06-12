@@ -11,7 +11,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
 
-function StatCard({ label, value, sub, icon: Icon, color }) {
+function StatCard({ label, value, sub, icon: Icon, color  }: any) {
   return (
     <Card>
       <CardContent className="p-5 flex items-center gap-4">

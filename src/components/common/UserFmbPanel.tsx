@@ -17,7 +17,7 @@ const CAT_COLORS = {
  *   - "with access" — matched against the comma-separated have_access list
  * Drop it inside a user profile / admin user detail page.
  */
-export function UserFmbPanel({ user }) {
+export function UserFmbPanel({ user  }: any) {
   const { data: mailboxes = [], isLoading } = useSharedMailboxes()
   const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim()
   const lowerName = fullName.toLowerCase()

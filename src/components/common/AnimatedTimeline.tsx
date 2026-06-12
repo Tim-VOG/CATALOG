@@ -10,7 +10,7 @@ const formatDateTime = (d) =>
  * Props:
  *   events: Array<{ label: string, date: string, icon?: LucideIcon }>
  */
-export function AnimatedTimeline({ events = [] }) {
+export function AnimatedTimeline({ events = []  }: any) {
   if (events.length === 0) return null
 
   return (

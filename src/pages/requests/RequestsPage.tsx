@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
@@ -21,7 +20,7 @@ const PAST_STATUSES = ['ready']
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
-function RequestCard({ req }) {
+function RequestCard({ req  }: any) {
   return (
     <Link to={`/requests/${req.id}`}>
       <Card className="hover:-translate-y-1 hover:shadow-elevated hover:border-primary/30 transition-all duration-300 cursor-pointer">

@@ -16,7 +16,7 @@ const ROUTE_LABELS = {
   'functional-mailbox': 'Mailbox Request',
 }
 
-export function Breadcrumb({ items, className }) {
+export function Breadcrumb({ items, className  }: any) {
   const location = useLocation()
 
   // Auto-generate from path if no items provided

@@ -1,4 +1,3 @@
-// @ts-nocheck — Phase-3 typing follow-up; remove this and fix once the surrounding API/component types stabilise.
 import { lazy, Suspense, useState, useMemo } from 'react'
 import { AtSign, CheckCircle, Send, Loader2 } from 'lucide-react'
 import { useOnboardingRecipients, useCreateRecipient, useUpdateRecipient } from '@/hooks/use-onboarding'
@@ -41,7 +40,7 @@ const formatDate = (d) =>
  * once the request is ready. Handles the personal-email gate, recipient
  * upsert, then renders the composer.
  */
-export function WelcomeEmailSection({ req, sentEmail, onSent }) {
+export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   const { data: recipients = [] } = useOnboardingRecipients()
   const createRecipient = useCreateRecipient()
   const updateRecipient = useUpdateRecipient()
@@ -111,7 +110,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent }) {
         }
       }
       setRecipientForCompose(recipient)
-    } catch (err) {
+    } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
       setPreparing(false)
