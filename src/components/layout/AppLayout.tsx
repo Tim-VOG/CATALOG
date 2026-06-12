@@ -11,10 +11,11 @@ import { PageTransition } from '@/components/ui/motion'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { LiveRegionProvider } from '@/components/common/LiveRegion'
-import { useTheme, useThemeMode } from '@/hooks/use-theme'
+import { useTheme, useThemeMode, useSyncThemeFromProfile } from '@/hooks/use-theme'
 
 export function AppLayout() {
   useTheme()
+  useSyncThemeFromProfile()
   const location = useLocation()
   const themeMode = useThemeMode()
   const prevPath = useRef(location.pathname)

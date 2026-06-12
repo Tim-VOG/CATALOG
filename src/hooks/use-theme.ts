@@ -1,5 +1,7 @@
 import { useEffect, useCallback, useSyncExternalStore } from 'react'
 import { useAppSettings } from './use-settings'
+import { useAuth } from '@/lib/auth'
+import { updateProfile } from '@/lib/api/profiles'
 
 const THEME_OVERRIDE_KEY = 'vo-theme-override'
 
@@ -42,20 +44,52 @@ export function useThemeMode() {
 }
 
 /**
- * Toggle between dark ↔ light locally (localStorage).
+ * Toggle between dark ↔ light. Writes to localStorage immediately
+ * (instant UI) and best-effort persists to the user's profile so
+ * the choice follows them across devices.
  */
 export function useToggleTheme() {
   const mode = useThemeMode()
+  const { user, refreshProfile } = useAuth()
   return useCallback(() => {
-    themeOverrideStore.set(mode === 'dark' ? 'light' : 'dark')
-  }, [mode])
+    const next = mode === 'dark' ? 'light' : 'dark'
+    themeOverrideStore.set(next)
+    if (user?.id) {
+      updateProfile(user.id, { theme_preference: next } as any)
+        .then(() => refreshProfile())
+        .catch(() => { /* silent — column may not exist yet (migration 097) */ })
+    }
+  }, [mode, user?.id, refreshProfile])
 }
 
 /**
  * Clear user override, revert to admin-set default.
  */
 export function useClearThemeOverride() {
-  return useCallback(() => themeOverrideStore.set(null), [])
+  const { user, refreshProfile } = useAuth()
+  return useCallback(() => {
+    themeOverrideStore.set(null)
+    if (user?.id) {
+      updateProfile(user.id, { theme_preference: null } as any)
+        .then(() => refreshProfile())
+        .catch(() => { /* silent */ })
+    }
+  }, [user?.id, refreshProfile])
+}
+
+/**
+ * On login, copy the persisted profile.theme_preference into the
+ * localStorage override so the rest of the app sees it immediately.
+ * Call this from the AuthProvider effect (or any high-up component).
+ */
+export function useSyncThemeFromProfile() {
+  const { profile } = useAuth()
+  useEffect(() => {
+    const persisted = (profile as any)?.theme_preference
+    if (!persisted) return
+    if (themeOverrideStore.get() === persisted) return
+    themeOverrideStore.set(persisted)
+  }, [profile])
 }
 
 // ── CSS property mapping ──────────────────────────────────

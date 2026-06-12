@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import QRCodeLib from 'qrcode'
 import { printBrandedQRCodes } from '@/lib/qr-branded'
+import { generateBulkQrPdf, downloadBlob } from '@/lib/qr-pdf'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -108,6 +109,25 @@ export function AdminQRCodesPage() {
     await printBrandedQRCodes(items)
   }
 
+  // Download a printable A4 PDF with 35 stickers per page — better
+  // than the live print preview when shipping a label sheet to a
+  // colleague or printing on a label printer that wants a PDF.
+  const handleExportPdf = async () => {
+    const source = filtered.length ? filtered : qrCodes
+    const items = source.filter((qr) => qr.is_active).map((qr) => ({
+      code: qr.code,
+      label: qr.product_name || qr.label || qr.code,
+    }))
+    if (!items.length) return toast.error('No active QR codes to export')
+    toast.info(`Generating PDF for ${items.length} sticker${items.length > 1 ? 's' : ''}…`)
+    try {
+      const blob = await generateBulkQrPdf(items)
+      downloadBlob(blob, `vo-hub-qr-stickers-${new Date().toISOString().slice(0, 10)}.pdf`)
+    } catch (err: any) {
+      toast.error(err?.message || 'PDF export failed')
+    }
+  }
+
   const categories = [...new Set(qrCodes.map((qr) => qr.category_name).filter(Boolean))]
   const availableCount = qrCodes.filter((q) => (q.status || 'available') === 'available').length
   const assignedCount = qrCodes.filter((q) => q.status === 'assigned').length
@@ -124,6 +144,7 @@ export function AdminQRCodesPage() {
     <div className="space-y-6">
       <AdminPageHeader title="QR Codes" description={`${qrCodes.length} codes — ${availableCount} available, ${assignedCount} assigned`}>
         <Button variant="outline" size="sm" onClick={handlePrintAll} className="gap-2"><Printer className="h-3.5 w-3.5" /> Print All</Button>
+        <Button variant="outline" size="sm" onClick={handleExportPdf} className="gap-2"><Download className="h-3.5 w-3.5" /> Export PDF</Button>
         <Button variant="outline" size="sm" onClick={() => setShowBulkDialog(true)} className="gap-2"><Plus className="h-3.5 w-3.5" /> Bulk Generate</Button>
         <Button size="sm" onClick={openNew} className="gap-2"><Plus className="h-3.5 w-3.5" /> Add QR Code</Button>
       </AdminPageHeader>

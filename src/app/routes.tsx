@@ -22,6 +22,7 @@ import { CartPage } from '@/pages/cart/CartPage'
 import { ScanPage } from '@/pages/scan/ScanPage'
 import { TrackingPage } from '@/pages/track/TrackingPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { StatusPage } from '@/pages/StatusPage'
 
 // ── Lazy: heavy form pages ─────────────────────────────────
 // Big form pages — only fetched when the user opens the matching link.
@@ -69,6 +70,7 @@ export function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/track/:token" element={<TrackingPage />} />
+        <Route path="/status" element={<StatusPage />} />
 
         {/* Protected routes */}
         <Route

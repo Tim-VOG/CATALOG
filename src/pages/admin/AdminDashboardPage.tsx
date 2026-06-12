@@ -14,8 +14,14 @@ import { checkAndSendReturnReminders } from '@/services/return-reminder-service'
 import {
   ArrowRight, AlertTriangle, ScanLine, PackageCheck,
   Inbox, TrendingDown, Clock, UserPlus, Mail, Box, ChevronRight,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { exportInventoryWorkbook } from '@/lib/excel-export'
+import { useCategories } from '@/hooks/use-categories'
+import { useSharedMailboxes } from '@/hooks/use-shared-mailboxes'
+import { useDeviceCredentials } from '@/hooks/use-device-credentials'
+import { Button } from '@/components/ui/button'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 8 },
@@ -189,8 +195,23 @@ export function AdminDashboardPage() {
   const { data: overdueScans = [] } = useOverdueScans()
   const { data: activeLoans = [] } = useActiveLoans()
   const { data: recentScans = [] } = useScanLogs({ limit: 12 })
+  const { data: categories = [] } = useCategories()
+  const { data: sharedMailboxes = [] } = useSharedMailboxes()
+  const { data: deviceCredentials = [] } = useDeviceCredentials()
 
   useEffect(() => { checkAndSendReturnReminders() }, [])
+
+  const handleExportExcel = () => {
+    exportInventoryWorkbook({
+      products,
+      categories,
+      qrCodes,
+      deviceCredentials,
+      activeLoans,
+      scanLogs: recentScans,
+      sharedMailboxes,
+    }, `vo-hub-inventory-${new Date().toISOString().slice(0, 10)}.xlsx`)
+  }
 
   const stats = useMemo(() => {
     const total = qrCodes.length
@@ -238,18 +259,24 @@ export function AdminDashboardPage() {
   return (
     <div className="pb-12">
       {/* ── Header ── */}
-      <motion.div {...fadeUp(0)} className="pt-10 pb-10">
-        <p className="text-xs text-muted-foreground/80 mb-2">
-          {format(now, "EEEE d MMMM", { locale: fr })}
-        </p>
-        <h1 className="text-3xl font-display font-semibold tracking-tight">
-          {greeting}, {firstName}.
-        </h1>
-        <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-          {totalAttention === 0
-            ? `Tout est sous contrôle. ${stats.available} unités disponibles sur ${stats.total}, aucun retard.`
-            : `${totalAttention} action${totalAttention > 1 ? 's' : ''} demandent ton attention.`}
-        </p>
+      <motion.div {...fadeUp(0)} className="pt-10 pb-10 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground/80 mb-2">
+            {format(now, "EEEE d MMMM", { locale: fr })}
+          </p>
+          <h1 className="text-3xl font-display font-semibold tracking-tight">
+            {greeting}, {firstName}.
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 max-w-xl">
+            {totalAttention === 0
+              ? `Tout est sous contrôle. ${stats.available} unités disponibles sur ${stats.total}, aucun retard.`
+              : `${totalAttention} action${totalAttention > 1 ? 's' : ''} demandent ton attention.`}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleExportExcel} className="gap-2 shrink-0">
+          <FileSpreadsheet className="h-3.5 w-3.5" />
+          Export Excel
+        </Button>
       </motion.div>
 
       {/* ── Stat row ── */}
