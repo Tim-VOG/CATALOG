@@ -26,53 +26,67 @@ BEGIN;
 --         way in. It validates the token, resolves the request id
 --         server-side, and inserts with SECURITY DEFINER. Direct
 --         table INSERT becomes admin-only.
+--
+-- Wrapped in a DO block so the migration is a no-op for environments
+-- that never ran migration 063 (the table only exists if that
+-- earlier migration was applied; the public-token onboarding flow
+-- is not used by the current client code).
 
-CREATE OR REPLACE FUNCTION public.submit_personal_info(
-  p_token UUID,
-  p_email TEXT
-)
-RETURNS public.personal_info_submissions
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_request_id UUID;
-  v_row        public.personal_info_submissions;
+DO $outer$
 BEGIN
-  -- Basic email shape check — full validation happens client-side too
-  -- but we never want a clearly bogus value to land in the DB.
-  IF p_email IS NULL OR p_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' THEN
-    RAISE EXCEPTION 'invalid_email';
+  IF to_regclass('public.personal_info_submissions') IS NULL THEN
+    RAISE NOTICE 'personal_info_submissions table missing — skipping block 1 (migration 063 never applied)';
+    RETURN;
   END IF;
 
-  SELECT id
-    INTO v_request_id
-    FROM public.it_requests
-    WHERE personal_info_token = p_token
-      AND type = 'onboarding';
+  EXECUTE $body$
+    CREATE OR REPLACE FUNCTION public.submit_personal_info(
+      p_token UUID,
+      p_email TEXT
+    )
+    RETURNS public.personal_info_submissions
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $fn$
+    DECLARE
+      v_request_id UUID;
+      v_row        public.personal_info_submissions;
+    BEGIN
+      IF p_email IS NULL OR p_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' THEN
+        RAISE EXCEPTION 'invalid_email';
+      END IF;
 
-  IF v_request_id IS NULL THEN
-    RAISE EXCEPTION 'invalid_token';
-  END IF;
+      SELECT id
+        INTO v_request_id
+        FROM public.it_requests
+        WHERE personal_info_token = p_token
+          AND type = 'onboarding';
 
-  INSERT INTO public.personal_info_submissions (it_request_id, personal_email)
-  VALUES (v_request_id, lower(trim(p_email)))
-  ON CONFLICT (it_request_id) DO UPDATE
-    SET personal_email = EXCLUDED.personal_email,
-        submitted_at   = NOW()
-  RETURNING * INTO v_row;
+      IF v_request_id IS NULL THEN
+        RAISE EXCEPTION 'invalid_token';
+      END IF;
 
-  RETURN v_row;
-END;
-$$;
+      INSERT INTO public.personal_info_submissions (it_request_id, personal_email)
+      VALUES (v_request_id, lower(trim(p_email)))
+      ON CONFLICT (it_request_id) DO UPDATE
+        SET personal_email = EXCLUDED.personal_email,
+            submitted_at   = NOW()
+      RETURNING * INTO v_row;
 
-REVOKE ALL ON FUNCTION public.submit_personal_info(UUID, TEXT) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.submit_personal_info(UUID, TEXT) TO anon, authenticated;
+      RETURN v_row;
+    END;
+    $fn$;
+  $body$;
 
--- Drop the open INSERT policy. Admins keep full access via the
--- pre-existing "Admins can manage personal info submissions" policy.
-DROP POLICY IF EXISTS "Public can submit personal info" ON public.personal_info_submissions;
+  REVOKE ALL ON FUNCTION public.submit_personal_info(UUID, TEXT) FROM PUBLIC;
+  GRANT EXECUTE ON FUNCTION public.submit_personal_info(UUID, TEXT) TO anon, authenticated;
+
+  -- Drop the open INSERT policy. Admins keep full access via the
+  -- pre-existing "Admins can manage personal info submissions" policy.
+  DROP POLICY IF EXISTS "Public can submit personal info" ON public.personal_info_submissions;
+END
+$outer$;
 
 
 -- ─── 2. qr_reservations INSERT ──────────────────────────────
