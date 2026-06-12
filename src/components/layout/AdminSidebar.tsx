@@ -6,6 +6,7 @@ import {
   UserPlus, UserMinus, Monitor, BarChart3,
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
+  CalendarClock, PackageSearch,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -70,6 +71,8 @@ export function AdminSidebar() {
         { to: '/admin/shared-mailboxes', label: 'Shared Mailboxes', icon: Mail },
         { to: '/admin/products', label: 'Products', icon: Package },
         { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
+        { to: '/admin/reservations', label: 'Reservations', icon: CalendarClock },
+        { to: '/admin/lost-items', label: 'Lost Items', icon: PackageSearch },
         { to: '/admin/device-credentials', label: 'Device Credentials', icon: KeyRound },
         { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
       ],
