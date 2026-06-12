@@ -31,14 +31,14 @@ CREATE OR REPLACE FUNCTION public.submit_personal_info(
   p_token UUID,
   p_email TEXT
 )
-RETURNS personal_info_submissions
+RETURNS public.personal_info_submissions
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
   v_request_id UUID;
-  v_row        personal_info_submissions;
+  v_row        public.personal_info_submissions;
 BEGIN
   -- Basic email shape check — full validation happens client-side too
   -- but we never want a clearly bogus value to land in the DB.
