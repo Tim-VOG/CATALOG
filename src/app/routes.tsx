@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
+import { useAuth } from '@/lib/auth'
 
 // ── Eager (shipped in the initial bundle) ──────────────────
 // Public + light user-facing routes so the first paint after login
@@ -37,6 +38,7 @@ const EquipmentRequestPage = lazy(() => import('@/pages/equipment-request/Equipm
 // Never shipped to non-admins (RequireAdmin gate), always lazy so the
 // user bundle stays slim. Static imports per file so Vite can code-split.
 const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })))
+const ManagerDashboardPage = lazy(() => import('@/pages/admin/ManagerDashboardPage').then((m) => ({ default: m.ManagerDashboardPage })))
 const AdminProductsPage = lazy(() => import('@/pages/admin/AdminProductsPage').then((m) => ({ default: m.AdminProductsPage })))
 const AdminCategoriesPage = lazy(() => import('@/pages/admin/AdminCategoriesPage').then((m) => ({ default: m.AdminCategoriesPage })))
 const AdminRequestsPage = lazy(() => import('@/pages/admin/AdminRequestsPage').then((m) => ({ default: m.AdminRequestsPage })))
@@ -67,6 +69,13 @@ const AdminReservationsPage = lazy(() => import('@/pages/admin/AdminReservations
 const AdminLostItemsPage = lazy(() => import('@/pages/admin/AdminLostItemsPage').then((m) => ({ default: m.AdminLostItemsPage })))
 const AdminUtilizationPage = lazy(() => import('@/pages/admin/AdminUtilizationPage').then((m) => ({ default: m.AdminUtilizationPage })))
 const AdminIssuesPage = lazy(() => import('@/pages/admin/AdminIssuesPage').then((m) => ({ default: m.AdminIssuesPage })))
+
+// Pick the right dashboard for the signed-in role: admins get the
+// inventory dashboard, managers the people-ops one.
+function RoleDashboard() {
+  const { isAdmin } = useAuth()
+  return isAdmin ? <AdminDashboardPage /> : <ManagerDashboardPage />
+}
 
 export function AppRoutes() {
   return (
@@ -113,8 +122,8 @@ export function AppRoutes() {
               </RequireStaff>
             }
           >
-            {/* Shared by admin + manager */}
-            <Route index element={<AdminDashboardPage />} />
+            {/* Shared by admin + manager — managers get a people-ops view */}
+            <Route index element={<RoleDashboard />} />
             <Route path="planning" element={<AdminPlanningPage />} />
             <Route path="all-requests" element={<AdminAllRequestsPage />} />
             <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
