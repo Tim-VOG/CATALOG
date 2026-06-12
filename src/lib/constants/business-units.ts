@@ -1,4 +1,12 @@
-export const BUSINESS_UNITS = [
+export type EmailPattern = 'initial_last' | 'first' | 'initials'
+
+export interface BusinessUnit {
+  value: string
+  domain: string
+  emailPattern: EmailPattern
+}
+
+export const BUSINESS_UNITS: readonly BusinessUnit[] = [
   { value: 'VO GROUP',         domain: 'vo-group.be',       emailPattern: 'initial_last' },
   { value: 'THE LITTLE VOICE', domain: 'thelittlevoice.be', emailPattern: 'first' },
   { value: 'VO EUROPE',        domain: 'vo-europe.eu',      emailPattern: 'initial_last' },

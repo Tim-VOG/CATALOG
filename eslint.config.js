@@ -15,6 +15,7 @@ import globals from 'globals'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
 
 export default [
   {
@@ -32,6 +33,43 @@ export default [
     ],
   },
   js.configs.recommended,
+  // TypeScript: parser + recommended (non type-checked, fast).
+  ...tseslint.configs.recommended.map((c) => ({
+    ...c,
+    files: ['**/*.{ts,tsx}'],
+  })),
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: 'module',
+      globals: { ...globals.browser, ...globals.node },
+    },
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    settings: { react: { version: '18.2' } },
+    rules: {
+      ...react.configs.recommended.rules,
+      ...react.configs['jsx-runtime'].rules,
+      ...reactHooks.configs.recommended.rules,
+      'react/prop-types': 'off',
+      'react/no-unescaped-entities': 'off',
+      'react/display-name': 'off',
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'debug'] }],
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'no-empty': ['warn', { allowEmptyCatch: true }],
+    },
+  },
   {
     files: ['**/*.{js,jsx,mjs}'],
     languageOptions: {

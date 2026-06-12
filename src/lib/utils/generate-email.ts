@@ -6,7 +6,7 @@ import { BUSINESS_UNITS } from '@/lib/constants/business-units'
  * - strip diacritics (é → e, ü → u, etc.)
  * - remove non-alpha characters (spaces, hyphens, apostrophes)
  */
-function normalizeName(name) {
+function normalizeName(name: string | null | undefined): string {
   return (name || '')
     .toLowerCase()
     .normalize('NFD')
@@ -26,13 +26,12 @@ function normalizeName(name) {
  *   MAX             → john@vo-event-max.be  (first name)
  *   SIGN BRUSSELS   → jd@sign.brussels      (initials)
  *   ART ON PAPER    → john@artonpaper.be    (first name)
- *
- * @param {string} firstName
- * @param {string} lastName
- * @param {string} businessUnit - must match one of BUSINESS_UNITS[].value
- * @returns {string} generated email or empty string
  */
-export function generateCorporateEmail(firstName, lastName, businessUnit) {
+export function generateCorporateEmail(
+  firstName: string | null | undefined,
+  lastName: string | null | undefined,
+  businessUnit: string | null | undefined,
+): string {
   const unit = BUSINESS_UNITS.find((u) => u.value === businessUnit)
   if (!unit) return ''
 
