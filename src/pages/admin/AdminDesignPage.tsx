@@ -4,8 +4,9 @@ import { uploadLogo } from '@/lib/api/settings'
 import {
   Palette, Upload, X, Save, Image, Mail, Sun, Moon, Monitor,
   Circle, Square, RectangleHorizontal, Radius, Type, RotateCcw,
-  Home, PenLine,
+  Home, PenLine, MapPin, Loader2,
 } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -169,6 +170,14 @@ export function AdminDesignPage() {
   const [hubItRequestTitle, setHubItRequestTitle] = useState('')
   const [hubItRequestDescription, setHubItRequestDescription] = useState('')
 
+  // Pickup point (IT desk) + mini floor map
+  const [pickupName, setPickupName] = useState('')
+  const [pickupDirections, setPickupDirections] = useState('')
+  const [pickupMapUrl, setPickupMapUrl] = useState('')
+  const [pickupPinX, setPickupPinX] = useState<number | null>(null)
+  const [pickupPinY, setPickupPinY] = useState<number | null>(null)
+  const [uploadingMap, setUploadingMap] = useState(false)
+
   // ── Hydrate from settings ───────────────────
 
   useEffect(() => {
@@ -223,6 +232,12 @@ export function AdminDesignPage() {
     setHubMailboxDescription(settings.hub_mailbox_description || '')
     setHubItRequestTitle(settings.hub_it_request_title || '')
     setHubItRequestDescription(settings.hub_it_request_description || '')
+
+    setPickupName(settings.pickup_location_name || '')
+    setPickupDirections(settings.pickup_directions || '')
+    setPickupMapUrl(settings.pickup_map_url || '')
+    setPickupPinX(settings.pickup_pin_x ?? null)
+    setPickupPinY(settings.pickup_pin_y ?? null)
   }, [settings])
 
   // ── Live preview: apply theme as admin edits ─────
@@ -364,6 +379,12 @@ export function AdminDesignPage() {
         hub_mailbox_description: hubMailboxDescription || null,
         hub_it_request_title: hubItRequestTitle || null,
         hub_it_request_description: hubItRequestDescription || null,
+        // Pickup point
+        pickup_location_name: pickupName || null,
+        pickup_directions: pickupDirections || null,
+        pickup_map_url: pickupMapUrl || null,
+        pickup_pin_x: pickupPinX,
+        pickup_pin_y: pickupPinY,
       })
       showToast('Design settings saved')
     } catch (err: any) {
@@ -417,8 +438,35 @@ export function AdminDesignPage() {
     hubMailboxTitle !== (settings.hub_mailbox_title || '') ||
     hubMailboxDescription !== (settings.hub_mailbox_description || '') ||
     hubItRequestTitle !== (settings.hub_it_request_title || '') ||
-    hubItRequestDescription !== (settings.hub_it_request_description || '')
+    hubItRequestDescription !== (settings.hub_it_request_description || '') ||
+    // Pickup point
+    pickupName !== (settings.pickup_location_name || '') ||
+    pickupDirections !== (settings.pickup_directions || '') ||
+    pickupMapUrl !== (settings.pickup_map_url || '') ||
+    (pickupPinX ?? null) !== (settings.pickup_pin_x ?? null) ||
+    (pickupPinY ?? null) !== (settings.pickup_pin_y ?? null)
   )
+
+  const handleMapUpload = async (file: File) => {
+    if (!file) return
+    setUploadingMap(true)
+    try {
+      const url = await uploadLogo(file, 'pickup-map')
+      setPickupMapUrl(url)
+    } catch (err: any) {
+      showToast(err?.message || 'Upload failed', 'error')
+    } finally {
+      setUploadingMap(false)
+    }
+  }
+
+  const handleMapClick = (e: React.MouseEvent<HTMLImageElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setPickupPinX(Math.round(x * 10) / 10)
+    setPickupPinY(Math.round(y * 10) / 10)
+  }
 
   if (isLoading) return <PageLoading />
 
@@ -1025,6 +1073,84 @@ export function AdminDesignPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ─── Pickup point + floor map ──────────────────── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <MapPin className="h-4 w-4" /> Pickup point
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Where people pick up / return equipment. Shown on the tracking page and "My equipment".
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Location name</Label>
+            <Input value={pickupName} onChange={(e) => setPickupName(e.target.value)} placeholder="IT Desk — 2nd floor" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Directions</Label>
+            <Textarea
+              value={pickupDirections}
+              onChange={(e) => setPickupDirections(e.target.value)}
+              placeholder={"Take the lift to the 2nd floor, turn left.\nThe IT desk is at the end of the corridor."}
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs">Floor plan (optional)</Label>
+            {pickupMapUrl ? (
+              <div className="space-y-2">
+                <div className="relative inline-block rounded-xl overflow-hidden border border-border/50 max-w-md">
+                  <img
+                    src={pickupMapUrl}
+                    alt="Floor plan"
+                    className="w-full block cursor-crosshair"
+                    onClick={handleMapClick}
+                    title="Click to place the pickup pin"
+                  />
+                  {pickupPinX != null && pickupPinY != null && (
+                    <span
+                      className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                      style={{ left: `${pickupPinX}%`, top: `${pickupPinY}%` }}
+                    >
+                      <span className="relative flex h-5 w-5">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-primary/50 animate-ping" />
+                        <span className="relative inline-flex h-5 w-5 rounded-full bg-primary border-2 border-white shadow items-center justify-center">
+                          <MapPin className="h-3 w-3 text-white" />
+                        </span>
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-muted-foreground">Click on the image to place the pin.</p>
+                <div className="flex gap-2">
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
+                    <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-input hover:bg-muted transition-colors">
+                      {uploadingMap ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} Replace
+                    </span>
+                  </label>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1.5" onClick={() => { setPickupMapUrl(''); setPickupPinX(null); setPickupPinY(null) }}>
+                    <X className="h-3.5 w-3.5" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <label className="cursor-pointer block">
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
+                <div className="border-2 border-dashed border-border/60 rounded-xl py-8 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
+                  {uploadingMap ? <Loader2 className="h-6 w-6 animate-spin mb-2" /> : <Upload className="h-6 w-6 mb-2" />}
+                  <p className="text-sm">Upload a floor plan</p>
+                  <p className="text-[11px]">PNG / JPG — you can then click to drop a pin</p>
+                </div>
+              </label>
+            )}
           </div>
         </CardContent>
       </Card>

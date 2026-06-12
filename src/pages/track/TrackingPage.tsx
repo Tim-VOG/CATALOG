@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { Package, Clock, Loader2, CheckCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { PickupPointMap } from '@/components/common/PickupPointMap'
 import { cn } from '@/lib/utils'
 
 const STEPS = [
@@ -155,6 +156,8 @@ export function TrackingPage() {
             </p>
           </div>
         </Card>
+
+        <PickupPointMap className="mt-4" />
       </motion.div>
     </div>
   )

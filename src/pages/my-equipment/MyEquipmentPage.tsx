@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { PickupPointMap } from '@/components/common/PickupPointMap'
 import {
   Package, AlertCircle, Mail, ScanLine, Calendar, ArrowRight,
 } from 'lucide-react'
@@ -89,6 +90,8 @@ export function MyEquipmentPage() {
           ))}
         </div>
       )}
+
+      <PickupPointMap className="mt-6" />
 
       <Card className="mt-6">
         <CardContent className="p-5">
