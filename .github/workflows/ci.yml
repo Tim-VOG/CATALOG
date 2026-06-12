@@ -43,8 +43,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Unit tests
-        run: npm test
+      - name: Unit tests + coverage gate
+        run: npm run test:coverage
 
       - name: Build
         run: npm run build
@@ -75,17 +75,22 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      # Build against the real Supabase URL so the bundle Playwright
+      # drives can authenticate the test user. The anon key is the
+      # same value shipped to every client and is safe to embed.
       - name: Build
         run: npm run build
         env:
-          VITE_SUPABASE_URL: https://ci-dummy.supabase.co
-          VITE_SUPABASE_ANON_KEY: ci-dummy-anon-key
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: e2e
         run: npm run test:e2e
         env:
-          VITE_SUPABASE_URL: https://ci-dummy.supabase.co
-          VITE_SUPABASE_ANON_KEY: ci-dummy-anon-key
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          PLAYWRIGHT_TEST_EMAIL: ${{ secrets.PLAYWRIGHT_TEST_EMAIL }}
+          PLAYWRIGHT_TEST_PASSWORD: ${{ secrets.PLAYWRIGHT_TEST_PASSWORD }}
 
       - name: Upload Playwright report on failure
         if: failure()

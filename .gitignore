@@ -35,6 +35,7 @@ supabase.rtf
 /playwright-report/
 /playwright/.cache/
 /blob-report/
+/e2e/.auth/
 
 # Vitest
 /coverage/
