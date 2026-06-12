@@ -11,10 +11,12 @@ import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
+import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export function AdminSidebar() {
   const location = useLocation()
+  const { isAdmin } = useAuth()
 
   const { data: loanReqs = [] } = useLoanRequests()
   const { data: itReqs = [] } = useItRequests()
@@ -37,13 +39,15 @@ export function AdminSidebar() {
     }
   }, [loanReqs, itReqs, mailboxReqs, onboardingEmails])
 
-  const sidebarSections = [
+  // `managerOk: true` links are visible to HR managers. Everything
+  // else is admin-only and hidden when isAdmin is false.
+  const allSections = [
     {
       label: 'Overview',
       defaultOpen: true,
       links: [
-        { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-        { to: '/admin/planning', label: 'Planning', icon: CalendarRange },
+        { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, managerOk: true },
+        { to: '/admin/planning', label: 'Planning', icon: CalendarRange, managerOk: true },
         { to: '/admin/stats', label: 'Statistics', icon: BarChart3 },
       ],
     },
@@ -52,9 +56,9 @@ export function AdminSidebar() {
       defaultOpen: true,
       links: [
         { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
-        { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding },
-        { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding },
-        { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox },
+        { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
+        { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
+        { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
       ],
     },
     {
@@ -87,6 +91,14 @@ export function AdminSidebar() {
       ],
     },
   ]
+
+  // Managers only see the people-ops links; admins see everything.
+  const sidebarSections = allSections
+    .map((section) => ({
+      ...section,
+      links: isAdmin ? section.links : section.links.filter((l: any) => l.managerOk),
+    }))
+    .filter((section) => section.links.length > 0)
 
   const isActive = (to, exact) => {
     if (exact) return location.pathname === to

@@ -259,7 +259,7 @@ function CartButton() {
 }
 
 export function Header({ onOpenTour  }: any) {
-  const { isAdmin } = useAuth()
+  const { isAdmin, isStaff } = useAuth()
   const location = useLocation()
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
   const { data: settings } = useAppSettings()
@@ -313,13 +313,13 @@ export function Header({ onOpenTour  }: any) {
                 </Button>
               </Link>
             ))}
-            {isAdmin && (
+            {isStaff && (
               <>
                 <div className="mx-2 h-6 w-px bg-border" />
                 <Link to="/admin">
                   <Button variant={location.pathname.startsWith('/admin') ? 'secondary' : 'ghost'} size="sm" className="gap-2">
                     <Settings className="h-4 w-4" />
-                    Admin
+                    {isAdmin ? 'Admin' : 'Staff'}
                   </Button>
                 </Link>
               </>

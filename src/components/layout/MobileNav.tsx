@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   Package, Home, X, LayoutDashboard, Inbox,
-  RotateCcw, Sun, Moon, QrCode, UserPlus, Mail,
-  ClipboardList, UserMinus, ScrollText, FlaskConical,
+  Sun, Moon, QrCode, UserPlus, Mail,
+  ClipboardList, UserMinus, ScrollText,
 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
@@ -20,12 +20,13 @@ const mainLinks = [
 ]
 
 const adminLinks = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { to: '/admin/requests', label: 'Requests', icon: Inbox },
-  { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, managerOk: true },
+  { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, managerOk: true },
+  { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, managerOk: true },
+  { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, managerOk: true },
+  { to: '/admin/requests', label: 'Equipment', icon: Inbox },
   { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
   { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
-  { to: '/admin/qr-test', label: 'Test Lab', icon: FlaskConical },
 ]
 
 const linkVariants: any = {
@@ -37,7 +38,7 @@ const linkVariants: any = {
 }
 
 export function MobileNav() {
-  const { isAdmin, profile } = useAuth()
+  const { isAdmin, isStaff, profile } = useAuth()
   const { hasAccess: hasOnboarding } = useHasModuleAccess('onboarding')
   const { hasAccess: hasItForm } = useHasModuleAccess('it_form')
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
@@ -143,7 +144,7 @@ export function MobileNav() {
               })}
 
               {moduleLinks.length > 0 && renderSection('Services', moduleLinks)}
-              {isAdmin && renderSection('Admin', adminLinks)}
+              {isStaff && renderSection(isAdmin ? 'Admin' : 'Staff', isAdmin ? adminLinks : adminLinks.filter((l: any) => l.managerOk))}
             </nav>
 
             {/* Theme toggle */}

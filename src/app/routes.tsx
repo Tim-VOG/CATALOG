@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { RequireAuth } from '@/components/auth/RequireAuth'
-import { RequireAdmin } from '@/components/auth/RequireAdmin'
+import { RequireAdmin, RequireStaff, AdminOnly } from '@/components/auth/RequireAdmin'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { PageLoading } from '@/components/common/LoadingSpinner'
@@ -98,34 +98,20 @@ export function AppRoutes() {
           <Route path="equipment-request" element={<EquipmentRequestPage />} />
           <Route path="offboarding-request" element={<OffboardingRequestPage />} />
 
-          {/* Admin routes */}
+          {/* Admin + manager (staff) area. Managers see people-ops
+              pages; AdminOnly bounces them off the sensitive ones. */}
           <Route
             path="admin"
             element={
-              <RequireAdmin>
+              <RequireStaff>
                 <AdminLayout />
-              </RequireAdmin>
+              </RequireStaff>
             }
           >
+            {/* Shared by admin + manager */}
             <Route index element={<AdminDashboardPage />} />
-            <Route path="stats" element={<AdminStatsPage />} />
-            <Route path="all-requests" element={<AdminAllRequestsPage />} />
-            <Route path="products" element={<AdminProductsPage />} />
-            <Route path="subscription-plans" element={<AdminSubscriptionPlansPage />} />
-            <Route path="product-options" element={<Navigate to="/admin/products" replace />} />
-            <Route path="categories" element={<AdminCategoriesPage />} />
-            <Route path="requests" element={<AdminRequestsPage />} />
-            <Route path="requests/:requestId" element={<AdminRequestDetailPage />} />
-            <Route path="new-request" element={<Navigate to="/admin/requests" replace />} />
-            <Route path="returns" element={<Navigate to="/admin/requests" replace />} />
-            <Route path="users" element={<AdminUsersPage />} />
-            <Route path="users/:userId" element={<AdminUserDetailPage />} />
-            <Route path="design" element={<AdminDesignPage />} />
-            <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
             <Route path="planning" element={<AdminPlanningPage />} />
-            <Route path="shared-mailboxes" element={<AdminSharedMailboxesPage />} />
-            <Route path="device-credentials" element={<AdminDeviceCredentialsPage />} />
-            <Route path="forms" element={<Navigate to="/admin" replace />} />
+            <Route path="all-requests" element={<AdminAllRequestsPage />} />
             <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
             <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
             <Route path="onboarding/compose" element={<Navigate to="/admin/onboarding/requests" replace />} />
@@ -137,15 +123,33 @@ export function AppRoutes() {
             <Route path="onboarding-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
             <Route path="welcome" element={<Navigate to="/admin/onboarding/requests" replace />} />
             <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
-            <Route path="it-form-builder" element={<AdminItFormBuilderPage />} />
             <Route path="offboarding" element={<OffboardingPage />} />
-            <Route path="offboarding-form-builder" element={<AdminOffboardingFormBuilderPage />} />
             <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
-            <Route path="mailbox-form-builder" element={<AdminMailboxFormBuilderPage />} />
-            <Route path="local-it" element={<AdminLocalITPage />} />
-            <Route path="it-inventory" element={<AdminItInventoryPage />} />
-            <Route path="qr-codes" element={<AdminQRCodesPage />} />
-            <Route path="scan-logs" element={<AdminScanLogsPage />} />
+
+            {/* Admin only — wrapped so managers bounce back to /admin */}
+            <Route path="stats" element={<AdminOnly><AdminStatsPage /></AdminOnly>} />
+            <Route path="products" element={<AdminOnly><AdminProductsPage /></AdminOnly>} />
+            <Route path="subscription-plans" element={<AdminOnly><AdminSubscriptionPlansPage /></AdminOnly>} />
+            <Route path="product-options" element={<Navigate to="/admin/products" replace />} />
+            <Route path="categories" element={<AdminOnly><AdminCategoriesPage /></AdminOnly>} />
+            <Route path="requests" element={<AdminOnly><AdminRequestsPage /></AdminOnly>} />
+            <Route path="requests/:requestId" element={<AdminOnly><AdminRequestDetailPage /></AdminOnly>} />
+            <Route path="new-request" element={<Navigate to="/admin/requests" replace />} />
+            <Route path="returns" element={<Navigate to="/admin/requests" replace />} />
+            <Route path="users" element={<AdminOnly><AdminUsersPage /></AdminOnly>} />
+            <Route path="users/:userId" element={<AdminOnly><AdminUserDetailPage /></AdminOnly>} />
+            <Route path="design" element={<AdminOnly><AdminDesignPage /></AdminOnly>} />
+            <Route path="email-templates" element={<AdminOnly><AdminEmailTemplatesPage /></AdminOnly>} />
+            <Route path="shared-mailboxes" element={<AdminOnly><AdminSharedMailboxesPage /></AdminOnly>} />
+            <Route path="device-credentials" element={<AdminOnly><AdminDeviceCredentialsPage /></AdminOnly>} />
+            <Route path="forms" element={<Navigate to="/admin" replace />} />
+            <Route path="it-form-builder" element={<AdminOnly><AdminItFormBuilderPage /></AdminOnly>} />
+            <Route path="offboarding-form-builder" element={<AdminOnly><AdminOffboardingFormBuilderPage /></AdminOnly>} />
+            <Route path="mailbox-form-builder" element={<AdminOnly><AdminMailboxFormBuilderPage /></AdminOnly>} />
+            <Route path="local-it" element={<AdminOnly><AdminLocalITPage /></AdminOnly>} />
+            <Route path="it-inventory" element={<AdminOnly><AdminItInventoryPage /></AdminOnly>} />
+            <Route path="qr-codes" element={<AdminOnly><AdminQRCodesPage /></AdminOnly>} />
+            <Route path="scan-logs" element={<AdminOnly><AdminScanLogsPage /></AdminOnly>} />
             <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
           </Route>
         </Route>

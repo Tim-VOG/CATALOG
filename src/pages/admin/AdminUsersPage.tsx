@@ -26,10 +26,11 @@ import { cn } from '@/lib/utils'
 
 const ROLE_OPTIONS = [
   { value: 'user', label: 'User', color: 'bg-blue-500/20 text-blue-400' },
+  { value: 'manager', label: 'Manager (HR)', color: 'bg-amber-500/20 text-amber-400' },
   { value: 'admin', label: 'Admin', color: 'bg-red-500/20 text-red-400' },
 ]
 
-const ROLE_FILTERS = ['all', 'admin', 'user']
+const ROLE_FILTERS = ['all', 'admin', 'manager', 'user']
 
 const BUSINESS_UNITS = [
   'VO GROUP', 'THE LITTLE VOICE', 'VO EVENT', 'VO CONSULTING',

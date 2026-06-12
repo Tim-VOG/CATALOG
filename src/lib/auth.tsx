@@ -30,6 +30,8 @@ export interface AuthContextValue {
   profile: AuthProfile | null
   loading: boolean
   isAdmin: boolean
+  isManager: boolean
+  isStaff: boolean
   signIn: (email: string, password: string) => Promise<unknown>
   signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<unknown>
   signOut: () => Promise<void>
@@ -219,12 +221,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const isAdmin = profile?.role === 'admin'
+  const isManager = profile?.role === 'manager'
+  const isStaff = isAdmin || isManager
 
   const value: AuthContextValue = {
     user,
     profile,
     loading,
     isAdmin,
+    isManager,
+    isStaff,
     signIn,
     signUp,
     signOut,
