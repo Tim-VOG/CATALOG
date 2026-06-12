@@ -4,95 +4,24 @@
 -- Phase-1 follow-up to migrations 088, 089, 031: a full re-read of
 -- every CREATE POLICY across migrations 001-095 flagged 3 INSERT
 -- policies that authenticate the caller but don't bind the row to
--- them. Each lets any logged-in user (or, in one case, anonymous
--- visitor) create rows attributed to OTHER users.
+-- them. Two of those exist in this environment and are patched here.
 --
--- Holes patched here:
---   1. personal_info_submissions — public INSERT with no token check
---   2. qr_reservations          — auth INSERT without user_id check
---   3. qr_waitlist              — auth INSERT without user_id check
---
--- Each policy is replaced in-place. Existing rows are untouched.
+-- The third (personal_info_submissions, migration 063) was a public
+-- onboarding-token flow that was never deployed to this Supabase
+-- instance and is no longer referenced by the client code, so it is
+-- intentionally not part of this migration. If the flow gets
+-- resurrected, ship the SECURITY DEFINER RPC + tightened policy as
+-- part of that work.
 -- =============================================================
 
 BEGIN;
 
 
--- ─── 1. personal_info_submissions ───────────────────────────
--- Before: WITH CHECK (true). Anyone (incl. anon) could insert with
---         any it_request_id, squat the UNIQUE constraint, and steal
---         the welcome email destination.
--- After:  Public RPC submit_personal_info(token, email) is the only
---         way in. It validates the token, resolves the request id
---         server-side, and inserts with SECURITY DEFINER. Direct
---         table INSERT becomes admin-only.
---
--- Wrapped in a DO block so the migration is a no-op for environments
--- that never ran migration 063 (the table only exists if that
--- earlier migration was applied; the public-token onboarding flow
--- is not used by the current client code).
-
-DO $outer$
-BEGIN
-  IF to_regclass('public.personal_info_submissions') IS NULL THEN
-    RAISE NOTICE 'personal_info_submissions table missing — skipping block 1 (migration 063 never applied)';
-    RETURN;
-  END IF;
-
-  EXECUTE $body$
-    CREATE OR REPLACE FUNCTION public.submit_personal_info(
-      p_token UUID,
-      p_email TEXT
-    )
-    RETURNS public.personal_info_submissions
-    LANGUAGE plpgsql
-    SECURITY DEFINER
-    SET search_path = public
-    AS $fn$
-    DECLARE
-      v_request_id UUID;
-      v_row        public.personal_info_submissions;
-    BEGIN
-      IF p_email IS NULL OR p_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' THEN
-        RAISE EXCEPTION 'invalid_email';
-      END IF;
-
-      SELECT id
-        INTO v_request_id
-        FROM public.it_requests
-        WHERE personal_info_token = p_token
-          AND type = 'onboarding';
-
-      IF v_request_id IS NULL THEN
-        RAISE EXCEPTION 'invalid_token';
-      END IF;
-
-      INSERT INTO public.personal_info_submissions (it_request_id, personal_email)
-      VALUES (v_request_id, lower(trim(p_email)))
-      ON CONFLICT (it_request_id) DO UPDATE
-        SET personal_email = EXCLUDED.personal_email,
-            submitted_at   = NOW()
-      RETURNING * INTO v_row;
-
-      RETURN v_row;
-    END;
-    $fn$;
-  $body$;
-
-  REVOKE ALL ON FUNCTION public.submit_personal_info(UUID, TEXT) FROM PUBLIC;
-  GRANT EXECUTE ON FUNCTION public.submit_personal_info(UUID, TEXT) TO anon, authenticated;
-
-  -- Drop the open INSERT policy. Admins keep full access via the
-  -- pre-existing "Admins can manage personal info submissions" policy.
-  DROP POLICY IF EXISTS "Public can submit personal info" ON public.personal_info_submissions;
-END
-$outer$;
-
-
--- ─── 2. qr_reservations INSERT ──────────────────────────────
--- Before: WITH CHECK (auth.role() = 'authenticated'). Any logged-in
---         user could create a reservation in another user's name.
--- After:  user_id must match the caller (or caller is admin).
+-- ─── 1. qr_reservations INSERT ──────────────────────────────
+-- Before: WITH CHECK (auth.role() = 'authenticated'). No user_id
+--         bind — any logged-in user could reserve in another user's
+--         name.
+-- After:  user_id = auth.uid() OR caller is admin.
 
 DROP POLICY IF EXISTS "Users can create reservations" ON public.qr_reservations;
 CREATE POLICY "Users can create reservations" ON public.qr_reservations
@@ -103,9 +32,8 @@ CREATE POLICY "Users can create reservations" ON public.qr_reservations
   );
 
 
--- ─── 3. qr_waitlist INSERT ──────────────────────────────────
--- Before: WITH CHECK (auth.role() = 'authenticated'). Same shape.
--- After:  user_id must match the caller (or caller is admin).
+-- ─── 2. qr_waitlist INSERT ──────────────────────────────────
+-- Same shape, same fix.
 
 DROP POLICY IF EXISTS "Users can join waitlist" ON public.qr_waitlist;
 CREATE POLICY "Users can join waitlist" ON public.qr_waitlist
@@ -120,6 +48,6 @@ CREATE POLICY "Users can join waitlist" ON public.qr_waitlist
 SELECT 'rls audit patches applied' AS step,
        (SELECT COUNT(*) FROM pg_policies
         WHERE schemaname = 'public'
-          AND tablename IN ('personal_info_submissions','qr_reservations','qr_waitlist')) AS policies_remaining;
+          AND tablename IN ('qr_reservations','qr_waitlist')) AS policies_remaining;
 
 COMMIT;
