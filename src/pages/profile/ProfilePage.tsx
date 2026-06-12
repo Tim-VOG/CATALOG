@@ -20,6 +20,7 @@ import { AnimatedCounter } from '@/components/ui/motion'
 import { useUIStore } from '@/stores/ui-store'
 import { UserEquipmentPanel } from '@/components/common/UserEquipmentPanel'
 import { ActivityTimeline } from '@/components/common/ActivityTimeline'
+import { PushToggleCard } from '@/components/common/PushToggleCard'
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -269,6 +270,9 @@ export function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Push notifications */}
+      <PushToggleCard />
 
       {/* Contact */}
       <Card>
