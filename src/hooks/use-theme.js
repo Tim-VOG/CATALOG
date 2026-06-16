@@ -4,6 +4,25 @@ import { useAppSettings } from './use-settings'
 const THEME_OVERRIDE_KEY = 'vo-theme-override'
 
 /**
+ * OS-level dark mode preference. Falls back to 'dark' if matchMedia is unavailable.
+ */
+const systemPreferenceStore = {
+  get: () => {
+    try {
+      return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+    } catch { return 'dark' }
+  },
+  subscribe: (cb) => {
+    if (typeof window === 'undefined' || !window.matchMedia) return () => {}
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    mq.addEventListener?.('change', cb)
+    return () => mq.removeEventListener?.('change', cb)
+  },
+}
+
+/**
  * Subscribe to localStorage changes for the theme override.
  * This lets us share theme toggle state across components reactively.
  */
@@ -29,7 +48,8 @@ const themeOverrideStore = {
 }
 
 /**
- * Returns the active theme mode — user override first, then DB setting, then 'dark'.
+ * Returns the active theme mode — user override first, then DB setting, then OS preference.
+ * Only falls back to hard 'dark' if everything else is unavailable.
  */
 export function useThemeMode() {
   const { data: settings } = useAppSettings()
@@ -37,8 +57,15 @@ export function useThemeMode() {
     themeOverrideStore.subscribe,
     themeOverrideStore.get,
   )
-  const dbMode = settings?.theme_mode || 'dark'
-  return override || dbMode
+  const systemMode = useSyncExternalStore(
+    systemPreferenceStore.subscribe,
+    systemPreferenceStore.get,
+    () => 'dark', // SSR fallback
+  )
+  // Priority: explicit user override → admin DB setting (if set) → OS preference → dark
+  if (override) return override
+  if (settings?.theme_mode) return settings.theme_mode
+  return systemMode
 }
 
 /**

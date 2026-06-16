@@ -273,14 +273,14 @@ export function ScanPage() {
                       <p className="text-sm font-semibold mb-3">Loan period for all items</p>
                       <div className="space-y-2">
                         <div>
-                          <label className="text-xs text-muted-foreground">Pickup date</label>
-                          <input type="date" value={bulkPickupDate} min={new Date().toISOString().split('T')[0]}
+                          <label htmlFor="bulk-pickup-date" className="text-xs text-muted-foreground">Pickup date</label>
+                          <input id="bulk-pickup-date" type="date" value={bulkPickupDate} min={new Date().toISOString().split('T')[0]}
                             onChange={(e) => setBulkPickupDate(e.target.value)}
                             className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
                         </div>
                         <div>
-                          <label className="text-xs text-muted-foreground">Return by</label>
-                          <input type="date" value={bulkReturnDate} min={bulkPickupDate}
+                          <label htmlFor="bulk-return-date" className="text-xs text-muted-foreground">Return by</label>
+                          <input id="bulk-return-date" type="date" value={bulkReturnDate} min={bulkPickupDate}
                             onChange={(e) => setBulkReturnDate(e.target.value)}
                             className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
                         </div>
@@ -355,8 +355,8 @@ export function ScanPage() {
 
                 {showManual && (
                   <motion.form
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
                     onSubmit={handleManualSubmit}
                     className="mt-3 flex gap-2"
                   >

@@ -1,10 +1,25 @@
 import QRCodeLib from 'qrcode'
 
 /**
- * Generate a branded QR code with VO logo in the center and orange color.
+ * Read the current primary color from the document.
+ * Falls back to default orange if unavailable (SSR / color not set yet).
+ */
+function getBrandColor() {
+  try {
+    if (typeof document === 'undefined') return '#f97316'
+    const v = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim()
+    return v || '#f97316'
+  } catch {
+    return '#f97316'
+  }
+}
+
+/**
+ * Generate a branded QR code with VO logo in the center, using the current brand primary color.
  * Returns a data URL (PNG).
  */
-export async function generateBrandedQR(code, { size = 400, label = '', logoText = 'VO' } = {}) {
+export async function generateBrandedQR(code, { size = 400, label = '', logoText = 'VO', primaryColor } = {}) {
+  const brand = primaryColor || getBrandColor()
   // Create base QR code as canvas
   const canvas = document.createElement('canvas')
   await QRCodeLib.toCanvas(canvas, code, {
@@ -12,7 +27,7 @@ export async function generateBrandedQR(code, { size = 400, label = '', logoText
     margin: 2,
     errorCorrectionLevel: 'H', // High correction to survive center logo
     color: {
-      dark: '#f97316', // orange-500 (primary)
+      dark: brand,
       light: '#ffffff',
     },
   })
@@ -29,10 +44,10 @@ export async function generateBrandedQR(code, { size = 400, label = '', logoText
   ctx.fillStyle = '#ffffff'
   ctx.fill()
 
-  // Draw orange circle
+  // Draw brand-colored circle
   ctx.beginPath()
   ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
-  ctx.fillStyle = '#f97316'
+  ctx.fillStyle = brand
   ctx.fill()
 
   // Draw "VO" text in center

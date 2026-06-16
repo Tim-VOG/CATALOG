@@ -211,11 +211,10 @@ function RequestInfoCard({ req }) {
             <AnimatePresence>
               {expanded && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
                 >
                   <div className="px-5 pb-4 space-y-2.5 border-t border-border/50 pt-4">
                     {extraFields.map(([label, value]) => (
@@ -511,11 +510,10 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending }) {
             <AnimatePresence>
               {showVars && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.15 }}
-                  className="overflow-hidden"
                 >
                   <div className="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
                     <p className="text-[10px] text-muted-foreground mb-2 font-medium">

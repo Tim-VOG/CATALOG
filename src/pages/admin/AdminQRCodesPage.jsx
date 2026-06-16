@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { confirmDialog } from '@/lib/confirm-dialog'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -92,7 +93,13 @@ export function AdminQRCodesPage() {
   }
 
   const handleDeleteQR = async (id) => {
-    if (!confirm('Delete this QR code?')) return
+    const ok = await confirmDialog({
+      title: 'Delete QR code',
+      description: 'The QR code will no longer work for scanning.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     try {
       await deleteQR.mutateAsync(id)
       toast.success('QR code deleted')
@@ -154,7 +161,13 @@ export function AdminQRCodesPage() {
   }
 
   const handleDeleteKit = async (id) => {
-    if (!confirm('Delete this kit? Associated QR codes will be unlinked.')) return
+    const ok = await confirmDialog({
+      title: 'Delete kit',
+      description: 'Associated QR codes will be unlinked.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     try {
       await deleteKit.mutateAsync(id)
       toast.success('Kit deleted')

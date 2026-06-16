@@ -11,9 +11,10 @@ import './styles/globals.css'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2,
+      staleTime: 1000 * 60 * 2, // 2 min — most data tolerates this
+      gcTime: 1000 * 60 * 10, // 10 min — keep cache around between route switches
       refetchOnWindowFocus: false,
-      refetchOnMount: 'always',
+      refetchOnMount: true, // only refetch when stale (respects staleTime)
       retry: 1,
     },
   },

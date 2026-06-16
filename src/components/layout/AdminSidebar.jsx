@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Inbox, RotateCcw, FolderTree,
   Users, Palette, Mail, CalendarRange, ArrowLeft,
   SlidersHorizontal, FilePlus2, UserPlus, PenLine, ClipboardList,
-  Settings, UserMinus, QrCode, ScrollText, FlaskConical, Monitor,
+  Settings, UserMinus, QrCode, ScrollText, FlaskConical,
   ChevronDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -59,13 +59,6 @@ const sidebarSections = [
     links: [
       { to: '/admin/offboarding', label: 'Processes', icon: UserMinus, exact: true },
       { to: '/admin/offboarding-form-builder', label: 'Form Builder', icon: Settings },
-    ],
-  },
-  {
-    label: 'IT Tools',
-    defaultOpen: false,
-    links: [
-      { to: '/admin/it-tools', label: 'Overview', icon: Monitor },
     ],
   },
 ]

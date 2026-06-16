@@ -6,12 +6,28 @@ const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'VO Gear Hub <noreply@vo-group.
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Whitelist of allowed origins (comma-separated list in ALLOWED_ORIGINS env var)
+const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+
+function buildCorsHeaders(origin: string | null) {
+  // If no whitelist configured, fall back to * (dev/migration-safe). Otherwise enforce it.
+  const allowOrigin = ALLOWED_ORIGINS.length === 0
+    ? '*'
+    : (origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0])
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Vary': 'Origin',
+  }
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin')
+  const corsHeaders = buildCorsHeaders(origin)
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })

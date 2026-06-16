@@ -84,7 +84,7 @@ export function MyRequestsPage() {
             <CalendarDays className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-gradient-primary">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-foreground">
               My Requests
             </h1>
             <p className="text-muted-foreground text-sm mt-0.5">

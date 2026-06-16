@@ -766,7 +766,8 @@ export function AdminDesignPage() {
               </div>
               {logoUrlDark ? (
                 <div className="relative inline-block">
-                  <div className="h-20 w-auto max-w-[200px] bg-[#0f1419] rounded-lg p-3 flex items-center justify-center">
+                  {/* Preview box intentionally always shows dark-theme bg regardless of current mode */}
+                  <div className="h-20 w-auto max-w-[200px] rounded-lg p-3 flex items-center justify-center" style={{ backgroundColor: darkPalette.background || '#0f1419' }}>
                     <img src={logoUrlDark} alt="Dark logo" className="max-h-full max-w-full object-contain" />
                   </div>
                   <Button
@@ -812,7 +813,8 @@ export function AdminDesignPage() {
               </div>
               {logoUrlLight ? (
                 <div className="relative inline-block">
-                  <div className="h-20 w-auto max-w-[200px] bg-[#f8fafc] rounded-lg p-3 flex items-center justify-center">
+                  {/* Preview box intentionally always shows light-theme bg regardless of current mode */}
+                  <div className="h-20 w-auto max-w-[200px] rounded-lg p-3 flex items-center justify-center" style={{ backgroundColor: lightPalette.background || '#f8fafc' }}>
                     <img src={logoUrlLight} alt="Light logo" className="max-h-full max-w-full object-contain" />
                   </div>
                   <Button

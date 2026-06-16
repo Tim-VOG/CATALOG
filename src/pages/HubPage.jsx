@@ -179,8 +179,6 @@ export function HubPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-6 relative">
-      <div className="absolute inset-0 bg-mesh-gradient opacity-30 pointer-events-none rounded-3xl" />
-
       <ScrollReveal direction="down" className="text-center mb-10 relative">
         <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight text-gradient-primary">
           {hubTitle}

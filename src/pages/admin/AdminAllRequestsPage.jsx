@@ -11,6 +11,7 @@ import { useDeleteItRequests } from '@/hooks/use-it-requests'
 import { useDeleteMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { RequestsCalendar } from '@/components/calendar/RequestsCalendar'
 import { CatalogLoansView } from '@/components/calendar/CatalogLoansView'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 function LoadingSkeleton() {
@@ -70,7 +71,7 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+      className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50"
     >
       <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card border border-border shadow-xl backdrop-blur-xl">
         <div className="flex items-center gap-2">
@@ -172,9 +173,11 @@ export function AdminAllRequestsPage() {
       if (itIds.length > 0) promises.push(deleteIt.mutateAsync(itIds))
       if (mailboxIds.length > 0) promises.push(deleteMail.mutateAsync(mailboxIds))
       await Promise.all(promises)
+      const total = catalogIds.length + itIds.length + mailboxIds.length
+      toast.success(`${total} request${total === 1 ? '' : 's'} deleted`)
       setSelectedIds(new Set())
     } catch (err) {
-      console.error('Bulk delete error:', err)
+      toast.error(err?.message || 'Failed to delete requests')
     }
   }, [selectedIds, events, deleteLoan, deleteIt, deleteMail])
 
@@ -195,7 +198,7 @@ export function AdminAllRequestsPage() {
             <CalendarRange className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-gradient-primary">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-foreground">
               All Requests
             </h1>
             <p className="text-muted-foreground text-sm mt-0.5">

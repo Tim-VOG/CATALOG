@@ -8,6 +8,7 @@ import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { confirmDialog } from '@/lib/confirm-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -37,7 +38,7 @@ function BulkDeleteBar({ count, onClear, onDelete, isDeleting }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+      className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50"
     >
       <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card border border-border shadow-xl backdrop-blur-xl">
         <div className="flex items-center gap-2">
@@ -156,7 +157,13 @@ export function AdminProductsPage() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this product?')) return
+    const ok = await confirmDialog({
+      title: 'Delete product',
+      description: 'This will permanently remove the product from the catalog.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     try {
       await deleteProduct.mutateAsync(id)
       showToast('Product deleted')
@@ -324,11 +331,11 @@ export function AdminProductsPage() {
                         <span className="text-muted-foreground text-xs">in stock</span>
                       </div>
                       <div className="flex gap-1 sm:hidden">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(p)}>
-                          <Pencil className="h-3.5 w-3.5" />
+                        <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => openEdit(p)} aria-label="Edit product">
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(p.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
+                        <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive" onClick={() => handleDelete(p.id)} aria-label="Delete product">
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

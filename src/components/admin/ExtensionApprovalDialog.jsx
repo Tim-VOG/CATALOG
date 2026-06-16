@@ -49,10 +49,14 @@ export function ExtensionApprovalDialog({ open, onOpenChange, extension }) {
         logoHeight,
       })
       if (draft.to) {
-        sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+        const result = await sendEmail({ to: draft.to, cc: ccEmails.length > 0 ? ccEmails : undefined, subject: draft.subject, body: draft.body, isHtml: draft.isHtml })
+        if (!result?.success) {
+          console.warn('Extension email failed:', result?.error)
+        }
       }
-    } catch {
-      // Email is non-critical
+    } catch (err) {
+      // Email is non-critical — log for diagnostics
+      console.warn('Extension email error:', err?.message || err)
     }
   }
 

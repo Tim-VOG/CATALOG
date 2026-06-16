@@ -487,7 +487,7 @@ export function ItRequestFormPage() {
         <Badge variant="outline" className="mb-3 text-xs">
           IT Onboarding
         </Badge>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">
           New IT Request
         </h1>
         <p className="text-muted-foreground mt-2">

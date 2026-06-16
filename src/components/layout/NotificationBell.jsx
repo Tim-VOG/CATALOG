@@ -84,15 +84,20 @@ export function NotificationBell() {
                 <p className="text-center text-sm text-muted-foreground py-8">No notifications</p>
               ) : (
                 notifications.slice(0, 20).map((n) => (
-                  <div key={n.id} onClick={() => handleNotificationClick(n)}>
-                    {n.link ? (
-                      <Link to={n.link} className="block">
-                        <NotificationItem notification={n} />
-                      </Link>
-                    ) : (
+                  n.link ? (
+                    <Link key={n.id} to={n.link} className="block" onClick={() => handleNotificationClick(n)}>
                       <NotificationItem notification={n} />
-                    )}
-                  </div>
+                    </Link>
+                  ) : (
+                    <button
+                      key={n.id}
+                      type="button"
+                      onClick={() => handleNotificationClick(n)}
+                      className="block w-full text-left"
+                    >
+                      <NotificationItem notification={n} />
+                    </button>
+                  )
                 ))
               )}
             </div>

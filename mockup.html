@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VO Gear Hub — Now Available</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #fafbfd;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --text-sub: #475569;
+    --text-light: #94a3b8;
+    --primary: #f97316;
+    --accent: #06b6d4;
+    --gradient: linear-gradient(135deg, #f97316, #ea580c, #06b6d4);
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.04), 0 1px 2px rgba(15,23,42,0.02);
+    --shadow-md: 0 4px 16px rgba(6,16,88,0.08), 0 2px 4px rgba(6,16,88,0.03);
+    --shadow-lg: 0 12px 40px rgba(6,16,88,0.10), 0 4px 12px rgba(6,16,88,0.05);
+    --shadow-xl: 0 24px 64px rgba(6,16,88,0.12), 0 8px 20px rgba(6,16,88,0.06);
+    --shadow-device: 0 50px 100px rgba(6,16,88,0.18), 0 20px 40px rgba(0,0,0,0.08);
+    /* App dark theme */
+    --app-bg: #0f1419;
+    --app-card: #1e2a3a;
+    --app-border: #334155;
+    --app-fg: #f1f5f9;
+    --app-muted: #94a3b8;
+    --app-muted-bg: #242f3d;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── HERO ─────────────────────────────────────── */
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute !important;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0 !important;
+  }
+  .orb-1 { width: 50vw; height: 50vw; background: rgba(249,115,22,0.05); top: -18vw; right: -12vw; }
+  .orb-2 { width: 40vw; height: 40vw; background: rgba(6,182,212,0.04); bottom: -12vw; left: -10vw; }
+  .orb-3 { width: 25vw; height: 25vw; background: rgba(249,115,22,0.03); top: 45%; left: 45%; }
+
+  .hero > * { position: relative; z-index: 1; }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.6vw 4vw;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 0.6vw; }
+  .nav-logo-mark {
+    width: clamp(30px, 2.4vw, 52px); height: clamp(30px, 2.4vw, 52px);
+    background: var(--gradient); border-radius: clamp(7px, 0.55vw, 13px);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(12px, 1.05vw, 22px); color: white;
+    box-shadow: 0 4px 20px rgba(249,115,22,0.3);
+  }
+  .nav-logo-text { font-family: 'Space Grotesk'; font-weight: 700; font-size: clamp(15px, 1.3vw, 26px); color: var(--text); }
+  .nav-badge {
+    font-size: clamp(9px, 0.65vw, 13px); color: var(--text-sub);
+    padding: 0.35vw 1vw;
+    background: white;
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.5vw 4vw 1.8vw;
+    gap: 1vw;
+  }
+
+  .announce-pill {
+    display: inline-flex; align-items: center; gap: 0.4vw;
+    padding: 0.35vw 1.2vw;
+    background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(6,182,212,0.06));
+    border: 1px solid rgba(249,115,22,0.15);
+    border-radius: 999px;
+    font-size: clamp(9px, 0.72vw, 14px); font-weight: 600;
+    color: var(--primary);
+  }
+  .announce-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+  .hero-title {
+    font-family: 'Space Grotesk';
+    font-size: clamp(30px, 4.5vw, 92px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    max-width: 52vw;
+  }
+  .hero-title .em {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 40%, #06b6d4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: clamp(12px, 1.2vw, 24px);
+    color: var(--text-sub);
+    line-height: 1.6;
+    max-width: 38vw;
+  }
+
+  /* ─── DEVICES ──────────────────────────────────── */
+  .devices-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 4vw;
+    margin-top: 0.5vw;
+  }
+
+  .devices-container {
+    position: relative;
+    width: 62vw;
+    aspect-ratio: 16/10.5;
+  }
+
+  /* === MacBook Pro === */
+  .mac {
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 54vw;
+    z-index: 2;
+    animation: floatMac 8s ease-in-out infinite;
+  }
+  @keyframes floatMac {
+    0%,100% { transform: translateY(0) rotate(-0.3deg); }
+    50% { transform: translateY(-0.5vw) rotate(-0.3deg); }
+  }
+
+  .mac-screen-wrap {
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: var(--app-bg);
+    border-radius: 0.9vw 0.9vw 0 0;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-device);
+    border: 0.08vw solid #2a2a2e;
+  }
+
+  /* Metallic bezel */
+  .mac-bezel {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1.5vw;
+    background: linear-gradient(180deg, #2d2d31 0%, #1d1d21 100%);
+    border-bottom: 1px solid #3a3a40;
+    z-index: 5;
+    border-radius: 0.82vw 0.82vw 0 0;
+  }
+  .mac-notch {
+    width: 4vw; height: 1.15vw;
+    background: #0a0a0c;
+    border-radius: 0 0 0.55vw 0.55vw;
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    z-index: 6;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mac-cam { width: 0.3vw; height: 0.3vw; border-radius: 50%; background: #1a2a3e; box-shadow: 0 0 0 0.06vw #0e1a28, inset 0 0 0.1vw rgba(6,182,212,0.3); }
+
+  .mac-base {
+    width: 55.5vw; height: 0.5vw;
+    background: linear-gradient(180deg, #3a3a40, #2a2a2e, #1e1e22);
+    border-radius: 0 0 0.08vw 0.08vw;
+    margin: 0 auto;
+    position: relative;
+  }
+  .mac-base::before {
+    content: ''; display: block;
+    width: 9vw; height: 0.15vw;
+    background: linear-gradient(90deg, transparent, #555, transparent);
+    border-radius: 0 0 0.3vw 0.3vw;
+    margin: 0 auto;
+  }
+  .mac-lip {
+    width: 57vw; height: 0.12vw;
+    background: linear-gradient(90deg, transparent 5%, #444 20%, #555 50%, #444 80%, transparent 95%);
+    border-radius: 0 0 0.5vw 0.5vw;
+    margin: 0 auto;
+  }
+
+  /* Screen reflection */
+  .mac-screen-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(165deg, rgba(255,255,255,0.04) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.01) 100%);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  /* === Simulated Catalog UI (dark theme) === */
+  .sim {
+    position: absolute;
+    top: 1.5vw; left: 0; right: 0; bottom: 0;
+    background: var(--app-bg);
+    font-family: 'DM Sans'; font-size: 0.6vw; color: var(--app-fg);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sim-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1vw; height: 2vw;
+    background: var(--app-card); border-bottom: 1px solid var(--app-border);
+    flex-shrink: 0;
+  }
+  .sim-head-l { display: flex; align-items: center; gap: 0.5vw; }
+  .sim-logo-s { width: 1vw; height: 1vw; background: var(--gradient); border-radius: 0.18vw; }
+  .sim-nav { display: flex; gap: 0.2vw; }
+  .sim-nav-i { padding: 0.15vw 0.4vw; border-radius: 0.2vw; font-size: 0.5vw; font-weight: 500; }
+  .sim-nav-i.on { background: rgba(249,115,22,0.15); color: #f97316; }
+  .sim-nav-i:not(.on) { color: var(--app-muted); }
+  .sim-search {
+    width: 8vw; height: 1vw; border-radius: 999px;
+    background: var(--app-muted-bg); border: 1px solid var(--app-border);
+    padding: 0 0.4vw; font-size: 0.42vw; color: var(--app-muted);
+    display: flex; align-items: center; gap: 0.2vw;
+  }
+  .sim-head-r { display: flex; align-items: center; gap: 0.3vw; }
+  .sim-ib { width: 1vw; height: 1vw; border-radius: 0.2vw; background: var(--app-muted-bg); }
+  .sim-av { width: 1.1vw; height: 1.1vw; border-radius: 50%; background: linear-gradient(135deg,#f97316,#06b6d4); display: flex; align-items: center; justify-content: center; font-size: 0.4vw; font-weight: 700; color: white; }
+
+  .sim-body { flex: 1; padding: 0.8vw 1.2vw; overflow: hidden; }
+  .sim-title {
+    font-family: 'Space Grotesk'; font-size: 1vw; font-weight: 700;
+    background: linear-gradient(135deg, #f97316, #06b6d4);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.12vw;
+  }
+  .sim-accent {
+    width: 1vw; height: 0.12vw; border-radius: 999px; margin-bottom: 0.15vw;
+    background: linear-gradient(90deg, #f97316, #06b6d4);
+  }
+  .sim-sub { font-size: 0.48vw; color: var(--app-muted); margin-bottom: 0.5vw; }
+  .sim-filters { display: flex; gap: 0.2vw; margin-bottom: 0.55vw; }
+  .sim-f {
+    padding: 0.13vw 0.5vw; border-radius: 999px; font-size: 0.42vw; font-weight: 500;
+    border: 1px solid var(--app-border); color: var(--app-muted); background: transparent;
+  }
+  .sim-f.on { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); color: #f97316; }
+
+  .sim-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45vw; }
+  .sim-card {
+    background: var(--app-card); border-radius: 0.4vw; border: 1px solid var(--app-border);
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(6,16,88,0.08);
+  }
+  .sim-card-img {
+    height: 4.2vw; display: flex; align-items: center; justify-content: center;
+    font-size: 1.6vw; position: relative;
+  }
+  .ci1 { background: linear-gradient(135deg, #1a1a2e, #2d1f3d); }
+  .ci2 { background: linear-gradient(135deg, #0f2027, #1a3a4a); }
+  .ci3 { background: linear-gradient(135deg, #1a1520, #2d1a2e); }
+  .ci4 { background: linear-gradient(135deg, #0f1a15, #1a2d20); }
+  .ci5 { background: linear-gradient(135deg, #1a1528, #251a38); }
+  .ci6 { background: linear-gradient(135deg, #0f1a22, #142a38); }
+  .ci7 { background: linear-gradient(135deg, #1a1215, #2d1a1a); }
+  .ci8 { background: linear-gradient(135deg, #0f1a10, #1a2d18); }
+
+  .sim-card-b { padding: 0.35vw 0.45vw; }
+  .sim-card-n { font-size: 0.46vw; font-weight: 600; margin-bottom: 0.08vw; color: var(--app-fg); }
+  .sim-card-c { font-size: 0.34vw; color: var(--app-muted); margin-bottom: 0.2vw; }
+  .sim-card-ft { display: flex; justify-content: space-between; align-items: center; }
+  .sim-stock { font-size: 0.32vw; color: #10b981; font-weight: 500; display: flex; align-items: center; gap: 0.1vw; }
+  .sim-stock::before { content: ''; width: 0.2vw; height: 0.2vw; border-radius: 50%; background: #10b981; }
+  .sim-stock.lo { color: #f59e0b; }
+  .sim-stock.lo::before { background: #f59e0b; }
+  .sim-btn {
+    padding: 0.1vw 0.4vw; border-radius: 0.18vw;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white; font-size: 0.32vw; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(249,115,22,0.25);
+  }
+
+  /* === iPhone === */
+  .phone {
+    position: absolute;
+    right: -1vw; bottom: 1.5vw;
+    z-index: 3;
+    animation: floatPhone 7s ease-in-out 1s infinite;
+  }
+  @keyframes floatPhone {
+    0%,100% { transform: translateY(0) rotate(2.5deg); }
+    50% { transform: translateY(-0.8vw) rotate(2.5deg); }
+  }
+
+  .phone-frame {
+    width: 10vw; height: 20.5vw;
+    background: linear-gradient(180deg, #2a2a2e, #1a1a1e);
+    border-radius: 1.5vw;
+    padding: 0.25vw;
+    position: relative;
+    box-shadow:
+      var(--shadow-device),
+      inset 0 0 0 0.06vw rgba(255,255,255,0.08),
+      0 0 0 0.06vw #1a1a1e;
+  }
+  .phone-island {
+    position: absolute; top: 0.4vw; left: 50%; transform: translateX(-50%);
+    width: 3vw; height: 0.7vw;
+    background: #000; border-radius: 0.4vw; z-index: 11;
+    box-shadow: 0 0 0 0.04vw #1a1a1e;
+  }
+  .phone-island::after {
+    content: ''; position: absolute; right: 0.5vw; top: 50%; transform: translateY(-50%);
+    width: 0.18vw; height: 0.18vw; border-radius: 50%;
+    background: #0e1a28; box-shadow: inset 0 0 0.06vw rgba(6,182,212,0.4);
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 1.3vw;
+    overflow: hidden;
+    background: var(--app-bg);
+  }
+  .phone-reflect {
+    position: absolute; inset: 0.25vw;
+    border-radius: 1.3vw;
+    background: linear-gradient(165deg, rgba(255,255,255,0.12) 0%, transparent 20%, transparent 80%, rgba(255,255,255,0.03) 100%);
+    pointer-events: none; z-index: 8;
+  }
+  /* Side buttons */
+  .phone-btn-r { position: absolute; right: -0.14vw; top: 4.5vw; width: 0.1vw; height: 2vw; background: linear-gradient(90deg, #3a3a40, #2a2a2e); border-radius: 0 2px 2px 0; }
+  .phone-btn-l1 { position: absolute; left: -0.14vw; top: 3.8vw; width: 0.1vw; height: 0.8vw; background: linear-gradient(270deg, #3a3a40, #2a2a2e); border-radius: 2px 0 0 2px; }
+  .phone-btn-l2 { position: absolute; left: -0.14vw; top: 5.2vw; width: 0.1vw; height: 1.4vw; background: linear-gradient(270deg, #3a3a40, #2a2a2e); border-radius: 2px 0 0 2px; }
+  .phone-btn-l3 { position: absolute; left: -0.14vw; top: 7vw; width: 0.1vw; height: 1.4vw; background: linear-gradient(270deg, #3a3a40, #2a2a2e); border-radius: 2px 0 0 2px; }
+
+  /* Mobile Hub UI (dark theme) */
+  .mob {
+    position: absolute; inset: 0;
+    font-family: 'DM Sans'; font-size: 0.44vw; color: var(--app-fg);
+    display: flex; flex-direction: column;
+    padding-top: 1.3vw;
+    background: var(--app-bg);
+  }
+  .mob-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 0.5vw; height: 1.4vw; flex-shrink: 0;
+  }
+  .mob-logo-s {
+    height: 0.7vw; padding: 0 0.25vw; background: var(--gradient); border-radius: 0.12vw;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk'; font-size: 0.3vw; font-weight: 700; color: white;
+  }
+  .mob-ics { display: flex; gap: 0.2vw; }
+  .mob-ic { width: 0.65vw; height: 0.65vw; border-radius: 0.12vw; background: var(--app-muted-bg); }
+
+  .mob-body { flex: 1; padding: 0.3vw 0.5vw; overflow: hidden; }
+  .mob-title {
+    font-family: 'Space Grotesk'; font-size: 0.65vw; font-weight: 700;
+    background: linear-gradient(135deg, #f97316, #06b6d4);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.06vw;
+  }
+  .mob-accent {
+    width: 0.6vw; height: 0.08vw; border-radius: 999px; margin-bottom: 0.08vw;
+    background: linear-gradient(90deg, #f97316, #06b6d4);
+  }
+  .mob-st { font-size: 0.3vw; color: var(--app-muted); margin-bottom: 0.4vw; }
+
+  .mob-cards { display: flex; flex-direction: column; gap: 0.28vw; }
+  .mob-card {
+    background: var(--app-card); border: 1px solid var(--app-border); border-radius: 0.35vw;
+    padding: 0.38vw; display: flex; align-items: center; gap: 0.3vw;
+    box-shadow: 0 4px 16px rgba(6,16,88,0.08);
+  }
+  .mob-ci {
+    width: 1.2vw; height: 1.2vw; border-radius: 0.28vw;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.5vw; flex-shrink: 0;
+  }
+  .mob-ci.a { background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.05)); }
+  .mob-ci.b { background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.05)); }
+  .mob-ci.c { background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(139,92,246,0.05)); }
+  .mob-ci.d { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05)); }
+  .mob-ci.e { background: linear-gradient(135deg, rgba(244,63,94,0.2), rgba(244,63,94,0.05)); }
+  .mob-ct h4 { font-size: 0.36vw; font-weight: 600; margin-bottom: 0.03vw; color: var(--app-fg); }
+  .mob-ct p { font-size: 0.26vw; color: var(--app-muted); line-height: 1.3; }
+
+  .mob-tabs {
+    height: 1.6vw; border-top: 1px solid var(--app-border);
+    display: flex; align-items: center; justify-content: space-around;
+    flex-shrink: 0; background: var(--app-card);
+  }
+  .mob-tab { display: flex; flex-direction: column; align-items: center; gap: 0.06vw; }
+  .mob-tab svg { width: 0.5vw; height: 0.5vw; }
+  .mob-tab-lb { font-size: 0.22vw; font-weight: 500; }
+  .mob-tab.on svg { color: #f97316; }
+  .mob-tab.on .mob-tab-lb { color: #f97316; font-weight: 700; }
+  .mob-tab:not(.on) svg { color: var(--app-muted); }
+  .mob-tab:not(.on) .mob-tab-lb { color: var(--app-muted); }
+  .mob-tab.on::after {
+    content: ''; display: block; width: 0.3vw; height: 0.08vw;
+    border-radius: 999px; background: #f97316; margin-top: 0.03vw;
+  }
+
+  /* ─── FLOATING TAGS ────────────────────────────── */
+  .float-tag {
+    position: absolute;
+    background: white;
+    border-radius: clamp(8px, 0.6vw, 14px);
+    padding: 0.45vw 0.9vw;
+    box-shadow: 0 8px 32px rgba(6,16,88,0.12), 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.05);
+    font-size: clamp(9px, 0.68vw, 14px);
+    font-weight: 600;
+    display: flex; align-items: center; gap: 0.35vw;
+    z-index: 10;
+    animation: floatTag 5s ease-in-out infinite;
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+  }
+  @keyframes floatTag { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-0.4vw)} }
+
+  .float-tag .dot { width: 0.4vw; height: 0.4vw; border-radius: 50%; flex-shrink: 0; }
+  .float-tag .tag-icon {
+    width: clamp(18px, 1.4vw, 28px); height: clamp(18px, 1.4vw, 28px);
+    border-radius: clamp(5px, 0.35vw, 8px);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .float-tag .tag-icon svg { width: 60%; height: 60%; }
+
+  .float-tag .tag-content { display: flex; flex-direction: column; }
+  .float-tag .tag-label { font-size: clamp(7px, 0.5vw, 10px); color: var(--text-light); font-weight: 500; }
+  .float-tag .tag-value { font-size: clamp(9px, 0.72vw, 15px); font-weight: 700; color: var(--text); }
+
+  .tag-1 { top: 6vw; left: -3.5vw; animation-delay: 0s; }
+  .tag-2 { top: 2.5vw; right: 9vw; animation-delay: 1.2s; }
+  .tag-3 { bottom: 7vw; left: 4vw; animation-delay: 0.6s; }
+  .tag-4 { bottom: 3vw; right: 11vw; animation-delay: 2s; }
+  .tag-5 { top: 14vw; left: -1vw; animation-delay: 1.8s; }
+  .tag-6 { top: 10vw; right: -2vw; animation-delay: 0.4s; }
+
+  /* ─── FEATURES RIBBON ──────────────────────────── */
+  .ribbon {
+    position: relative;
+    padding: 5vw 4vw 4vw;
+    overflow: hidden;
+    background: linear-gradient(180deg, #f3f5f8 0%, var(--bg) 100%);
+  }
+
+  .ribbon-header {
+    text-align: center;
+    margin-bottom: 3vw;
+  }
+  .ribbon-label {
+    font-size: clamp(9px, 0.7vw, 14px);
+    font-weight: 600;
+    color: var(--primary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.8vw;
+  }
+  .ribbon-title {
+    font-family: 'Space Grotesk';
+    font-size: clamp(20px, 2.8vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  .cards-stack {
+    display: flex;
+    gap: 1.2vw;
+    max-width: 78vw;
+    margin: 0 auto;
+  }
+
+  .card-col { flex: 1; display: flex; flex-direction: column; gap: 1.2vw; }
+  .card-col:nth-child(2) { margin-top: 3vw; }
+  .card-col:nth-child(3) { margin-top: 1.5vw; }
+
+  .fcard {
+    background: white;
+    border-radius: clamp(10px, 1vw, 20px);
+    padding: clamp(16px, 1.8vw, 40px);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .fcard:hover { transform: translateY(-0.3vw); box-shadow: var(--shadow-lg); }
+
+  .fcard-accent {
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .fcard-accent.orange { background: linear-gradient(180deg, #f97316, #fb923c); }
+  .fcard-accent.cyan { background: linear-gradient(180deg, #06b6d4, #22d3ee); }
+  .fcard-accent.green { background: linear-gradient(180deg, #10b981, #34d399); }
+  .fcard-accent.violet { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+
+  .fcard-icon {
+    width: clamp(28px, 2.6vw, 52px); height: clamp(28px, 2.6vw, 52px);
+    border-radius: clamp(7px, 0.7vw, 14px);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: clamp(8px, 0.8vw, 18px);
+  }
+  .fcard-icon svg { width: clamp(14px, 1.2vw, 24px); height: clamp(14px, 1.2vw, 24px); }
+  .fcard-icon.o { background: #fff7ed; color: #ea580c; }
+  .fcard-icon.c { background: #ecfeff; color: #0891b2; }
+  .fcard-icon.g { background: #f0fdf4; color: #059669; }
+  .fcard-icon.v { background: #f5f3ff; color: #7c3aed; }
+
+  .fcard h3 {
+    font-family: 'Space Grotesk';
+    font-size: clamp(12px, 1.1vw, 22px);
+    font-weight: 700;
+    margin-bottom: clamp(4px, 0.35vw, 8px);
+    letter-spacing: -0.2px;
+  }
+  .fcard p { font-size: clamp(10px, 0.75vw, 15px); color: var(--text-sub); line-height: 1.65; }
+
+  .fcard.big {
+    background: linear-gradient(135deg, #0f1419, #1e2a3a);
+    color: white;
+    border: 1px solid var(--app-border);
+  }
+  .fcard.big p { color: var(--app-muted); }
+  .fcard.big .fcard-icon { background: rgba(249,115,22,0.15); color: #fb923c; }
+
+  /* ─── BOTTOM ───────────────────────────────────── */
+  .bottom {
+    padding: 3vw 4vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4vw;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .bottom-stat { text-align: center; }
+  .bottom-val {
+    font-family: 'Space Grotesk';
+    font-size: clamp(18px, 2.2vw, 44px);
+    font-weight: 700;
+    background: var(--gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .bottom-lbl { font-size: clamp(8px, 0.7vw, 14px); color: var(--text-light); margin-top: 0.15vw; }
+
+  .footer {
+    padding: 1.5vw 4vw;
+    text-align: center;
+    font-size: clamp(8px, 0.65vw, 13px);
+    color: var(--text-light);
+    border-top: 1px solid #f1f5f9;
+  }
+  .footer span { color: var(--primary); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="nav-logo-mark">VO</div>
+      <div class="nav-logo-text">Gear Hub</div>
+    </div>
+    <div class="nav-badge">VO Inside &mdash; IT Hub</div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="announce-pill">
+      <span class="announce-dot"></span>
+      Disponible maintenant
+    </div>
+    <h1 class="hero-title">
+      Votre nouvel outil<br>de gestion <span class="em">IT equipment</span>
+    </h1>
+    <p class="hero-sub">
+      Reservez, suivez et gerez vos emprunts de materiel en quelques clics.
+      Une experience fluide, pensee pour votre quotidien.
+    </p>
+  </div>
+
+  <!-- Devices -->
+  <div class="devices-wrap">
+    <div class="devices-container">
+
+      <!-- Floating tags -->
+      <div class="float-tag tag-1">
+        <div class="tag-icon" style="background:rgba(16,185,129,0.1); color:#10b981;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
+        <div class="tag-content">
+          <span class="tag-label">Disponibles</span>
+          <span class="tag-value">42 items</span>
+        </div>
+      </div>
+
+      <div class="float-tag tag-2">
+        <div class="tag-icon" style="background:rgba(249,115,22,0.1); color:#f97316;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="tag-content">
+          <span class="tag-label">Demandes en cours</span>
+          <span class="tag-value">3 actives</span>
+        </div>
+      </div>
+
+      <div class="float-tag tag-3">
+        <div class="tag-icon" style="background:rgba(6,182,212,0.1); color:#06b6d4;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="tag-content">
+          <span class="tag-label">Authentification</span>
+          <span class="tag-value">SSO Microsoft</span>
+        </div>
+      </div>
+
+      <div class="float-tag tag-4">
+        <div class="tag-icon" style="background:rgba(139,92,246,0.1); color:#8b5cf6;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="tag-content">
+          <span class="tag-label">Emails automatiques</span>
+          <span class="tag-value">12 templates</span>
+        </div>
+      </div>
+
+      <div class="float-tag tag-5">
+        <div class="tag-icon" style="background:rgba(244,63,94,0.1); color:#f43f5e;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="tag-content">
+          <span class="tag-label">Onboarding</span>
+          <span class="tag-value">Welcome Kit</span>
+        </div>
+      </div>
+
+      <div class="float-tag tag-6">
+        <div class="tag-icon" style="background:rgba(245,158,11,0.1); color:#f59e0b;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="tag-content">
+          <span class="tag-label">Planning</span>
+          <span class="tag-value">Timeline Gantt</span>
+        </div>
+      </div>
+
+      <!-- MacBook Pro -->
+      <div class="mac">
+        <div class="mac-screen-wrap">
+          <div class="mac-bezel"><div class="mac-notch"><div class="mac-cam"></div></div></div>
+          <div class="sim">
+            <div class="sim-head">
+              <div class="sim-head-l">
+                <div class="sim-logo-s"></div>
+                <div class="sim-nav">
+                  <div class="sim-nav-i">Hub</div>
+                  <div class="sim-nav-i on">Catalog</div>
+                  <div class="sim-nav-i">Calendar</div>
+                </div>
+              </div>
+              <div class="sim-search">
+                <svg width="0.4vw" height="0.4vw" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                Search equipment...
+              </div>
+              <div class="sim-head-r">
+                <div class="sim-ib"></div>
+                <div class="sim-ib"></div>
+                <div class="sim-av">TL</div>
+              </div>
+            </div>
+            <div class="sim-body">
+              <div class="sim-title">Equipment Catalog</div>
+              <div class="sim-accent"></div>
+              <div class="sim-sub">View available equipment and stock levels</div>
+              <div class="sim-filters">
+                <div class="sim-f on">All</div>
+                <div class="sim-f">Laptops</div>
+                <div class="sim-f">Monitors</div>
+                <div class="sim-f">Audio</div>
+                <div class="sim-f">Cameras</div>
+                <div class="sim-f">Accessories</div>
+              </div>
+              <div class="sim-grid">
+                <div class="sim-card"><div class="sim-card-img ci1">&#x1F4BB;</div><div class="sim-card-b"><div class="sim-card-n">MacBook Pro 16"</div><div class="sim-card-c">Laptops &bull; Apple</div><div class="sim-card-ft"><span class="sim-stock">3 available</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci2">&#x1F5A5;</div><div class="sim-card-b"><div class="sim-card-n">Studio Display</div><div class="sim-card-c">Monitors &bull; Apple</div><div class="sim-card-ft"><span class="sim-stock">5 available</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci3">&#x1F3A7;</div><div class="sim-card-b"><div class="sim-card-n">AirPods Max</div><div class="sim-card-c">Audio &bull; Apple</div><div class="sim-card-ft"><span class="sim-stock lo">1 left</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci4">&#x1F4F7;</div><div class="sim-card-b"><div class="sim-card-n">Sony A7 IV</div><div class="sim-card-c">Cameras &bull; Sony</div><div class="sim-card-ft"><span class="sim-stock">2 available</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci5">&#x2328;&#xFE0F;</div><div class="sim-card-b"><div class="sim-card-n">Magic Keyboard</div><div class="sim-card-c">Accessories &bull; Apple</div><div class="sim-card-ft"><span class="sim-stock">8 available</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci6">&#x1F3AC;</div><div class="sim-card-b"><div class="sim-card-n">Logitech Rally</div><div class="sim-card-c">Video &bull; Logitech</div><div class="sim-card-ft"><span class="sim-stock">4 available</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci7">&#x1F4F1;</div><div class="sim-card-b"><div class="sim-card-n">iPhone 15 Pro</div><div class="sim-card-c">Phones &bull; Apple</div><div class="sim-card-ft"><span class="sim-stock lo">1 left</span><span class="sim-btn">Book</span></div></div></div>
+                <div class="sim-card"><div class="sim-card-img ci8">&#x1F50C;</div><div class="sim-card-b"><div class="sim-card-n">USB-C Hub</div><div class="sim-card-c">Accessories &bull; CalDigit</div><div class="sim-card-ft"><span class="sim-stock">12 available</span><span class="sim-btn">Book</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mac-base"></div>
+        <div class="mac-lip"></div>
+      </div>
+
+      <!-- iPhone -->
+      <div class="phone">
+        <div class="phone-frame">
+          <div class="phone-island"></div>
+          <div class="phone-btn-r"></div><div class="phone-btn-l1"></div><div class="phone-btn-l2"></div><div class="phone-btn-l3"></div>
+          <div class="phone-screen">
+            <div class="mob">
+              <div class="mob-head">
+                <div class="mob-logo-s">VO</div>
+                <div class="mob-ics"><div class="mob-ic"></div><div class="mob-ic"></div></div>
+              </div>
+              <div class="mob-body">
+                <div class="mob-title">VO Gear Hub</div>
+                <div class="mob-accent"></div>
+                <div class="mob-st">Bienvenue &mdash; choisissez votre destination</div>
+                <div class="mob-cards">
+                  <div class="mob-card"><div class="mob-ci a">&#x1F4E6;</div><div class="mob-ct"><h4>Equipment Catalog</h4><p>Parcourez et reservez du materiel</p></div></div>
+                  <div class="mob-card"><div class="mob-ci b">&#x1F50D;</div><div class="mob-ct"><h4>Scan QR Code</h4><p>Scannez pour prendre ou rendre</p></div></div>
+                  <div class="mob-card"><div class="mob-ci c">&#x1F4E7;</div><div class="mob-ct"><h4>Onboarding Hub</h4><p>Emails de bienvenue</p></div></div>
+                  <div class="mob-card"><div class="mob-ci d">&#x1F4CB;</div><div class="mob-ct"><h4>Request Equipment</h4><p>Demandez du nouveau materiel</p></div></div>
+                  <div class="mob-card"><div class="mob-ci e">&#x1F4E4;</div><div class="mob-ct"><h4>Offboarding</h4><p>Retour du materiel</p></div></div>
+                </div>
+              </div>
+              <div class="mob-tabs">
+                <div class="mob-tab on">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <span class="mob-tab-lb">Hub</span>
+                </div>
+                <div class="mob-tab">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <span class="mob-tab-lb">Catalog</span>
+                </div>
+                <div class="mob-tab">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                  <span class="mob-tab-lb">Scan</span>
+                </div>
+                <div class="mob-tab">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span class="mob-tab-lb">Profile</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-reflect"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="ribbon">
+  <div class="ribbon-header">
+    <div class="ribbon-label">Fonctionnalites</div>
+    <div class="ribbon-title">Tout ce dont vous avez besoin,<br>au meme endroit</div>
+  </div>
+
+  <div class="cards-stack">
+    <div class="card-col">
+      <div class="fcard">
+        <div class="fcard-accent orange"></div>
+        <div class="fcard-icon o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+        <h3>Catalogue d'equipements</h3>
+        <p>Parcourez le catalogue, verifiez la disponibilite en temps reel et reservez en un clic.</p>
+      </div>
+      <div class="fcard big">
+        <div class="fcard-icon o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Connexion Microsoft SSO</h3>
+        <p>Authentification transparente via Azure AD. Aucun mot de passe supplementaire requis.</p>
+      </div>
+    </div>
+    <div class="card-col">
+      <div class="fcard">
+        <div class="fcard-accent cyan"></div>
+        <div class="fcard-icon c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <h3>Planning intelligent</h3>
+        <p>Timeline Gantt pour visualiser tous les emprunts actifs et eviter les conflits de reservation.</p>
+      </div>
+      <div class="fcard">
+        <div class="fcard-accent green"></div>
+        <div class="fcard-icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <h3>Emails automatiques</h3>
+        <p>Notifications stylisees a chaque etape de votre demande. Templates personnalisables.</p>
+      </div>
+      <div class="fcard">
+        <div class="fcard-accent violet"></div>
+        <div class="fcard-icon v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3>Suivi en temps reel</h3>
+        <p>De la demande au retour, suivez chaque etape avec des notifications instantanees.</p>
+      </div>
+    </div>
+    <div class="card-col">
+      <div class="fcard">
+        <div class="fcard-accent violet"></div>
+        <div class="fcard-icon v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <h3>Onboarding</h3>
+        <p>Composez des emails de bienvenue pour les nouveaux arrivants avec un editeur visuel.</p>
+      </div>
+      <div class="fcard">
+        <div class="fcard-accent orange"></div>
+        <div class="fcard-icon o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h3>Responsive design</h3>
+        <p>Interface parfaite sur desktop comme sur mobile. Theme clair et sombre en un clic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="bottom">
+  <div class="bottom-stat"><div class="bottom-val">5</div><div class="bottom-lbl">Modules</div></div>
+  <div class="bottom-stat"><div class="bottom-val">12+</div><div class="bottom-lbl">Templates Email</div></div>
+  <div class="bottom-stat"><div class="bottom-val">SSO</div><div class="bottom-lbl">Azure AD</div></div>
+  <div class="bottom-stat"><div class="bottom-val">100%</div><div class="bottom-lbl">Responsive</div></div>
+</div>
+
+<div class="footer">
+  <p>VO Gear Hub &mdash; Developpe par <span>VO Inside</span> avec Claude Code</p>
+</div>
+
+</body>
+</html>

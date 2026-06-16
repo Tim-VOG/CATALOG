@@ -49,7 +49,7 @@ export function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/my-equipments">
             <Monitor className="mr-2 h-4 w-4" />
-            My Equipments
+            My Equipment
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

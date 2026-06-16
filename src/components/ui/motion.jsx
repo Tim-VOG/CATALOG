@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform, useScroll } from 'motion/react'
+import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform, useScroll, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 // ── FadeIn ────────────────────────────────────────────────
@@ -100,13 +100,20 @@ AnimateListItem.displayName = 'AnimateListItem'
 
 // ── PageTransition ────────────────────────────────────────
 // Wrapper pour transitions entre routes. Supporte direction forward/back.
+// Respects prefers-reduced-motion.
 function PageTransition({ children, className, direction = 'forward' }) {
+  const shouldReduce = useReducedMotion()
   const yOffset = direction === 'back' ? -8 : 8
+
+  if (shouldReduce) {
+    return <div className={className}>{children}</div>
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: yOffset, filter: 'blur(4px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, y: -yOffset, filter: 'blur(4px)' }}
+      initial={{ opacity: 0, y: yOffset }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -yOffset }}
       transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={className}
     >
@@ -434,55 +441,26 @@ const PressScale = React.forwardRef(
 PressScale.displayName = 'PressScale'
 
 // ── DynamicsItem ─────────────────────────────────────────
-// UICollectionView/UIDynamics-inspired scroll item with per-item spring physics.
-// Each item has unique spring characteristics (stiffness, damping, mass)
-// creating a cascading wave effect — like iOS UIAttachmentBehavior with
-// varying attachment strengths. Items spring into view with natural physics.
+// Simple staggered scroll-in. Respects prefers-reduced-motion.
+// Previously used spring-physics rotation — removed as B2B anti-pattern.
 function DynamicsItem({ children, className, index = 0, once = true, ...props }) {
   const ref = React.useRef(null)
   const isInView = useInView(ref, { once, margin: '50px 0px -60px 0px' })
+  const shouldReduce = useReducedMotion()
 
-  // Per-item spring variation — mimics UIDynamics spring attachment behavior
-  // Different items settle at different rates creating a natural cascade
-  const springConfig = React.useMemo(() => {
-    const variant = index % 6
-    return {
-      stiffness: 100 + variant * 15,           // 100–175
-      damping: 12 + (index % 4) * 2,           // 12–18
-      mass: 0.7 + (index % 3) * 0.15,          // 0.7–1.0
-    }
-  }, [index])
+  if (shouldReduce) {
+    return <div ref={ref} className={className} {...props}>{children}</div>
+  }
 
-  const targetY = useMotionValue(50)
-  const targetScale = useMotionValue(0.92)
-  const targetOpacity = useMotionValue(0)
-  const rotateDir = index % 2 === 0 ? 1 : -1
-  const targetRotate = useMotionValue(2 * rotateDir)
-
-  React.useEffect(() => {
-    if (isInView) {
-      targetY.set(0)
-      targetScale.set(1)
-      targetOpacity.set(1)
-      targetRotate.set(0)
-    }
-  }, [isInView, targetY, targetScale, targetOpacity, targetRotate])
-
-  const y = useSpring(targetY, springConfig)
-  const scale = useSpring(targetScale, {
-    stiffness: springConfig.stiffness + 40,
-    damping: springConfig.damping + 5,
-  })
-  const opacity = useSpring(targetOpacity, { stiffness: 200, damping: 25 })
-  const rotate = useSpring(targetRotate, {
-    stiffness: Math.max(springConfig.stiffness - 20, 60),
-    damping: springConfig.damping + 8,
-  })
+  // Gentle staggered fade-up — no rotation, no spring physics cascade
+  const delay = Math.min(index * 0.04, 0.3)
 
   return (
     <motion.div
       ref={ref}
-      style={{ y, scale, opacity, rotate }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+      transition={{ duration: 0.35, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={className}
       {...props}
     >

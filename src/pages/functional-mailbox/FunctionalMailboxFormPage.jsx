@@ -632,7 +632,7 @@ export function FunctionalMailboxFormPage() {
         <Badge variant="outline" className="mb-3 text-xs">
           Functional Mailbox
         </Badge>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">
           New Mailbox Request
         </h1>
         <p className="text-muted-foreground mt-2">

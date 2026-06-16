@@ -53,7 +53,7 @@ export function CatalogPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Equipment Catalog</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">Equipment Catalog</h1>
         <p className="text-muted-foreground mt-1">View available equipment and stock levels</p>
         <motion.div
           className="mt-3 h-0.5 w-16 rounded-full bg-primary/60"

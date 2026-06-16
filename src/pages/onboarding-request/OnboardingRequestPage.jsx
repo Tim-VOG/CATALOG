@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
-import { sendEmail } from '@/lib/api/send-email'
+import { notifyAdmins } from '@/lib/notification-helpers'
 import { useUIStore } from '@/stores/ui-store'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -246,9 +246,9 @@ function StepAccess({ form, update }) {
       </div>
       {showFolders && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
           className="space-y-2"
         >
           <Label>Which folders?</Label>
@@ -460,9 +460,9 @@ export function OnboardingRequestPage() {
         })
       } catch {}
 
-      // 3. Notify admin
-      sendEmail({
-        to: 'admin@vo-group.be',
+      // 3. Notify admin recipients
+      const notif = await notifyAdmins({
+        trigger: 'new_request',
         subject: `New Onboarding Request: ${form.name}`,
         body: `<p><strong>${submitterName}</strong> submitted an onboarding request:</p>
           <ul>
@@ -475,6 +475,9 @@ export function OnboardingRequestPage() {
             <li><strong>Subscribe to:</strong> ${Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '—'}</li>
           </ul>`,
       })
+      if (!notif.success) {
+        console.warn('Admin notification failed:', notif.error)
+      }
 
       navigate('/')
       setTimeout(() => showToast('Onboarding request submitted successfully!'), 100)
@@ -498,7 +501,7 @@ export function OnboardingRequestPage() {
         <Badge variant="outline" className="mb-3 text-xs">
           Onboarding
         </Badge>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">
           New Onboarding Request
         </h1>
         <p className="text-muted-foreground mt-2">

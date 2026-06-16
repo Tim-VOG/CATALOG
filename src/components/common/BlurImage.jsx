@@ -7,14 +7,14 @@ import { cn } from '@/lib/utils'
  * Shows a blurred, slightly scaled placeholder that transitions
  * to the sharp image on load. Falls back to an icon on error.
  */
-export function BlurImage({ src, alt, className, containerClassName, ...props }) {
+export function BlurImage({ src, alt, className, containerClassName, loading = 'lazy', decoding = 'async', ...props }) {
   const [loaded, setLoaded] = useState(false)
   const [errored, setErrored] = useState(false)
 
   if (!src || errored) {
     return (
-      <div className={cn('overflow-hidden bg-muted flex items-center justify-center', containerClassName)}>
-        <Package className="h-6 w-6 text-muted-foreground/50" />
+      <div className={cn('overflow-hidden bg-muted flex items-center justify-center', containerClassName)} role="img" aria-label={alt || 'No image available'}>
+        <Package className="h-6 w-6 text-muted-foreground/50" aria-hidden="true" />
       </div>
     )
   }
@@ -23,7 +23,9 @@ export function BlurImage({ src, alt, className, containerClassName, ...props })
     <div className={cn('overflow-hidden bg-muted', containerClassName)}>
       <img
         src={src}
-        alt={alt}
+        alt={alt || ''}
+        loading={loading}
+        decoding={decoding}
         onLoad={() => setLoaded(true)}
         onError={() => setErrored(true)}
         className={cn(

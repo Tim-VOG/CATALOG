@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
+import { confirmDialog } from '@/lib/confirm-dialog'
 
 export function AdminCategoriesPage() {
   const { data: categories = [], isLoading } = useCategories()
@@ -36,7 +37,13 @@ export function AdminCategoriesPage() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this category? Products in this category will need to be reassigned.')) return
+    const ok = await confirmDialog({
+      title: 'Delete category',
+      description: 'Products in this category will need to be reassigned.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     try {
       await deleteCategory.mutateAsync(id)
       showToast('Category deleted')

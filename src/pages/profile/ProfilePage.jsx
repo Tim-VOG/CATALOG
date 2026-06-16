@@ -98,7 +98,7 @@ export function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Profile</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">Profile</h1>
         <motion.div
           className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
@@ -154,7 +154,9 @@ export function ProfilePage() {
                   href={`https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(user.email)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-[#6264A7] hover:underline w-fit"
+                  /* Microsoft Teams brand color — intentionally hard-coded for brand recognition */
+                  style={{ color: '#6264A7' }}
+                  className="inline-flex items-center gap-1.5 text-sm hover:underline w-fit"
                 >
                   <MessageSquare className="h-3.5 w-3.5" />
                   Chat on Teams

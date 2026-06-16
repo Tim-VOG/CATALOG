@@ -98,8 +98,9 @@ export function ReservePage() {
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground">Reserve for date</Label>
+            <Label htmlFor="reserve-date" className="text-xs text-muted-foreground">Reserve for date</Label>
             <input
+              id="reserve-date"
               type="date" value={reserveDate} min={today}
               onChange={(e) => {
                 setReserveDate(e.target.value)
@@ -110,8 +111,9 @@ export function ReservePage() {
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground">Must pick up by (or reservation expires)</Label>
+            <Label htmlFor="pickup-by" className="text-xs text-muted-foreground">Must pick up by (or reservation expires)</Label>
             <input
+              id="pickup-by"
               type="date" value={pickupBy} min={reserveDate || today}
               onChange={(e) => setPickupBy(e.target.value)}
               className="w-full h-10 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/10"
@@ -147,7 +149,7 @@ export function ReservePage() {
               <Link to="/catalog">
                 <Button variant="outline" size="sm">Back to Catalog</Button>
               </Link>
-              <Link to="/my-equipment">
+              <Link to="/my-equipments">
                 <Button size="sm">My Equipment</Button>
               </Link>
             </div>

@@ -134,7 +134,7 @@ export function RequestsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">My Requests</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">My Requests</h1>
         <p className="text-muted-foreground mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} total</p>
         <motion.div
           className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
@@ -146,16 +146,22 @@ export function RequestsPage() {
       </div>
 
       {/* Tabs with animated underline */}
-      <div className="flex gap-1 border-b relative">
+      <div className="flex gap-1 border-b relative" role="tablist" aria-label="Request status filter">
         {[
           { id: 'active', label: 'Active', count: activeRequests.length, showCount: activeRequests.length > 0 },
           { id: 'past', label: 'Past', count: pastRequests.length, showCount: pastRequests.length > 0 },
         ].map((t) => (
           <button
             key={t.id}
+            id={`request-tab-${t.id}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            aria-controls={`request-panel-${t.id}`}
+            tabIndex={tab === t.id ? 0 : -1}
             onClick={() => setTab(t.id)}
             className={cn(
-              'relative px-4 py-2 text-sm font-medium transition-colors -mb-px',
+              'relative px-4 py-2 text-sm font-medium transition-colors -mb-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-t',
               tab === t.id
                 ? 'text-primary'
                 : 'text-muted-foreground hover:text-foreground'
@@ -182,6 +188,7 @@ export function RequestsPage() {
       </div>
 
       {/* Request list */}
+      <div role="tabpanel" id={`request-panel-${tab}`} aria-labelledby={`request-tab-${tab}`}>
       {currentList.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p className="text-sm">
@@ -199,6 +206,7 @@ export function RequestsPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

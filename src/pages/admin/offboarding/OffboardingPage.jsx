@@ -222,17 +222,20 @@ export function OffboardingPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setExpandedId(isExpanded ? null : request.id)}
-                        className="h-8 w-8 p-0"
+                        className="h-10 w-10 p-0"
+                        aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                        aria-expanded={isExpanded}
                       >
-                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setDeleteConfirm(request)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        className="h-10 w-10 p-0 text-destructive hover:text-destructive"
+                        aria-label="Delete request"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

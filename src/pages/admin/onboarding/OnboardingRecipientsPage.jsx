@@ -329,15 +329,15 @@ export function OnboardingRecipientsPage() {
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <Link to={`/admin/onboarding/compose?recipientId=${r.id}`}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Compose email">
-                        <Mail className="h-3.5 w-3.5" />
+                      <Button variant="ghost" size="icon" className="h-10 w-10" aria-label="Compose email" title="Compose email">
+                        <Mail className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(r)}>
-                      <Pencil className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => openEdit(r)} aria-label={`Edit recipient ${r.email}`}>
+                      <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(r.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive" onClick={() => handleDelete(r.id)} aria-label={`Delete recipient ${r.email}`}>
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

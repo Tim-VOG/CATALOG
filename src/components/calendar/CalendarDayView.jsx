@@ -101,9 +101,16 @@ function DayEventCard({ event, showUser, selectable, isSelected, onToggleSelect 
 
   if (selectable) {
     return (
-      <div onClick={() => onToggleSelect?.(event.id)}>
+      <button
+        type="button"
+        onClick={() => onToggleSelect?.(event.id)}
+        className="w-full text-left"
+        role="checkbox"
+        aria-checked={!!isSelected}
+        aria-label={`Select ${event.product_name || event.title || 'event'}`}
+      >
         {content}
-      </div>
+      </button>
     )
   }
 

@@ -12,6 +12,7 @@ import { CategoryChart } from '@/components/admin/dashboard/CategoryChart'
 import { LoansChart } from '@/components/admin/dashboard/LoansChart'
 import { QRUsageChart } from '@/components/admin/dashboard/QRUsageChart'
 import { sendEmail } from '@/lib/api/send-email'
+import { toast } from 'sonner'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,7 +56,7 @@ const fadeUp = (delay = 0) => ({
 function StatWidget({ label, value, icon: Icon, color, iconBg, link, trend }) {
   return (
     <Link to={link} className="block h-full group">
-      <Card className="h-full border-border/40 bg-card/80 backdrop-blur-sm hover:shadow-lg hover:border-border/60 transition-all duration-300 overflow-hidden relative">
+      <Card className="h-full border-border/40 bg-card hover:shadow-lg hover:border-border/60 transition-all duration-300 overflow-hidden relative">
         <CardContent className="px-5 py-5">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
@@ -75,7 +76,7 @@ function StatWidget({ label, value, icon: Icon, color, iconBg, link, trend }) {
 // ── List widget wrapper ──
 function ListWidget({ title, icon: Icon, iconColor, iconBg, headerRight, emptyIcon: EmptyIcon, emptyText, children }) {
   return (
-    <Card className="flex flex-col overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+    <Card className="flex flex-col overflow-hidden border-border/40 bg-card">
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5">
           <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', iconBg)}>
@@ -100,7 +101,7 @@ function ListWidget({ title, icon: Icon, iconColor, iconBg, headerRight, emptyIc
 // ── Chart widget wrapper ──
 function ChartWidget({ title, icon: Icon, children }) {
   return (
-    <Card className="h-full flex flex-col overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+    <Card className="h-full flex flex-col overflow-hidden border-border/40 bg-card">
       <div className="flex items-center px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5">
           <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary/12 to-accent/8">
@@ -149,7 +150,7 @@ function TimelineWidget({ requests }) {
   }, [requests, today])
 
   return (
-    <Card className="overflow-hidden border-border/40 bg-card/80 backdrop-blur-sm">
+    <Card className="overflow-hidden border-border/40 bg-card">
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5">
           <div className="h-9 w-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary/12 to-accent/8">
@@ -161,7 +162,7 @@ function TimelineWidget({ requests }) {
           Full view <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
-      <CardContent className="px-5 pb-5 overflow-x-auto">
+      <CardContent className="px-5 pb-5 overflow-x-auto relative after:pointer-events-none after:absolute after:right-0 after:top-0 after:bottom-0 after:w-8 after:bg-gradient-to-l after:from-card after:to-transparent md:after:hidden">
         {timelineItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <Calendar className="h-8 w-8 mb-2 opacity-20" />
@@ -374,7 +375,7 @@ export function AdminDashboardPage() {
 
       {/* ── Stat Cards ── */}
       {visibleStats.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {isVisible('stat-pending') && (
             <motion.div {...fadeUp(nextDelay())}>
               <StatWidget label="Pending" value={pending.length} icon={Inbox} color="text-amber-500" iconBg="bg-amber-500/10" link="/admin/requests" />
@@ -552,18 +553,24 @@ export function AdminDashboardPage() {
                       onClick={async () => {
                         setSendingReminders(true)
                         let sent = 0
+                        let failed = 0
                         for (const scan of upcomingReturns) {
                           if (scan.user_email) {
-                            await sendEmail({
+                            const result = await sendEmail({
                               to: scan.user_email,
                               subject: `Reminder: ${scan.product_name} due tomorrow`,
                               body: `<p>Hi ${scan.user_name || 'there'},</p><p>This is a friendly reminder that <strong>${scan.product_name}</strong> is due for return tomorrow (${scan.expected_return_date}).</p><p>Please return it to the IT desk.</p><p>Thank you!</p>`,
                             })
-                            sent++
+                            if (result?.success) sent++
+                            else failed++
                           }
                         }
                         setSendingReminders(false)
-                        alert(`${sent} reminder${sent !== 1 ? 's' : ''} sent!`)
+                        if (failed > 0) {
+                          toast.error(`${sent} reminder${sent !== 1 ? 's' : ''} sent, ${failed} failed`)
+                        } else {
+                          toast.success(`${sent} reminder${sent !== 1 ? 's' : ''} sent`)
+                        }
                       }}
                     >
                       <Send className="h-3 w-3" />

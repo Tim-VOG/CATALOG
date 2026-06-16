@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { Check, WifiOff, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -5,7 +6,7 @@ import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { BlurImage } from '@/components/common/BlurImage'
 import { cn } from '@/lib/utils'
 
-export function ProductCard({ product, reservedQty = 0 }) {
+export const ProductCard = memo(function ProductCard({ product, reservedQty = 0 }) {
   const available = product.total_stock - reservedQty
   const isUnavailable = available <= 0
 
@@ -72,7 +73,14 @@ export function ProductCard({ product, reservedQty = 0 }) {
           )}
 
           <div className="pt-2 border-t mt-auto">
-            <div className="text-sm">
+            <div className="text-sm flex items-center gap-1.5">
+              {available > 3 ? (
+                <Check className="h-3.5 w-3.5 text-success shrink-0" aria-hidden="true" />
+              ) : available > 0 ? (
+                <AlertTriangle className="h-3.5 w-3.5 text-warning shrink-0" aria-hidden="true" />
+              ) : (
+                <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" aria-hidden="true" />
+              )}
               <span
                 className={cn(
                   'font-bold',
@@ -82,10 +90,13 @@ export function ProductCard({ product, reservedQty = 0 }) {
                 {Math.max(available, 0)}
               </span>
               <span className="text-muted-foreground"> / {product.total_stock}</span>
+              <span className="sr-only">
+                {available > 3 ? 'in stock' : available > 0 ? 'low stock' : 'out of stock'}
+              </span>
             </div>
           </div>
         </CardContent>
       </Card>
     </Link>
   )
-}
+})

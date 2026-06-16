@@ -5,6 +5,7 @@ export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 export { Badge, badgeVariants } from './badge'
 export { Input } from './input'
 export { Label } from './label'
+export { Field } from './field'
 export { Select } from './select'
 export { Textarea } from './textarea'
 export { Checkbox } from './checkbox'

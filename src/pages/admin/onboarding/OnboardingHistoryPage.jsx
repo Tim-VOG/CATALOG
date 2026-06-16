@@ -117,7 +117,7 @@ export function OnboardingHistoryPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="h-10 w-10"
                           title="Preview"
                           onClick={() => setPreviewHtml(email.rendered_html)}
                         >
@@ -126,14 +126,14 @@ export function OnboardingHistoryPage() {
                       )}
                       {email.status === 'draft' && (
                         <Link to={`/admin/onboarding/compose/${email.id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit">
+                          <Button variant="ghost" size="icon" className="h-10 w-10" title="Edit">
                             <FileEdit className="h-3.5 w-3.5" />
                           </Button>
                         </Link>
                       )}
                       {email.status === 'failed' && (
                         <Link to={`/admin/onboarding/compose/${email.id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Retry">
+                          <Button variant="ghost" size="icon" className="h-10 w-10" title="Retry">
                             <Mail className="h-3.5 w-3.5" />
                           </Button>
                         </Link>
@@ -142,10 +142,11 @@ export function OnboardingHistoryPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive"
+                          className="h-10 w-10 text-destructive"
                           onClick={() => handleDelete(email.id)}
+                          aria-label="Delete draft email"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
                     </div>

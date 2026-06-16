@@ -149,8 +149,8 @@ export function OnboardingComposerPage() {
         const { html } = mjml2html(mjmlSource, { validationLevel: 'soft' })
         if (!cancelled) setPreviewHtml(html)
       } catch (err) {
-        console.error('MJML render error:', err)
-        if (!cancelled) setPreviewHtml(`<pre style="color:red;padding:20px;">${err.message}</pre>`)
+        if (import.meta.env.DEV) console.warn('MJML render error:', err)
+        if (!cancelled) setPreviewHtml(`<pre style="color:var(--color-destructive);padding:20px;">Preview error: ${err.message}</pre>`)
       }
     }
     const timer = setTimeout(render, 300)
@@ -256,7 +256,7 @@ export function OnboardingComposerPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Onboarding</h1>
+          <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">Onboarding</h1>
           <p className="text-muted-foreground mt-1">
             {emailId ? 'Edit onboarding email' : 'Compose a new onboarding email'}
           </p>

@@ -503,10 +503,11 @@ export function AdminUsersPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-red-400"
+                        className="h-10 w-10 text-muted-foreground hover:text-destructive"
                         onClick={() => handleDelete(p.id, p.full_name || p.email)}
+                        aria-label={`Delete user ${p.full_name || p.email}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </TableCell>

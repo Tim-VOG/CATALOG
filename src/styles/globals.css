@@ -29,6 +29,15 @@
 
   --color-success: #10b981;
   --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
+  /* ── Semantic status tokens (theme-aware, white-label-ready) ── */
+  --color-status-pending: #f59e0b;   /* amber — awaiting action */
+  --color-status-approved: #10b981;  /* emerald — approved/confirmed */
+  --color-status-active: #3b82f6;    /* blue — in progress */
+  --color-status-rejected: #ef4444;  /* red — rejected */
+  --color-status-extension: #8b5cf6; /* violet — extension requested */
+  --color-status-closed: #64748b;    /* slate — closed/archived */
 
   --color-border: #334155;
   --color-input: #334155;
@@ -75,7 +84,7 @@
   --color-secondary-foreground: #0f172a;
 
   --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
+  --color-muted-foreground: #475569; /* darkened from #64748b for WCAG AA on small text */
 
   --color-border: #e2e8f0;
   --color-input: #e2e8f0;
@@ -400,4 +409,21 @@ html {
   animation: progress-indeterminate 1.5s var(--ease-smooth) infinite;
   transform-origin: left center;
 }
+
+/* ─── Reduced motion ─────────────────────────────────────
+   Respect OS preference. Disables all non-essential animation
+   and transition work. Spinners/loaders that rely on animation
+   for functional feedback remain visible but are slowed to a stop.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 

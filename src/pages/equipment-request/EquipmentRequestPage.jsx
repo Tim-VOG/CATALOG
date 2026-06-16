@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { useProducts } from '@/hooks/use-products'
 import { supabase } from '@/lib/supabase'
-import { sendEmail } from '@/lib/api/send-email'
+import { notifyAdmins } from '@/lib/notification-helpers'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   User, Calendar, Monitor, CheckCircle,
@@ -238,9 +238,9 @@ function StepEquipment({ form, setField, productsByCategory }) {
       {/* PC Type selection: Apple or Windows */}
       {selected.includes('PC') && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
@@ -280,9 +280,9 @@ function StepEquipment({ form, setField, productsByCategory }) {
       {/* Screen model selection */}
       {selected.includes('SCREEN') && screenModels.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
@@ -332,9 +332,9 @@ function StepEquipment({ form, setField, productsByCategory }) {
       {/* Tablet model selection */}
       {selected.includes('TABLET') && tabletModels.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
@@ -384,9 +384,9 @@ function StepEquipment({ form, setField, productsByCategory }) {
       {/* Phone model selection */}
       {selected.includes('PHONE') && phoneModels.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
@@ -596,11 +596,14 @@ export function EquipmentRequestPage() {
       })
       if (error) throw error
 
-      sendEmail({
-        to: 'admin@vo-group.be',
+      const notif = await notifyAdmins({
+        trigger: 'new_request',
         subject: `Equipment Request: ${form.event_name}`,
         body: `<p><strong>${submitterName}</strong> submitted an equipment request for event <strong>${form.event_name}</strong>.</p>`,
       })
+      if (!notif.success) {
+        console.warn('Admin notification failed:', notif.error)
+      }
 
       navigate('/')
       setTimeout(() => showToast('Equipment request submitted successfully!'), 100)
@@ -624,7 +627,7 @@ export function EquipmentRequestPage() {
         <Badge variant="outline" className="mb-3 text-xs">
           IT Equipment
         </Badge>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">
           Request IT Equipment
         </h1>
         <p className="text-muted-foreground mt-2">

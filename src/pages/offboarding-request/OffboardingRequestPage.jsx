@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { supabase } from '@/lib/supabase'
-import { sendEmail } from '@/lib/api/send-email'
+import { notifyAdmins } from '@/lib/notification-helpers'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   UserMinus, Calendar, Shield, Monitor, User, CheckCircle,
@@ -416,7 +416,7 @@ export function OffboardingRequestPage() {
     try {
       const submitterName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
 
-      await supabase.from('it_requests').insert({
+      const { error: insertError } = await supabase.from('it_requests').insert({
         type: 'offboarding',
         requester_id: user.id,
         requester_email: user.email,
@@ -424,15 +424,19 @@ export function OffboardingRequestPage() {
         data: { ...form, submitted_at: new Date().toISOString() },
         status: 'pending',
       })
+      if (insertError) throw insertError
 
-      // Send notification email
-      sendEmail({
-        to: 'admin@vo-group.be',
+      // Send notification email to configured admin recipients
+      const notif = await notifyAdmins({
+        trigger: 'new_request',
         subject: `Offboarding Request: ${form.name || 'Unknown'}`,
         body: `<p><strong>${submitterName}</strong> submitted an offboarding request for <strong>${form.name}</strong> (${form.company}).</p>
           <p>Departure date: ${form.departure_on}</p>
           <p>Please review it in the admin panel.</p>`,
       })
+      if (!notif.success) {
+        console.warn('Admin notification failed:', notif.error)
+      }
 
       navigate('/')
       setTimeout(() => showToast('Offboarding request submitted successfully!'), 100)
@@ -457,7 +461,7 @@ export function OffboardingRequestPage() {
         <Badge variant="outline" className="mb-3 text-xs">
           Offboarding
         </Badge>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
+        <h1 className="text-3xl font-display font-bold tracking-tight text-foreground">
           Offboarding Request
         </h1>
         <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
