@@ -6,7 +6,7 @@ import {
   UserPlus, UserMinus, Monitor, BarChart3,
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
-  CalendarClock, PackageSearch, Activity, Wrench,
+  CalendarClock, PackageSearch, Activity, Wrench, Building2,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -91,6 +91,7 @@ export function AdminSidebar() {
       defaultOpen: false,
       links: [
         { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
+        { to: '/admin/business-units', label: 'Business Units', icon: Building2 },
         { to: '/admin/email-templates', label: 'Communications', icon: Mail },
         { to: '/admin/design', label: 'Design & Branding', icon: Palette },
         { to: '/admin/audit', label: 'Audit Log', icon: ShieldCheck },

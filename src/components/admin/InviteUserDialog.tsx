@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useCreateInvitation, useUpdateInvitation } from '@/hooks/use-invitations'
+import { useBusinessUnits } from '@/hooks/use-business-units'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml } from '@/lib/email-html'
@@ -14,11 +15,6 @@ import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-
-const BUSINESS_UNITS = [
-  'VO GROUP', 'THE LITTLE VOICE', 'VO EVENT', 'VO CONSULTING',
-  'VO PRODUCTION', 'VO STUDIOS', 'KRAFTHAUS',
-]
 
 const VARIABLES = [
   { key: 'first_name', label: 'First Name' },
@@ -46,6 +42,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
   const { data: settings } = useAppSettings()
   const createInvitation = useCreateInvitation()
   const updateInvitation = useUpdateInvitation()
+  const { data: businessUnits = [] } = useBusinessUnits()
   const showToast = useUIStore((s) => s.showToast)
   const bodyRef = useRef<any>(null)
 
@@ -344,8 +341,8 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                     onChange={(e) => setBusinessUnit(e.target.value)}
                   >
                     <option value="">— None —</option>
-                    {BUSINESS_UNITS.map((bu) => (
-                      <option key={bu} value={bu}>{bu}</option>
+                    {businessUnits.map((bu) => (
+                      <option key={bu.id} value={bu.value}>{bu.value}</option>
                     ))}
                   </Select>
                 </div>

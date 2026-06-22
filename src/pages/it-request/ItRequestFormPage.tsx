@@ -9,6 +9,7 @@ import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useItFormFields } from '@/hooks/use-it-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { BUSINESS_UNITS } from '@/lib/constants/business-units'
+import { useBusinessUnits } from '@/hooks/use-business-units'
 import { generateCorporateEmail } from '@/lib/utils/generate-email'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -70,6 +71,10 @@ function evaluateCondition(field, formValues) {
 // ── Render a single dynamic field ──
 function DynamicField({ field, value, onChange, form  }: any) {
   const options = Array.isArray(field.options) ? field.options : []
+  const { data: dbBusinessUnits } = useBusinessUnits()
+  const businessUnits = dbBusinessUnits && dbBusinessUnits.length > 0
+    ? dbBusinessUnits
+    : BUSINESS_UNITS
 
   switch (field.field_type) {
     case 'text':
@@ -93,12 +98,14 @@ function DynamicField({ field, value, onChange, form  }: any) {
       )
 
     case 'select':
-      // Special: business_unit uses BUSINESS_UNITS constant for domains
+      // Special: business_unit options come from the business_units DB table
+      // (admins manage the list from /admin/business-units) with a fallback to
+      // the constant for the first paint.
       if (field.field_key === 'business_unit') {
         return (
           <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
             <option value="">Select...</option>
-            {BUSINESS_UNITS.map((bu) => (
+            {businessUnits.map((bu) => (
               <option key={bu.value} value={bu.value}>{bu.value}</option>
             ))}
           </Select>
@@ -369,7 +376,14 @@ export function ItRequestFormPage() {
   const { user, profile } = useAuth()
   const createRequest = useCreateItRequest()
   const { data: formFields = [], isLoading: fieldsLoading } = useItFormFields()
+  const { data: dbBusinessUnits } = useBusinessUnits()
   const showToast = useUIStore((s) => s.showToast)
+
+  // Prefer the live DB list (admins can edit it from /admin/business-units);
+  // fall back to the constant for the first paint before the query resolves.
+  const businessUnits = dbBusinessUnits && dbBusinessUnits.length > 0
+    ? dbBusinessUnits
+    : BUSINESS_UNITS
 
   const [currentStep, setCurrentStep] = useState(0)
   const [form, setForm] = useState<any>({
@@ -394,9 +408,9 @@ export function ItRequestFormPage() {
 
   // Auto-generate corporate email when name or business unit changes
   useEffect(() => {
-    const email = generateCorporateEmail(form.first_name, form.last_name, form.business_unit)
+    const email = generateCorporateEmail(form.first_name, form.last_name, form.business_unit, businessUnits)
     setForm((prev) => (prev.generated_email !== email ? { ...prev, generated_email: email } : prev))
-  }, [form.first_name, form.last_name, form.business_unit])
+  }, [form.first_name, form.last_name, form.business_unit, businessUnits])
 
   // Active fields only, filtered by conditional logic
   const activeFields = useMemo(() => {

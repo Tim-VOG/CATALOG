@@ -1,4 +1,13 @@
-import { BUSINESS_UNITS } from '@/lib/constants/business-units'
+import { BUSINESS_UNITS, type BusinessUnit, type EmailPattern } from '@/lib/constants/business-units'
+
+// Shape accepted from the DB hook (snake_case email_pattern) so callers
+// can pass `useBusinessUnits().data` directly without reshaping.
+type DbBusinessUnit = { value: string; domain: string; email_pattern: EmailPattern }
+type AnyBusinessUnit = BusinessUnit | DbBusinessUnit
+
+function pattern(unit: AnyBusinessUnit): EmailPattern {
+  return 'emailPattern' in unit ? unit.emailPattern : unit.email_pattern
+}
 
 /**
  * Normalize a name for email generation:
@@ -31,8 +40,9 @@ export function generateCorporateEmail(
   firstName: string | null | undefined,
   lastName: string | null | undefined,
   businessUnit: string | null | undefined,
+  units: readonly AnyBusinessUnit[] = BUSINESS_UNITS,
 ): string {
-  const unit = BUSINESS_UNITS.find((u) => u.value === businessUnit)
+  const unit = units.find((u) => u.value === businessUnit)
   if (!unit) return ''
 
   const first = normalizeName(firstName)
@@ -40,7 +50,7 @@ export function generateCorporateEmail(
 
   if (!first || !last) return ''
 
-  switch (unit.emailPattern) {
+  switch (pattern(unit)) {
     case 'initial_last':
       return `${first[0]}${last}@${unit.domain}`
     case 'first':

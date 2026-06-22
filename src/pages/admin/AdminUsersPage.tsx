@@ -5,6 +5,7 @@ import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-ac
 import { useInvitations, useDeleteInvitation } from '@/hooks/use-invitations'
 import { useAuth } from '@/lib/auth'
 import { useScanLogs } from '@/hooks/use-qr-codes'
+import { useBusinessUnits } from '@/hooks/use-business-units'
 import {
   Search, Trash2,
   Package, UserPlus, ClipboardList, Mail, UserMinus,
@@ -31,11 +32,6 @@ const ROLE_OPTIONS = [
 ]
 
 const ROLE_FILTERS = ['all', 'admin', 'manager', 'user']
-
-const BUSINESS_UNITS = [
-  'VO GROUP', 'THE LITTLE VOICE', 'VO EVENT', 'VO CONSULTING',
-  'VO PRODUCTION', 'VO STUDIOS', 'KRAFTHAUS',
-]
 
 const MODULES = [
   { key: 'catalog', label: 'Catalog', icon: Package, color: 'text-primary', bg: 'bg-primary/10', alwaysOn: true },
@@ -110,6 +106,7 @@ export function AdminUsersPage() {
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
   const { data: invitations = [] } = useInvitations('pending')
   const { data: scanLogs = [] } = useScanLogs({ limit: 500 })
+  const { data: businessUnits = [] } = useBusinessUnits()
 
   // Count active loans per user (takes - deposits)
   const userLoanCounts = useMemo(() => {
@@ -361,8 +358,8 @@ export function AdminUsersPage() {
           className="w-44 h-8 text-xs"
         >
           <option value="all">All Business Units</option>
-          {BUSINESS_UNITS.map((bu) => (
-            <option key={bu} value={bu}>{bu}</option>
+          {businessUnits.map((bu) => (
+            <option key={bu.id} value={bu.value}>{bu.value}</option>
           ))}
         </Select>
       </div>
@@ -423,8 +420,8 @@ export function AdminUsersPage() {
                         className="w-40 h-8 text-xs"
                       >
                         <option value="">— None —</option>
-                        {BUSINESS_UNITS.map((bu) => (
-                          <option key={bu} value={bu}>{bu}</option>
+                        {businessUnits.map((bu) => (
+                          <option key={bu.id} value={bu.value}>{bu.value}</option>
                         ))}
                       </Select>
                     )}
