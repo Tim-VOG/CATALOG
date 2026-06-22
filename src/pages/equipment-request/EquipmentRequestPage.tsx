@@ -6,6 +6,7 @@ import { useProducts } from '@/hooks/use-products'
 import { useSubscriptionPlans } from '@/hooks/use-subscription-plans'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
+import { notifyRecipients } from '@/lib/api/notify-recipients'
 import { buildConfirmationEmail } from '@/services/request-status-service'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { motion, AnimatePresence } from 'motion/react'
@@ -751,6 +752,14 @@ export function EquipmentRequestPage() {
         subject: `Equipment Request: ${form.event_name}`,
         body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an equipment request for event <strong>${form.event_name}</strong>.`, await getEmailBranding()),
         isHtml: true,
+      })
+
+      notifyRecipients({
+        kind: 'equipment',
+        event: 'new_request',
+        submitter: submitterName,
+        subject: form.event_name || null,
+        detail: selectedPlan?.name ? `Plan: ${selectedPlan.name}` : null,
       })
 
       navigate('/')

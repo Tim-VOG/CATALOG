@@ -5,6 +5,7 @@ import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
+import { notifyRecipients } from '@/lib/api/notify-recipients'
 import { buildConfirmationEmail, buildConfirmationSubject } from '@/services/request-status-service'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useUIStore } from '@/stores/ui-store'
@@ -825,6 +826,16 @@ export function OnboardingRequestPage() {
             <li><strong>Welcome Interview:</strong> ${form.welcome_interview === true ? 'Yes' : form.welcome_interview === false ? 'No' : '—'}</li>
           </ul>`, { ...(await getEmailBranding()), raw: true }),
         isHtml: true,
+      })
+
+      notifyRecipients({
+        kind: 'onboarding',
+        event: 'new_request',
+        submitter: submitterName,
+        subject: fullName,
+        detail: [form.company, form.job_title, form.first_day && `starts ${form.first_day}`]
+          .filter(Boolean)
+          .join(' · ') || null,
       })
 
       navigate('/')

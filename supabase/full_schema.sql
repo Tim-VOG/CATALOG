@@ -1,12 +1,24 @@
 -- ================================================================
--- EQUIPLEND — Full concatenated schema
--- Generated: 2026-02-24
--- Files:
---   1. supabase/schema.sql
---   2. supabase/migrations/001_loan_requests.sql
---   3. supabase/migrations/002_profile_sso_fields.sql
---   4. supabase/migrations/003_notification_triggers.sql
---   5. supabase/migrations/004_fulltext_search.sql
+-- ⚠️  STALE — DO NOT USE TO PROVISION A NEW DATABASE
+--
+-- This file was a hand-maintained concatenation of migrations
+-- 001–004 (last touched 2026-02-24). The schema has since moved
+-- through migrations 005–111 — RLS, audit, soft deletes, QR system,
+-- equipment issues, business units, manager scoping, hot indexes,
+-- and more — none of which are reflected here.
+--
+-- The single source of truth is `supabase/migrations/*.sql`,
+-- applied in order. To rebuild a fresh database from scratch:
+--
+--     supabase db reset                         # local
+--     # or, for staging/prod baselining:
+--     pg_dump --schema-only "$DATABASE_URL" > supabase/full_schema.sql
+--
+-- This stub stays in the repo so old links don't 404 and so the
+-- legacy 001–004 content remains searchable for archaeology.
+--
+-- See `supabase/migrations/README.md` for the full migration
+-- strategy.
 -- ================================================================
 
 
