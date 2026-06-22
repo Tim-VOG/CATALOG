@@ -769,6 +769,7 @@ export function OnboardingRequestPage() {
         requester_id: user.id,
         requester_email: user.email,
         requester_name: submitterName,
+        onboarded_by_manager_id: profile?.role === 'manager' ? user.id : null,
         data: { ...form, name: fullName, email_to_create: fullEmail, submitted_at: new Date().toISOString() },
         status: 'pending',
       })

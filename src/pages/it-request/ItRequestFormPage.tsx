@@ -467,6 +467,7 @@ export function ItRequestFormPage() {
       payload.listing_date = payload.listing_date || null
       payload.requested_by = user?.id
       payload.requested_by_name = profile ? `${profile.first_name} ${profile.last_name}` : ''
+      payload.onboarded_by_manager_id = profile?.role === 'manager' ? user?.id : null
 
       await createRequest.mutateAsync(payload)
 

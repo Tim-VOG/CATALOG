@@ -9,7 +9,7 @@ import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import {
-  UserPlus, UserMinus, Mail, ChevronRight, CalendarRange, Send,
+  UserPlus, UserMinus, Mail, ChevronRight, CalendarRange, Send, Building2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -62,6 +62,8 @@ export function ManagerDashboardPage() {
 
   const firstName = profile?.first_name || 'there'
   const totalPending = stats.pendingOnboarding + stats.pendingOffboarding + stats.pendingMailbox
+  const businessUnit = profile?.business_unit
+  const isManager = profile?.role === 'manager'
 
   return (
     <div className="pb-12">
@@ -71,6 +73,18 @@ export function ManagerDashboardPage() {
         <p className="text-sm text-muted-foreground mt-2">
           {totalPending === 0 ? 'Nothing pending — people ops is up to date.' : `${totalPending} request${totalPending > 1 ? 's' : ''} waiting on you.`}
         </p>
+        {isManager && businessUnit && (
+          <div className="inline-flex items-center gap-2 mt-4 rounded-full border border-border/50 bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
+            <Building2 className="h-3 w-3" />
+            <span>Showing requests for <span className="font-medium text-foreground">{businessUnit}</span></span>
+          </div>
+        )}
+        {isManager && !businessUnit && (
+          <div className="inline-flex items-center gap-2 mt-4 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs text-amber-600">
+            <Building2 className="h-3 w-3" />
+            <span>No business unit set on your profile — ask an admin to assign one to see requests.</span>
+          </div>
+        )}
       </motion.div>
 
       <motion.div {...fadeUp(0.05)} className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
@@ -88,6 +102,7 @@ export function ManagerDashboardPage() {
               name: [r.data?.first_name, r.data?.last_name].filter(Boolean).join(' ') || 'New hire',
               date: r.data?.first_day || r.data?.start_date,
               sub: r.data?.company || r.data?.business_unit || '',
+              submitter: r.requester_name || r.requester_email || '',
               to: '/admin/onboarding/requests',
             }))} />
         </motion.div>
@@ -98,6 +113,7 @@ export function ManagerDashboardPage() {
               name: [r.data?.first_name, r.data?.last_name].filter(Boolean).join(' ') || 'Employee',
               date: r.data?.leaving_date,
               sub: r.data?.business_unit || '',
+              submitter: r.requester_name || r.requester_email || '',
               to: '/admin/offboarding-requests',
             }))} />
         </motion.div>
@@ -145,7 +161,11 @@ function WeekList({ title, icon: Icon, color, items, emptyText }: any) {
             <Link key={it.id} to={it.to} className="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-0 hover:bg-muted/20 -mx-2 px-2 rounded-lg">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{it.name}</p>
-                {it.sub && <p className="text-xs text-muted-foreground truncate">{it.sub}</p>}
+                <p className="text-xs text-muted-foreground truncate">
+                  {it.sub && <span>{it.sub}</span>}
+                  {it.sub && it.submitter && <span className="mx-1.5">·</span>}
+                  {it.submitter && <span>by {it.submitter}</span>}
+                </p>
               </div>
               {it.date && <p className="text-xs text-muted-foreground shrink-0">{format(new Date(it.date), 'EEE d MMM', { locale: fr })}</p>}
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />

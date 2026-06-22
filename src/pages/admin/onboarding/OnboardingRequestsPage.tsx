@@ -3,6 +3,7 @@ import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/u
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
+import { useAuth } from '@/lib/auth'
 import {
   Search, UserPlus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye,
 } from 'lucide-react'
@@ -101,6 +102,10 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
 
 // ── Inline detail view ──
 function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: any) {
+  const { user, isAdmin } = useAuth()
+  const isOwnRequest = !!user && (req.requester_id === user.id || req.requested_by === user.id)
+  const canDelete = isAdmin || isOwnRequest
+  const canChangeStatus = isAdmin
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const showToast = useUIStore((s) => s.showToast)
@@ -132,14 +137,16 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
           <h2 className="text-lg font-display font-bold">{fullName}</h2>
           <p className="text-xs text-muted-foreground">Onboarding Request Details</p>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
-          <Trash2 className="h-3.5 w-3.5" /> Delete
-        </Button>
+        {canDelete && (
+          <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
+            <Trash2 className="h-3.5 w-3.5" /> {isAdmin ? 'Delete' : 'Cancel'}
+          </Button>
+        )}
       </div>
 
       <OnboardingRequestInfoCard req={req} sentEmail={sentEmail} />
 
-      {(req.status === 'in_progress' || req.status === 'ready') && (
+      {canChangeStatus && (req.status === 'in_progress' || req.status === 'ready') && (
         <Card variant="elevated">
           <CardContent className="p-4 flex items-center gap-3">
             <Package className="h-4 w-4 text-primary shrink-0" />
@@ -158,17 +165,21 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-amber-500 shrink-0" />
             <span className="text-sm text-muted-foreground flex-1">This request is pending review.</span>
-            <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
-              <Clock className="h-3.5 w-3.5" /> Start Processing
-            </Button>
-            <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
-              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
-            </Button>
+            {canChangeStatus && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
+                  <Clock className="h-3.5 w-3.5" /> Start Processing
+                </Button>
+                <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
+                  <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
 
-      {req.status === 'in_progress' && (
+      {canChangeStatus && req.status === 'in_progress' && (
         <Card variant="elevated">
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-blue-500 shrink-0" />

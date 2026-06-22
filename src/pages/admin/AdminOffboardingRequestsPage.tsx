@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
+import { useAuth } from '@/lib/auth'
 import {
   Search, UserMinus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye, Shield, ClipboardCheck,
 } from 'lucide-react'
@@ -231,6 +232,10 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
 
 // ── Inline detail view ──
 function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch, onToggleRevoked  }: any) {
+  const { user, isAdmin } = useAuth()
+  const isOwnRequest = !!user && (req.requester_id === user.id || req.requested_by === user.id)
+  const canDelete = isAdmin || isOwnRequest
+  const canChangeStatus = isAdmin
   const data = req.data || {}
   const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
 
@@ -244,9 +249,11 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch,
           <h2 className="text-lg font-display font-bold">{fullName}</h2>
           <p className="text-xs text-muted-foreground">Offboarding Request Details</p>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
-          <Trash2 className="h-3.5 w-3.5" /> Delete
-        </Button>
+        {canDelete && (
+          <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
+            <Trash2 className="h-3.5 w-3.5" /> {isAdmin ? 'Delete' : 'Cancel'}
+          </Button>
+        )}
       </div>
 
       <OffboardingRequestInfoCard req={req} />
@@ -258,12 +265,16 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch,
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-amber-500 shrink-0" />
             <span className="text-sm text-muted-foreground flex-1">This request is pending review.</span>
-            <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
-              <Clock className="h-3.5 w-3.5" /> Start Processing
-            </Button>
-            <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
-              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
-            </Button>
+            {canChangeStatus && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
+                  <Clock className="h-3.5 w-3.5" /> Start Processing
+                </Button>
+                <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
+                  <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}

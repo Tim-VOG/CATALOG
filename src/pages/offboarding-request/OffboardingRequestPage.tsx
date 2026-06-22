@@ -594,6 +594,7 @@ export function OffboardingRequestPage() {
         requester_id: user.id,
         requester_email: user.email,
         requester_name: submitterName,
+        onboarded_by_manager_id: profile?.role === 'manager' ? user.id : null,
         data: { ...form, submitted_at: new Date().toISOString() },
         status: 'pending',
       })
