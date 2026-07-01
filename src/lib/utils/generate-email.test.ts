@@ -24,6 +24,25 @@ describe('generateCorporateEmail', () => {
     })
   })
 
+  describe('ACT-EVENTS (added later, initial_last pattern)', () => {
+    it('builds first-initial + last-name @ act-events.com', () => {
+      expect(generateCorporateEmail('John', 'Doe', 'ACT-EVENTS')).toBe('jdoe@act-events.com')
+      expect(generateCorporateEmail('Sophie', 'Martin', 'ACT-EVENTS')).toBe('smartin@act-events.com')
+    })
+  })
+
+  describe('custom units list (e.g. the live DB list)', () => {
+    it('resolves the pattern from the passed-in units, supporting snake_case email_pattern', () => {
+      const dbUnits = [{ value: 'NEW BU', domain: 'newbu.example', email_pattern: 'first' as const }]
+      expect(generateCorporateEmail('John', 'Doe', 'NEW BU', dbUnits)).toBe('john@newbu.example')
+    })
+
+    it('returns empty string when the BU is not in the supplied list', () => {
+      const dbUnits = [{ value: 'NEW BU', domain: 'newbu.example', email_pattern: 'first' as const }]
+      expect(generateCorporateEmail('John', 'Doe', 'VO GROUP', dbUnits)).toBe('')
+    })
+  })
+
   describe('name normalization', () => {
     it('strips diacritics so accented names produce valid addresses', () => {
       expect(generateCorporateEmail('Hélène', 'Müller', 'VO GROUP')).toBe('hmuller@vo-group.be')
