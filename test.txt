@@ -1,0 +1,6 @@
+Test de connexion GitHub - Phase B
+
+Si tu lis ce fichier dans ton dossier CATALOG-CLEAN,
+c'est que la connexion Claude -> GitHub -> ta machine marche parfaitement.
+
+Signe : Claude
