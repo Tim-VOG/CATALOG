@@ -10,7 +10,7 @@ import {
 } from 'date-fns'
 
 // ── Safely parse a date string ──
-export function safeParse(dateStr) {
+export function safeParse(dateStr: any) {
   if (!dateStr) return null
   try {
     const d = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr)
@@ -21,7 +21,7 @@ export function safeParse(dateStr) {
 }
 
 // ── Normalize requests into unified calendar events ──
-function normalizeEvents(loanRequests, itRequests, mailboxRequests) {
+function normalizeEvents(loanRequests: any, itRequests: any, mailboxRequests: any) {
   const events = []
 
   // Catalog / Loan requests
@@ -83,7 +83,7 @@ function normalizeEvents(loanRequests, itRequests, mailboxRequests) {
 }
 
 // ── Compute the visible date range for a view mode ──
-export function getViewRange(currentDate, viewMode) {
+export function getViewRange(currentDate: any, viewMode: any) {
   switch (viewMode) {
     case 'day':
       return { start: currentDate, end: currentDate }
@@ -104,7 +104,7 @@ export function getViewRange(currentDate, viewMode) {
 }
 
 // ── Expand events into a date map for a given range ──
-export function expandEventsToDateMap(events, rangeStartOrDate, filtersOrEnd, maybeFilters) {
+export function expandEventsToDateMap(events: any, rangeStartOrDate: any, filtersOrEnd: any, maybeFilters: any) {
   // Support both signatures:
   //   (events, rangeStart, rangeEnd, filters) — new
   //   (events, monthDate, filters)            — legacy

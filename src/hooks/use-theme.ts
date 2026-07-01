@@ -13,14 +13,14 @@ const themeOverrideStore = {
   get: () => {
     try { return localStorage.getItem(THEME_OVERRIDE_KEY) } catch { return null }
   },
-  set: (value) => {
+  set: (value: any) => {
     try {
       if (value) localStorage.setItem(THEME_OVERRIDE_KEY, value)
       else localStorage.removeItem(THEME_OVERRIDE_KEY)
     } catch { /* noop */ }
     window.dispatchEvent(new Event('theme-override-change'))
   },
-  subscribe: (cb) => {
+  subscribe: (cb: any) => {
     window.addEventListener('theme-override-change', cb)
     window.addEventListener('storage', cb)
     return () => {
@@ -116,11 +116,11 @@ const LIGHT_DEFAULTS = {
   border: '#e2e8f0',
 }
 
-function applyModeColors(root, settings, mode) {
+function applyModeColors(root: any, settings: any, mode: any) {
   const prefix = mode === 'dark' ? 'dark_' : 'light_'
   const defaults = mode === 'dark' ? DARK_DEFAULTS : LIGHT_DEFAULTS
 
-  const get = (key) => settings?.[prefix + key] || defaults[key]
+  const get = (key: string) => settings?.[prefix + key] || defaults[key as keyof typeof defaults]
 
   const bg = get('background')
   const fg = get('foreground')

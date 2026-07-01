@@ -1,7 +1,7 @@
 import { useEffect, useRef, createContext, useContext, useCallback } from 'react'
 import Lenis from 'lenis'
 
-const SmoothScrollContext = createContext(null)
+const SmoothScrollContext = createContext<any>(null)
 
 /**
  * SmoothScrollProvider — wraps the app with Lenis smooth scroll.
@@ -13,7 +13,7 @@ export function SmoothScrollProvider({ children  }: any) {
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
@@ -22,7 +22,7 @@ export function SmoothScrollProvider({ children  }: any) {
 
     lenisRef.current = lenis
 
-    function raf(time) {
+    function raf(time: number) {
       lenis.raf(time)
       requestAnimationFrame(raf)
     }
@@ -56,7 +56,7 @@ export function useSmoothScroll() {
 export function useScrollTo() {
   const lenisRef = useContext(SmoothScrollContext)
 
-  return useCallback((target, options = {}) => {
+  return useCallback((target: any, options: any = {}) => {
     const lenis = lenisRef?.current
     if (!lenis) {
       // Fallback if Lenis not available
@@ -70,7 +70,7 @@ export function useScrollTo() {
 
     lenis.scrollTo(target, {
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       offset: 0,
       ...options,
     })

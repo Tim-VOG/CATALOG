@@ -1,7 +1,7 @@
-export function exportToCSV(data, filename) {
+export function exportToCSV(data: any[], filename: string) {
   if (!data.length) return
   const headers = Object.keys(data[0])
-  const rows = data.map((row) =>
+  const rows = data.map((row: any) =>
     headers.map((h) => {
       let val = row[h]
       if (val === null || val === undefined) return ''

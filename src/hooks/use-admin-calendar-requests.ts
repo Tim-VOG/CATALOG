@@ -5,7 +5,7 @@ import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { safeParse } from '@/hooks/use-calendar-requests'
 
 // ── Normalize ALL requests (admin-level, all users) into calendar events ──
-function normalizeAdminEvents(loanRequests, itRequests, mailboxRequests) {
+function normalizeAdminEvents(loanRequests: any, itRequests: any, mailboxRequests: any) {
   const events = []
 
   // Catalog / Loan requests
@@ -86,7 +86,7 @@ function normalizeAdminEvents(loanRequests, itRequests, mailboxRequests) {
 }
 
 // ── Extract unique users from events ──
-function extractUsers(events) {
+function extractUsers(events: any) {
   const map = new Map()
   for (const ev of events) {
     if (ev.userId && !map.has(ev.userId)) {

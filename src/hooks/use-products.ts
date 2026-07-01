@@ -58,7 +58,7 @@ export const useProductReservations = (productId: any) =>
  * Returns { [product_id]: reservedQty } or empty object.
  * Only fires when both dates are set.
  */
-export const useReservationsInRange = (pickupDate, returnDate) =>
+export const useReservationsInRange = (pickupDate: any, returnDate: any) =>
   useQuery({
     queryKey: ['reservations-in-range', pickupDate, returnDate],
     queryFn: () => api.getReservationsInRange(pickupDate, returnDate),

@@ -11,7 +11,7 @@
 
 const DSN = import.meta.env.VITE_SENTRY_DSN
 
-let sentryPromise = null
+let sentryPromise: any = null
 let initialized = false
 
 async function loadSentry() {
