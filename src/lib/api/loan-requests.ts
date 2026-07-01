@@ -58,7 +58,7 @@ export const createLoanRequest = async ({ request, items }: any) => {
   if (reqError) throw reqError
 
   // Create the items
-  const itemRows = items.map((item) => ({
+  const itemRows = items.map((item: any) => ({
     request_id: req.id,
     product_id: item.product.id,
     quantity: item.quantity,
@@ -127,7 +127,7 @@ export const deleteLoanRequests = async (ids: any) => {
   if (error) throw error
 }
 
-export const processReturn = async (requestId, { itemReturns, admin_notes }) => {
+export const processReturn = async (requestId: any, { itemReturns, admin_notes }: any) => {
   for (const item of itemReturns) {
     const { error } = await supabase
       .from('loan_request_items')

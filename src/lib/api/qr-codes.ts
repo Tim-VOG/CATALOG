@@ -354,7 +354,7 @@ export const getScanStatsByCategory = async () => {
   if (error) throw error
 
   // Aggregate: { categoryName: { takes: N, deposits: N } }
-  const stats = {}
+  const stats: Record<string, { takes: number; deposits: number }> = {}
   for (const row of data || []) {
     const cat = row.category_name || 'Unknown'
     if (!stats[cat]) stats[cat] = { takes: 0, deposits: 0 }

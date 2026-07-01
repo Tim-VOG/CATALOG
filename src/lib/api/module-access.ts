@@ -18,7 +18,7 @@ export const getAllModuleAccess = async () => {
   return data
 }
 
-export const upsertModuleAccess = async (userId, moduleKey, granted) => {
+export const upsertModuleAccess = async (userId: any, moduleKey: any, granted: any) => {
   const { data, error } = await supabase
     .from('module_access')
     .upsert(

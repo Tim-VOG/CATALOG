@@ -45,7 +45,7 @@ export const deleteItFormField = async (id: any) => {
 // ── Reorder fields: accepts array of { id, sort_order } ──
 export const reorderItFormFields = async (orderedItems: any) => {
   // Use Promise.all for batch update
-  const updates = orderedItems.map(({ id, sort_order }) =>
+  const updates = orderedItems.map(({ id, sort_order }: any) =>
     supabase
       .from('it_form_fields')
       .update({ sort_order })

@@ -19,7 +19,7 @@ export async function createItInventoryItem(payload = {}) {
   return data
 }
 
-export async function updateItInventoryItem(id, updates) {
+export async function updateItInventoryItem(id: any, updates: any) {
   const { data, error } = await supabase
     .from('it_inventory_items')
     .update(updates)
@@ -30,7 +30,7 @@ export async function updateItInventoryItem(id, updates) {
   return data
 }
 
-export async function deleteItInventoryItem(id) {
+export async function deleteItInventoryItem(id: any) {
   const { error } = await supabase
     .from('it_inventory_items')
     .delete()

@@ -105,7 +105,7 @@ export const deleteOnboardingEmail = async (id: any) => {
 
 export const saveBlockTemplateDefaults = async (blocksConfig: any) => {
   // Batch-update each block template with current content, options, enabled state, and sort order
-  const updates = blocksConfig.map((block, index) => ({
+  const updates = blocksConfig.map((block: any, index: number) => ({
     block_key: block.block_key,
     default_content_fr: block.content_fr,
     default_content_en: block.content_en,

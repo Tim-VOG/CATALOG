@@ -17,14 +17,14 @@ export const updateAppSettings = async (updates: any) => {
   const { data, error } = await supabase
     .from('app_settings')
     .update(updates)
-    .eq('id', current.id)
+    .eq('id', current?.id)
     .select()
     .single()
   if (error) throw error
   return data
 }
 
-export const uploadLogo = async (file, variant = '') => {
+export const uploadLogo = async (file: File, variant = '') => {
   const ext = file.name.split('.').pop()
   const prefix = variant ? `logo-${variant}` : 'logo'
   const path = `${prefix}-${Date.now()}.${ext}`

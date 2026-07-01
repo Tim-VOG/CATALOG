@@ -44,7 +44,7 @@ export const deleteMailboxFormField = async (id: any) => {
 
 // ── Reorder fields: accepts array of { id, sort_order } ──
 export const reorderMailboxFormFields = async (orderedItems: any) => {
-  const updates = orderedItems.map(({ id, sort_order }) =>
+  const updates = orderedItems.map(({ id, sort_order }: any) =>
     supabase
       .from('mailbox_form_fields')
       .update({ sort_order })

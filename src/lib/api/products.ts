@@ -120,7 +120,7 @@ export const getReservationsInRange = async (pickupDate: any, returnDate: any) =
   if (error) throw error
 
   // Aggregate reserved qty per product
-  const map = {}
+  const map: Record<string, number> = {}
   for (const item of data || []) {
     map[item.product_id] = (map[item.product_id] || 0) + item.quantity
   }

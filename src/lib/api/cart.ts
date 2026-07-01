@@ -10,7 +10,7 @@ export const getCartItems = async (userId: any) => {
   return data
 }
 
-export const addToCart = async ({ userId, productId, quantity = 1, options = {} }) => {
+export const addToCart = async ({ userId, productId, quantity = 1, options = {} }: any) => {
   // Upsert: if product already in cart, increment quantity
   const { data: existing } = await supabase
     .from('cart_items')
@@ -78,7 +78,7 @@ export const checkoutCart = async ({
   returnDate,
   locationId,
   priority,
-}) => {
+}: any) => {
   const { data, error } = await supabase.rpc('checkout_cart', {
     p_user_id: userId,
     p_project_name: projectName || 'Equipment Request',
