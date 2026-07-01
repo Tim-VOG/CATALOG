@@ -11,7 +11,7 @@
  * - Block content → each block's content_fr / content_en
  */
 
-function escapeHtml(str) {
+function escapeHtml(str: unknown): string {
   return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -19,30 +19,30 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
 }
 
-function substituteVars(text, vars) {
-  return text.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
+function substituteVars(text: string, vars: Record<string, string>): string {
+  return text.replace(/\{\{(\w+)\}\}/g, (_, key: string) => vars[key] || `[${key}]`)
 }
 
 // Convert plain text to HTML paragraphs with bullet list support
-function textToHtml(text) {
+function textToHtml(text: string): string {
   return text
     .split(/\n\n+/)
-    .map((para) => {
+    .map((para: string) => {
       const trimmed = para.trim()
       if (!trimmed) return ''
       // Check if this paragraph is a bullet list
       const lines = trimmed.split('\n')
-      const allBullets = lines.every((l) => l.trim().startsWith('- ') || l.trim().startsWith('• '))
+      const allBullets = lines.every((l: string) => l.trim().startsWith('- ') || l.trim().startsWith('• '))
       if (allBullets && lines.length > 1) {
         const items = lines
-          .map((l) => l.trim().replace(/^[-•]\s*/, ''))
-          .map((item) => `<li style="margin:0 0 6px 0;padding-left:4px;">${item}</li>`)
+          .map((l: string) => l.trim().replace(/^[-•]\s*/, ''))
+          .map((item: string) => `<li style="margin:0 0 6px 0;padding-left:4px;">${item}</li>`)
           .join('')
         return `<ul style="margin:0 0 14px 0;padding-left:18px;list-style:none;">${items}</ul>`
       }
       // Check if paragraph starts with Q: / R: or Q: / A: (FAQ format)
       if (trimmed.match(/^[QR]:\s/m) || trimmed.match(/^[QA]:\s/m)) {
-        const faqLines = trimmed.split('\n').map((line) => {
+        const faqLines = trimmed.split('\n').map((line: string) => {
           if (line.match(/^Q:\s/)) {
             return `<p style="margin:0 0 4px 0;color:#0a2540;font-weight:600;">&#x2753; ${line.slice(3)}</p>`
           }
@@ -61,7 +61,13 @@ function textToHtml(text) {
 }
 
 // Block visual config: emoji icon + accent color + default labels
-const BLOCK_THEME = {
+interface BlockTheme {
+  emoji?: string
+  color?: string
+  label_fr: string
+  label_en: string
+}
+const BLOCK_THEME: Record<string, BlockTheme> = {
   salutation:      { emoji: '&#x1F44B;', color: '#22c55e', label_fr: 'Bienvenue',          label_en: 'Welcome' },
   email_info:      { emoji: '&#x1F4E7;', color: '#3b82f6', label_fr: 'Ton adresse e-mail', label_en: 'Your email' },
   password:        { emoji: '&#x1F510;', color: '#0a0a0a', label_fr: 'Ton mot de passe',   label_en: 'Your password' },
@@ -82,7 +88,7 @@ const BLOCK_THEME = {
 /**
  * Resolve the section label for a block — allows per-block override from block options
  */
-function getSectionLabel(block, language) {
+function getSectionLabel(block: any, language: string): string {
   const opts = block.options || {}
   const theme = BLOCK_THEME[block.block_key] || { label_fr: 'Bloc', label_en: 'Block' }
 
@@ -94,7 +100,7 @@ function getSectionLabel(block, language) {
   return language === 'fr' ? theme.label_fr : theme.label_en
 }
 
-function buildBlockMjml(block, language, vars, index, totalEnabled) {
+function buildBlockMjml(block: any, language: string, vars: Record<string, any>, index: number, totalEnabled: number): string {
   const content = language === 'fr' ? block.content_fr : block.content_en
   // wifi & signature_admin render from options / sender, no text content needed
   const allowEmpty = block.block_key === 'wifi' || block.block_key === 'signature_admin'
@@ -322,14 +328,14 @@ function buildBlockMjml(block, language, vars, index, totalEnabled) {
     // Transform bullet points into styled list items
     const htmlContent = rendered
       .split(/\n\n+/)
-      .map((para) => {
+      .map((para: string) => {
         const trimmed = para.trim()
         const lines = trimmed.split('\n')
-        const allBullets = lines.every((l) => l.trim().startsWith('- ') || l.trim().startsWith('• '))
+        const allBullets = lines.every((l: string) => l.trim().startsWith('- ') || l.trim().startsWith('• '))
         if (allBullets) {
           const items = lines
-            .map((l) => l.trim().replace(/^[-•]\s*/, ''))
-            .map((item) => `
+            .map((l: string) => l.trim().replace(/^[-•]\s*/, ''))
+            .map((item: string) => `
               <tr>
                 <td style="padding:6px 0;vertical-align:top;width:24px;">
                   <span style="color:#a16207;font-size:14px;">&#x26A0;</span>
@@ -437,13 +443,13 @@ export function buildMjmlFromBlocks(blocksConfig: any, language: any, recipient:
     _sender: sender || {},
   }
 
-  const enabledBlocks = blocksConfig.filter((b) => b.enabled)
+  const enabledBlocks = blocksConfig.filter((b: any) => b.enabled)
   const blocksSections = enabledBlocks
-    .map((b, i) => buildBlockMjml(b, language, vars, i, enabledBlocks.length))
+    .map((b: any, i: number) => buildBlockMjml(b, language, vars, i, enabledBlocks.length))
     .filter(Boolean)
 
   // Extract custom branding from salutation block options
-  const salutationBlock = blocksConfig.find((b) => b.block_key === 'salutation')
+  const salutationBlock = blocksConfig.find((b: any) => b.block_key === 'salutation')
   const salutationOpts = salutationBlock?.options || {}
 
   // Customizable welcome title with variable substitution
