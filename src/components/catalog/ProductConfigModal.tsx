@@ -64,7 +64,7 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
               <Label className="font-semibold">Apps to Pre-install</Label>
               <Textarea
                 value={options.apps}
-                onChange={(e) => setOptions({ ...options, apps: e.target.value })}
+                onChange={(e: any) => setOptions({ ...options, apps: e.target.value })}
                 placeholder="List apps..."
                 rows={2}
               />

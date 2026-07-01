@@ -151,7 +151,7 @@ export function OffboardingPage() {
             placeholder="Search by name, email, or business unit..."
             className="pl-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: any) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex gap-1">

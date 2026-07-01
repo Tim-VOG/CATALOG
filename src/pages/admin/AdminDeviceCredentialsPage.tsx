@@ -28,9 +28,9 @@ function EditableCell({ value, type = 'text', onChange, placeholder, masked = fa
     <input
       type={masked ? 'password' : type}
       value={local ?? ''}
-      onChange={(e) => setLocal(e.target.value)}
+      onChange={(e: any) => setLocal(e.target.value)}
       onBlur={commit}
-      onKeyDown={(e) => {
+      onKeyDown={(e: any) => {
         if (e.key === 'Enter') (e.target as any).blur()
         if (e.key === 'Escape') { setLocal(initial.current); (e.target as any).blur() }
       }}
@@ -192,12 +192,12 @@ export function AdminDeviceCredentialsPage() {
             placeholder="Search code, product, IMEI, serial, phone…"
             className="pl-9 h-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: any) => setSearch(e.target.value)}
           />
         </div>
         <select
           value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
+          onChange={(e: any) => setCategoryFilter(e.target.value)}
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
           <option value="all">All categories</option>

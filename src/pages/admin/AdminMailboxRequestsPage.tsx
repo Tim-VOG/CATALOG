@@ -334,7 +334,7 @@ function EditableCCEmails({ req, onSave  }: any) {
               <input
                 type="email"
                 value={inputValue}
-                onChange={(e) => { setInputValue(e.target.value); setError('') }}
+                onChange={(e: any) => { setInputValue(e.target.value); setError('') }}
                 onKeyDown={handleKeyDown}
                 onBlur={() => { if (inputValue.trim()) addTag(inputValue) }}
                 placeholder={tags.length === 0 ? 'name@company.com' : 'Add another...'}
@@ -466,7 +466,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">To</Label>
             <Input
               value={emailForm.to}
-              onChange={(e) => handleChange('to', e.target.value)}
+              onChange={(e: any) => handleChange('to', e.target.value)}
               placeholder="recipient@example.com"
               className="bg-muted/30"
             />
@@ -482,7 +482,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             </Label>
             <Input
               value={emailForm.cc}
-              onChange={(e) => handleChange('cc', e.target.value)}
+              onChange={(e: any) => handleChange('cc', e.target.value)}
               placeholder="cc1@example.com, cc2@example.com"
               className="bg-muted/30"
             />
@@ -493,7 +493,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subject</Label>
             <Input
               value={emailForm.subject}
-              onChange={(e) => handleChange('subject', e.target.value)}
+              onChange={(e: any) => handleChange('subject', e.target.value)}
               className="bg-muted/30"
             />
           </div>
@@ -506,7 +506,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             </Label>
             <Input
               value={emailForm.onepassword_link}
-              onChange={(e) => handleChange('onepassword_link', e.target.value)}
+              onChange={(e: any) => handleChange('onepassword_link', e.target.value)}
               placeholder="https://start.1password.com/..."
               className="bg-muted/30"
             />
@@ -558,7 +558,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             {/* Body textarea */}
             <Textarea
               value={emailForm.body}
-              onChange={(e) => handleChange('body', e.target.value)}
+              onChange={(e: any) => handleChange('body', e.target.value)}
               rows={14}
               className="font-mono text-xs leading-relaxed bg-muted/30 resize-y"
             />
@@ -996,7 +996,7 @@ export function AdminMailboxRequestsPage() {
           placeholder="Search by project, email, company..."
           className="pl-9"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e: any) => setSearch(e.target.value)}
         />
       </div>
 
@@ -1071,7 +1071,7 @@ export function AdminMailboxRequestsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); setSelectedId(req.id); setShowEmail(false) }}
+                        onClick={(e: any) => { e.stopPropagation(); setSelectedId(req.id); setShowEmail(false) }}
                         className="gap-1.5 text-xs"
                       >
                         <Eye className="h-3.5 w-3.5" />
@@ -1080,7 +1080,7 @@ export function AdminMailboxRequestsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm(req) }}
+                        onClick={(e: any) => { e.stopPropagation(); setDeleteConfirm(req) }}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-3.5 w-3.5" />

@@ -48,7 +48,7 @@ export function ProfileAutocomplete({ value, onChange, onSelect, placeholder  }:
       <Input
         type="text"
         value={value}
-        onChange={(e) => { onChange(e.target.value); setOpen(true) }}
+        onChange={(e: any) => { onChange(e.target.value); setOpen(true) }}
         onFocus={() => setOpen(true)}
         placeholder={placeholder}
       />

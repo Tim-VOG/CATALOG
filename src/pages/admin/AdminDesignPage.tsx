@@ -76,7 +76,7 @@ function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
       <input
         type="color"
         value={value || defaultValue}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
         className="h-9 w-11 rounded border border-border cursor-pointer bg-transparent shrink-0"
       />
       <div className="flex-1 min-w-0">
@@ -90,7 +90,7 @@ function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
       </div>
       <Input
         value={value || defaultValue}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
         className="w-24 font-mono text-xs"
         maxLength={7}
       />
@@ -832,8 +832,8 @@ export function AdminDesignPage() {
                     'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
                     dragOverDark ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
                   )}
-                  onDrop={(e) => handleDrop(e, 'dark')}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverDark(true) }}
+                  onDrop={(e: any) => handleDrop(e, 'dark')}
+                  onDragOver={(e: any) => { e.preventDefault(); setDragOverDark(true) }}
                   onDragLeave={() => setDragOverDark(false)}
                   onClick={() => darkFileInputRef.current?.click()}
                 >
@@ -848,7 +848,7 @@ export function AdminDesignPage() {
                 type="file"
                 className="hidden"
                 accept="image/png,image/svg+xml,image/jpeg,image/webp"
-                onChange={(e) => handleLogoUpload(e.target.files[0], 'dark')}
+                onChange={(e: any) => handleLogoUpload(e.target.files[0], 'dark')}
               />
             </div>
 
@@ -878,8 +878,8 @@ export function AdminDesignPage() {
                     'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
                     dragOverLight ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
                   )}
-                  onDrop={(e) => handleDrop(e, 'light')}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverLight(true) }}
+                  onDrop={(e: any) => handleDrop(e, 'light')}
+                  onDragOver={(e: any) => { e.preventDefault(); setDragOverLight(true) }}
                   onDragLeave={() => setDragOverLight(false)}
                   onClick={() => lightFileInputRef.current?.click()}
                 >
@@ -894,7 +894,7 @@ export function AdminDesignPage() {
                 type="file"
                 className="hidden"
                 accept="image/png,image/svg+xml,image/jpeg,image/webp"
-                onChange={(e) => handleLogoUpload(e.target.files[0], 'light')}
+                onChange={(e: any) => handleLogoUpload(e.target.files[0], 'light')}
               />
             </div>
           </div>
@@ -916,7 +916,7 @@ export function AdminDesignPage() {
               <Label>Application Name</Label>
               <Input
                 value={appName}
-                onChange={(e) => setAppName(e.target.value)}
+                onChange={(e: any) => setAppName(e.target.value)}
                 placeholder="VO Hub"
               />
               <p className="text-xs text-muted-foreground">Displayed in the header and browser title</p>
@@ -925,7 +925,7 @@ export function AdminDesignPage() {
               <Label>Header Tagline</Label>
               <Input
                 value={headerTagline}
-                onChange={(e) => setHeaderTagline(e.target.value)}
+                onChange={(e: any) => setHeaderTagline(e.target.value)}
                 placeholder="Book. Borrow. Return."
               />
               <p className="text-xs text-muted-foreground">Shown below the app name in the header</p>
@@ -946,7 +946,7 @@ export function AdminDesignPage() {
                 <Label>Email Tagline</Label>
                 <Input
                   value={emailTagline}
-                  onChange={(e) => setEmailTagline(e.target.value)}
+                  onChange={(e: any) => setEmailTagline(e.target.value)}
                   placeholder="Equipment Lending Platform"
                 />
                 <p className="text-xs text-muted-foreground">Shown below the app name in the email header</p>
@@ -956,7 +956,7 @@ export function AdminDesignPage() {
                 <Input
                   type="number"
                   value={emailLogoHeight}
-                  onChange={(e) => setEmailLogoHeight(e.target.value)}
+                  onChange={(e: any) => setEmailLogoHeight(e.target.value)}
                   placeholder="17"
                   min={10}
                   max={120}
@@ -985,7 +985,7 @@ export function AdminDesignPage() {
               <Label>Hub Title</Label>
               <Input
                 value={hubMainTitle}
-                onChange={(e) => setHubMainTitle(e.target.value)}
+                onChange={(e: any) => setHubMainTitle(e.target.value)}
                 placeholder="VO Hub"
               />
             </div>
@@ -993,7 +993,7 @@ export function AdminDesignPage() {
               <Label>Hub Tagline</Label>
               <Input
                 value={hubTagline}
-                onChange={(e) => setHubTagline(e.target.value)}
+                onChange={(e: any) => setHubTagline(e.target.value)}
                 placeholder="Welcome — choose your destination"
               />
             </div>
@@ -1013,11 +1013,11 @@ export function AdminDesignPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Title</Label>
-                    <Input value={hubCatalogTitle} onChange={(e) => setHubCatalogTitle(e.target.value)} placeholder="Equipment Catalog" />
+                    <Input value={hubCatalogTitle} onChange={(e: any) => setHubCatalogTitle(e.target.value)} placeholder="Equipment Catalog" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Description</Label>
-                    <Input value={hubCatalogDescription} onChange={(e) => setHubCatalogDescription(e.target.value)} placeholder="Browse and reserve equipment..." />
+                    <Input value={hubCatalogDescription} onChange={(e: any) => setHubCatalogDescription(e.target.value)} placeholder="Browse and reserve equipment..." />
                   </div>
                 </div>
               </div>
@@ -1030,11 +1030,11 @@ export function AdminDesignPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Title</Label>
-                    <Input value={hubOnboardingTitle} onChange={(e) => setHubOnboardingTitle(e.target.value)} placeholder="Onboarding Hub" />
+                    <Input value={hubOnboardingTitle} onChange={(e: any) => setHubOnboardingTitle(e.target.value)} placeholder="Onboarding Hub" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Description</Label>
-                    <Input value={hubOnboardingDescription} onChange={(e) => setHubOnboardingDescription(e.target.value)} placeholder="Compose and send welcome emails..." />
+                    <Input value={hubOnboardingDescription} onChange={(e: any) => setHubOnboardingDescription(e.target.value)} placeholder="Compose and send welcome emails..." />
                   </div>
                 </div>
               </div>
@@ -1047,11 +1047,11 @@ export function AdminDesignPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Title</Label>
-                    <Input value={hubMailboxTitle} onChange={(e) => setHubMailboxTitle(e.target.value)} placeholder="Functional Mailbox" />
+                    <Input value={hubMailboxTitle} onChange={(e: any) => setHubMailboxTitle(e.target.value)} placeholder="Functional Mailbox" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Description</Label>
-                    <Input value={hubMailboxDescription} onChange={(e) => setHubMailboxDescription(e.target.value)} placeholder="Request a new functional mailbox..." />
+                    <Input value={hubMailboxDescription} onChange={(e: any) => setHubMailboxDescription(e.target.value)} placeholder="Request a new functional mailbox..." />
                   </div>
                 </div>
               </div>
@@ -1064,11 +1064,11 @@ export function AdminDesignPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Title</Label>
-                    <Input value={hubItRequestTitle} onChange={(e) => setHubItRequestTitle(e.target.value)} placeholder="IT Onboarding Request" />
+                    <Input value={hubItRequestTitle} onChange={(e: any) => setHubItRequestTitle(e.target.value)} placeholder="IT Onboarding Request" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs">Description</Label>
-                    <Input value={hubItRequestDescription} onChange={(e) => setHubItRequestDescription(e.target.value)} placeholder="Submit an IT onboarding request..." />
+                    <Input value={hubItRequestDescription} onChange={(e: any) => setHubItRequestDescription(e.target.value)} placeholder="Submit an IT onboarding request..." />
                   </div>
                 </div>
               </div>
@@ -1090,13 +1090,13 @@ export function AdminDesignPage() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-xs">Location name</Label>
-            <Input value={pickupName} onChange={(e) => setPickupName(e.target.value)} placeholder="IT Desk — 2nd floor" />
+            <Input value={pickupName} onChange={(e: any) => setPickupName(e.target.value)} placeholder="IT Desk — 2nd floor" />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Directions</Label>
             <Textarea
               value={pickupDirections}
-              onChange={(e) => setPickupDirections(e.target.value)}
+              onChange={(e: any) => setPickupDirections(e.target.value)}
               placeholder={"Take the lift to the 2nd floor, turn left.\nThe IT desk is at the end of the corridor."}
               rows={3}
             />
@@ -1131,7 +1131,7 @@ export function AdminDesignPage() {
                 <p className="text-[11px] text-muted-foreground">Click on the image to place the pin.</p>
                 <div className="flex gap-2">
                   <label className="cursor-pointer">
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e: any) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
                     <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-input hover:bg-muted transition-colors">
                       {uploadingMap ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} Replace
                     </span>
@@ -1143,7 +1143,7 @@ export function AdminDesignPage() {
               </div>
             ) : (
               <label className="cursor-pointer block">
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
+                <input type="file" accept="image/*" className="hidden" onChange={(e: any) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
                 <div className="border-2 border-dashed border-border/60 rounded-xl py-8 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
                   {uploadingMap ? <Loader2 className="h-6 w-6 animate-spin mb-2" /> : <Upload className="h-6 w-6 mb-2" />}
                   <p className="text-sm">Upload a floor plan</p>

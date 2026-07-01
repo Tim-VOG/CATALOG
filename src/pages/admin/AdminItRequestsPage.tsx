@@ -121,7 +121,7 @@ export function AdminItRequestsPage() {
           placeholder="Search by name, type, unit..."
           className="pl-9"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e: any) => setSearch(e.target.value)}
         />
       </div>
 

@@ -27,7 +27,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
             id={fieldId}
             type={field.field_type === 'phone' ? 'tel' : field.field_type === 'url' ? 'url' : 'text'}
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: any) => onChange(e.target.value)}
             placeholder={field.placeholder || ''}
           />
         )
@@ -38,7 +38,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
             id={fieldId}
             type="email"
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: any) => onChange(e.target.value)}
             placeholder={field.placeholder || ''}
           />
         )
@@ -49,7 +49,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
             id={fieldId}
             type="number"
             value={value ?? ''}
-            onChange={(e) => onChange(e.target.value ? Number(e.target.value) : '')}
+            onChange={(e: any) => onChange(e.target.value ? Number(e.target.value) : '')}
             placeholder={field.placeholder || ''}
             min={field.validation?.min}
             max={field.validation?.max}
@@ -61,7 +61,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
           <Textarea
             id={fieldId}
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: any) => onChange(e.target.value)}
             placeholder={field.placeholder || ''}
             rows={3}
           />
@@ -73,7 +73,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
             id={fieldId}
             type="date"
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: any) => onChange(e.target.value)}
           />
         )
 
@@ -82,7 +82,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
           <Select
             id={fieldId}
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: any) => onChange(e.target.value)}
           >
             <option value="">Select...</option>
             {options.map((opt) => (
@@ -125,7 +125,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
                   name={fieldId}
                   value={opt.value}
                   checked={value === opt.value}
-                  onChange={(e) => onChange(e.target.value)}
+                  onChange={(e: any) => onChange(e.target.value)}
                   className="accent-primary"
                 />
                 {opt.label}
@@ -150,7 +150,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
           <Input
             id={fieldId}
             value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e: any) => onChange(e.target.value)}
             placeholder={field.placeholder || ''}
           />
         )

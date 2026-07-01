@@ -158,11 +158,11 @@ export function AdminLocalITPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by code, product, or person..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Search by code, product, or person..." className="pl-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
         <div className="flex items-center gap-2">
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-          <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-40 text-sm">
+          <Select value={categoryFilter} onChange={(e: any) => setCategoryFilter(e.target.value)} className="w-40 text-sm">
             <option value="all">All categories</option>
             {categories.map(([cat, count]) => (
               <option key={cat} value={cat}>{cat} ({count})</option>

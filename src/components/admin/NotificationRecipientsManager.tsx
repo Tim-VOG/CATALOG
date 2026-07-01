@@ -136,7 +136,7 @@ export function NotificationRecipientsManager() {
               <Input
                 type="email"
                 value={recipientForm.email}
-                onChange={(e) => setRecipientForm({ ...recipientForm, email: e.target.value })}
+                onChange={(e: any) => setRecipientForm({ ...recipientForm, email: e.target.value })}
                 placeholder="user@company.com"
               />
             </div>
@@ -144,7 +144,7 @@ export function NotificationRecipientsManager() {
               <Label>Name (optional)</Label>
               <Input
                 value={recipientForm.name}
-                onChange={(e) => setRecipientForm({ ...recipientForm, name: e.target.value })}
+                onChange={(e: any) => setRecipientForm({ ...recipientForm, name: e.target.value })}
                 placeholder="John Doe"
               />
             </div>

@@ -414,7 +414,7 @@ export function AdminMailboxFormBuilderPage() {
                 <Label>Label *</Label>
                 <Input
                   value={editDialog.label}
-                  onChange={(e) => {
+                  onChange={(e: any) => {
                     const label = e.target.value
                     setEditDialog((prev) => ({
                       ...prev,
@@ -431,7 +431,7 @@ export function AdminMailboxFormBuilderPage() {
                 <Label>Field Key</Label>
                 <Input
                   value={editDialog.field_key}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, field_key: e.target.value }))}
+                  onChange={(e: any) => setEditDialog((prev) => ({ ...prev, field_key: e.target.value }))}
                   placeholder="field_key"
                   disabled={editDialog.is_system || !editDialog._isNew}
                   className="font-mono text-sm"
@@ -447,7 +447,7 @@ export function AdminMailboxFormBuilderPage() {
                   <Label>Type</Label>
                   <Select
                     value={editDialog.field_type}
-                    onChange={(e) => setEditDialog((prev) => ({ ...prev, field_type: e.target.value }))}
+                    onChange={(e: any) => setEditDialog((prev) => ({ ...prev, field_type: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {FIELD_TYPES.map((t) => (
@@ -459,7 +459,7 @@ export function AdminMailboxFormBuilderPage() {
                   <Label>Step</Label>
                   <Select
                     value={editDialog.step}
-                    onChange={(e) => setEditDialog((prev) => ({ ...prev, step: e.target.value }))}
+                    onChange={(e: any) => setEditDialog((prev) => ({ ...prev, step: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {STEPS.map((s) => (
@@ -474,7 +474,7 @@ export function AdminMailboxFormBuilderPage() {
                 <Label>Placeholder</Label>
                 <Input
                   value={editDialog.placeholder}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, placeholder: e.target.value }))}
+                  onChange={(e: any) => setEditDialog((prev) => ({ ...prev, placeholder: e.target.value }))}
                   placeholder="Placeholder text"
                 />
               </div>
@@ -484,7 +484,7 @@ export function AdminMailboxFormBuilderPage() {
                 <Label>Help Text</Label>
                 <Input
                   value={editDialog.help_text}
-                  onChange={(e) => setEditDialog((prev) => ({ ...prev, help_text: e.target.value }))}
+                  onChange={(e: any) => setEditDialog((prev) => ({ ...prev, help_text: e.target.value }))}
                   placeholder="Displayed below the field"
                 />
               </div>
@@ -495,7 +495,7 @@ export function AdminMailboxFormBuilderPage() {
                   <Label>Options (one per line)</Label>
                   <Textarea
                     value={optionsText}
-                    onChange={(e) => setOptionsText(e.target.value)}
+                    onChange={(e: any) => setOptionsText(e.target.value)}
                     placeholder={'Option 1\nOption 2\nOption 3'}
                     rows={4}
                     disabled={editDialog.is_system}
@@ -530,7 +530,7 @@ export function AdminMailboxFormBuilderPage() {
                   <Label className="text-xs">If field</Label>
                   <Select
                     value={editDialog.condition_field || '_none'}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       const v = e.target.value
                       setEditDialog((prev) => ({
                         ...prev,
@@ -557,7 +557,7 @@ export function AdminMailboxFormBuilderPage() {
                       <Label className="text-xs">Operator</Label>
                       <Select
                         value={editDialog.condition_operator || 'equals'}
-                        onChange={(e) => setEditDialog((prev) => ({ ...prev, condition_operator: e.target.value }))}
+                        onChange={(e: any) => setEditDialog((prev) => ({ ...prev, condition_operator: e.target.value }))}
                       >
                         {OPERATORS.map((o) => (
                           <option key={o.value} value={o.value}>{o.label}</option>
@@ -569,7 +569,7 @@ export function AdminMailboxFormBuilderPage() {
                         <Label className="text-xs">Value</Label>
                         <Input
                           value={editDialog.condition_value}
-                          onChange={(e) => setEditDialog((prev) => ({ ...prev, condition_value: e.target.value }))}
+                          onChange={(e: any) => setEditDialog((prev) => ({ ...prev, condition_value: e.target.value }))}
                           placeholder="Expected value"
                         />
                       </div>

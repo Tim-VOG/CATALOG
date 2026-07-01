@@ -305,7 +305,7 @@ export function FormFieldsManager() {
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             <div className="space-y-1">
               <Label>Label *</Label>
-              <Input value={form.label} onChange={(e) => handleLabelChange(e.target.value)} placeholder="e.g. Cost Center" />
+              <Input value={form.label} onChange={(e: any) => handleLabelChange(e.target.value)} placeholder="e.g. Cost Center" />
             </div>
             {/* Hide key + type for system fields */}
             {!(editingField?.is_system) && (
@@ -314,14 +314,14 @@ export function FormFieldsManager() {
                   <Label>Field Key</Label>
                   <Input
                     value={form.field_key}
-                    onChange={(e) => setForm({ ...form, field_key: e.target.value })}
+                    onChange={(e: any) => setForm({ ...form, field_key: e.target.value })}
                     className="font-mono text-sm"
                     disabled={!!editingField}
                   />
                 </div>
                 <div className="space-y-1">
                   <Label>Field Type</Label>
-                  <Select value={form.field_type} onChange={(e) => setForm({ ...form, field_type: e.target.value })}>
+                  <Select value={form.field_type} onChange={(e: any) => setForm({ ...form, field_type: e.target.value })}>
                     {FIELD_TYPES.map((t) => (
                       <option key={t.value} value={t.value}>{t.label}</option>
                     ))}
@@ -336,11 +336,11 @@ export function FormFieldsManager() {
             )}
             <div className="space-y-1">
               <Label>Placeholder</Label>
-              <Input value={form.placeholder} onChange={(e) => setForm({ ...form, placeholder: e.target.value })} />
+              <Input value={form.placeholder} onChange={(e: any) => setForm({ ...form, placeholder: e.target.value })} />
             </div>
             <div className="space-y-1">
               <Label>Help Text</Label>
-              <Input value={form.help_text} onChange={(e) => setForm({ ...form, help_text: e.target.value })} />
+              <Input value={form.help_text} onChange={(e: any) => setForm({ ...form, help_text: e.target.value })} />
             </div>
             <label className="flex items-center gap-2">
               <Checkbox checked={form.is_required} onCheckedChange={(v) => setForm({ ...form, is_required: v })} />
@@ -353,9 +353,9 @@ export function FormFieldsManager() {
                 <div className="flex gap-2">
                   <Input
                     value={optionInput}
-                    onChange={(e) => setOptionInput(e.target.value)}
+                    onChange={(e: any) => setOptionInput(e.target.value)}
                     placeholder="Add option..."
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addOption())}
+                    onKeyDown={(e: any) => e.key === 'Enter' && (e.preventDefault(), addOption())}
                   />
                   <Button type="button" size="sm" onClick={addOption}>Add</Button>
                 </div>

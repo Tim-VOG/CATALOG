@@ -228,7 +228,7 @@ export function ScanPage() {
                   <form onSubmit={handleManualSubmit} className="flex gap-2">
                     <Input
                       value={manualCode}
-                      onChange={(e) => setManualCode(e.target.value)}
+                      onChange={(e: any) => setManualCode(e.target.value)}
                       placeholder="Or enter code manually..."
                       className="flex-1"
                     />
@@ -275,13 +275,13 @@ export function ScanPage() {
                         <div>
                           <label className="text-xs text-muted-foreground">Pickup date</label>
                           <input type="date" value={bulkPickupDate} min={new Date().toISOString().split('T')[0]}
-                            onChange={(e) => setBulkPickupDate(e.target.value)}
+                            onChange={(e: any) => setBulkPickupDate(e.target.value)}
                             className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
                         </div>
                         <div>
                           <label className="text-xs text-muted-foreground">Return by</label>
                           <input type="date" value={bulkReturnDate} min={bulkPickupDate}
-                            onChange={(e) => setBulkReturnDate(e.target.value)}
+                            onChange={(e: any) => setBulkReturnDate(e.target.value)}
                             className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
                         </div>
                       </div>
@@ -362,7 +362,7 @@ export function ScanPage() {
                   >
                     <Input
                       value={manualCode}
-                      onChange={(e) => setManualCode(e.target.value)}
+                      onChange={(e: any) => setManualCode(e.target.value)}
                       placeholder="Enter QR code..."
                       className="flex-1"
                       autoFocus

@@ -189,13 +189,13 @@ export function AdminSubscriptionPlansPage() {
               <Label>Name *</Label>
               <Input
                 value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, name: e.target.value })}
                 placeholder="e.g. 5GB Data Plan"
               />
             </div>
             <div className="space-y-1">
               <Label>Type *</Label>
-              <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+              <Select value={form.type} onChange={(e: any) => setForm({ ...form, type: e.target.value })}>
                 <option value="call">Call</option>
                 <option value="data">Data</option>
                 <option value="both">Call + Data</option>
@@ -205,7 +205,7 @@ export function AdminSubscriptionPlansPage() {
               <Label>Price *</Label>
               <Input
                 value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, price: e.target.value })}
                 placeholder="e.g. 29€/month"
               />
             </div>
@@ -213,7 +213,7 @@ export function AdminSubscriptionPlansPage() {
               <Label>Description</Label>
               <Textarea
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, description: e.target.value })}
                 placeholder="Optional description..."
                 rows={2}
               />

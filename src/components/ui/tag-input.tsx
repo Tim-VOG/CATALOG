@@ -84,7 +84,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
           <span className="truncate">{tag}</span>
           <button
             type="button"
-            onClick={(e) => {
+            onClick={(e: any) => {
               e.stopPropagation()
               removeTag(i)
             }}
@@ -99,7 +99,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
         ref={inputRef}
         type="text"
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e: any) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         onBlur={handleBlur}

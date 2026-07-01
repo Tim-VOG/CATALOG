@@ -65,9 +65,9 @@ function EditableCell({ value, type = 'text', onChange, placeholder, className  
     <input
       type={type}
       value={local ?? ''}
-      onChange={(e) => setLocal(e.target.value)}
+      onChange={(e: any) => setLocal(e.target.value)}
       onBlur={commit}
-      onKeyDown={(e) => {
+      onKeyDown={(e: any) => {
         if (e.key === 'Enter') (e.target as any).blur()
         if (e.key === 'Escape') { setLocal(initial.current); (e.target as any).blur() }
       }}
@@ -86,7 +86,7 @@ function SelectCell({ value, options, onChange  }: any) {
   return (
     <select
       value={value ?? ''}
-      onChange={(e) => onChange(e.target.value || null)}
+      onChange={(e: any) => onChange(e.target.value || null)}
       className="w-full px-2 py-1.5 text-xs bg-transparent border border-transparent rounded focus:bg-card focus:border-primary/30 focus:outline-none hover:bg-muted/30"
     >
       <option value="">—</option>
@@ -225,7 +225,7 @@ export function AdminItInventoryPage() {
         <div className="flex-1" />
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search name / serial / owner..." className="pl-9 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Search name / serial / owner..." className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
         <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5"><Download className="h-3.5 w-3.5" /> CSV</Button>
         <Button size="sm" onClick={handleAdd} disabled={createItem.isPending} className="gap-1.5">

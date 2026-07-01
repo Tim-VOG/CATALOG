@@ -192,7 +192,7 @@ export function AdminBusinessUnitsPage() {
               <Label>Name *</Label>
               <Input
                 value={form.value}
-                onChange={(e) => setForm({ ...form, value: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, value: e.target.value })}
                 placeholder="e.g. VO EUROPE"
               />
               <p className="text-[10px] text-muted-foreground">Displayed in onboarding forms. Stored in uppercase.</p>
@@ -201,7 +201,7 @@ export function AdminBusinessUnitsPage() {
               <Label>Email domain *</Label>
               <Input
                 value={form.domain}
-                onChange={(e) => setForm({ ...form, domain: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, domain: e.target.value })}
                 placeholder="e.g. vo-europe.eu"
               />
               <p className="text-[10px] text-muted-foreground">Used to generate the new hire's corporate email. Stored in lowercase.</p>
@@ -210,7 +210,7 @@ export function AdminBusinessUnitsPage() {
               <Label>Email pattern *</Label>
               <Select
                 value={form.email_pattern}
-                onChange={(e) => setForm({ ...form, email_pattern: e.target.value as EmailPattern })}
+                onChange={(e: any) => setForm({ ...form, email_pattern: e.target.value as EmailPattern })}
               >
                 <option value="initial_last">{PATTERN_LABEL.initial_last}</option>
                 <option value="first">{PATTERN_LABEL.first}</option>
@@ -222,7 +222,7 @@ export function AdminBusinessUnitsPage() {
               <Input
                 type="number"
                 value={form.sort_order}
-                onChange={(e) => setForm({ ...form, sort_order: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, sort_order: e.target.value })}
               />
               <p className="text-[10px] text-muted-foreground">Lower values appear first in dropdowns.</p>
             </div>

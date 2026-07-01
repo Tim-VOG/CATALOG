@@ -306,7 +306,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                     type="email"
                     placeholder="john.doe@company.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e: any) => setEmail(e.target.value)}
                     disabled={!!editingInvitation}
                     autoFocus={!editingInvitation}
                   />
@@ -319,7 +319,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                       id="invite-first"
                       placeholder="John"
                       value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      onChange={(e: any) => setFirstName(e.target.value)}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -328,7 +328,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                       id="invite-last"
                       placeholder="Doe"
                       value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      onChange={(e: any) => setLastName(e.target.value)}
                     />
                   </div>
                 </div>
@@ -338,7 +338,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                   <Select
                     id="invite-bu"
                     value={businessUnit}
-                    onChange={(e) => setBusinessUnit(e.target.value)}
+                    onChange={(e: any) => setBusinessUnit(e.target.value)}
                   >
                     <option value="">— None —</option>
                     {businessUnits.map((bu) => (
@@ -353,7 +353,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                 <Label>Subject</Label>
                 <Input
                   value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
+                  onChange={(e: any) => setEmailSubject(e.target.value)}
                   placeholder="You're invited to join..."
                 />
               </div>
@@ -388,7 +388,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                 <Textarea
                   ref={bodyRef}
                   value={emailBody}
-                  onChange={(e) => setEmailBody(e.target.value)}
+                  onChange={(e: any) => setEmailBody(e.target.value)}
                   className="min-h-[260px] font-mono text-xs leading-relaxed"
                   placeholder="Write your invitation email..."
                 />

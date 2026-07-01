@@ -157,7 +157,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
         <input
           type="email"
           value={inputValue}
-          onChange={(e) => { setInputValue(e.target.value); setError('') }}
+          onChange={(e: any) => { setInputValue(e.target.value); setError('') }}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           onBlur={() => { if (inputValue.trim()) addTag(inputValue) }}
@@ -209,7 +209,7 @@ function FileUploadField({ value, onChange, helpText  }: any) {
         type="file"
         className="hidden"
         accept="image/*"
-        onChange={(e) => {
+        onChange={(e: any) => {
           handleUpload(e.target.files[0])
           e.target.value = ''
         }}
@@ -252,7 +252,7 @@ function DynamicField({ field, value, onChange  }: any) {
         <Input
           type={field.field_key === 'mail' ? 'email' : 'text'}
           value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           placeholder={field.placeholder}
         />
       )
@@ -261,7 +261,7 @@ function DynamicField({ field, value, onChange  }: any) {
       return (
         <Textarea
           value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           placeholder={field.placeholder}
           rows={3}
         />
@@ -269,7 +269,7 @@ function DynamicField({ field, value, onChange  }: any) {
 
     case 'select':
       return (
-        <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+        <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
           <option value="">Select...</option>
           {options.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
@@ -319,7 +319,7 @@ function DynamicField({ field, value, onChange  }: any) {
           type="date"
           value={value || ''}
           min={minDate}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       )
     }
@@ -362,7 +362,7 @@ function DynamicField({ field, value, onChange  }: any) {
       return (
         <Input
           value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           placeholder={field.placeholder}
         />
       )

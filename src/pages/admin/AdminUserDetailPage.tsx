@@ -152,8 +152,8 @@ export function AdminUserDetailPage() {
             <Input
               type="date"
               value={departureDate}
-              onChange={(e) => setDepartureDate(e.target.value)}
-              onBlur={(e) => { if (e.target.value !== ((profile as any)?.departure_date || '')) saveDeparture(e.target.value) }}
+              onChange={(e: any) => setDepartureDate(e.target.value)}
+              onBlur={(e: any) => { if (e.target.value !== ((profile as any)?.departure_date || '')) saveDeparture(e.target.value) }}
             />
             {departureDate && (
               <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => { setDepartureDate(''); saveDeparture('') }}>

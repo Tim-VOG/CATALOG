@@ -67,7 +67,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e: any) => setSearch(e.target.value)}
                 placeholder="Search users..."
                 className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/40"
                 autoFocus

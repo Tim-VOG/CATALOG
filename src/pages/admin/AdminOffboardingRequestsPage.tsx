@@ -447,7 +447,7 @@ export function AdminOffboardingRequestsPage() {
         <div className="flex-1" />
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search..." className="pl-9 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Search..." className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
       </div>
 
@@ -485,7 +485,7 @@ export function AdminOffboardingRequestsPage() {
                         <span>{formatDate(req.created_at)}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-1 shrink-0" onClick={(e: any) => e.stopPropagation()}>
                       {req.status === 'pending' && (
                         <Button size="sm" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'in_progress')}>
                           <Package className="h-3 w-3" /> Start

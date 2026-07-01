@@ -35,9 +35,9 @@ function EditableCell({ value, type = 'text', onChange, placeholder, className  
     <input
       type={type}
       value={local ?? ''}
-      onChange={(e) => setLocal(e.target.value)}
+      onChange={(e: any) => setLocal(e.target.value)}
       onBlur={commit}
-      onKeyDown={(e) => {
+      onKeyDown={(e: any) => {
         if (e.key === 'Enter') (e.target as any).blur()
         if (e.key === 'Escape') { setLocal(initial.current); (e.target as any).blur() }
       }}
@@ -56,7 +56,7 @@ function SelectCell({ value, options, onChange  }: any) {
   return (
     <select
       value={value ?? ''}
-      onChange={(e) => onChange(e.target.value || null)}
+      onChange={(e: any) => onChange(e.target.value || null)}
       className="w-full px-2 py-1.5 text-xs bg-transparent border border-transparent rounded focus:bg-card focus:border-primary/30 focus:outline-none hover:bg-muted/30"
     >
       <option value="">—</option>
@@ -70,7 +70,7 @@ function CheckboxCell({ value, onChange  }: any) {
     <input
       type="checkbox"
       checked={!!value}
-      onChange={(e) => onChange(e.target.checked)}
+      onChange={(e: any) => onChange(e.target.checked)}
       className="h-4 w-4"
     />
   )
@@ -200,12 +200,12 @@ export function AdminSharedMailboxesPage() {
             placeholder="Search name, mail, project leader…"
             className="pl-9 h-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: any) => setSearch(e.target.value)}
           />
         </div>
         <select
           value={companyFilter}
-          onChange={(e) => setCompanyFilter(e.target.value)}
+          onChange={(e: any) => setCompanyFilter(e.target.value)}
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
           <option value="all">All companies</option>
@@ -213,7 +213,7 @@ export function AdminSharedMailboxesPage() {
         </select>
         <select
           value={catFilter}
-          onChange={(e) => setCatFilter(e.target.value)}
+          onChange={(e: any) => setCatFilter(e.target.value)}
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
           <option value="all">All categories</option>

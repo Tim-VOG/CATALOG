@@ -83,7 +83,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
         <Input
           type={field.field_key === 'personal_email' ? 'email' : 'text'}
           value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           placeholder={field.placeholder}
         />
       )
@@ -92,7 +92,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       return (
         <Textarea
           value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           placeholder={field.placeholder}
           rows={3}
         />
@@ -104,7 +104,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       // the constant for the first paint.
       if (field.field_key === 'business_unit') {
         return (
-          <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+          <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
             <option value="">Select...</option>
             {businessUnits.map((bu) => (
               <option key={bu.value} value={bu.value}>{bu.value}</option>
@@ -113,7 +113,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
         )
       }
       return (
-        <Select value={value || ''} onChange={(e) => onChange(e.target.value)}>
+        <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
           <option value="">Select...</option>
           {options.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
@@ -162,7 +162,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
           type="date"
           value={value || ''}
           min={minDate}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       )
     }
@@ -212,7 +212,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       return (
         <Input
           value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           placeholder={field.placeholder}
         />
       )

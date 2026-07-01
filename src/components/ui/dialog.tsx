@@ -148,7 +148,7 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
                 DIALOG_SIZES[size] || DIALOG_SIZES.default,
                 className
               )}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: any) => e.stopPropagation()}
               onKeyDown={handleKeyDown}
               {...props}
             >

@@ -16,7 +16,7 @@ const Checkbox = React.forwardRef<any, any>(({ className, checked, onCheckedChan
         checked && 'bg-primary border-primary text-primary-foreground',
         className
       )}
-      onClick={(e) => {
+      onClick={(e: any) => {
         e.stopPropagation()
         // Guard against <label> triggering a duplicate synthetic click
         const now = Date.now()

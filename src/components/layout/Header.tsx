@@ -161,7 +161,7 @@ function HeaderSearch() {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => {
+            onChange={(e: any) => {
               setQuery(e.target.value)
               setIsOpen(true)
             }}
@@ -210,7 +210,7 @@ function HeaderSearch() {
               ref={mobileInputRef}
               type="text"
               value={query}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 setQuery(e.target.value)
                 setIsOpen(true)
               }}

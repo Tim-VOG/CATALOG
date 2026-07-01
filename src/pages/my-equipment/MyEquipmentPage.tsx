@@ -237,7 +237,7 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
             </p>
             <Textarea
               value={desc}
-              onChange={(e) => setDesc(e.target.value)}
+              onChange={(e: any) => setDesc(e.target.value)}
               placeholder="What's wrong? (cracked screen, won't charge, missing charger…)"
               rows={4}
               autoFocus
@@ -251,7 +251,7 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
               </div>
             ) : (
               <label className="cursor-pointer inline-flex">
-                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.[0] && handlePhoto(e.target.files[0])} />
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e: any) => e.target.files?.[0] && handlePhoto(e.target.files[0])} />
                 <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-input hover:bg-muted transition-colors">
                   {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} Add a photo (optional)
                 </span>

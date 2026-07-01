@@ -395,7 +395,7 @@ export function CartPage() {
                   <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
                   Comment (optional)
                 </Label>
-                <Textarea value={globalComment} onChange={(e) => setGlobalComment(e.target.value)} placeholder="Any notes for the IT team..." rows={2} />
+                <Textarea value={globalComment} onChange={(e: any) => setGlobalComment(e.target.value)} placeholder="Any notes for the IT team..." rows={2} />
               </CardContent>
             </Card>
 
@@ -417,7 +417,7 @@ export function CartPage() {
               <CardContent className="p-6 space-y-5">
                 <div className="space-y-2">
                   <Label>Project / Reason *</Label>
-                  <Input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="e.g. Client presentation, New hire setup..." />
+                  <Input value={projectName} onChange={(e: any) => setProjectName(e.target.value)} placeholder="e.g. Client presentation, New hire setup..." />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -426,7 +426,7 @@ export function CartPage() {
                       type="date"
                       value={pickupDate}
                       min={todayIso}
-                      onChange={(e) => setPickupDate(e.target.value)}
+                      onChange={(e: any) => setPickupDate(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -435,7 +435,7 @@ export function CartPage() {
                       type="date"
                       value={returnDate}
                       min={pickupDate || todayIso}
-                      onChange={(e) => setReturnDate(e.target.value)}
+                      onChange={(e: any) => setReturnDate(e.target.value)}
                     />
                   </div>
                 </div>
@@ -445,7 +445,7 @@ export function CartPage() {
                     <Label>Pickup contact</Label>
                     <Input
                       value={pickupContact}
-                      onChange={(e) => setPickupContact(e.target.value)}
+                      onChange={(e: any) => setPickupContact(e.target.value)}
                       placeholder="First & last name (if not you)"
                     />
                   </div>
@@ -453,7 +453,7 @@ export function CartPage() {
                     <Label>Return contact</Label>
                     <Input
                       value={returnContact}
-                      onChange={(e) => setReturnContact(e.target.value)}
+                      onChange={(e: any) => setReturnContact(e.target.value)}
                       placeholder="First & last name (if not you)"
                     />
                   </div>

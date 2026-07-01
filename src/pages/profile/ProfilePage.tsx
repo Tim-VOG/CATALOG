@@ -292,7 +292,7 @@ export function ProfilePage() {
               <div className="flex gap-2">
                 <Input
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e: any) => setPhone(e.target.value)}
                   placeholder="+33 6 12 34 56 78"
                   className="max-w-xs"
                 />

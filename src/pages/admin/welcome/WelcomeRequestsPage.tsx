@@ -211,7 +211,7 @@ export function WelcomeRequestsPage() {
                   id="personal-email"
                   type="email"
                   value={personalEmail}
-                  onChange={(e) => setPersonalEmail(e.target.value)}
+                  onChange={(e: any) => setPersonalEmail(e.target.value)}
                   placeholder={`${data.first_name?.toLowerCase() || 'jdoe'}@gmail.com`}
                   autoFocus
                 />
@@ -254,7 +254,7 @@ export function WelcomeRequestsPage() {
         <div className="flex-1" />
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search..." className="pl-9 h-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Search..." className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
       </div>
 
@@ -300,7 +300,7 @@ export function WelcomeRequestsPage() {
                         {firstDay && <span>Starts {formatDate(firstDay)}</span>}
                       </div>
                     </div>
-                    <Button size="sm" variant={sentEmail ? 'ghost' : 'default'} className="gap-1.5 text-xs h-8" onClick={(e) => { e.stopPropagation(); setSelectedId(req.id) }}>
+                    <Button size="sm" variant={sentEmail ? 'ghost' : 'default'} className="gap-1.5 text-xs h-8" onClick={(e: any) => { e.stopPropagation(); setSelectedId(req.id) }}>
                       {sentEmail ? 'View' : 'Compose'}
                     </Button>
                   </div>

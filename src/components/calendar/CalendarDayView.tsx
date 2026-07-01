@@ -40,7 +40,7 @@ function DayEventCard({ event, showUser, selectable, isSelected, onToggleSelect 
     )}>
       {selectable && (
         <button
-          onClick={(e) => {
+          onClick={(e: any) => {
             e.preventDefault()
             e.stopPropagation()
             onToggleSelect?.(event.id)

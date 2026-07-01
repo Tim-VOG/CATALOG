@@ -194,7 +194,7 @@ export function AdminQRCodesPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by code or product..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Search by code or product..." className="pl-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
 
         {/* Status filter */}
@@ -312,7 +312,7 @@ export function AdminQRCodesPage() {
             <p className="text-sm text-muted-foreground">{assignTarget?.product_name || assignTarget?.label}</p>
             <div className="space-y-1">
               <Label>Assign to *</Label>
-              <Select value={assignUserId} onChange={(e) => setAssignUserId(e.target.value)}>
+              <Select value={assignUserId} onChange={(e: any) => setAssignUserId(e.target.value)}>
                 <option value="">Select a person…</option>
                 {profiles.map((p: any) => (
                   <option key={p.id} value={p.id}>
@@ -323,7 +323,7 @@ export function AdminQRCodesPage() {
             </div>
             <div className="space-y-1">
               <Label>Expected return (optional)</Label>
-              <Input type="date" value={assignReturn} onChange={(e) => setAssignReturn(e.target.value)} />
+              <Input type="date" value={assignReturn} onChange={(e: any) => setAssignReturn(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
@@ -340,24 +340,24 @@ export function AdminQRCodesPage() {
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Code *</Label>
-              <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="VO-XXXXXX" />
+              <Input value={form.code} onChange={(e: any) => setForm({ ...form, code: e.target.value })} placeholder="VO-XXXXXX" />
             </div>
             <div className="space-y-1">
               <Label>Product *</Label>
-              <Select value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })}>
+              <Select value={form.product_id} onChange={(e: any) => setForm({ ...form, product_id: e.target.value })}>
                 <option value="">Select product...</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.category_name})</option>)}
               </Select>
             </div>
             <div className="space-y-1">
               <Label>Label</Label>
-              <Input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Optional label" />
+              <Input value={form.label} onChange={(e: any) => setForm({ ...form, label: e.target.value })} placeholder="Optional label" />
             </div>
             <div className="space-y-1">
               <Label>Serial number</Label>
               <Input
                 value={form.serial_number}
-                onChange={(e) => setForm({ ...form, serial_number: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, serial_number: e.target.value })}
                 placeholder="e.g. C02XL1ABCDEF"
                 className="font-mono text-xs"
               />
@@ -378,14 +378,14 @@ export function AdminQRCodesPage() {
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Product *</Label>
-              <Select value={bulkProductId} onChange={(e) => setBulkProductId(e.target.value)}>
+              <Select value={bulkProductId} onChange={(e: any) => setBulkProductId(e.target.value)}>
                 <option value="">Select product...</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1"><Label>Prefix</Label><Input value={bulkPrefix} onChange={(e) => setBulkPrefix(e.target.value)} /></div>
-              <div className="space-y-1"><Label>Count</Label><Input type="number" min={1} max={50} value={bulkCount} onChange={(e) => setBulkCount(parseInt(e.target.value) || 1)} /></div>
+              <div className="space-y-1"><Label>Prefix</Label><Input value={bulkPrefix} onChange={(e: any) => setBulkPrefix(e.target.value)} /></div>
+              <div className="space-y-1"><Label>Count</Label><Input type="number" min={1} max={50} value={bulkCount} onChange={(e: any) => setBulkCount(parseInt(e.target.value) || 1)} /></div>
             </div>
           </div>
           <DialogFooter>

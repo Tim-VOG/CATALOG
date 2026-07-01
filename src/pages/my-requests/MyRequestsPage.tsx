@@ -175,7 +175,7 @@ function RequestCard({ request, type, onOpen  }: any) {
               {type === 'equipment' && request.item_count && ` · ${request.item_count} item${request.item_count > 1 ? 's' : ''}`}
             </p>
           </div>
-          <Button variant="ghost" size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onOpen() }}>
+          <Button variant="ghost" size="sm" className="shrink-0" onClick={(e: any) => { e.stopPropagation(); onOpen() }}>
             <Eye className="h-4 w-4" />
           </Button>
         </div>
@@ -325,7 +325,7 @@ export function MyRequestsPage() {
               <>
                 <Textarea
                   value={noteDraft}
-                  onChange={(e) => setNoteDraft(e.target.value)}
+                  onChange={(e: any) => setNoteDraft(e.target.value)}
                   rows={3}
                   placeholder="e.g. The pickup date should actually be next Monday, sorry!"
                   maxLength={1000}

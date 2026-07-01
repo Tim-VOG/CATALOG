@@ -137,7 +137,7 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
           Company
           <span className="text-destructive ml-1">*</span>
         </Label>
-        <Select value={form.company} onChange={(e) => setField('company', e.target.value)}>
+        <Select value={form.company} onChange={(e: any) => setField('company', e.target.value)}>
           <option value="">Select...</option>
           {COMPANIES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -162,7 +162,7 @@ function StepWhen({ form, setField  }: any) {
           type="date"
           value={form.departure_on}
           min={todayIso}
-          onChange={(e) => setField('departure_on', e.target.value)}
+          onChange={(e: any) => setField('departure_on', e.target.value)}
         />
       </div>
     </div>
@@ -236,7 +236,7 @@ function StepRevocation({ form, setField  }: any) {
           </Label>
           <Textarea
             value={form.transfer_details}
-            onChange={(e) => setField('transfer_details', e.target.value)}
+            onChange={(e: any) => setField('transfer_details', e.target.value)}
             placeholder="What data needs to be transferred and to whom?"
             rows={3}
           />
@@ -271,7 +271,7 @@ function StepRevocation({ form, setField  }: any) {
                 <Input
                   type="date"
                   value={form.ooo_start}
-                  onChange={(e) => setField('ooo_start', e.target.value)}
+                  onChange={(e: any) => setField('ooo_start', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -280,7 +280,7 @@ function StepRevocation({ form, setField  }: any) {
                   type="date"
                   value={form.ooo_end}
                   min={form.ooo_start || undefined}
-                  onChange={(e) => setField('ooo_end', e.target.value)}
+                  onChange={(e: any) => setField('ooo_end', e.target.value)}
                 />
               </div>
             </div>
@@ -288,7 +288,7 @@ function StepRevocation({ form, setField  }: any) {
               <Label>Auto-reply message</Label>
               <Textarea
                 value={form.ooo_message}
-                onChange={(e) => setField('ooo_message', e.target.value)}
+                onChange={(e: any) => setField('ooo_message', e.target.value)}
                 placeholder={`Example: I have left the company on ${form.departure_on || '[date]'}. For any inquiries, please contact …`}
                 rows={3}
               />
@@ -413,7 +413,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
         <Label>Equipment notes</Label>
         <Textarea
           value={form.equipment_notes}
-          onChange={(e) => setField('equipment_notes', e.target.value)}
+          onChange={(e: any) => setField('equipment_notes', e.target.value)}
           placeholder="Any special instructions for equipment collection"
           rows={3}
         />
@@ -434,7 +434,7 @@ function StepRequester({ form, setField  }: any) {
         <Input
           type="text"
           value={form.requested_by}
-          onChange={(e) => setField('requested_by', e.target.value)}
+          onChange={(e: any) => setField('requested_by', e.target.value)}
           placeholder="Your full name"
         />
         <p className="text-[11px] text-muted-foreground">Auto-filled from your profile</p>
@@ -448,7 +448,7 @@ function StepRequester({ form, setField  }: any) {
         <Input
           type="date"
           value={form.requested_on}
-          onChange={(e) => setField('requested_on', e.target.value)}
+          onChange={(e: any) => setField('requested_on', e.target.value)}
         />
         <p className="text-[11px] text-muted-foreground">Auto-filled with today's date</p>
       </div>

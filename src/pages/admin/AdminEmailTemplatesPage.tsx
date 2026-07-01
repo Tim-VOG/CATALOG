@@ -243,11 +243,11 @@ export function AdminEmailTemplatesPage() {
             <TabsContent value="edit" className="space-y-4 mt-4">
               <div className="space-y-1">
                 <Label>Subject</Label>
-                <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+                <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} />
               </div>
               <div className="space-y-1">
                 <Label>Body (HTML)</Label>
-                <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={12} className="font-mono text-xs" />
+                <Textarea value={body} onChange={(e: any) => setBody(e.target.value)} rows={12} className="font-mono text-xs" />
               </div>
             </TabsContent>
 

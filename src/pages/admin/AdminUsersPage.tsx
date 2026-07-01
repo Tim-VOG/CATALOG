@@ -332,7 +332,7 @@ export function AdminUsersPage() {
             placeholder="Search by name or email..."
             className="pl-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: any) => setSearch(e.target.value)}
           />
         </div>
 
@@ -354,7 +354,7 @@ export function AdminUsersPage() {
         {/* BU filter dropdown */}
         <Select
           value={buFilter}
-          onChange={(e) => setBuFilter(e.target.value)}
+          onChange={(e: any) => setBuFilter(e.target.value)}
           className="w-44 h-8 text-xs"
         >
           <option value="all">All Business Units</option>
@@ -416,7 +416,7 @@ export function AdminUsersPage() {
                     ) : (
                       <Select
                         value={p.business_unit || ''}
-                        onChange={(e) => handleBuChange(p.id, e.target.value)}
+                        onChange={(e: any) => handleBuChange(p.id, e.target.value)}
                         className="w-40 h-8 text-xs"
                       >
                         <option value="">— None —</option>
@@ -437,7 +437,7 @@ export function AdminUsersPage() {
                     ) : (
                       <Select
                         value={p.role}
-                        onChange={(e) => handleRoleChange(p.id, e.target.value, p.full_name || p.email)}
+                        onChange={(e: any) => handleRoleChange(p.id, e.target.value, p.full_name || p.email)}
                         className="w-24 h-8 text-xs"
                       >
                         {ROLE_OPTIONS.map((r) => (

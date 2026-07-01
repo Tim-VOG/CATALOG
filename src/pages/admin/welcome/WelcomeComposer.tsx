@@ -270,7 +270,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
           </div>
           <div className="space-y-1 flex-1 min-w-[260px]">
             <Label className="text-xs">Subject</Label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} />
           </div>
         </div>
 

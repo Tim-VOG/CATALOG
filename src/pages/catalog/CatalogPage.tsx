@@ -145,7 +145,7 @@ export function CatalogPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: any) => setSearchQuery(e.target.value)}
                 placeholder="Search equipment..."
                 className="pl-11 h-11 rounded-xl bg-background text-foreground border-0 shadow-lg"
               />
@@ -244,7 +244,7 @@ export function CatalogPage() {
         {/* Sort */}
         <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-1">
           <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-          <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border-0 bg-transparent text-sm h-8 w-32">
+          <Select value={sortBy} onChange={(e: any) => setSortBy(e.target.value)} className="border-0 bg-transparent text-sm h-8 w-32">
             {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </Select>
         </div>

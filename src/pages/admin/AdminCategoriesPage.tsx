@@ -83,12 +83,12 @@ export function AdminCategoriesPage() {
           <div className="space-y-4">
             <div className="space-y-1">
               <Label>Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Laptops" />
+              <Input value={name} onChange={(e: any) => setName(e.target.value)} placeholder="e.g. Laptops" />
             </div>
             <div className="space-y-1">
               <Label>Color</Label>
               <div className="flex items-center gap-3">
-                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-9 w-12 rounded border cursor-pointer" />
+                <input type="color" value={color} onChange={(e: any) => setColor(e.target.value)} className="h-9 w-12 rounded border cursor-pointer" />
                 <Badge style={{ backgroundColor: color }}>Preview</Badge>
               </div>
             </div>

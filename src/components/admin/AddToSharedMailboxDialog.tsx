@@ -143,25 +143,25 @@ export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }:
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Category *</Label>
-                <Select value={form.category} onChange={(e) => setField('category', e.target.value)}>
+                <Select value={form.category} onChange={(e: any) => setField('category', e.target.value)}>
                   {CATEGORIES.map((o) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Licence *</Label>
-                <Select value={form.licence} onChange={(e) => setField('licence', e.target.value)}>
+                <Select value={form.licence} onChange={(e: any) => setField('licence', e.target.value)}>
                   {LICENCES.map((o) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Created in</Label>
-                <Select value={form.created_in} onChange={(e) => setField('created_in', e.target.value)}>
+                <Select value={form.created_in} onChange={(e: any) => setField('created_in', e.target.value)}>
                   {CREATED_IN.map((o) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Profile</Label>
-                <Select value={form.profile} onChange={(e) => setField('profile', e.target.value)}>
+                <Select value={form.profile} onChange={(e: any) => setField('profile', e.target.value)}>
                   {PROFILES.map((o) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
@@ -170,7 +170,7 @@ export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }:
                 <Input
                   type="date"
                   value={form.archive_from}
-                  onChange={(e) => setField('archive_from', e.target.value)}
+                  onChange={(e: any) => setField('archive_from', e.target.value)}
                 />
                 <p className="text-[10px] text-muted-foreground">Date when archiving the mailbox should begin.</p>
               </div>

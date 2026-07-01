@@ -99,7 +99,7 @@ export function AdminAuditLogPage() {
             placeholder="Search actor, action, field…"
             className="pl-9 h-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: any) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex flex-wrap gap-1">

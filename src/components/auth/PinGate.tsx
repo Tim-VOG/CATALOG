@@ -66,7 +66,7 @@ export function PinGate({ children }: { children: ReactNode }) {
                 inputMode="numeric"
                 maxLength={4}
                 value={pin}
-                onChange={(e) => { setPin(e.target.value.replace(/\D/g, '')); setPinError(false) }}
+                onChange={(e: any) => { setPin(e.target.value.replace(/\D/g, '')); setPinError(false) }}
                 placeholder="Enter PIN"
                 className={`text-center text-lg tracking-[0.5em] ${pinError ? 'border-destructive' : ''}`}
                 autoFocus

@@ -233,7 +233,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as any }}
             className="relative w-full max-w-[420px] bg-card rounded-[20px] overflow-hidden"
             style={{ boxShadow: '0 25px 60px -12px rgba(0,0,0,0.35), 0 10px 20px -5px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)' }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: any) => e.stopPropagation()}
           >
             {/* Close */}
             <button

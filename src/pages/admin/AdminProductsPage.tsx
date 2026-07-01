@@ -257,7 +257,7 @@ export function AdminProductsPage() {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e: any) => setSearch(e.target.value)}
           placeholder="Search products..."
           className="pl-10 rounded-full"
         />
@@ -297,7 +297,7 @@ export function AdminProductsPage() {
                       isSelected || selectedIds.size > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
                     )}>
                       <button
-                        onClick={(e) => { e.stopPropagation(); toggleSelect(p.id) }}
+                        onClick={(e: any) => { e.stopPropagation(); toggleSelect(p.id) }}
                         className={cn(
                           'h-7 w-7 rounded-md flex items-center justify-center shadow-md transition-all cursor-pointer',
                           isSelected
@@ -411,20 +411,20 @@ export function AdminProductsPage() {
             {/* Row 1 — Name (full width) */}
             <div className="space-y-1">
               <Label>Name *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 5G Home Router" />
+              <Input value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 5G Home Router" />
             </div>
 
             {/* Row 2 — Category + Sub-type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Category</Label>
-                <Select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
+                <Select value={form.category_id} onChange={(e: any) => setForm({ ...form, category_id: e.target.value })}>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </div>
               <div className="space-y-1">
                 <Label>Sub-type</Label>
-                <Input value={form.sub_type} onChange={(e) => setForm({ ...form, sub_type: e.target.value })} placeholder="e.g. Plug-in" />
+                <Input value={form.sub_type} onChange={(e: any) => setForm({ ...form, sub_type: e.target.value })} placeholder="e.g. Plug-in" />
               </div>
             </div>
 
@@ -444,12 +444,12 @@ export function AdminProductsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               <div className="space-y-1">
                 <Label>Stock *</Label>
-                <Input type="number" min="0" value={form.total_stock} onChange={(e) => setForm({ ...form, total_stock: parseInt(e.target.value) || 0 })} />
+                <Input type="number" min="0" value={form.total_stock} onChange={(e: any) => setForm({ ...form, total_stock: parseInt(e.target.value) || 0 })} />
                 {editing && <p className="text-[10px] text-muted-foreground">Stock is also updated automatically via QR scan</p>}
               </div>
               <div className="space-y-1">
                 <Label>Description</Label>
-                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Optional description..." />
+                <Textarea value={form.description} onChange={(e: any) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Optional description..." />
               </div>
             </div>
 

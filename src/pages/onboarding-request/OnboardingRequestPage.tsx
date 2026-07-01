@@ -292,7 +292,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           </Label>
           <Input
             value={form.first_name}
-            onChange={(e) => update('first_name', e.target.value)}
+            onChange={(e: any) => update('first_name', e.target.value)}
             placeholder="John"
           />
         </div>
@@ -302,7 +302,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           </Label>
           <Input
             value={form.last_name}
-            onChange={(e) => update('last_name', e.target.value)}
+            onChange={(e: any) => update('last_name', e.target.value)}
             placeholder="Doe"
           />
         </div>
@@ -314,7 +314,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
         <div className="flex">
           <Input
             value={form.email_local}
-            onChange={(e) => { setEmailLocalEdited(true); update('email_local', e.target.value) }}
+            onChange={(e: any) => { setEmailLocalEdited(true); update('email_local', e.target.value) }}
             placeholder="jdoe"
             className="rounded-r-none border-r-0 flex-1 min-w-0"
           />
@@ -333,7 +333,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
         <Input
           type="email"
           value={form.personal_email}
-          onChange={(e) => update('personal_email', e.target.value)}
+          onChange={(e: any) => update('personal_email', e.target.value)}
           placeholder="jdoe@gmail.com"
         />
         <p className="text-[11px] text-muted-foreground">Used to deliver the 1Password link before the corporate account is active</p>
@@ -343,7 +343,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           <Label>
             Profile <span className="text-destructive ml-1">*</span>
           </Label>
-          <Select value={form.profile} onChange={(e) => update('profile', e.target.value)}>
+          <Select value={form.profile} onChange={(e: any) => update('profile', e.target.value)}>
             <option value="">Select...</option>
             {PROFILES.map((p) => (
               <option key={p} value={p}>{p}</option>
@@ -354,7 +354,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           <Label>
             Company <span className="text-destructive ml-1">*</span>
           </Label>
-          <Select value={form.company} onChange={(e) => update('company', e.target.value)}>
+          <Select value={form.company} onChange={(e: any) => update('company', e.target.value)}>
             <option value="">Select...</option>
             {COMPANIES.map((c) => (
               <option key={c} value={c}>
@@ -370,7 +370,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
         </Label>
         <Input
           value={form.job_title}
-          onChange={(e) => update('job_title', e.target.value)}
+          onChange={(e: any) => update('job_title', e.target.value)}
           placeholder="e.g. Consultant, Project Manager"
         />
         <p className="text-[11px] text-muted-foreground">Used as signature title in emails</p>
@@ -379,7 +379,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
         <Label>Signing off as</Label>
         <Input
           value={form.signing_off_as}
-          onChange={(e) => update('signing_off_as', e.target.value)}
+          onChange={(e: any) => update('signing_off_as', e.target.value)}
           placeholder="Optional — name to display in signature"
         />
       </div>
@@ -387,7 +387,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
         <Label>Phone number</Label>
         <Input
           value={form.phone}
-          onChange={(e) => update('phone', e.target.value)}
+          onChange={(e: any) => update('phone', e.target.value)}
           placeholder="Optional — +32 ..."
         />
       </div>
@@ -403,7 +403,7 @@ function StepProject({ form, update  }: any) {
         <Label>Project Name / Mission</Label>
         <Input
           value={form.project_name}
-          onChange={(e) => update('project_name', e.target.value)}
+          onChange={(e: any) => update('project_name', e.target.value)}
           placeholder="Project or mission name"
         />
       </div>
@@ -412,7 +412,7 @@ function StepProject({ form, update  }: any) {
           <Label>
             Language <span className="text-destructive ml-1">*</span>
           </Label>
-          <Select value={form.language} onChange={(e) => update('language', e.target.value)}>
+          <Select value={form.language} onChange={(e: any) => update('language', e.target.value)}>
             <option value="">Select...</option>
             {LANGUAGES.map((l) => (
               <option key={l} value={l}>{l}</option>
@@ -425,7 +425,7 @@ function StepProject({ form, update  }: any) {
           </Label>
           <Input
             value={form.country_based}
-            onChange={(e) => update('country_based', e.target.value)}
+            onChange={(e: any) => update('country_based', e.target.value)}
             placeholder="e.g. Belgium, France"
           />
         </div>
@@ -434,7 +434,7 @@ function StepProject({ form, update  }: any) {
         <Label>Manager / Reports to</Label>
         <Input
           value={form.manager}
-          onChange={(e) => update('manager', e.target.value)}
+          onChange={(e: any) => update('manager', e.target.value)}
           placeholder="Optional — N+1 name"
         />
       </div>
@@ -457,7 +457,7 @@ function StepDates({ form, update  }: any) {
           type="date"
           value={form.first_day}
           min={todayIso}
-          onChange={(e) => update('first_day', e.target.value)}
+          onChange={(e: any) => update('first_day', e.target.value)}
         />
       </div>
       <div className="space-y-2">
@@ -466,7 +466,7 @@ function StepDates({ form, update  }: any) {
           type="date"
           value={form.last_day}
           min={exitMin}
-          onChange={(e) => update('last_day', e.target.value)}
+          onChange={(e: any) => update('last_day', e.target.value)}
         />
         {exitInvalid && (
           <p className="text-[11px] text-destructive">Exit date must be on or after the entry date.</p>
@@ -500,7 +500,7 @@ function StepAccess({ form, update  }: any) {
           <Label>Folder Access</Label>
           <Input
             value={form.which_folders}
-            onChange={(e) => update('which_folders', e.target.value)}
+            onChange={(e: any) => update('which_folders', e.target.value)}
             placeholder="https:// SharePoint URL"
           />
         </motion.div>
@@ -544,7 +544,7 @@ function StepRequester({ form, update  }: any) {
         <Input
           type="date"
           value={form.requested_on}
-          onChange={(e) => update('requested_on', e.target.value)}
+          onChange={(e: any) => update('requested_on', e.target.value)}
         />
         <p className="text-[11px] text-muted-foreground">Auto-filled with today's date</p>
       </div>
@@ -552,7 +552,7 @@ function StepRequester({ form, update  }: any) {
         <Label>Requested By</Label>
         <Input
           value={form.requested_by}
-          onChange={(e) => update('requested_by', e.target.value)}
+          onChange={(e: any) => update('requested_by', e.target.value)}
         />
         <p className="text-[11px] text-muted-foreground">Auto-filled from your profile</p>
       </div>

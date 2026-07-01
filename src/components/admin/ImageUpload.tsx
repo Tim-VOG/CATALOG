@@ -138,7 +138,7 @@ export function ImageUpload({
             dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
           }`}
           onDrop={handleDrop}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragOver={(e: any) => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onClick={() => !uploading && fileInputRef.current?.click()}
         >
@@ -165,7 +165,7 @@ export function ImageUpload({
         type="file"
         className="hidden"
         accept={accept}
-        onChange={(e) => {
+        onChange={(e: any) => {
           handleUpload(e.target.files[0])
           e.target.value = '' // Reset so same file can be re-selected
         }}

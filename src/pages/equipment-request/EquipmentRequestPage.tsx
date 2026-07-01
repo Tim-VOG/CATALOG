@@ -93,7 +93,7 @@ function StepRequester({ form, setField  }: any) {
         </Label>
         <Input
           value={form.requested_by}
-          onChange={(e) => setField('requested_by', e.target.value)}
+          onChange={(e: any) => setField('requested_by', e.target.value)}
           placeholder="Your full name"
         />
       </div>
@@ -103,7 +103,7 @@ function StepRequester({ form, setField  }: any) {
         </Label>
         <Input
           value={form.from_company}
-          onChange={(e) => setField('from_company', e.target.value)}
+          onChange={(e: any) => setField('from_company', e.target.value)}
           placeholder="Company name"
         />
       </div>
@@ -121,7 +121,7 @@ function StepEvent({ form, setField  }: any) {
         </Label>
         <Input
           value={form.event_name}
-          onChange={(e) => setField('event_name', e.target.value)}
+          onChange={(e: any) => setField('event_name', e.target.value)}
           placeholder="Name of the event"
         />
       </div>
@@ -129,7 +129,7 @@ function StepEvent({ form, setField  }: any) {
         <Label>Job</Label>
         <Input
           value={form.job}
-          onChange={(e) => setField('job', e.target.value)}
+          onChange={(e: any) => setField('job', e.target.value)}
           placeholder="Job reference"
         />
       </div>
@@ -141,7 +141,7 @@ function StepEvent({ form, setField  }: any) {
           <Input
             type="date"
             value={form.pick_up}
-            onChange={(e) => setField('pick_up', e.target.value)}
+            onChange={(e: any) => setField('pick_up', e.target.value)}
           />
         </div>
         <div className="space-y-2">
@@ -151,7 +151,7 @@ function StepEvent({ form, setField  }: any) {
           <Input
             type="date"
             value={form.deposit}
-            onChange={(e) => setField('deposit', e.target.value)}
+            onChange={(e: any) => setField('deposit', e.target.value)}
           />
         </div>
       </div>
@@ -443,7 +443,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
         <Label>Additional notes</Label>
         <Textarea
           value={form.additional_notes}
-          onChange={(e) => setField('additional_notes', e.target.value)}
+          onChange={(e: any) => setField('additional_notes', e.target.value)}
           placeholder="Any specific requirements or details..."
           rows={3}
         />

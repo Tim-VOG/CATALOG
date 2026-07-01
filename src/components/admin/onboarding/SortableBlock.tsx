@@ -55,7 +55,7 @@ function SectionLabelOptions({ blockKey, options, update  }: any) {
           <Label className="text-xs">Label FR</Label>
           <Input
             value={options.section_label_fr || ''}
-            onChange={(e) => update('section_label_fr', e.target.value)}
+            onChange={(e: any) => update('section_label_fr', e.target.value)}
             placeholder="Default from template"
             className="text-sm"
           />
@@ -64,7 +64,7 @@ function SectionLabelOptions({ blockKey, options, update  }: any) {
           <Label className="text-xs">Label EN</Label>
           <Input
             value={options.section_label_en || ''}
-            onChange={(e) => update('section_label_en', e.target.value)}
+            onChange={(e: any) => update('section_label_en', e.target.value)}
             placeholder="Default from template"
             className="text-sm"
           />
@@ -92,7 +92,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               <Label className="text-xs">Header title</Label>
               <Input
                 value={options.header_title || ''}
-                onChange={(e) => update('header_title', e.target.value)}
+                onChange={(e: any) => update('header_title', e.target.value)}
                 placeholder="VO IT HUB"
                 className="text-sm"
               />
@@ -103,7 +103,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Welcome title FR</Label>
                 <Input
                   value={options.welcome_title_fr || ''}
-                  onChange={(e) => update('welcome_title_fr', e.target.value)}
+                  onChange={(e: any) => update('welcome_title_fr', e.target.value)}
                   placeholder="Bienvenue {{first_name}} !"
                   className="text-sm"
                 />
@@ -112,7 +112,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Welcome title EN</Label>
                 <Input
                   value={options.welcome_title_en || ''}
-                  onChange={(e) => update('welcome_title_en', e.target.value)}
+                  onChange={(e: any) => update('welcome_title_en', e.target.value)}
                   placeholder="Welcome {{first_name}}!"
                   className="text-sm"
                 />
@@ -124,7 +124,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Subtitle FR</Label>
                 <Input
                   value={options.header_subtitle_fr || ''}
-                  onChange={(e) => update('header_subtitle_fr', e.target.value)}
+                  onChange={(e: any) => update('header_subtitle_fr', e.target.value)}
                   placeholder="Votre guide d'int&eacute;gration chez VO Group"
                   className="text-sm"
                 />
@@ -133,7 +133,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Subtitle EN</Label>
                 <Input
                   value={options.header_subtitle_en || ''}
-                  onChange={(e) => update('header_subtitle_en', e.target.value)}
+                  onChange={(e: any) => update('header_subtitle_en', e.target.value)}
                   placeholder="Your onboarding guide at VO Group"
                   className="text-sm"
                 />
@@ -145,12 +145,12 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <input
                   type="color"
                   value={options.accent_color || '#f97316'}
-                  onChange={(e) => update('accent_color', e.target.value)}
+                  onChange={(e: any) => update('accent_color', e.target.value)}
                   className="h-8 w-12 rounded border border-border cursor-pointer"
                 />
                 <Input
                   value={options.accent_color || ''}
-                  onChange={(e) => update('accent_color', e.target.value)}
+                  onChange={(e: any) => update('accent_color', e.target.value)}
                   placeholder="#f97316"
                   className="text-sm flex-1 font-mono"
                 />
@@ -162,7 +162,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Footer text FR</Label>
                 <Input
                   value={options.footer_text_fr || ''}
-                  onChange={(e) => update('footer_text_fr', e.target.value)}
+                  onChange={(e: any) => update('footer_text_fr', e.target.value)}
                   placeholder="Plateforme IT interne"
                   className="text-sm"
                 />
@@ -171,7 +171,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Footer text EN</Label>
                 <Input
                   value={options.footer_text_en || ''}
-                  onChange={(e) => update('footer_text_en', e.target.value)}
+                  onChange={(e: any) => update('footer_text_en', e.target.value)}
                   placeholder="Internal IT Platform"
                   className="text-sm"
                 />
@@ -190,7 +190,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               <Label className="text-xs">Auto-send notice FR</Label>
               <Input
                 value={options.auto_notice_fr || ''}
-                onChange={(e) => update('auto_notice_fr', e.target.value)}
+                onChange={(e: any) => update('auto_notice_fr', e.target.value)}
                 placeholder="Cet email a &eacute;t&eacute; envoy&eacute; automatiquement"
                 className="text-sm"
               />
@@ -199,7 +199,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               <Label className="text-xs">Auto-send notice EN</Label>
               <Input
                 value={options.auto_notice_en || ''}
-                onChange={(e) => update('auto_notice_en', e.target.value)}
+                onChange={(e: any) => update('auto_notice_en', e.target.value)}
                 placeholder="This email was sent automatically"
                 className="text-sm"
               />
@@ -218,7 +218,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Secure share URL</Label>
                 <Input
                   value={options.url || ''}
-                  onChange={(e) => update('url', e.target.value)}
+                  onChange={(e: any) => update('url', e.target.value)}
                   placeholder="https://start.1password.com/..."
                   className="text-sm"
                 />
@@ -229,7 +229,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Label FR</Label>
                   <Input
                     value={options.label_fr || ''}
-                    onChange={(e) => update('label_fr', e.target.value)}
+                    onChange={(e: any) => update('label_fr', e.target.value)}
                     placeholder="Récupérer mon mot de passe"
                     className="text-sm"
                   />
@@ -238,7 +238,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Label EN</Label>
                   <Input
                     value={options.label_en || ''}
-                    onChange={(e) => update('label_en', e.target.value)}
+                    onChange={(e: any) => update('label_en', e.target.value)}
                     placeholder="Retrieve my password"
                     className="text-sm"
                   />
@@ -260,7 +260,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Button URL</Label>
                 <Input
                   value={options.url || ''}
-                  onChange={(e) => update('url', e.target.value)}
+                  onChange={(e: any) => update('url', e.target.value)}
                   placeholder="https://..."
                   className="text-sm"
                 />
@@ -270,7 +270,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Label FR</Label>
                   <Input
                     value={options.label_fr || ''}
-                    onChange={(e) => update('label_fr', e.target.value)}
+                    onChange={(e: any) => update('label_fr', e.target.value)}
                     placeholder="Acceder"
                     className="text-sm"
                   />
@@ -279,7 +279,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Label EN</Label>
                   <Input
                     value={options.label_en || ''}
-                    onChange={(e) => update('label_en', e.target.value)}
+                    onChange={(e: any) => update('label_en', e.target.value)}
                     placeholder="Access"
                     className="text-sm"
                   />
@@ -302,7 +302,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Link URL</Label>
                 <Input
                   value={options.url || ''}
-                  onChange={(e) => update('url', e.target.value)}
+                  onChange={(e: any) => update('url', e.target.value)}
                   placeholder="https://..."
                   className="text-sm"
                 />
@@ -312,7 +312,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Button label FR</Label>
                   <Input
                     value={options.label_fr || ''}
-                    onChange={(e) => update('label_fr', e.target.value)}
+                    onChange={(e: any) => update('label_fr', e.target.value)}
                     className="text-sm"
                   />
                 </div>
@@ -320,7 +320,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Button label EN</Label>
                   <Input
                     value={options.label_en || ''}
-                    onChange={(e) => update('label_en', e.target.value)}
+                    onChange={(e: any) => update('label_en', e.target.value)}
                     className="text-sm"
                   />
                 </div>
@@ -341,7 +341,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Network name</Label>
                 <Input
                   value={options.network_name || ''}
-                  onChange={(e) => update('network_name', e.target.value)}
+                  onChange={(e: any) => update('network_name', e.target.value)}
                   className="text-sm"
                 />
               </div>
@@ -349,7 +349,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Guest network</Label>
                 <Input
                   value={options.guest_network || ''}
-                  onChange={(e) => update('guest_network', e.target.value)}
+                  onChange={(e: any) => update('guest_network', e.target.value)}
                   className="text-sm"
                 />
               </div>
@@ -369,7 +369,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Building address</Label>
                 <Input
                   value={options.building_address || ''}
-                  onChange={(e) => update('building_address', e.target.value)}
+                  onChange={(e: any) => update('building_address', e.target.value)}
                   className="text-sm"
                 />
               </div>
@@ -377,7 +377,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">Reception phone</Label>
                 <Input
                   value={options.reception_phone || ''}
-                  onChange={(e) => update('reception_phone', e.target.value)}
+                  onChange={(e: any) => update('reception_phone', e.target.value)}
                   className="text-sm"
                 />
               </div>
@@ -398,7 +398,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 <Label className="text-xs">URL</Label>
                 <Input
                   value={options.url || ''}
-                  onChange={(e) => update('url', e.target.value)}
+                  onChange={(e: any) => update('url', e.target.value)}
                   placeholder="https://..."
                   className="text-sm"
                 />
@@ -408,7 +408,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Label FR</Label>
                   <Input
                     value={options.label_fr || ''}
-                    onChange={(e) => update('label_fr', e.target.value)}
+                    onChange={(e: any) => update('label_fr', e.target.value)}
                     className="text-sm"
                   />
                 </div>
@@ -416,7 +416,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   <Label className="text-xs">Label EN</Label>
                   <Input
                     value={options.label_en || ''}
-                    onChange={(e) => update('label_en', e.target.value)}
+                    onChange={(e: any) => update('label_en', e.target.value)}
                     className="text-sm"
                   />
                 </div>
@@ -563,7 +563,7 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
                     </div>
                     <Textarea
                       value={content || ''}
-                      onChange={(e) => onContentChange(contentKey, e.target.value)}
+                      onChange={(e: any) => onContentChange(contentKey, e.target.value)}
                       rows={6}
                       className="text-sm font-mono bg-muted/20 border-muted-foreground/10 focus:border-primary/40"
                       placeholder="Email block content..."

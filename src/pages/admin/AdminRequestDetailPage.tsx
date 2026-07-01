@@ -41,7 +41,7 @@ function AdminNotes({ requestId, initialNotes  }: any) {
 
   return (
     <div className="space-y-2">
-      <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Internal notes (not visible to the user)..." rows={3} className="text-sm" />
+      <Textarea value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Internal notes (not visible to the user)..." rows={3} className="text-sm" />
       {changed && (
         <Button size="sm" onClick={handleSave} disabled={saving} className="gap-2">
           <Save className="h-3.5 w-3.5" /> {saving ? 'Saving...' : 'Save Notes'}
@@ -517,7 +517,7 @@ export function AdminRequestDetailPage() {
               <div className="space-y-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search QR code..." className="pl-9" value={qrSearch} onChange={(e) => setQrSearch(e.target.value)} />
+                  <Input placeholder="Search QR code..." className="pl-9" value={qrSearch} onChange={(e: any) => setQrSearch(e.target.value)} />
                 </div>
                 <div className="space-y-2 max-h-56 overflow-y-auto">
                   {filteredAssignQRs.length === 0 ? (

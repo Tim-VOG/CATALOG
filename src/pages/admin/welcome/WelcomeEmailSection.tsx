@@ -139,7 +139,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
             id={`personal-email-${req.id}`}
             type="email"
             value={personalEmail}
-            onChange={(e) => setPersonalEmail(e.target.value)}
+            onChange={(e: any) => setPersonalEmail(e.target.value)}
             placeholder={`${data.first_name?.toLowerCase() || 'jdoe'}@gmail.com`}
             autoFocus
           />

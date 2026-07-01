@@ -314,7 +314,7 @@ export function CatalogLoansView({ events  }: any) {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: any) => setSearch(e.target.value)}
             placeholder="Search products, users..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
           />

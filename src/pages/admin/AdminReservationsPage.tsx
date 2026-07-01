@@ -138,7 +138,7 @@ export function AdminReservationsPage() {
               <label className="text-xs text-muted-foreground">Product</label>
               <select
                 value={form.product_id}
-                onChange={(e) => setForm({ ...form, product_id: e.target.value })}
+                onChange={(e: any) => setForm({ ...form, product_id: e.target.value })}
                 className="w-full h-9 px-3 text-sm rounded-md border border-input bg-background"
               >
                 <option value="">Select a product…</option>
@@ -149,15 +149,15 @@ export function AdminReservationsPage() {
             </div>
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground">Reserved for date</label>
-              <Input type="date" value={form.reserved_date} onChange={(e) => setForm({ ...form, reserved_date: e.target.value })} />
+              <Input type="date" value={form.reserved_date} onChange={(e: any) => setForm({ ...form, reserved_date: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground">Picked up by (name)</label>
-              <Input value={form.pickup_by} onChange={(e) => setForm({ ...form, pickup_by: e.target.value })} placeholder="Marc Dupont" />
+              <Input value={form.pickup_by} onChange={(e: any) => setForm({ ...form, pickup_by: e.target.value })} placeholder="Marc Dupont" />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground">Notes</label>
-              <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Optional" />
+              <Input value={form.notes} onChange={(e: any) => setForm({ ...form, notes: e.target.value })} placeholder="Optional" />
             </div>
           </div>
           <DialogFooter>
