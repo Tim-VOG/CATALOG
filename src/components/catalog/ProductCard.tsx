@@ -45,7 +45,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   const typeBadge = { call: 'bg-blue-500/15 text-blue-400', data: 'bg-purple-500/15 text-purple-400', both: 'bg-cyan-500/15 text-cyan-400' }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={(v: any) => !v && onClose()}>
       <DialogContent className="max-w-md p-0 overflow-hidden" size="md">
         <div className="px-6 pt-6 pb-4 border-b bg-muted/30">
           <div className="flex items-center gap-3">
@@ -222,7 +222,7 @@ export function ProductCard({ product, forecast }: any) {
         </div>
       </div>
 
-      {optionsOpen && <OptionsDialog product={product} open={optionsOpen} onClose={() => setOptionsOpen(false)} onConfirm={(o) => { setOptionsOpen(false); doAdd(o) }} />}
+      {optionsOpen && <OptionsDialog product={product} open={optionsOpen} onClose={() => setOptionsOpen(false)} onConfirm={(o: any) => { setOptionsOpen(false); doAdd(o) }} />}
     </>
   )
 }

@@ -78,7 +78,7 @@ export function StatusPage() {
 
   const runAll = async () => {
     setChecks((cs) => cs.map((c: any) => ({ ...c, status: 'pending' as Status })))
-    const results = await Promise.all(initial.map((c: any) => runCheck(c.key).then((r) => ({ ...c, ...r }))))
+    const results = await Promise.all(initial.map((c: any) => runCheck(c.key).then((r: any) => ({ ...c, ...r }))))
     setChecks(results)
     setLastRun(new Date())
   }

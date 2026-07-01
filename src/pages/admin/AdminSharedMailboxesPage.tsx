@@ -261,11 +261,11 @@ export function AdminSharedMailboxesPage() {
                           </Badge>
                         </div>
                       ) : col.type === 'select' ? (
-                        <SelectCell value={r[col.key]} options={col.options} onChange={(v) => handleUpdate(r.id, col.key, v)} />
+                        <SelectCell value={r[col.key]} options={col.options} onChange={(v: any) => handleUpdate(r.id, col.key, v)} />
                       ) : col.type === 'checkbox' ? (
-                        <div className="px-2"><CheckboxCell value={r[col.key]} onChange={(v) => handleUpdate(r.id, col.key, v)} /></div>
+                        <div className="px-2"><CheckboxCell value={r[col.key]} onChange={(v: any) => handleUpdate(r.id, col.key, v)} /></div>
                       ) : (
-                        <EditableCell value={r[col.key]} type={col.type} onChange={(v) => handleUpdate(r.id, col.key, v)} />
+                        <EditableCell value={r[col.key]} type={col.type} onChange={(v: any) => handleUpdate(r.id, col.key, v)} />
                       )}
                     </td>
                   ))}

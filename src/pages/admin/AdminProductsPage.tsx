@@ -433,7 +433,7 @@ export function AdminProductsPage() {
               <Label>Product Image</Label>
               <ImageUpload
                 value={form.image_url}
-                onChange={(url) => setForm({ ...form, image_url: url })}
+                onChange={(url: any) => setForm({ ...form, image_url: url })}
                 bucket="product-images"
                 requiredWidth={400}
                 requiredHeight={300}
@@ -458,7 +458,7 @@ export function AdminProductsPage() {
               <Label>Included items</Label>
               <TagInput
                 value={form.includes}
-                onChange={(tags) => setForm({ ...form, includes: tags })}
+                onChange={(tags: any) => setForm({ ...form, includes: tags })}
                 placeholder="Type item and press Enter..."
               />
               {suggestions.length > 0 && (
@@ -490,7 +490,7 @@ export function AdminProductsPage() {
                   ['printer_info', 'Printer (B&W)'],
                 ].map(([key, label]) => (
                   <label key={key} className="flex items-center gap-2 text-sm cursor-pointer">
-                    <Checkbox checked={form[key]} onCheckedChange={(v) => setForm({ ...form, [key]: v })} />
+                    <Checkbox checked={form[key]} onCheckedChange={(v: any) => setForm({ ...form, [key]: v })} />
                     {label}
                   </label>
                 ))}

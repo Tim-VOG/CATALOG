@@ -82,7 +82,7 @@ export function QRScanner({ onScan, scanning = true  }: any) {
       ).then(() => {
         setStarted(true)
         setError(null)
-      }).catch((err) => {
+      }).catch((err: any) => {
         setError(err?.message || 'Camera access failed')
       })
     }, 300)

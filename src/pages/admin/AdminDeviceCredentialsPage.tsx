@@ -283,7 +283,7 @@ export function AdminDeviceCredentialsPage() {
                       <EditableCell
                         value={r[col.key]}
                         masked={col.masked && !revealSecrets}
-                        onChange={(v) => handleUpdate(r.id, col.key, v)}
+                        onChange={(v: any) => handleUpdate(r.id, col.key, v)}
                       />
                     </td>
                   ))}

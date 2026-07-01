@@ -354,7 +354,7 @@ export function CartPage() {
                         <ItemOptionsEditor
                           item={item}
                           subscriptionPlans={subscriptionPlans}
-                          onSave={(options) => handleOptionsUpdate(item, options)}
+                          onSave={(options: any) => handleOptionsUpdate(item, options)}
                         />
                       )}
                     </div>

@@ -17,7 +17,7 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
   )
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
+    <Dialog open onOpenChange={(open: any) => !open && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Configure: {product.name}</DialogTitle>

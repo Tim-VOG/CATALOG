@@ -76,7 +76,7 @@ export async function notifyRecipients(args: NotifyArgs): Promise<void> {
 
     await Promise.all(
       recipients.map((to) =>
-        sendEmail({ to, subject, body, isHtml: true }).catch((err) => {
+        sendEmail({ to, subject, body, isHtml: true }).catch((err: any) => {
           console.warn('[notifyRecipients] send failed for', to, err)
         }),
       ),

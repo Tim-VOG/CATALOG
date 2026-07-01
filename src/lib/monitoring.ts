@@ -22,7 +22,7 @@ async function loadSentry() {
   // at build time, so the bundle builds whether or not the package is
   // installed. Catch branch handles the missing-package case at runtime.
   const pkg = '@sentry/react'
-  sentryPromise = import(/* @vite-ignore */ pkg).then((Sentry) => {
+  sentryPromise = import(/* @vite-ignore */ pkg).then((Sentry: any) => {
     if (!initialized) {
       try {
         Sentry.init({
@@ -38,7 +38,7 @@ async function loadSentry() {
       }
     }
     return Sentry
-  }).catch((err) => {
+  }).catch((err: any) => {
     console.warn('[monitoring] @sentry/react not installed; skipping init', err)
     return null
   })

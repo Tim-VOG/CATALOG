@@ -290,7 +290,7 @@ export function OnboardingRequestsPage() {
           req={selectedRequest}
           sentEmail={sentByRequestId[selectedRequest.id]}
           onBack={() => setSelectedId(null)}
-          onDelete={(r) => setDeleteConfirm(r)}
+          onDelete={(r: any) => setDeleteConfirm(r)}
           onStatusChange={handleStatusChange}
         />
         <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>

@@ -101,7 +101,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
                 <label key={opt.value} className="flex items-center gap-2 text-sm">
                   <Checkbox
                     checked={isChecked}
-                    onCheckedChange={(checked) => {
+                    onCheckedChange={(checked: any) => {
                       const newVal = checked
                         ? [...selected, opt.value]
                         : selected.filter((v: any) => v !== opt.value)
@@ -139,7 +139,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
           <label className="flex items-center gap-2 text-sm">
             <Checkbox
               checked={!!value}
-              onCheckedChange={(v) => onChange(v)}
+              onCheckedChange={(v: any) => onChange(v)}
             />
             {field.placeholder || field.label}
           </label>

@@ -80,7 +80,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
     } else {
       // Load default template from DB, fallback to hardcoded
       getEmailTemplateByKey('user_invitation')
-        .then((tmpl) => {
+        .then((tmpl: any) => {
           if (tmpl) {
             setEmailSubject(tmpl.subject || DEFAULT_SUBJECT)
             setEmailBody(tmpl.body || DEFAULT_BODY)

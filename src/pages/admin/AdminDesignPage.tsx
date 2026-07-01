@@ -621,7 +621,7 @@ export function AdminDesignPage() {
                 desc={desc}
                 value={activePalette[key]}
                 defaultValue={activeDefaults[key]}
-                onChange={(v) => updateActivePalette(key, v)}
+                onChange={(v: any) => updateActivePalette(key, v)}
               />
             ))}
           </div>

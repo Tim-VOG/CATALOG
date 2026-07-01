@@ -146,7 +146,7 @@ export function AdminCalendarFilterBar({ filters, onChange, counts, users  }: an
       <UserFilterDropdown
         users={users}
         selectedUsers={filters.users || []}
-        onChange={(userIds) => onChange({ ...filters, users: userIds })}
+        onChange={(userIds: any) => onChange({ ...filters, users: userIds })}
       />
     </div>
   )

@@ -506,7 +506,7 @@ export function AdminItFormBuilderPage() {
                 <Label>Required</Label>
                 <Switch
                   checked={editDialog.is_required}
-                  onCheckedChange={(v) => setEditDialog((prev) => ({ ...prev, is_required: v }))}
+                  onCheckedChange={(v: any) => setEditDialog((prev) => ({ ...prev, is_required: v }))}
                 />
               </div>
 

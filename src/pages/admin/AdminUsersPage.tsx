@@ -579,7 +579,7 @@ export function AdminUsersPage() {
       {/* Invite user dialog */}
       <InviteUserDialog
         open={inviteOpen}
-        onOpenChange={(open) => {
+        onOpenChange={(open: any) => {
           setInviteOpen(open)
           if (!open) setEditingInvitation(null)
         }}

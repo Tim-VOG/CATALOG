@@ -376,7 +376,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
   useEffect(() => {
     let cancelled = false
     getEmailTemplateByKey('mailbox_confirmation')
-      .then((tmpl) => { if (!cancelled) setDbTemplate(tmpl) })
+      .then((tmpl: any) => { if (!cancelled) setDbTemplate(tmpl) })
       .catch(() => {})
     return () => { cancelled = true }
   }, [])

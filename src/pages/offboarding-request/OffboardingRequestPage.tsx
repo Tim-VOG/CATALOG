@@ -117,7 +117,7 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
         </Label>
         <ProfileAutocomplete
           value={form.name}
-          onChange={(text) => {
+          onChange={(text: any) => {
             // Typing free text: drop the previously linked user (their data
             // may no longer match what's typed).
             setMultipleFields({ name: text, leaving_user_id: null, leaving_user_email: '' })
@@ -181,7 +181,7 @@ function StepRevocation({ form, setField  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.revoke_email_access}
-            onCheckedChange={(val) => setField('revoke_email_access', val)}
+            onCheckedChange={(val: any) => setField('revoke_email_access', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.revoke_email_access ? 'Yes' : 'No'}
@@ -194,7 +194,7 @@ function StepRevocation({ form, setField  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.revoke_vpn_tools_access}
-            onCheckedChange={(val) => setField('revoke_vpn_tools_access', val)}
+            onCheckedChange={(val: any) => setField('revoke_vpn_tools_access', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.revoke_vpn_tools_access ? 'Yes' : 'No'}
@@ -207,7 +207,7 @@ function StepRevocation({ form, setField  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.transfer_mailbox_data}
-            onCheckedChange={(val) => setField('transfer_mailbox_data', val)}
+            onCheckedChange={(val: any) => setField('transfer_mailbox_data', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.transfer_mailbox_data ? 'Yes' : 'No'}
@@ -220,7 +220,7 @@ function StepRevocation({ form, setField  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.transfer_sharepoint_data}
-            onCheckedChange={(val) => setField('transfer_sharepoint_data', val)}
+            onCheckedChange={(val: any) => setField('transfer_sharepoint_data', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.transfer_sharepoint_data ? 'Yes' : 'No'}
@@ -255,7 +255,7 @@ function StepRevocation({ form, setField  }: any) {
           <div className="flex items-center gap-3">
             <Switch
               checked={form.ooo_enabled}
-              onCheckedChange={(val) => setField('ooo_enabled', val)}
+              onCheckedChange={(val: any) => setField('ooo_enabled', val)}
             />
             <span className="text-sm text-muted-foreground">
               {form.ooo_enabled ? 'Yes — set up an auto-reply on the leaver\'s mailbox' : 'No'}
@@ -375,7 +375,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.collect_laptop}
-            onCheckedChange={(val) => setField('collect_laptop', val)}
+            onCheckedChange={(val: any) => setField('collect_laptop', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.collect_laptop ? 'Yes' : 'No'}
@@ -388,7 +388,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.collect_phone}
-            onCheckedChange={(val) => setField('collect_phone', val)}
+            onCheckedChange={(val: any) => setField('collect_phone', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.collect_phone ? 'Yes' : 'No'}
@@ -401,7 +401,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
         <div className="flex items-center gap-3">
           <Switch
             checked={form.collect_badge_keys}
-            onCheckedChange={(val) => setField('collect_badge_keys', val)}
+            onCheckedChange={(val: any) => setField('collect_badge_keys', val)}
           />
           <span className="text-sm text-muted-foreground">
             {form.collect_badge_keys ? 'Yes' : 'No'}

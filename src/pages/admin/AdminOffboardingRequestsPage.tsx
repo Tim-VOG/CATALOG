@@ -407,9 +407,9 @@ export function AdminOffboardingRequestsPage() {
         <RequestDetail
           req={selectedRequest}
           onboardingMatch={findOnboardingFor(selectedRequest)}
-          onToggleRevoked={(itemId) => handleToggleRevoked(selectedRequest, itemId)}
+          onToggleRevoked={(itemId: any) => handleToggleRevoked(selectedRequest, itemId)}
           onBack={() => setSelectedId(null)}
-          onDelete={(r) => setDeleteConfirm(r)}
+          onDelete={(r: any) => setDeleteConfirm(r)}
           onStatusChange={handleStatusChange}
         />
         <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>

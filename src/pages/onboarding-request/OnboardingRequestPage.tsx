@@ -487,7 +487,7 @@ function StepAccess({ form, update  }: any) {
         <MultiSelectField
           options={ACCESS_OPTIONS}
           value={form.what_access}
-          onChange={(val) => update('what_access', val)}
+          onChange={(val: any) => update('what_access', val)}
         />
       </div>
       {showFolders && (
@@ -513,7 +513,7 @@ function StepAccess({ form, update  }: any) {
         <MultiSelectField
           options={distributionListsFor(form.company)}
           value={form.subscribe_to}
-          onChange={(val) => update('subscribe_to', val)}
+          onChange={(val: any) => update('subscribe_to', val)}
           descriptions={DISTRIBUTION_LIST_INFO}
         />
       </div>
@@ -521,14 +521,14 @@ function StepAccess({ form, update  }: any) {
         <Label>Internal Newsletter</Label>
         <YesNoField
           value={form.internal_newsletter}
-          onChange={(v) => update('internal_newsletter', v)}
+          onChange={(v: any) => update('internal_newsletter', v)}
         />
       </div>
       <div className="space-y-2">
         <Label>Welcome Interview Reception</Label>
         <YesNoField
           value={form.welcome_interview}
-          onChange={(v) => update('welcome_interview', v)}
+          onChange={(v: any) => update('welcome_interview', v)}
         />
       </div>
     </div>

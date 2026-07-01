@@ -281,14 +281,14 @@ export function AdminItInventoryPage() {
                           <SelectCell
                             value={row[col.key]}
                             options={col.options}
-                            onChange={(v) => handleUpdate(row.id, col.key, v)}
+                            onChange={(v: any) => handleUpdate(row.id, col.key, v)}
                           />
                         ) : (
                           <EditableCell
                             value={row[col.key]}
                             type={col.type}
                             placeholder={col.suffix || ''}
-                            onChange={(v) => handleUpdate(row.id, col.key, col.type === 'number' && v != null && v !== '' ? Number(v) : v)}
+                            onChange={(v: any) => handleUpdate(row.id, col.key, col.type === 'number' && v != null && v !== '' ? Number(v) : v)}
                           />
                         )}
                       </td>

@@ -343,7 +343,7 @@ export function FormFieldsManager() {
               <Input value={form.help_text} onChange={(e: any) => setForm({ ...form, help_text: e.target.value })} />
             </div>
             <label className="flex items-center gap-2">
-              <Checkbox checked={form.is_required} onCheckedChange={(v) => setForm({ ...form, is_required: v })} />
+              <Checkbox checked={form.is_required} onCheckedChange={(v: any) => setForm({ ...form, is_required: v })} />
               <span className="text-sm">Required field</span>
             </label>
 
