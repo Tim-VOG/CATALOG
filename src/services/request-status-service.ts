@@ -12,7 +12,7 @@ function toRequestKind(requestType: string): RequestKind {
   return 'it'
 }
 
-export async function createNotification(userId, title, message, type = 'status_change') {
+export async function createNotification(userId: any, title: string, message: string, type = 'status_change') {
   if (!userId) return
   try {
     await supabase.from('notifications').insert({
@@ -32,17 +32,17 @@ export const STATUS_TRANSITIONS = {
   returned: [],
 }
 
-export function getAvailableTransitions(currentStatus) {
-  return STATUS_TRANSITIONS[currentStatus] || []
+export function getAvailableTransitions(currentStatus: string) {
+  return STATUS_TRANSITIONS[currentStatus as keyof typeof STATUS_TRANSITIONS] || []
 }
 
 // ── Hardcoded fallbacks (used if DB template is unavailable) ──
 // All templates share the same "white bordered card with label + value rows"
 // layout as mailbox_confirmation — single design across every email.
 const CARD_OPEN = '<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;background:#ffffff;border-radius:12px;border:1px solid #e6ebf1;margin:24px 0;overflow:hidden;box-shadow:0 1px 2px rgba(10,37,64,0.04);">'
-const cardRow = (label, value, { last = false, big = false } = {}) =>
+const cardRow = (label: any, value: any, { last = false, big = false } = {}) =>
   `<tr><td style="padding:18px 22px;${last ? '' : 'border-bottom:1px solid #eef2f7;'}"><div style="font-size:11px;color:#8898aa;text-transform:uppercase;letter-spacing:0.6px;font-weight:600;margin-bottom:4px;">${label}</div><div style="font-weight:${big ? '700' : '600'};color:#0a2540;font-size:${big ? '17' : '15'}px;letter-spacing:${big ? '-0.2px' : 'normal'};">${value}</div></td></tr>`
-const card = (rows) => `${CARD_OPEN}${rows.map((r, i) => cardRow(r.label, r.value, { last: i === rows.length - 1, big: r.big })).join('')}</table>`
+const card = (rows: any[]) => `${CARD_OPEN}${rows.map((r: any, i: number) => cardRow(r.label, r.value, { last: i === rows.length - 1, big: r.big })).join('')}</table>`
 
 const FALLBACK_TEMPLATES = {
   request_confirmed: {
@@ -67,8 +67,8 @@ const FALLBACK_TEMPLATES = {
   },
 }
 
-function substitute(text, vars) {
-  return (text || '').replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `[${key}]`)
+function substitute(text: string, vars: Record<string, any>) {
+  return (text || '').replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => vars[key] ?? `[${key}]`)
 }
 
 /**
@@ -77,10 +77,10 @@ function substitute(text, vars) {
  * Always returns { subject, body } where body is the inner content
  * (not yet wrapped by wrapEmailHtml).
  */
-export async function renderTemplate(key, vars) {
+export async function renderTemplate(key: string, vars: Record<string, any>) {
   let tmpl = null
   try { tmpl = await getEmailTemplateByKey(key) } catch {}
-  const source = tmpl || FALLBACK_TEMPLATES[key] || { subject: '', body: '' }
+  const source = tmpl || FALLBACK_TEMPLATES[key as keyof typeof FALLBACK_TEMPLATES] || { subject: '', body: '' }
   return {
     subject: substitute(source.subject, vars),
     body: substitute(source.body, vars),
@@ -119,7 +119,7 @@ export async function buildConfirmationSubject({ type, newHireName, detail }: { 
 
 // Per-request-type "subject of the action" — the person/thing the
 // request is about. Mirrors what onboarding shows via {{new_hire_name}}.
-function fullName(...sources) {
+function fullName(...sources: any[]) {
   for (const s of sources) {
     const n = [s?.first_name, s?.last_name].filter(Boolean).join(' ').trim()
     if (n) return n
@@ -128,13 +128,13 @@ function fullName(...sources) {
   }
   return ''
 }
-function subjectLabelFor(requestType) {
+function subjectLabelFor(requestType: string) {
   if (requestType === 'onboarding') return 'New hire'
   if (requestType === 'offboarding') return 'Person leaving'
   if (requestType === 'mailbox') return 'Mailbox'
   return 'Request'
 }
-function subjectNameFor(req, requestType) {
+function subjectNameFor(req: any, requestType: string) {
   // For IT requests the form payload lives in req.data (jsonb) — dig into
   // it too so we never end up showing just the capitalised type.
   const data = req?.data || {}
@@ -160,7 +160,7 @@ function subjectNameFor(req, requestType) {
 }
 
 // ── Status change emails (in_progress / ready) ──
-export async function sendStatusChangeEmail(newStatus, { request, requestType = 'equipment' }) {
+export async function sendStatusChangeEmail(newStatus: any, { request, requestType = 'equipment' }: any) {
   const key =
     newStatus === 'in_progress' ? 'request_in_progress' :
     newStatus === 'ready' ? 'request_ready' :
@@ -255,16 +255,16 @@ export function notifyReturnRecipients(opts: {
 }
 
 
-export const formatDate = (d) =>
+export const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
-export const formatDateTime = (d) =>
+export const formatDateTime = (d: any) =>
   new Date(d).toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
 
-export function buildTimeline(request) {
+export function buildTimeline(request: any) {
   const events = [{ label: 'Submitted', date: request.created_at }]
   if (['in_progress', 'ready', 'returned'].includes(request.status)) {
     events.push({ label: 'In Progress', date: request.updated_at })
