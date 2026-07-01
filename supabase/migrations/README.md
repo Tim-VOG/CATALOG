@@ -70,3 +70,18 @@ persists anything.
 
 Stale. Kept for historical reference only — see the header in that
 file. Do not use it to provision a new database.
+
+## Historical notes (intentional back-and-forth)
+
+Some migration pairs look like one undoes the other. They are
+intentional product changes, not mistakes — documented here so nobody
+"fixes" them later:
+
+- **070 → 071 (user cancel → user notes).** Migration 070 added
+  DELETE policies letting users cancel their own pending
+  loan/it/mailbox requests. Migration 071 immediately dropped those
+  policies and instead added a `user_notes` column plus UPDATE
+  policies. The product decision changed mid-sprint: rather than let
+  users delete requests outright, they now leave a note asking an
+  admin to cancel. Both migrations are correct as applied — 071
+  supersedes 070 on purpose.
