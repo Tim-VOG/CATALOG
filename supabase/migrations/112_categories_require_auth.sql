@@ -14,6 +14,7 @@
 BEGIN;
 
 DROP POLICY IF EXISTS "Categories are viewable by everyone" ON public.categories;
+DROP POLICY IF EXISTS "Categories are viewable by authenticated users" ON public.categories;
 
 CREATE POLICY "Categories are viewable by authenticated users"
   ON public.categories
