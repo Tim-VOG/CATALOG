@@ -1,10 +1,19 @@
 import QRCodeLib from 'qrcode'
 
+interface BrandedQROptions {
+  size?: number
+  label?: string
+  logoText?: string
+}
+
 /**
  * Generate a branded QR code with VO logo in the center and orange color.
  * Returns a data URL (PNG).
  */
-export async function generateBrandedQR(code, { size = 400, label = '', logoText = 'VO' } = {}) {
+export async function generateBrandedQR(
+  code: string,
+  { size = 400, label = '', logoText = 'VO' }: BrandedQROptions = {},
+): Promise<string> {
   // Create base QR code as canvas
   const canvas = document.createElement('canvas')
   await QRCodeLib.toCanvas(canvas, code, {
@@ -18,6 +27,7 @@ export async function generateBrandedQR(code, { size = 400, label = '', logoText
   })
 
   const ctx = canvas.getContext('2d')
+  if (!ctx) return canvas.toDataURL('image/png')
 
   // Draw white circle in center for logo
   const centerX = size / 2
@@ -49,6 +59,7 @@ export async function generateBrandedQR(code, { size = 400, label = '', logoText
     newCanvas.width = size
     newCanvas.height = size + extraHeight
     const newCtx = newCanvas.getContext('2d')
+    if (!newCtx) return canvas.toDataURL('image/png')
 
     // White background
     newCtx.fillStyle = '#ffffff'
@@ -75,18 +86,24 @@ export async function generateBrandedQR(code, { size = 400, label = '', logoText
   return canvas.toDataURL('image/png')
 }
 
+interface QRPrintItem {
+  code: string
+  label: string
+}
+
 /**
  * Print multiple branded QR codes.
  */
-export async function printBrandedQRCodes(items) {
+export async function printBrandedQRCodes(items: QRPrintItem[]): Promise<void> {
   const images = await Promise.all(
-    items.map(async ({ code, label }) => {
+    items.map(async ({ code, label }: QRPrintItem) => {
       const url = await generateBrandedQR(code, { size: 300, label })
       return { url, label, code }
     })
   )
 
   const win = window.open('', '_blank')
+  if (!win) return
   win.document.write(`
     <html><head><title>VO Hub — QR Codes</title>
     <style>
