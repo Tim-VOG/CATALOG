@@ -107,7 +107,7 @@ export function ActivityTimeline({ userId }: { userId: string }) {
             {/* vertical rail */}
             <div className="absolute left-[18px] top-1 bottom-1 w-px bg-border/50" aria-hidden />
             <div className="space-y-1">
-              {events.slice(0, 30).map((e) => {
+              {events.slice(0, 30).map((e: any) => {
                 const Icon = e.icon
                 return (
                   <div key={e.id} className="relative flex items-start gap-3 py-1.5">

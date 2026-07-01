@@ -16,7 +16,7 @@ export function BottomTabBar() {
   const location = useLocation()
   const { t } = useTranslation()
   const { data: cartItems = [] } = useCart()
-  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+  const cartCount = cartItems.reduce((sum: any, i: any) => sum + i.quantity, 0)
 
   const isActive = (to, exact) => exact ? location.pathname === to : location.pathname.startsWith(to)
 

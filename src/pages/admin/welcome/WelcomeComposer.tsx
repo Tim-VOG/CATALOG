@@ -41,7 +41,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
   // Resume the most recent draft for this request, if any
   const existingDraft = useMemo(
-    () => existingEmails.find((e) => e.status === 'draft') || null,
+    () => existingEmails.find((e: any) => e.status === 'draft') || null,
     [existingEmails]
   )
 
@@ -71,7 +71,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       setBlocksConfig(existingDraft.blocks_config || [])
       setInitialized(true)
     } else if (blockTemplates.length > 0 && !blocksLoading) {
-      const initial = blockTemplates.map((t) => ({
+      const initial = blockTemplates.map((t: any) => ({
         block_key: t.block_key,
         enabled: t.default_enabled ?? true,
         content_fr: t.default_content_fr,
@@ -280,7 +280,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Email Blocks</h4>
               <Badge variant="outline" className="text-[10px]">
-                {blocksConfig.filter((b) => b.enabled).length}/{blocksConfig.length} enabled
+                {blocksConfig.filter((b: any) => b.enabled).length}/{blocksConfig.length} enabled
               </Badge>
             </div>
             <BlockEditor

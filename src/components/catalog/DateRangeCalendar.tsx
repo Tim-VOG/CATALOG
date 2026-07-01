@@ -124,14 +124,14 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
 
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-0.5">
-        {DAYS.map((d) => (
+        {DAYS.map((d: any) => (
           <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-0.5">
             {d}
           </div>
         ))}
 
         {/* Day cells */}
-        {days.map((date, i) => {
+        {days.map((date: any, i: any) => {
           if (!date) return <div key={`pad-${i}`} className="h-7" />
 
           const dateStr = toDateStr(date)

@@ -43,7 +43,7 @@ export function MyEquipmentPage() {
     })
   }, [items, now])
 
-  const overdueCount = decoratedItems.filter((i) => i.status === 'overdue').length
+  const overdueCount = decoratedItems.filter((i: any) => i.status === 'overdue').length
 
   if (isLoading) return <PageLoading />
 
@@ -83,7 +83,7 @@ export function MyEquipmentPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {decoratedItems.map((item, i) => (
+          {decoratedItems.map((item: any, i: any) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 8 }}

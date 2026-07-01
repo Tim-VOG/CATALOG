@@ -22,7 +22,7 @@ function LoadingSkeleton() {
         <Skeleton className="h-0.5 w-16 mt-3" />
       </div>
       <div className="flex gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_: any, i: any) => (
           <Skeleton key={i} className="h-8 w-24 rounded-lg" />
         ))}
       </div>
@@ -32,16 +32,16 @@ function LoadingSkeleton() {
         <Skeleton className="h-9 w-9 rounded-xl" />
       </div>
       <div className="flex gap-2">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_: any, i: any) => (
           <Skeleton key={i} className="h-7 w-20 rounded-full" />
         ))}
       </div>
       <div className="rounded-2xl border border-border/50 p-3">
         <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: 7 }).map((_, i) => (
+          {Array.from({ length: 7 }).map((_: any, i: any) => (
             <Skeleton key={`h-${i}`} className="h-5 w-full rounded" />
           ))}
-          {Array.from({ length: 35 }).map((_, i) => (
+          {Array.from({ length: 35 }).map((_: any, i: any) => (
             <Skeleton key={i} className="h-14 sm:h-16 w-full rounded-xl" />
           ))}
         </div>
@@ -56,7 +56,7 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
   const counts = useMemo(() => {
     const c = { catalog: 0, it: 0, mailbox: 0 }
     for (const id of selectedIds) {
-      const ev = events.find((e) => e.id === id)
+      const ev = events.find((e: any) => e.id === id)
       if (ev) c[ev.type] = (c[ev.type] || 0) + 1
     }
     return c
@@ -158,7 +158,7 @@ export function AdminAllRequestsPage() {
     const mailboxIds = []
 
     for (const id of selectedIds) {
-      const ev = events.find((e) => e.id === id)
+      const ev = events.find((e: any) => e.id === id)
       if (!ev?.original?.id) continue
       const realId = ev.original.id
       if (ev.type === 'catalog') catalogIds.push(realId)

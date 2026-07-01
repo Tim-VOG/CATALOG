@@ -569,7 +569,7 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
                       placeholder="Email block content..."
                     />
                     <div className="flex flex-wrap gap-1.5">
-                      {['first_name', 'last_name', 'email', 'start_date', 'team', 'department'].map((v) => (
+                      {['first_name', 'last_name', 'email', 'start_date', 'team', 'department'].map((v: any) => (
                         <button
                           key={v}
                           type="button"

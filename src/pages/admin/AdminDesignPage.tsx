@@ -1212,7 +1212,7 @@ export function AdminDesignPage() {
 
               {/* Cards row */}
               <div className="grid grid-cols-3 gap-2">
-                {['Laptop Pro', 'Camera Kit', 'Monitor 27"'].map((name, i) => (
+                {['Laptop Pro', 'Camera Kit', 'Monitor 27"'].map((name: any, i: any) => (
                   <div
                     key={name}
                     className="rounded-lg border p-2 space-y-1.5"

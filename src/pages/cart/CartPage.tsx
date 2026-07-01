@@ -33,7 +33,7 @@ function getOptionsSummary(options) {
   const services = options.services || {}
   const accessories = options.accessories || []
   if (services.subscription_plan) tags.push(services.subscription_plan)
-  accessories.forEach((a) => tags.push(a))
+  accessories.forEach((a: any) => tags.push(a))
   return tags
 }
 
@@ -47,7 +47,7 @@ const STEPS = [
 function StepProgress({ currentStep  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {STEPS.map((step, idx) => {
+      {STEPS.map((step: any, idx: any) => {
         const Icon = step.icon
         const isActive = idx === currentStep
         const isDone = idx < currentStep
@@ -85,7 +85,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 
   const config = getCategoryConfig(item.category_name)
   const filteredPlans = config
-    ? subscriptionPlans.filter((p) => config.planTypes.includes(p.type))
+    ? subscriptionPlans.filter((p: any) => config.planTypes.includes(p.type))
     : subscriptionPlans
 
   const [subscriptionPlan, setSubscriptionPlan] = useState(services.subscription_plan || '')
@@ -95,7 +95,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 
   const toggleAccessory = (acc) => {
     setSelectedAccessories((prev) =>
-      prev.includes(acc) ? prev.filter((a) => a !== acc) : [...prev, acc]
+      prev.includes(acc) ? prev.filter((a: any) => a !== acc) : [...prev, acc]
     )
   }
 
@@ -136,7 +136,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
               <Label className="text-[11px] flex items-center gap-1.5">
                 <CreditCard className="h-3 w-3 text-muted-foreground" /> Subscription Plan
               </Label>
-              {filteredPlans.map((plan) => {
+              {filteredPlans.map((plan: any) => {
                 const isSelected = subscriptionPlan === plan.name
                 return (
                   <button
@@ -165,7 +165,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
           {availableAccessories.length > 0 && (
             <div className="space-y-1.5">
               <Label className="text-[11px]">Accessories</Label>
-              {availableAccessories.map((acc) => (
+              {availableAccessories.map((acc: any) => (
                 <label key={acc} className={cn(
                   'flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer transition-all',
                   selectedAccessories.includes(acc) ? 'border-primary/40 bg-primary/5' : 'border-border hover:border-primary/20'
@@ -185,7 +185,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 
       {!open && getOptionsSummary(options).length > 0 && (
         <div className="flex flex-wrap gap-1 mt-1.5">
-          {getOptionsSummary(options).map((tag, i) => (
+          {getOptionsSummary(options).map((tag: any, i: any) => (
             <Badge key={i} variant="secondary" className="text-[9px]">{tag}</Badge>
           ))}
         </div>
@@ -217,7 +217,7 @@ export function CartPage() {
 
   const todayIso = new Date().toISOString().split('T')[0]
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
+  const totalItems = items.reduce((sum: any, i: any) => sum + i.quantity, 0)
 
   const handleQuantityChange = (item, delta) => {
     const newQty = item.quantity + delta
@@ -328,7 +328,7 @@ export function CartPage() {
         {/* ═══ STEP 0: Cart ═══ */}
         {step === 0 && (
           <motion.div key="cart" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-            {items.map((item) => (
+            {items.map((item: any) => (
               <Card key={item.id} variant="elevated">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
@@ -344,7 +344,7 @@ export function CartPage() {
                       <p className="text-xs text-muted-foreground">{item.category_name}</p>
                       {item.product_includes?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {item.product_includes.map((inc, j) => (
+                          {item.product_includes.map((inc: any, j: any) => (
                             <span key={j} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{inc}</span>
                           ))}
                         </div>
@@ -510,7 +510,7 @@ export function CartPage() {
               <CardContent className="p-6">
                 <h3 className="font-semibold text-base mb-3">Items ({totalItems})</h3>
                 <div className="divide-y">
-                  {items.map((item) => {
+                  {items.map((item: any) => {
                     const tags = getOptionsSummary(item.options)
                     return (
                       <div key={item.id} className="py-3 first:pt-0 last:pb-0">
@@ -530,7 +530,7 @@ export function CartPage() {
                         </div>
                         {tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2 pl-13">
-                            {tags.map((tag, i) => (
+                            {tags.map((tag: any, i: any) => (
                               <Badge key={i} variant="outline" className="text-[9px]">{tag}</Badge>
                             ))}
                           </div>

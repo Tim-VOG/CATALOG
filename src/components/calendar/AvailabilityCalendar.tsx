@@ -119,7 +119,7 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
 
       {/* Day grid */}
       <div className={cn('grid grid-cols-7', compact ? 'gap-0.5' : 'gap-1')}>
-        {dayLabels.map((d, i) => (
+        {dayLabels.map((d: any, i: any) => (
           <div
             key={`${d}-${i}`}
             className={cn(
@@ -131,7 +131,7 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
           </div>
         ))}
 
-        {days.map((date, i) => {
+        {days.map((date: any, i: any) => {
           if (!date) return <div key={`pad-${i}`} />
           const availability = getAvailability(date)
           const past = isPast(date)

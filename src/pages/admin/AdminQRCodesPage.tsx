@@ -145,7 +145,7 @@ export function AdminQRCodesPage() {
   }
 
   const handlePrintAll = async () => {
-    const items = qrCodes.filter((qr) => qr.is_active).map((qr) => ({ code: qr.code, label: qr.product_name || qr.label || qr.code }))
+    const items = qrCodes.filter((qr: any) => qr.is_active).map((qr: any) => ({ code: qr.code, label: qr.product_name || qr.label || qr.code }))
     if (!items.length) return toast.error('No active QR codes')
     await printBrandedQRCodes(items)
   }
@@ -155,7 +155,7 @@ export function AdminQRCodesPage() {
   // colleague or printing on a label printer that wants a PDF.
   const handleExportPdf = async () => {
     const source = filtered.length ? filtered : qrCodes
-    const items = source.filter((qr) => qr.is_active).map((qr) => ({
+    const items = source.filter((qr: any) => qr.is_active).map((qr: any) => ({
       code: qr.code,
       label: qr.product_name || qr.label || qr.code,
     }))
@@ -169,11 +169,11 @@ export function AdminQRCodesPage() {
     }
   }
 
-  const categories = [...new Set(qrCodes.map((qr) => qr.category_name).filter(Boolean))]
-  const availableCount = qrCodes.filter((q) => (q.status || 'available') === 'available').length
-  const assignedCount = qrCodes.filter((q) => q.status === 'assigned').length
+  const categories = [...new Set(qrCodes.map((qr: any) => qr.category_name).filter(Boolean))]
+  const availableCount = qrCodes.filter((q: any) => (q.status || 'available') === 'available').length
+  const assignedCount = qrCodes.filter((q: any) => q.status === 'assigned').length
 
-  const filtered = qrCodes.filter((qr) => {
+  const filtered = qrCodes.filter((qr: any) => {
     if (categoryFilter !== 'all' && qr.category_name !== categoryFilter) return false
     if (statusFilter !== 'all' && (qr.status || 'available') !== statusFilter) return false
     return true
@@ -203,7 +203,7 @@ export function AdminQRCodesPage() {
             { key: 'all', label: `All (${qrCodes.length})` },
             { key: 'available', label: `Available (${availableCount})` },
             { key: 'assigned', label: `Assigned (${assignedCount})` },
-          ].map((f) => (
+          ].map((f: any) => (
             <Button key={f.key} variant={statusFilter === f.key ? 'default' : 'outline'} size="sm" className="text-xs" onClick={() => setStatusFilter(f.key)}>
               {f.label}
             </Button>
@@ -214,7 +214,7 @@ export function AdminQRCodesPage() {
         {categories.length > 1 && (
           <div className="flex gap-1.5">
             <Button variant={categoryFilter === 'all' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => setCategoryFilter('all')}>All types</Button>
-            {categories.map((cat) => (
+            {categories.map((cat: any) => (
               <Button key={cat} variant={categoryFilter === cat ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => setCategoryFilter(cat)}>
                 {cat}
               </Button>
@@ -228,7 +228,7 @@ export function AdminQRCodesPage() {
         <EmptyState icon={QrCode} title="No QR codes" description={search ? 'No codes match your search' : 'Add your first QR code'} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.map((qr, i) => {
+          {filtered.map((qr: any, i: any) => {
             const qrStatus = qr.status || 'available'
             const style = STATUS_STYLE[qrStatus] || STATUS_STYLE.available
             return (
@@ -346,7 +346,7 @@ export function AdminQRCodesPage() {
               <Label>Product *</Label>
               <Select value={form.product_id} onChange={(e: any) => setForm({ ...form, product_id: e.target.value })}>
                 <option value="">Select product...</option>
-                {products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.category_name})</option>)}
+                {products.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({p.category_name})</option>)}
               </Select>
             </div>
             <div className="space-y-1">
@@ -380,7 +380,7 @@ export function AdminQRCodesPage() {
               <Label>Product *</Label>
               <Select value={bulkProductId} onChange={(e: any) => setBulkProductId(e.target.value)}>
                 <option value="">Select product...</option>
-                {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">

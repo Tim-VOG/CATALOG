@@ -144,25 +144,25 @@ export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }:
               <div className="space-y-1.5">
                 <Label className="text-xs">Category *</Label>
                 <Select value={form.category} onChange={(e: any) => setField('category', e.target.value)}>
-                  {CATEGORIES.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {CATEGORIES.map((o: any) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Licence *</Label>
                 <Select value={form.licence} onChange={(e: any) => setField('licence', e.target.value)}>
-                  {LICENCES.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {LICENCES.map((o: any) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Created in</Label>
                 <Select value={form.created_in} onChange={(e: any) => setField('created_in', e.target.value)}>
-                  {CREATED_IN.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {CREATED_IN.map((o: any) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Profile</Label>
                 <Select value={form.profile} onChange={(e: any) => setField('profile', e.target.value)}>
-                  {PROFILES.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {PROFILES.map((o: any) => <option key={o} value={o}>{o}</option>)}
                 </Select>
               </div>
               <div className="space-y-1.5 col-span-2">

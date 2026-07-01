@@ -34,7 +34,7 @@ export function ProfileAutocomplete({ value, onChange, onSelect, placeholder  }:
     const q = (value || '').trim().toLowerCase()
     if (q.length < 2) return []
     return profiles
-      .filter((p) => {
+      .filter((p: any) => {
         const full = `${p.first_name || ''} ${p.last_name || ''}`.toLowerCase()
         const reverse = `${p.last_name || ''} ${p.first_name || ''}`.toLowerCase()
         const email = (p.email || '').toLowerCase()
@@ -54,7 +54,7 @@ export function ProfileAutocomplete({ value, onChange, onSelect, placeholder  }:
       />
       {open && matches.length > 0 && (
         <div className="absolute z-50 left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
-          {matches.map((p) => {
+          {matches.map((p: any) => {
             const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email
             return (
               <button

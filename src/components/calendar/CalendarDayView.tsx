@@ -120,7 +120,7 @@ export function CalendarDayView({
   // Deduplicate
   const events = useMemo(() => {
     const seen = new Set()
-    return dayEvents.filter((ev) => {
+    return dayEvents.filter((ev: any) => {
       if (seen.has(ev.id)) return false
       seen.add(ev.id)
       return true
@@ -157,7 +157,7 @@ export function CalendarDayView({
       transition={{ duration: 0.3 }}
       className="space-y-2"
     >
-      {sorted.map((event, i) => (
+      {sorted.map((event: any, i: any) => (
         <motion.div
           key={event.id}
           initial={{ opacity: 0, y: 6 }}

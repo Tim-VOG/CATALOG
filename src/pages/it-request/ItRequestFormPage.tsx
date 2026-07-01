@@ -106,7 +106,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
         return (
           <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
             <option value="">Select...</option>
-            {businessUnits.map((bu) => (
+            {businessUnits.map((bu: any) => (
               <option key={bu.value} value={bu.value}>{bu.value}</option>
             ))}
           </Select>
@@ -115,7 +115,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       return (
         <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
           <option value="">Select...</option>
-          {options.map((opt) => (
+          {options.map((opt: any) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
         </Select>
@@ -125,14 +125,14 @@ function DynamicField({ field, value, onChange, form  }: any) {
       const selected = Array.isArray(value) ? value : []
       const toggleOpt = (opt) => {
         if (selected.includes(opt)) {
-          onChange(selected.filter((s) => s !== opt))
+          onChange(selected.filter((s: any) => s !== opt))
         } else {
           onChange([...selected, opt])
         }
       }
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {options.map((opt) => {
+          {options.map((opt: any) => {
             const checked = selected.includes(opt)
             return (
               <label
@@ -223,7 +223,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
 function DynamicFormStep({ fields, form, setField  }: any) {
   return (
     <div className="space-y-5">
-      {fields.map((field) => {
+      {fields.map((field: any) => {
         // Get value from form (system fields) or form.custom_fields (custom fields)
         const isSystem = SYSTEM_FIELD_KEYS.has(field.field_key)
         const value = isSystem ? form[field.field_key] : (form.custom_fields?.[field.field_key] ?? '')
@@ -276,7 +276,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
 function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {steps.map((step, idx) => {
+      {steps.map((step: any, idx: any) => {
         const Icon = step.icon
         const isActive = idx === currentStep
         const isDone = idx < currentStep
@@ -319,8 +319,8 @@ function StepProgress({ currentStep, steps  }: any) {
 // ── Review step ──
 function StepReview({ form, profile, allFields  }: any) {
   const rows = allFields
-    .filter((f) => f.is_active && evaluateCondition(f, form))
-    .map((f) => {
+    .filter((f: any) => f.is_active && evaluateCondition(f, form))
+    .map((f: any) => {
       const isSystem = SYSTEM_FIELD_KEYS.has(f.field_key)
       const raw = isSystem ? form[f.field_key] : (form.custom_fields?.[f.field_key] ?? '')
       let display = ''
@@ -338,7 +338,7 @@ function StepReview({ form, profile, allFields  }: any) {
 
   // Add generated email + requested by
   rows.splice(
-    rows.findIndex((r) => r.label === 'Business Unit') + 1,
+    rows.findIndex((r: any) => r.label === 'Business Unit') + 1,
     0,
     { label: 'Corporate Email', value: form.generated_email || '—' }
   )
@@ -415,7 +415,7 @@ export function ItRequestFormPage() {
 
   // Active fields only, filtered by conditional logic
   const activeFields = useMemo(() => {
-    return formFields.filter((f) => f.is_active && evaluateCondition(f, form))
+    return formFields.filter((f: any) => f.is_active && evaluateCondition(f, form))
   }, [formFields, form])
 
   // Group active fields by step
@@ -423,14 +423,14 @@ export function ItRequestFormPage() {
     const groups = {}
     for (const step of STEP_DEFS) {
       if (step.id === 'review') continue
-      groups[step.id] = activeFields.filter((f) => f.step === step.id)
+      groups[step.id] = activeFields.filter((f: any) => f.step === step.id)
     }
     return groups
   }, [activeFields])
 
   // Determine which steps have fields (skip empty steps)
   const activeSteps = useMemo(() => {
-    const steps = STEP_DEFS.filter((s) => {
+    const steps = STEP_DEFS.filter((s: any) => {
       if (s.id === 'review') return true // always show review
       return (fieldsByStep[s.id] || []).length > 0
     })

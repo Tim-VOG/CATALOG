@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (invitation) {
         const modules = ['onboarding', 'it_form', 'functional_mailbox', 'offboarding']
         await Promise.all(
-          modules.map((key) => upsertModuleAccess(profileData.id, key, true))
+          modules.map((key: any) => upsertModuleAccess(profileData.id, key, true))
         )
         if (invitation.business_unit && !profileData.business_unit) {
           await updateProfile(profileData.id, { business_unit: invitation.business_unit })

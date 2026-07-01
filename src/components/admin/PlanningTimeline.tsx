@@ -51,7 +51,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
       }
       case '1W': {
         const days = eachDayOfInterval({ start, end: addDays(start, 6) })
-        cols = days.map((d) => ({
+        cols = days.map((d: any) => ({
           key: format(d, 'yyyy-MM-dd'),
           label: format(d, 'EEE d'),
           date: d,
@@ -64,7 +64,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
       case '1M': {
         const monthEnd = endOfMonth(start)
         const days = eachDayOfInterval({ start, end: monthEnd })
-        cols = days.map((d) => ({
+        cols = days.map((d: any) => ({
           key: format(d, 'yyyy-MM-dd'),
           label: format(d, 'd'),
           sublabel: format(d, 'EEE'),
@@ -79,7 +79,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
       case '3M': {
         const rangeEnd = addMonths(start, 3)
         const weeks = eachWeekOfInterval({ start, end: rangeEnd }, { weekStartsOn: 1 })
-        cols = weeks.map((w) => ({
+        cols = weeks.map((w: any) => ({
           key: format(w, 'yyyy-MM-dd'),
           label: format(w, 'd MMM'),
           date: w,
@@ -101,7 +101,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
     const map = new Map()
 
     // First, populate from planning items (reservations)
-    items.forEach((item) => {
+    items.forEach((item: any) => {
       const key = item.product_id
       if (!map.has(key)) {
         map.set(key, {
@@ -208,7 +208,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
               Product
             </div>
             <div className="flex-1 flex">
-              {columns.map((col) => (
+              {columns.map((col: any) => (
                 <div
                   key={col.key}
                   className={cn(
@@ -238,7 +238,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
               No products found
             </div>
           ) : (
-            productRows.map((row, rowIndex) => {
+            productRows.map((row: any, rowIndex: any) => {
               const hasReservations = row.reservations.length > 0
               const rowHeight = hasReservations ? getRowHeight(row.reservations) : 56
               return (
@@ -270,7 +270,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
                     )}
 
                     {/* Reservation bars */}
-                    {row.reservations.map((res, i) => {
+                    {row.reservations.map((res: any, i: any) => {
                       const barStyle = getBarStyle(res.pickup_date, res.return_date)
                       const statusColor = STATUS_COLORS[res.request_status] || STATUS_COLORS.pending
 

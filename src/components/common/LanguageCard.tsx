@@ -37,7 +37,7 @@ export function LanguageCard() {
       </CardHeader>
       <CardContent className="px-6 pb-6">
         <div className="flex gap-2">
-          {LANGS.map((l) => (
+          {LANGS.map((l: any) => (
             <Button
               key={l.code}
               variant={current === l.code ? 'secondary' : 'outline'}

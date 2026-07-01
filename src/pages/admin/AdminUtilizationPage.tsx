@@ -54,8 +54,8 @@ export function AdminUtilizationPage() {
 
   if (isLoading) return <PageLoading />
 
-  const overUtilized = byProduct.filter((p) => p.utilization >= 80 && p.total > 0)
-  const underUtilized = byProduct.filter((p) => p.utilization < 10 && p.takes === 0 && p.total > 1)
+  const overUtilized = byProduct.filter((p: any) => p.utilization >= 80 && p.total > 0)
+  const underUtilized = byProduct.filter((p: any) => p.utilization < 10 && p.takes === 0 && p.total > 1)
 
   return (
     <div className="space-y-6">
@@ -71,13 +71,13 @@ export function AdminUtilizationPage() {
           {overUtilized.length > 0 && (
             <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4">
               <p className="text-sm font-medium flex items-center gap-2 text-rose-600"><TrendingUp className="h-4 w-4" /> Often unavailable — consider buying more</p>
-              <p className="text-xs text-muted-foreground mt-1">{overUtilized.map((p) => p.name).slice(0, 5).join(', ')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{overUtilized.map((p: any) => p.name).slice(0, 5).join(', ')}</p>
             </div>
           )}
           {underUtilized.length > 0 && (
             <div className="rounded-xl border border-border bg-muted/20 p-4">
               <p className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><TrendingDown className="h-4 w-4" /> Barely used — maybe too many</p>
-              <p className="text-xs text-muted-foreground mt-1">{underUtilized.map((p) => p.name).slice(0, 5).join(', ')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{underUtilized.map((p: any) => p.name).slice(0, 5).join(', ')}</p>
             </div>
           )}
         </div>
@@ -96,7 +96,7 @@ function UtilSection({ title, rows, showTakes }: { title: string; rows: Row[]; s
       <div className="rounded-xl border border-border/50 bg-card divide-y divide-border/40">
         {rows.length === 0 ? (
           <p className="text-sm text-muted-foreground py-8 text-center">No data.</p>
-        ) : rows.map((r) => (
+        ) : rows.map((r: any) => (
           <div key={r.key} className="flex items-center gap-3 px-4 py-3">
             <div className="w-40 shrink-0 min-w-0">
               <p className="text-sm truncate">{r.name}</p>

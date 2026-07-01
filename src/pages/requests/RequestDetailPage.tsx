@@ -81,7 +81,7 @@ export function RequestDetailPage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Items ({items.length})</CardTitle></CardHeader>
         <CardContent className="divide-y">
-          {items.map((item) => (
+          {items.map((item: any) => (
             <div key={item.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
               <div className="h-12 w-12 rounded overflow-hidden bg-muted shrink-0">
                 {item.product_image && <img src={item.product_image} alt="" className="h-full w-full object-cover" />}

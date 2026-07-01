@@ -362,7 +362,7 @@ function TextReveal({ text, className, stagger = 0.04, ...props  }: any) {
       className={className}
       {...props}
     >
-      {words.map((word, i) => (
+      {words.map((word: any, i: any) => (
         <motion.span
           key={`${word}-${i}`}
           className="inline-block mr-[0.25em]"

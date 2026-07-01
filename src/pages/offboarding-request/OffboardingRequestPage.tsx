@@ -56,7 +56,7 @@ const STEPS = [
 function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {steps.map((step, idx) => {
+      {steps.map((step: any, idx: any) => {
         const Icon = step.icon
         const isActive = idx === currentStep
         const isDone = idx < currentStep
@@ -139,7 +139,7 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
         </Label>
         <Select value={form.company} onChange={(e: any) => setField('company', e.target.value)}>
           <option value="">Select...</option>
-          {COMPANIES.map((c) => (
+          {COMPANIES.map((c: any) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </Select>
@@ -303,7 +303,7 @@ function StepRevocation({ form, setField  }: any) {
 // ── Step 4: Equipment ──
 const matches = (text, keywords) => {
   const t = (text || '').toLowerCase()
-  return keywords.some((k) => t.includes(k))
+  return keywords.some((k: any) => t.includes(k))
 }
 const LAPTOP_KEYWORDS = ['laptop', 'macbook', 'computer', 'pc', 'workstation']
 const PHONE_KEYWORDS = ['phone', 'iphone', 'smartphone', 'mobile']
@@ -313,7 +313,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
   const { data: equipment = [] } = useUserEquipmentFor(form.leaving_user_id)
   const { data: qrCodes = [] } = useQRCodesAssignedTo(form.leaving_user_id)
   const activeEquipment = useMemo(
-    () => equipment.filter((e) => e.status !== 'returned'),
+    () => equipment.filter((e: any) => e.status !== 'returned'),
     [equipment]
   )
   const hasInventory = form.leaving_user_id && (activeEquipment.length > 0 || qrCodes.length > 0)
@@ -329,14 +329,14 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
     lastAutoDetectedRef.current = autoDetectedKey
 
     const allItems = [
-      ...activeEquipment.map((e) => `${e.product_name} ${e.category_name} ${e.notes || ''}`),
-      ...qrCodes.map((q) => `${q.product_name || ''} ${q.label || ''}`),
+      ...activeEquipment.map((e: any) => `${e.product_name} ${e.category_name} ${e.notes || ''}`),
+      ...qrCodes.map((q: any) => `${q.product_name || ''} ${q.label || ''}`),
     ]
     if (allItems.length === 0) return
 
-    const hasLaptop = allItems.some((s) => matches(s, LAPTOP_KEYWORDS))
-    const hasPhone = allItems.some((s) => matches(s, PHONE_KEYWORDS))
-    const hasBadge = allItems.some((s) => matches(s, BADGE_KEYWORDS))
+    const hasLaptop = allItems.some((s: any) => matches(s, LAPTOP_KEYWORDS))
+    const hasPhone = allItems.some((s: any) => matches(s, PHONE_KEYWORDS))
+    const hasBadge = allItems.some((s: any) => matches(s, BADGE_KEYWORDS))
 
     setMultipleFields({
       collect_laptop: hasLaptop || form.collect_laptop,
@@ -353,12 +353,12 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
             <Package className="h-3.5 w-3.5" /> Currently assigned to {form.name.split(' ')[0] || 'this person'}
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {activeEquipment.map((e) => (
+            {activeEquipment.map((e: any) => (
               <Badge key={`eq-${e.id}`} variant="outline" className="text-[11px] gap-1">
                 <Package className="h-3 w-3" /> {e.product_name}
               </Badge>
             ))}
-            {qrCodes.map((q) => (
+            {qrCodes.map((q: any) => (
               <Badge key={`qr-${q.id}`} variant="outline" className="text-[11px] gap-1 font-mono">
                 <QrCode className="h-3 w-3" /> {q.code}
               </Badge>
@@ -480,8 +480,8 @@ const REVIEW_FIELDS = [
 
 function StepReview({ form  }: any) {
   const rows = REVIEW_FIELDS
-    .filter((f) => !f.showIf || f.showIf(form))
-    .map((f) => {
+    .filter((f: any) => !f.showIf || f.showIf(form))
+    .map((f: any) => {
       const raw = form[f.key]
       let display
       if (f.type === 'toggle') {

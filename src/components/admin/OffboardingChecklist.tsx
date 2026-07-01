@@ -28,7 +28,7 @@ export function OffboardingChecklist({ req }: { req: any }) {
   useEffect(() => { setChecked(req?.data?.checklist || {}) }, [req?.id])
 
   const tasks = useMemo(
-    () => (fields as any[]).filter((f) => f.field_type === 'checkbox' && f.is_active),
+    () => (fields as any[]).filter((f: any) => f.field_type === 'checkbox' && f.is_active),
     [fields],
   )
 
@@ -41,7 +41,7 @@ export function OffboardingChecklist({ req }: { req: any }) {
     return g
   }, [tasks])
 
-  const doneCount = tasks.filter((t) => checked[t.field_key]).length
+  const doneCount = tasks.filter((t: any) => checked[t.field_key]).length
   const pct = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0
 
   const toggle = (key: string, value: boolean) => {
@@ -77,7 +77,7 @@ export function OffboardingChecklist({ req }: { req: any }) {
                 {STEP_LABELS[step] || step}
               </p>
               <div className="space-y-1">
-                {items.map((t) => {
+                {items.map((t: any) => {
                   const isDone = !!checked[t.field_key]
                   return (
                     <label key={t.id} className="flex items-start gap-2.5 py-1.5 px-2 -mx-2 rounded-lg hover:bg-muted/20 cursor-pointer">

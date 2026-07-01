@@ -28,7 +28,7 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
             <div className="space-y-3">
               <Label className="font-semibold">Subscription Plan</Label>
               <div className="flex gap-2">
-                {['call', 'data', 'both'].map((type) => (
+                {['call', 'data', 'both'].map((type: any) => (
                   <Button
                     key={type}
                     variant={options.subscriptionType === type ? 'default' : 'outline'}
@@ -40,7 +40,7 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
                 ))}
               </div>
               <div className="space-y-2">
-                {filteredPlans.map((plan) => (
+                {filteredPlans.map((plan: any) => (
                   <label key={plan.id} className="flex items-center justify-between cursor-pointer p-2 rounded border hover:bg-muted">
                     <div className="flex items-center gap-2">
                       <input
@@ -75,7 +75,7 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
             <div className="space-y-2">
               <Label className="font-semibold">Included</Label>
               <div className="flex flex-wrap gap-2">
-                {product.includes.map((item, i) => (
+                {product.includes.map((item: any, i: any) => (
                   <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted rounded px-2 py-1">
                     <Check className="h-3 w-3 text-success" />{item}
                   </span>

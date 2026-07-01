@@ -124,11 +124,11 @@ export function AdminEmailTemplatesPage() {
     )
   }
 
-  const activeTemplates = templates.filter((t) => t.is_active)
-  const byCategory = CATEGORIES.map((cat) => ({
+  const activeTemplates = templates.filter((t: any) => t.is_active)
+  const byCategory = CATEGORIES.map((cat: any) => ({
     ...cat,
-    templates: activeTemplates.filter((t) => (t.category || 'other') === cat.key),
-  })).filter((c) => c.templates.length > 0 || c.key === 'onboarding')
+    templates: activeTemplates.filter((t: any) => (t.category || 'other') === cat.key),
+  })).filter((c: any) => c.templates.length > 0 || c.key === 'onboarding')
 
   return (
     <div className="space-y-6">
@@ -148,7 +148,7 @@ export function AdminEmailTemplatesPage() {
           {activeTemplates.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">No active email templates</p>
           ) : (
-            byCategory.map((cat) => {
+            byCategory.map((cat: any) => {
               const Icon = cat.icon
               return (
                 <div key={cat.key} className="space-y-3">
@@ -159,7 +159,7 @@ export function AdminEmailTemplatesPage() {
                     <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{cat.label}</h2>
                   </div>
 
-                  {cat.templates.map((template) => {
+                  {cat.templates.map((template: any) => {
                     const icon = TEMPLATE_ICONS[template.template_key] || '📧'
                     const desc = template.description || TEMPLATE_DESCRIPTIONS[template.template_key] || ''
                     return (

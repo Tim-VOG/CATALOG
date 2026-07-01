@@ -216,18 +216,18 @@ export function AdminDashboardPage() {
 
   const stats = useMemo(() => {
     const total = qrCodes.length
-    const available = qrCodes.filter((q) => q.status === 'available').length
-    const onLoan = qrCodes.filter((q) => q.status === 'assigned' || q.status === 'reserved').length
-    const broken = qrCodes.filter((q) => q.status === 'damaged' || q.status === 'lost').length
+    const available = qrCodes.filter((q: any) => q.status === 'available').length
+    const onLoan = qrCodes.filter((q: any) => q.status === 'assigned' || q.status === 'reserved').length
+    const broken = qrCodes.filter((q: any) => q.status === 'damaged' || q.status === 'lost').length
     return { total, available, onLoan, broken }
   }, [qrCodes])
 
   const counts = useMemo(() => ({
-    pendingEquipment: loanReqs.filter((r) => r.status === 'pending').length,
-    pendingOnboarding: itReqs.filter((r) => r.type === 'onboarding' && r.status === 'pending').length,
-    pendingMailbox: mailboxReqs.filter((r) => r.status === 'pending').length,
+    pendingEquipment: loanReqs.filter((r: any) => r.status === 'pending').length,
+    pendingOnboarding: itReqs.filter((r: any) => r.type === 'onboarding' && r.status === 'pending').length,
+    pendingMailbox: mailboxReqs.filter((r: any) => r.status === 'pending').length,
     overdue: overdueScans.length,
-    lowStock: products.filter((p) => p.total_stock <= 1).length,
+    lowStock: products.filter((p: any) => p.total_stock <= 1).length,
   }), [loanReqs, itReqs, mailboxReqs, overdueScans, products])
 
   const sortedLoans = useMemo(() => {
@@ -240,7 +240,7 @@ export function AdminDashboardPage() {
 
   const categoryBreakdown = useMemo(() => {
     const map = new Map()
-    qrCodes.forEach((q) => {
+    qrCodes.forEach((q: any) => {
       const cat = q.category_name || '—'
       if (!map.has(cat)) map.set(cat, { total: 0, available: 0 })
       const e = map.get(cat)
@@ -309,7 +309,7 @@ export function AdminDashboardPage() {
                   <p className="text-sm">Aucun matériel en circulation</p>
                 </div>
               ) : (
-                sortedLoans.slice(0, 10).map((loan) => (
+                sortedLoans.slice(0, 10).map((loan: any) => (
                   <MaterialRow key={loan.id} loan={loan} now={now} />
                 ))
               )}
@@ -359,7 +359,7 @@ export function AdminDashboardPage() {
                   <p className="text-sm">Aucune activité récente</p>
                 </div>
               ) : (
-                recentScans.slice(0, 8).map((log) => <ActivityRow key={log.id} log={log} />)
+                recentScans.slice(0, 8).map((log: any) => <ActivityRow key={log.id} log={log} />)
               )}
             </div>
           </Card>
@@ -376,7 +376,7 @@ export function AdminDashboardPage() {
                   <p className="text-sm">Aucune catégorie</p>
                 </div>
               ) : (
-                categoryBreakdown.slice(0, 6).map((c) => {
+                categoryBreakdown.slice(0, 6).map((c: any) => {
                   const pct = c.total > 0 ? (c.available / c.total) * 100 : 0
                   return (
                     <div key={c.name}>

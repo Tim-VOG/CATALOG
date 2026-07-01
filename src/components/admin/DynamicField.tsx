@@ -85,7 +85,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
             onChange={(e: any) => onChange(e.target.value)}
           >
             <option value="">Select...</option>
-            {options.map((opt) => (
+            {options.map((opt: any) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </Select>
@@ -94,7 +94,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
       case 'multi_select':
         return (
           <div className="space-y-2">
-            {options.map((opt) => {
+            {options.map((opt: any) => {
               const selected = Array.isArray(value) ? value : []
               const isChecked = selected.includes(opt.value)
               return (
@@ -104,7 +104,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
                     onCheckedChange={(checked) => {
                       const newVal = checked
                         ? [...selected, opt.value]
-                        : selected.filter((v) => v !== opt.value)
+                        : selected.filter((v: any) => v !== opt.value)
                       onChange(newVal)
                     }}
                   />
@@ -118,7 +118,7 @@ export function DynamicField({ field, value, onChange, error  }: any) {
       case 'radio':
         return (
           <div className="space-y-2">
-            {options.map((opt) => (
+            {options.map((opt: any) => (
               <label key={opt.value} className="flex items-center gap-2 text-sm">
                 <input
                   type="radio"

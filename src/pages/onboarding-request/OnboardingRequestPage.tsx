@@ -175,7 +175,7 @@ const ALL_STEPS = [
 function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {steps.map((step, idx) => {
+      {steps.map((step: any, idx: any) => {
         const Icon = step.icon
         const isActive = idx === currentStep
         const isDone = idx < currentStep
@@ -220,14 +220,14 @@ function MultiSelectField({ options, value, onChange, descriptions  }: any) {
   const selected = Array.isArray(value) ? value : []
   const toggle = (opt) => {
     if (selected.includes(opt)) {
-      onChange(selected.filter((s) => s !== opt))
+      onChange(selected.filter((s: any) => s !== opt))
     } else {
       onChange([...selected, opt])
     }
   }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {options.map((opt) => {
+      {options.map((opt: any) => {
         const checked = selected.includes(opt)
         const desc = descriptions?.[opt]
         return (
@@ -260,7 +260,7 @@ function YesNoField({ value, onChange  }: any) {
       {[
         { v: true, label: 'Yes' },
         { v: false, label: 'No' },
-      ].map((opt) => {
+      ].map((opt: any) => {
         const selected = value === opt.v
         return (
           <button
@@ -345,7 +345,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           </Label>
           <Select value={form.profile} onChange={(e: any) => update('profile', e.target.value)}>
             <option value="">Select...</option>
-            {PROFILES.map((p) => (
+            {PROFILES.map((p: any) => (
               <option key={p} value={p}>{p}</option>
             ))}
           </Select>
@@ -356,7 +356,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           </Label>
           <Select value={form.company} onChange={(e: any) => update('company', e.target.value)}>
             <option value="">Select...</option>
-            {COMPANIES.map((c) => (
+            {COMPANIES.map((c: any) => (
               <option key={c} value={c}>
                 {COMPANY_FULL_NAMES[c] ? `${c} — ${COMPANY_FULL_NAMES[c]}` : c}
               </option>
@@ -414,7 +414,7 @@ function StepProject({ form, update  }: any) {
           </Label>
           <Select value={form.language} onChange={(e: any) => update('language', e.target.value)}>
             <option value="">Select...</option>
-            {LANGUAGES.map((l) => (
+            {LANGUAGES.map((l: any) => (
               <option key={l} value={l}>{l}</option>
             ))}
           </Select>
@@ -704,7 +704,7 @@ export function OnboardingRequestPage() {
     setForm((prev) => {
       const newDomain = prev.email_domain === expectedDomain ? prev.email_domain : expectedDomain
       const allowed = distributionListsFor(prev.company)
-      const filteredSubscribe = (prev.subscribe_to || []).filter((s) => allowed.includes(s))
+      const filteredSubscribe = (prev.subscribe_to || []).filter((s: any) => allowed.includes(s))
       if (newDomain === prev.email_domain && filteredSubscribe.length === (prev.subscribe_to || []).length) {
         return prev
       }
@@ -718,7 +718,7 @@ export function OnboardingRequestPage() {
   // relevant for VO EUROPE onboardings. Skip it entirely for every other
   // company so the wizard doesn't ask irrelevant questions.
   const activeSteps = useMemo(
-    () => form.company === 'VO EUROPE' ? ALL_STEPS : ALL_STEPS.filter((s) => s.id !== 'project'),
+    () => form.company === 'VO EUROPE' ? ALL_STEPS : ALL_STEPS.filter((s: any) => s.id !== 'project'),
     [form.company]
   )
 

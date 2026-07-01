@@ -96,7 +96,7 @@ export function AdminScanLogsPage() {
         />
       ) : (
         <div className="space-y-2">
-          {logs.map((log, idx) => (
+          {logs.map((log: any, idx: any) => (
             <ScrollFadeIn key={log.id} delay={idx * 0.02}>
               <Card className="hover:border-primary/10 transition-colors">
                 <CardContent className="p-4">

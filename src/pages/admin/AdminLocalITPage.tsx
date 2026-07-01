@@ -85,7 +85,7 @@ export function AdminLocalITPage() {
 
   // Filter
   const filtered = useMemo(() => {
-    return allQR.filter((qr) => {
+    return allQR.filter((qr: any) => {
       const st = qr.status || 'available'
       if (statusFilter !== 'all' && st !== statusFilter) return false
       if (categoryFilter !== 'all' && qr.category_name !== categoryFilter) return false
@@ -103,7 +103,7 @@ export function AdminLocalITPage() {
   // History for a specific QR
   const qrHistory = useMemo(() => {
     if (!detailQR) return []
-    return recentLogs.filter((l) => l.qr_code === detailQR.code).slice(0, 10)
+    return recentLogs.filter((l: any) => l.qr_code === detailQR.code).slice(0, 10)
   }, [detailQR, recentLogs])
 
   const handleStatusChange = async () => {
@@ -194,7 +194,7 @@ export function AdminLocalITPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((qr) => {
+                {filtered.map((qr: any) => {
                   const st = qr.status || 'available'
                   const config = STATUS_CONFIG[st] || STATUS_CONFIG.available
                   const StatusIcon = config.icon
@@ -291,7 +291,7 @@ export function AdminLocalITPage() {
                   <p className="text-xs text-muted-foreground">No scan history for this device</p>
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {qrHistory.map((log) => (
+                    {qrHistory.map((log: any) => (
                       <div key={log.id} className="flex items-center gap-3 text-xs">
                         <div className={cn(
                           'h-6 w-6 rounded-full flex items-center justify-center shrink-0',
@@ -325,7 +325,7 @@ export function AdminLocalITPage() {
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{statusChangeQR?.product_name}</p>
           <div className="space-y-2 mt-2">
-            {ALL_STATUSES.map((st) => {
+            {ALL_STATUSES.map((st: any) => {
               const config = STATUS_CONFIG[st]
               const Icon = config.icon
               return (

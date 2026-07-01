@@ -42,7 +42,7 @@ const TYPE_FILTERS = [
 ]
 
 function getStepIndex(status) {
-  const idx = STEPS.findIndex((s) => s.key === status)
+  const idx = STEPS.findIndex((s: any) => s.key === status)
   return idx >= 0 ? idx : 0
 }
 
@@ -53,7 +53,7 @@ function RequestStepper({ status  }: any) {
   const currentStep = getStepIndex(status)
   return (
     <div className="flex items-center gap-1 w-full">
-      {STEPS.map((step, idx) => {
+      {STEPS.map((step: any, idx: any) => {
         const isDone = idx < currentStep
         const isCurrent = idx === currentStep
         const isPending = idx > currentStep
@@ -222,7 +222,7 @@ export function MyRequestsPage() {
 
   const filtered = useMemo(() => {
     if (typeFilter === 'all') return allRequests
-    return allRequests.filter((r) => r._type === typeFilter)
+    return allRequests.filter((r: any) => r._type === typeFilter)
   }, [allRequests, typeFilter])
 
   const typeCounts = useMemo(() => {
@@ -235,7 +235,7 @@ export function MyRequestsPage() {
   // mutation (note save, cancel, status change) reflects immediately.
   const detail = useMemo(() => {
     if (!selectedKey) return null
-    return allRequests.find((r) => `${r._type}:${r.id}` === selectedKey) || null
+    return allRequests.find((r: any) => `${r._type}:${r.id}` === selectedKey) || null
   }, [allRequests, selectedKey])
   const setDetail = (req) => setSelectedKey(req ? `${req._type}:${req.id}` : null)
 
@@ -364,7 +364,7 @@ export function MyRequestsPage() {
       </motion.div>
 
       <div className="flex flex-wrap gap-1.5">
-        {TYPE_FILTERS.filter((t) => t.key === 'all' || typeCounts[t.key]).map((t) => (
+        {TYPE_FILTERS.filter((t: any) => t.key === 'all' || typeCounts[t.key]).map((t: any) => (
           <Button
             key={t.key}
             variant={typeFilter === t.key ? 'default' : 'outline'}
@@ -388,7 +388,7 @@ export function MyRequestsPage() {
         />
       ) : (
         <div className="space-y-3">
-          {filtered.map((req, i) => (
+          {filtered.map((req: any, i: any) => (
             <ScrollFadeIn key={req.id} delay={i * 0.05}>
               <RequestCard request={req} type={req._type} onOpen={() => setDetail(req)} />
             </ScrollFadeIn>

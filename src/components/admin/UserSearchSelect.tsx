@@ -42,7 +42,7 @@ export function UserSearchSelect({ value, onChange, placeholder = 'Search user b
 
   // Only show active users, limit to 8
   const filteredProfiles = profiles
-    .filter((p) => p.is_active !== false)
+    .filter((p: any) => p.is_active !== false)
     .slice(0, 8)
 
   const handleSelect = (profile) => {
@@ -106,7 +106,7 @@ export function UserSearchSelect({ value, onChange, placeholder = 'Search user b
           {filteredProfiles.length === 0 ? (
             <div className="px-4 py-3 text-sm text-muted-foreground">No users found</div>
           ) : (
-            filteredProfiles.map((p) => (
+            filteredProfiles.map((p: any) => (
               <button
                 key={p.id}
                 type="button"

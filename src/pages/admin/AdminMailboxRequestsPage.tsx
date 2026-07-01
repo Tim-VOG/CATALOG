@@ -271,7 +271,7 @@ function EditableCCEmails({ req, onSave  }: any) {
     setInputValue('')
   }
 
-  const removeTag = (idx) => setTags((prev) => prev.filter((_, i) => i !== idx))
+  const removeTag = (idx) => setTags((prev) => prev.filter((_: any, i: any) => i !== idx))
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
@@ -323,7 +323,7 @@ function EditableCCEmails({ req, onSave  }: any) {
         {editing ? (
           <div className="space-y-2">
             <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all">
-              {tags.map((tag, idx) => (
+              {tags.map((tag: any, idx: any) => (
                 <span key={tag} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
                   {tag}
                   <button type="button" onClick={() => removeTag(idx)} className="ml-0.5 hover:text-destructive transition-colors">
@@ -352,7 +352,7 @@ function EditableCCEmails({ req, onSave  }: any) {
           </div>
         ) : (
           <div className="flex flex-wrap gap-1.5">
-            {emails.map((email) => (
+            {emails.map((email: any) => (
               <span key={email} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
                 <Mail className="h-3 w-3" />
                 {email}
@@ -543,7 +543,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
                       Use these placeholders — they&apos;ll be replaced with request values:
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
-                      {TEMPLATE_VARS.map((v) => (
+                      {TEMPLATE_VARS.map((v: any) => (
                         <div key={v.key} className="flex items-center gap-1.5 text-[10px]">
                           <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono shrink-0">{v.key}</code>
                           <span className="text-muted-foreground truncate">{v.label}</span>
@@ -644,7 +644,7 @@ export function AdminMailboxRequestsPage() {
 
   // Find the selected request
   const selectedRequest = useMemo(
-    () => requests.find((r) => r.id === selectedId) || null,
+    () => requests.find((r: any) => r.id === selectedId) || null,
     [requests, selectedId]
   )
 
@@ -712,7 +712,7 @@ export function AdminMailboxRequestsPage() {
 
       const result = await sendEmail({
         to: emailForm.to,
-        cc: emailForm.cc ? emailForm.cc.split(',').map((e) => e.trim()).filter(Boolean) : undefined,
+        cc: emailForm.cc ? emailForm.cc.split(',').map((e: any) => e.trim()).filter(Boolean) : undefined,
         subject: emailForm.subject,
         body: htmlBody,
         isHtml: true,
@@ -1008,7 +1008,7 @@ export function AdminMailboxRequestsPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((req) => {
+          {filtered.map((req: any) => {
             const StatusIcon = STATUS_ICONS[req.status] || Clock
             return (
               <Card

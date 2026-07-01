@@ -56,9 +56,9 @@ export function ImageUpload({
     setError('')
 
     // Type check
-    const allowedTypes = accept.split(',').map((t) => t.trim())
+    const allowedTypes = accept.split(',').map((t: any) => t.trim())
     if (!allowedTypes.includes(file.type)) {
-      setError(`Accepted formats: ${allowedTypes.map((t) => t.replace('image/', '')).join(', ')}`)
+      setError(`Accepted formats: ${allowedTypes.map((t: any) => t.replace('image/', '')).join(', ')}`)
       return
     }
 

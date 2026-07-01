@@ -77,8 +77,8 @@ export function StatusPage() {
   const [lastRun, setLastRun] = useState<Date | null>(null)
 
   const runAll = async () => {
-    setChecks((cs) => cs.map((c) => ({ ...c, status: 'pending' as Status })))
-    const results = await Promise.all(initial.map((c) => runCheck(c.key).then((r) => ({ ...c, ...r }))))
+    setChecks((cs) => cs.map((c: any) => ({ ...c, status: 'pending' as Status })))
+    const results = await Promise.all(initial.map((c: any) => runCheck(c.key).then((r) => ({ ...c, ...r }))))
     setChecks(results)
     setLastRun(new Date())
   }
@@ -89,10 +89,10 @@ export function StatusPage() {
     return () => clearInterval(id)
   }, [])
 
-  const allPending = checks.every((c) => c.status === 'pending')
+  const allPending = checks.every((c: any) => c.status === 'pending')
   const overall: Status = allPending ? 'pending'
-    : checks.some((c) => c.status === 'down') ? 'down'
-    : checks.some((c) => c.status === 'degraded' || c.status === 'pending') ? 'degraded'
+    : checks.some((c: any) => c.status === 'down') ? 'down'
+    : checks.some((c: any) => c.status === 'degraded' || c.status === 'pending') ? 'degraded'
     : 'ok'
 
   const heroStyle = STATUS_STYLES[overall]
@@ -136,7 +136,7 @@ export function StatusPage() {
 
         {/* Individual checks */}
         <div className="space-y-2">
-          {checks.map((c) => {
+          {checks.map((c: any) => {
             const style = STATUS_STYLES[c.status]
             const Icon = style.icon
             return (

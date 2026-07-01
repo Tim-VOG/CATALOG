@@ -125,7 +125,7 @@ export function CalendarDayPopover({
 
   // Deduplicate events (multi-day events appear multiple times)
   const seen = new Set()
-  const unique = events.filter((ev) => {
+  const unique = events.filter((ev: any) => {
     if (seen.has(ev.id)) return false
     seen.add(ev.id)
     return true
@@ -157,7 +157,7 @@ export function CalendarDayPopover({
 
           {/* Events */}
           <div className="p-3 space-y-2 max-h-[300px] overflow-y-auto">
-            {unique.map((event, i) => (
+            {unique.map((event: any, i: any) => (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 6 }}

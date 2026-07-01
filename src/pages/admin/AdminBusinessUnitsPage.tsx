@@ -144,7 +144,7 @@ export function AdminBusinessUnitsPage() {
       ) : (
         <Card>
           <CardContent className="p-4 space-y-2">
-            {units.map((unit) => (
+            {units.map((unit: any) => (
               <div
                 key={unit.id}
                 className="flex items-center gap-3 p-3 rounded-lg border transition-colors"

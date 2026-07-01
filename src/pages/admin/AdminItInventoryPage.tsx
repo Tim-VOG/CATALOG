@@ -90,7 +90,7 @@ function SelectCell({ value, options, onChange  }: any) {
       className="w-full px-2 py-1.5 text-xs bg-transparent border border-transparent rounded focus:bg-card focus:border-primary/30 focus:outline-none hover:bg-muted/30"
     >
       <option value="">—</option>
-      {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      {options.map((o: any) => <option key={o} value={o}>{o}</option>)}
     </select>
   )
 }
@@ -135,10 +135,10 @@ export function AdminItInventoryPage() {
 
   const filtered = useMemo(() => {
     let r = rows
-    if (companyFilter !== 'all') r = r.filter((x) => x.company === companyFilter)
+    if (companyFilter !== 'all') r = r.filter((x: any) => x.company === companyFilter)
     if (search.trim()) {
       const q = search.toLowerCase()
-      r = r.filter((x) =>
+      r = r.filter((x: any) =>
         (x.name || '').toLowerCase().includes(q) ||
         (x.serial_number || '').toLowerCase().includes(q) ||
         (x.owner || '').toLowerCase().includes(q) ||
@@ -184,10 +184,10 @@ export function AdminItInventoryPage() {
   }, [deleteItem, showToast])
 
   const handleExportCsv = useCallback(() => {
-    const headers = COLUMNS.map((c) => c.label).join(',')
-    const lines = filtered.map((r) => {
+    const headers = COLUMNS.map((c: any) => c.label).join(',')
+    const lines = filtered.map((r: any) => {
       const c = compute(r)
-      return COLUMNS.map((col) => {
+      return COLUMNS.map((col: any) => {
         let v
         if (col.key === '_total_months')  v = c.totalMonths
         else if (col.key === '_elapsed')  v = c.elapsed
@@ -217,7 +217,7 @@ export function AdminItInventoryPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
         <Button variant={companyFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setCompanyFilter('all')}>All companies</Button>
-        {COMPANIES.map((c) => (
+        {COMPANIES.map((c: any) => (
           <Button key={c} variant={companyFilter === c ? 'default' : 'outline'} size="sm" className="text-xs h-8" onClick={() => setCompanyFilter(c)}>
             {c}
           </Button>
@@ -239,7 +239,7 @@ export function AdminItInventoryPage() {
         <table className="w-full text-xs">
           <thead className="bg-muted/50 sticky top-0 z-10">
             <tr>
-              {COLUMNS.map((col) => (
+              {COLUMNS.map((col: any) => (
                 <th key={col.key} className="text-left font-semibold text-[10px] uppercase tracking-wider text-muted-foreground px-3 py-2 border-b border-border/50" style={{ minWidth: col.width }}>
                   {col.label}
                   {col.computed && <Badge variant="outline" className="ml-1.5 text-[8px] px-1 py-0">auto</Badge>}
@@ -255,7 +255,7 @@ export function AdminItInventoryPage() {
                   No assets. <button onClick={handleAdd} className="text-primary underline">Add the first one</button>.
                 </td>
               </tr>
-            ) : filtered.map((row) => {
+            ) : filtered.map((row: any) => {
               const c = compute(row)
               const computedValues = {
                 _total_months: c.totalMonths != null ? `${c.totalMonths} mo` : '',
@@ -266,7 +266,7 @@ export function AdminItInventoryPage() {
               }
               return (
                 <tr key={row.id} className="hover:bg-muted/20 transition-colors border-b border-border/30">
-                  {COLUMNS.map((col) => {
+                  {COLUMNS.map((col: any) => {
                     if (col.computed) {
                       const v = computedValues[col.key]
                       return (

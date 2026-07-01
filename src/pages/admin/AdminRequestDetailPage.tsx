@@ -138,7 +138,7 @@ export function AdminRequestDetailPage() {
     )
     if (qrSearch.trim()) {
       const q = qrSearch.toLowerCase()
-      qrs = qrs.filter((qr) => qr.code.toLowerCase().includes(q) || (qr.label || '').toLowerCase().includes(q))
+      qrs = qrs.filter((qr: any) => qr.code.toLowerCase().includes(q) || (qr.label || '').toLowerCase().includes(q))
     }
     return qrs
   }, [assigningItem, allQRCodes, qrSearch])
@@ -173,7 +173,7 @@ export function AdminRequestDetailPage() {
       if (status === 'ready' && items.length > 0) {
         // One user_equipment row per physical unit handed out — so an item
         // with quantity 2 becomes two rows, each carrying its own QR code.
-        const assignments = items.flatMap((item) => {
+        const assignments = items.flatMap((item: any) => {
           const qrs = assignedQRs[item.id] || []
           const rows = []
           for (let i = 0; i < item.quantity; i++) {
@@ -256,7 +256,7 @@ export function AdminRequestDetailPage() {
         console.warn('[handleUnassignQR] could not bump product stock back', e)
       }
       setAssignedQRs((prev) => {
-        const list = (prev[item.id] || []).filter((q) => q.id !== qrCode.id)
+        const list = (prev[item.id] || []).filter((q: any) => q.id !== qrCode.id)
         return { ...prev, [item.id]: list }
       })
       showToast(`${qrCode.code} unassigned`)
@@ -391,7 +391,7 @@ export function AdminRequestDetailPage() {
           <CardTitle className="text-base">Items ({items.length})</CardTitle>
         </CardHeader>
         <CardContent className="divide-y">
-          {items.map((item) => {
+          {items.map((item: any) => {
             const assignedList = assignedQRs[item.id] || []
             const availableCount = getAvailableQRsForProduct(item.product_id).length
             const slotsLeft = Math.max(item.quantity - assignedList.length, 0)
@@ -427,7 +427,7 @@ export function AdminRequestDetailPage() {
                     ready (in case the admin skipped the assignment step). */}
                 {(request.status === 'in_progress' || request.status === 'ready') && (
                   <div className="mt-3 ml-16 space-y-2">
-                    {assignedList.map((qr) => (
+                    {assignedList.map((qr: any) => (
                       <div key={qr.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                         <QrCode className="h-4 w-4 text-emerald-500" />
                         <code className="text-xs font-mono font-semibold text-emerald-600">{qr.code}</code>
@@ -523,7 +523,7 @@ export function AdminRequestDetailPage() {
                   {filteredAssignQRs.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-6">No available QR codes for this product</p>
                   ) : (
-                    filteredAssignQRs.map((qr) => (
+                    filteredAssignQRs.map((qr: any) => (
                       <button
                         key={qr.id}
                         type="button"

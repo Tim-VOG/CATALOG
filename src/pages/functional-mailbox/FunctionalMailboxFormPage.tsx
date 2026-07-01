@@ -80,7 +80,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
   const [error, setError] = useState('')
 
   // Parse comma-separated string to array
-  const tags = value ? value.split(',').map((t) => t.trim()).filter(Boolean) : []
+  const tags = value ? value.split(',').map((t: any) => t.trim()).filter(Boolean) : []
 
   const isValidEmail = (email) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
 
@@ -102,7 +102,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
   }
 
   const removeTag = (idx) => {
-    const updated = tags.filter((_, i) => i !== idx)
+    const updated = tags.filter((_: any, i: any) => i !== idx)
     onChange(updated.join(', '))
   }
 
@@ -138,7 +138,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
   return (
     <div className="space-y-2">
       <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all">
-        {tags.map((tag, idx) => (
+        {tags.map((tag: any, idx: any) => (
           <span
             key={tag}
             className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium"
@@ -271,7 +271,7 @@ function DynamicField({ field, value, onChange  }: any) {
       return (
         <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
           <option value="">Select...</option>
-          {options.map((opt) => (
+          {options.map((opt: any) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
         </Select>
@@ -281,14 +281,14 @@ function DynamicField({ field, value, onChange  }: any) {
       const selected = Array.isArray(value) ? value : []
       const toggleOpt = (opt) => {
         if (selected.includes(opt)) {
-          onChange(selected.filter((s) => s !== opt))
+          onChange(selected.filter((s: any) => s !== opt))
         } else {
           onChange([...selected, opt])
         }
       }
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {options.map((opt) => {
+          {options.map((opt: any) => {
             const checked = selected.includes(opt)
             return (
               <label
@@ -373,7 +373,7 @@ function DynamicField({ field, value, onChange  }: any) {
 function DynamicFormStep({ fields, form, setField  }: any) {
   return (
     <div className="space-y-5">
-      {fields.map((field) => {
+      {fields.map((field: any) => {
         const isSystem = SYSTEM_FIELD_KEYS.has(field.field_key)
         const value = isSystem ? form[field.field_key] : (form.custom_fields?.[field.field_key] ?? '')
 
@@ -412,7 +412,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
 function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {steps.map((step, idx) => {
+      {steps.map((step: any, idx: any) => {
         const Icon = step.icon
         const isActive = idx === currentStep
         const isDone = idx < currentStep
@@ -455,8 +455,8 @@ function StepProgress({ currentStep, steps  }: any) {
 // ── Review step ──
 function StepReview({ form, profile, allFields  }: any) {
   const rows = allFields
-    .filter((f) => f.is_active && evaluateCondition(f, form))
-    .map((f) => {
+    .filter((f: any) => f.is_active && evaluateCondition(f, form))
+    .map((f: any) => {
       const isSystem = SYSTEM_FIELD_KEYS.has(f.field_key)
       const raw = isSystem ? form[f.field_key] : (form.custom_fields?.[f.field_key] ?? '')
       let display = ''
@@ -550,7 +550,7 @@ export function FunctionalMailboxFormPage() {
 
   // Active fields only, filtered by conditional logic
   const activeFields = useMemo(() => {
-    return formFields.filter((f) => f.is_active && evaluateCondition(f, form))
+    return formFields.filter((f: any) => f.is_active && evaluateCondition(f, form))
   }, [formFields, form])
 
   // Group active fields by step
@@ -558,14 +558,14 @@ export function FunctionalMailboxFormPage() {
     const groups = {}
     for (const step of STEP_DEFS) {
       if (step.id === 'review') continue
-      groups[step.id] = activeFields.filter((f) => f.step === step.id)
+      groups[step.id] = activeFields.filter((f: any) => f.step === step.id)
     }
     return groups
   }, [activeFields])
 
   // Determine which steps have fields (skip empty steps)
   const activeSteps = useMemo(() => {
-    return STEP_DEFS.filter((s) => {
+    return STEP_DEFS.filter((s: any) => {
       if (s.id === 'review') return true
       return (fieldsByStep[s.id] || []).length > 0
     })

@@ -46,7 +46,7 @@ function MiniMonth({ monthDate, eventsMap, onDayClick  }: any) {
 
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-0.5 mb-0.5">
-        {DAYS.map((d, i) => (
+        {DAYS.map((d: any, i: any) => (
           <div key={i} className="text-center text-[8px] font-semibold text-muted-foreground/50 uppercase">
             {d}
           </div>
@@ -85,7 +85,7 @@ function MiniMonth({ monthDate, eventsMap, onDayClick  }: any) {
               {/* Event dots */}
               {types.size > 0 && (
                 <div className="flex items-center gap-px mt-0.5">
-                  {[...types].slice(0, 3).map((type) => (
+                  {[...types].slice(0, 3).map((type: any) => (
                     <span
                       key={type}
                       className={cn('h-1 w-1 rounded-full', TYPE_DOTS[type] || 'bg-primary')}
@@ -116,7 +116,7 @@ export function CalendarQuarterView({ currentDate, eventsMap, onDayClick, direct
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm p-3 sm:p-5"
     >
-      {months.map((m) => (
+      {months.map((m: any) => (
         <MiniMonth
           key={format(m, 'yyyy-MM')}
           monthDate={m}

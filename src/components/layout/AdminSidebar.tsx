@@ -26,17 +26,17 @@ export function AdminSidebar() {
 
   const pendingCounts = useMemo(() => {
     const sentRequestIds = new Set(
-      onboardingEmails.filter((e) => e.it_request_id && e.status === 'sent').map((e) => e.it_request_id)
+      onboardingEmails.filter((e: any) => e.it_request_id && e.status === 'sent').map((e: any) => e.it_request_id)
     )
-    const onboardingPending = itReqs.filter((r) => r.type === 'onboarding' && r.status === 'pending').length
+    const onboardingPending = itReqs.filter((r: any) => r.type === 'onboarding' && r.status === 'pending').length
     const onboardingReadyToWelcome = itReqs.filter(
       (r) => r.type === 'onboarding' && r.status === 'ready' && !sentRequestIds.has(r.id)
     ).length
     return {
-      equipment: loanReqs.filter((r) => r.status === 'pending').length,
+      equipment: loanReqs.filter((r: any) => r.status === 'pending').length,
       onboarding: onboardingPending + onboardingReadyToWelcome,
-      offboarding: itReqs.filter((r) => r.type === 'offboarding' && r.status === 'pending').length,
-      mailbox: mailboxReqs.filter((r) => r.status === 'pending').length,
+      offboarding: itReqs.filter((r: any) => r.type === 'offboarding' && r.status === 'pending').length,
+      mailbox: mailboxReqs.filter((r: any) => r.status === 'pending').length,
     }
   }, [loanReqs, itReqs, mailboxReqs, onboardingEmails])
 
@@ -101,11 +101,11 @@ export function AdminSidebar() {
 
   // Managers only see the people-ops links; admins see everything.
   const sidebarSections = allSections
-    .map((section) => ({
+    .map((section: any) => ({
       ...section,
       links: isAdmin ? section.links : section.links.filter((l: any) => l.managerOk),
     }))
-    .filter((section) => section.links.length > 0)
+    .filter((section: any) => section.links.length > 0)
 
   const isActive = (to, exact) => {
     if (exact) return location.pathname === to
@@ -122,7 +122,7 @@ export function AdminSidebar() {
         </div>
 
         <nav className="flex-1 overflow-y-auto space-y-5 pr-2">
-          {sidebarSections.map((section) => (
+          {sidebarSections.map((section: any) => (
             <SidebarSection key={section.label} section={section} isActive={isActive} />
           ))}
         </nav>

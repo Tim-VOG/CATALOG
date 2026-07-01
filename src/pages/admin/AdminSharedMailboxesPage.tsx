@@ -60,7 +60,7 @@ function SelectCell({ value, options, onChange  }: any) {
       className="w-full px-2 py-1.5 text-xs bg-transparent border border-transparent rounded focus:bg-card focus:border-primary/30 focus:outline-none hover:bg-muted/30"
     >
       <option value="">—</option>
-      {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      {options.map((o: any) => <option key={o} value={o}>{o}</option>)}
     </select>
   )
 }
@@ -113,11 +113,11 @@ export function AdminSharedMailboxesPage() {
 
   const filtered = useMemo(() => {
     let r = rows
-    if (companyFilter !== 'all') r = r.filter((x) => x.company === companyFilter)
-    if (catFilter !== 'all') r = r.filter((x) => x.category === catFilter)
+    if (companyFilter !== 'all') r = r.filter((x: any) => x.company === companyFilter)
+    if (catFilter !== 'all') r = r.filter((x: any) => x.category === catFilter)
     if (search.trim()) {
       const q = search.toLowerCase()
-      r = r.filter((x) =>
+      r = r.filter((x: any) =>
         (x.name || '').toLowerCase().includes(q) ||
         (x.mail || '').toLowerCase().includes(q) ||
         (x.project_leader || '').toLowerCase().includes(q) ||
@@ -129,14 +129,14 @@ export function AdminSharedMailboxesPage() {
 
   const counts = useMemo(() => ({
     total: rows.length,
-    leger: rows.filter((r) => r.category === 'LEGER').length,
-    moyen: rows.filter((r) => r.category === 'MOYEN').length,
-    lourd: rows.filter((r) => r.category === 'LOURD').length,
+    leger: rows.filter((r: any) => r.category === 'LEGER').length,
+    moyen: rows.filter((r: any) => r.category === 'MOYEN').length,
+    lourd: rows.filter((r: any) => r.category === 'LOURD').length,
   }), [rows])
 
   const companiesPresent = useMemo(() => {
     const s = new Set(COMPANIES)
-    rows.forEach((r) => r.company && s.add(r.company))
+    rows.forEach((r: any) => r.company && s.add(r.company))
     return Array.from(s).sort()
   }, [rows])
 
@@ -166,9 +166,9 @@ export function AdminSharedMailboxesPage() {
   }, [deleteItem, showToast])
 
   const handleExportCsv = useCallback(() => {
-    const headers = COLUMNS.map((c) => c.label).join(',')
-    const lines = filtered.map((r) =>
-      COLUMNS.map((col) => {
+    const headers = COLUMNS.map((c: any) => c.label).join(',')
+    const lines = filtered.map((r: any) =>
+      COLUMNS.map((col: any) => {
         const v = r[col.key]
         if (v == null || v === false) return ''
         if (v === true) return 'Yes'
@@ -209,7 +209,7 @@ export function AdminSharedMailboxesPage() {
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
           <option value="all">All companies</option>
-          {companiesPresent.map((c) => <option key={c} value={c}>{c}</option>)}
+          {companiesPresent.map((c: any) => <option key={c} value={c}>{c}</option>)}
         </select>
         <select
           value={catFilter}
@@ -217,7 +217,7 @@ export function AdminSharedMailboxesPage() {
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
           <option value="all">All categories</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          {CATEGORIES.map((c: any) => <option key={c} value={c}>{c}</option>)}
         </select>
         <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5">
           <Download className="h-3.5 w-3.5" /> Export CSV
@@ -233,7 +233,7 @@ export function AdminSharedMailboxesPage() {
         <table className="min-w-full text-xs">
           <thead className="bg-muted/40 border-b border-border sticky top-0">
             <tr>
-              {COLUMNS.map((col) => (
+              {COLUMNS.map((col: any) => (
                 <th key={col.key} className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap" style={{ width: col.width, minWidth: col.width }}>
                   {col.label}
                 </th>
@@ -250,9 +250,9 @@ export function AdminSharedMailboxesPage() {
                 </td>
               </tr>
             ) : (
-              filtered.map((r) => (
+              filtered.map((r: any) => (
                 <tr key={r.id} className="hover:bg-muted/20">
-                  {COLUMNS.map((col) => (
+                  {COLUMNS.map((col: any) => (
                     <td key={col.key} className="px-1 py-0.5 align-middle" style={{ width: col.width, minWidth: col.width }}>
                       {col.type === 'select' && col.render === 'badge' && r[col.key] ? (
                         <div className="px-2 py-1">

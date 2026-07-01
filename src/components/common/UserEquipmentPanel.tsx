@@ -40,7 +40,7 @@ export function UserEquipmentPanel({ userId  }: any) {
   const { data: mailboxReqs = [] } = useMyMailboxRequests(userId)
 
   const activeEquipment = useMemo(
-    () => equipment.filter((e) => e.status !== 'returned'),
+    () => equipment.filter((e: any) => e.status !== 'returned'),
     [equipment]
   )
 
@@ -99,7 +99,7 @@ export function UserEquipmentPanel({ userId  }: any) {
             <p className="text-xs text-muted-foreground italic">No equipment assigned.</p>
           ) : (
             <div className="space-y-2">
-              {activeEquipment.map((e) => (
+              {activeEquipment.map((e: any) => (
                 <div key={e.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/40">
                   {e.product_image
                     ? <img src={e.product_image} alt="" className="h-10 w-10 rounded-lg object-cover border border-border/50" />
@@ -136,7 +136,7 @@ export function UserEquipmentPanel({ userId  }: any) {
             <p className="text-xs text-muted-foreground italic">No QR codes assigned.</p>
           ) : (
             <div className="space-y-2">
-              {qrCodes.map((q) => (
+              {qrCodes.map((q: any) => (
                 <div key={q.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/40">
                   <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
                     <QrCode className="h-4.5 w-4.5 text-emerald-600" />
@@ -173,7 +173,7 @@ export function UserEquipmentPanel({ userId  }: any) {
             <p className="text-xs text-muted-foreground italic">No requests yet.</p>
           ) : (
             <div className="space-y-1.5">
-              {history.map((h) => {
+              {history.map((h: any) => {
                 const meta = REQ_TYPE_META[h.type] || REQ_TYPE_META.it
                 const Icon = meta.icon
                 return (

@@ -341,7 +341,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                     onChange={(e: any) => setBusinessUnit(e.target.value)}
                   >
                     <option value="">— None —</option>
-                    {businessUnits.map((bu) => (
+                    {businessUnits.map((bu: any) => (
                       <option key={bu.id} value={bu.value}>{bu.value}</option>
                     ))}
                   </Select>
@@ -367,7 +367,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                   </Label>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {VARIABLES.map((v) => (
+                  {VARIABLES.map((v: any) => (
                     <Button
                       key={v.key}
                       variant="outline"

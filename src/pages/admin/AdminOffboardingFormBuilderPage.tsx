@@ -91,7 +91,7 @@ const EMPTY_FIELD = {
 // ── Field row component (no drag) ──
 function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) {
   const hasCondition = !!field.condition_field
-  const conditionField = hasCondition ? allFields.find((f) => f.field_key === field.condition_field) : null
+  const conditionField = hasCondition ? allFields.find((f: any) => f.field_key === field.condition_field) : null
 
   return (
     <Card variant="elevated" className={cn('transition-all', !field.is_active && 'opacity-50')}>
@@ -113,7 +113,7 @@ function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) 
                 {field.field_type.replace('_', ' ')}
               </Badge>
               <Badge variant="outline" className={cn('text-[10px]', STEP_COLORS[field.step] || '')}>
-                {STEPS.find((s) => s.value === field.step)?.label || field.step}
+                {STEPS.find((s: any) => s.value === field.step)?.label || field.step}
               </Badge>
               {field.is_required && (
                 <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30">
@@ -170,7 +170,7 @@ export function AdminOffboardingFormBuilderPage() {
   const groupedFields = useMemo(() => {
     const groups = {}
     for (const step of STEPS) {
-      groups[step.value] = fields.filter((f) => f.step === step.value)
+      groups[step.value] = fields.filter((f: any) => f.step === step.value)
     }
     return groups
   }, [fields])
@@ -205,7 +205,7 @@ export function AdminOffboardingFormBuilderPage() {
     if (['select', 'multi_select'].includes(payload.field_type)) {
       payload.options = optionsText
         .split('\n')
-        .map((s) => s.trim())
+        .map((s: any) => s.trim())
         .filter(Boolean)
     } else {
       payload.options = []
@@ -292,7 +292,7 @@ export function AdminOffboardingFormBuilderPage() {
       </AdminPageHeader>
 
       {/* Fields list grouped by step */}
-      {STEPS.map((step) => {
+      {STEPS.map((step: any) => {
         const stepFields = groupedFields[step.value] || []
         if (stepFields.length === 0) return null
         return (
@@ -303,7 +303,7 @@ export function AdminOffboardingFormBuilderPage() {
               <span className="text-[10px] font-normal">({stepFields.length})</span>
             </h3>
             <div className="space-y-1.5">
-              {stepFields.map((field) => (
+              {stepFields.map((field: any) => (
                 <FieldRow
                   key={field.id}
                   field={field}
@@ -387,7 +387,7 @@ export function AdminOffboardingFormBuilderPage() {
                     onChange={(e: any) => setEditDialog((prev) => ({ ...prev, field_type: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
-                    {FIELD_TYPES.map((t) => (
+                    {FIELD_TYPES.map((t: any) => (
                       <option key={t.value} value={t.value}>{t.label}</option>
                     ))}
                   </Select>
@@ -399,7 +399,7 @@ export function AdminOffboardingFormBuilderPage() {
                     onChange={(e: any) => setEditDialog((prev) => ({ ...prev, step: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
-                    {STEPS.map((s) => (
+                    {STEPS.map((s: any) => (
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </Select>
@@ -479,8 +479,8 @@ export function AdminOffboardingFormBuilderPage() {
                   >
                     <option value="_none">No condition (always show)</option>
                     {fields
-                      .filter((f) => f.id !== editDialog.id)
-                      .map((f) => (
+                      .filter((f: any) => f.id !== editDialog.id)
+                      .map((f: any) => (
                         <option key={f.field_key} value={f.field_key}>
                           {f.label}
                         </option>
@@ -496,7 +496,7 @@ export function AdminOffboardingFormBuilderPage() {
                         value={editDialog.condition_operator || 'equals'}
                         onChange={(e: any) => setEditDialog((prev) => ({ ...prev, condition_operator: e.target.value }))}
                       >
-                        {OPERATORS.map((o) => (
+                        {OPERATORS.map((o: any) => (
                           <option key={o.value} value={o.value}>{o.label}</option>
                         ))}
                       </Select>

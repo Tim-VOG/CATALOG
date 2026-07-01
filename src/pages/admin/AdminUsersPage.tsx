@@ -141,7 +141,7 @@ export function AdminUsersPage() {
   // Access map: "userId:moduleKey" -> granted
   const accessMap = useMemo(() => {
     const map = {}
-    allAccess.forEach((row) => {
+    allAccess.forEach((row: any) => {
       map[`${row.user_id}:${row.module_key}`] = row.granted
     })
     return map
@@ -150,7 +150,7 @@ export function AdminUsersPage() {
   // Filter by Business Unit
   const filtered = useMemo(() => {
     if (buFilter === 'all') return profiles
-    return profiles.filter((p) => p.business_unit === buFilter)
+    return profiles.filter((p: any) => p.business_unit === buFilter)
   }, [profiles, buFilter])
 
   // Show 50 at a time to keep large tables snappy
@@ -249,7 +249,7 @@ export function AdminUsersPage() {
 
       {/* Module legend */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        {MODULES.map((mod) => {
+        {MODULES.map((mod: any) => {
           const Icon = mod.icon
           return (
             <div key={mod.key} className="flex items-center gap-1.5">
@@ -278,7 +278,7 @@ export function AdminUsersPage() {
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {invitations.map((inv) => {
+            {invitations.map((inv: any) => {
               const isSent = !!inv.email_sent_at
               return (
                 <div
@@ -338,7 +338,7 @@ export function AdminUsersPage() {
 
         {/* Role filter buttons */}
         <div className="flex gap-1">
-          {ROLE_FILTERS.map((role) => (
+          {ROLE_FILTERS.map((role: any) => (
             <Button
               key={role}
               variant={roleFilter === role ? 'secondary' : 'ghost'}
@@ -358,7 +358,7 @@ export function AdminUsersPage() {
           className="w-44 h-8 text-xs"
         >
           <option value="all">All Business Units</option>
-          {businessUnits.map((bu) => (
+          {businessUnits.map((bu: any) => (
             <option key={bu.id} value={bu.value}>{bu.value}</option>
           ))}
         </Select>
@@ -380,7 +380,7 @@ export function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {visibleRows.map((p) => {
+            {visibleRows.map((p: any) => {
               const isSelf = p.id === currentUser?.id
               const isUserAdmin = p.role === 'admin'
               const inactive = p.is_active === false
@@ -420,7 +420,7 @@ export function AdminUsersPage() {
                         className="w-40 h-8 text-xs"
                       >
                         <option value="">— None —</option>
-                        {businessUnits.map((bu) => (
+                        {businessUnits.map((bu: any) => (
                           <option key={bu.id} value={bu.value}>{bu.value}</option>
                         ))}
                       </Select>
@@ -431,7 +431,7 @@ export function AdminUsersPage() {
                   <TableCell>
                     {isSelf ? (
                       (() => {
-                        const opt = ROLE_OPTIONS.find((r) => r.value === p.role) || ROLE_OPTIONS[0]
+                        const opt = ROLE_OPTIONS.find((r: any) => r.value === p.role) || ROLE_OPTIONS[0]
                         return <Badge className={opt.color}>{opt.label}</Badge>
                       })()
                     ) : (
@@ -440,7 +440,7 @@ export function AdminUsersPage() {
                         onChange={(e: any) => handleRoleChange(p.id, e.target.value, p.full_name || p.email)}
                         className="w-24 h-8 text-xs"
                       >
-                        {ROLE_OPTIONS.map((r) => (
+                        {ROLE_OPTIONS.map((r: any) => (
                           <option key={r.value} value={r.value}>{r.label}</option>
                         ))}
                       </Select>
@@ -484,7 +484,7 @@ export function AdminUsersPage() {
                   {/* Permissions */}
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      {MODULES.map((mod) => {
+                      {MODULES.map((mod: any) => {
                         const key = `${p.id}:${mod.key}`
                         const granted = accessMap[key] ?? false
                         return (

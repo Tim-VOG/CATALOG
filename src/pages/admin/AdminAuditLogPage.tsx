@@ -39,7 +39,7 @@ function actorName(log: AuditLogRow): string {
 
 function changedKeys(log: AuditLogRow): string {
   const keys = Object.keys(log.new_values || log.old_values || {})
-    .filter((k) => k !== 'updated_at' && k !== 'id')
+    .filter((k: any) => k !== 'updated_at' && k !== 'id')
   if (!keys.length) return ''
   return keys.slice(0, 5).join(', ') + (keys.length > 5 ? '…' : '')
 }
@@ -52,7 +52,7 @@ export function AdminAuditLogPage() {
   const filtered = useMemo(() => {
     if (!search.trim()) return logs
     const q = search.toLowerCase()
-    return logs.filter((l) =>
+    return logs.filter((l: any) =>
       actorName(l).toLowerCase().includes(q) ||
       l.action.toLowerCase().includes(q) ||
       (ENTITY_LABELS[l.entity_type] || l.entity_type).toLowerCase().includes(q) ||
@@ -62,14 +62,14 @@ export function AdminAuditLogPage() {
 
   const handleExportCsv = () => {
     const headers = ['Time', 'Actor', 'Action', 'Entity', 'Entity ID', 'Changed fields']
-    const lines = filtered.map((l) => [
+    const lines = filtered.map((l: any) => [
       new Date(l.created_at).toISOString(),
       actorName(l),
       l.action,
       ENTITY_LABELS[l.entity_type] || l.entity_type,
       l.entity_id || '',
       changedKeys(l),
-    ].map((v) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(','))
+    ].map((v: any) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(','))
     const csv = [headers.join(','), ...lines].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const a = document.createElement('a')
@@ -103,7 +103,7 @@ export function AdminAuditLogPage() {
           />
         </div>
         <div className="flex flex-wrap gap-1">
-          {ENTITY_FILTERS.map((e) => (
+          {ENTITY_FILTERS.map((e: any) => (
             <Button
               key={e}
               variant={entityType === e ? 'secondary' : 'ghost'}
@@ -126,7 +126,7 @@ export function AdminAuditLogPage() {
           </div>
         ) : (
           <div className="divide-y divide-border/40">
-            {filtered.map((log) => {
+            {filtered.map((log: any) => {
               const meta = actionMeta(log.action)
               const Icon = meta.icon
               const fields = changedKeys(log)

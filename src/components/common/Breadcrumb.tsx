@@ -36,7 +36,7 @@ export function Breadcrumb({ items, className  }: any) {
 
   return (
     <nav className={cn('flex items-center gap-1 text-xs text-muted-foreground mb-4', className)}>
-      {crumbs.map((crumb, i) => {
+      {crumbs.map((crumb: any, i: any) => {
         const isLast = i === crumbs.length - 1
         return (
           <span key={i} className="flex items-center gap-1">

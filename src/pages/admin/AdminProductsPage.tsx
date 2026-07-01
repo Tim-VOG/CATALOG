@@ -142,7 +142,7 @@ export function AdminProductsPage() {
       name: `${product.name} (copy)`, description: product.description || '',
       category_id: product.category_id, sub_type: product.sub_type || '',
       image_url: product.image_url || '', total_stock: 1,
-      includes: (product.includes || []).flatMap((s) => s.split(/[;,]/).map((t) => t.trim()).filter(Boolean)),
+      includes: (product.includes || []).flatMap((s: any) => s.split(/[;,]/).map((t: any) => t.trim()).filter(Boolean)),
       has_subscription: product.has_subscription,
       has_apps: product.has_apps, wifi_only: product.wifi_only, printer_info: product.printer_info,
     })
@@ -156,7 +156,7 @@ export function AdminProductsPage() {
       category_id: product.category_id, sub_type: product.sub_type || '',
       image_url: product.image_url || '', total_stock: product.total_stock,
       is_visible: product.is_visible !== false,
-      includes: (product.includes || []).flatMap((s) => s.split(/[;,]/).map((t) => t.trim()).filter(Boolean)),
+      includes: (product.includes || []).flatMap((s: any) => s.split(/[;,]/).map((t: any) => t.trim()).filter(Boolean)),
       has_subscription: product.has_subscription,
       has_apps: product.has_apps, wifi_only: product.wifi_only, printer_info: product.printer_info,
     })
@@ -207,7 +207,7 @@ export function AdminProductsPage() {
     }
   }
 
-  const filtered = useMemo(() => products.filter((p) => {
+  const filtered = useMemo(() => products.filter((p: any) => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return p.name.toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q)
@@ -237,12 +237,12 @@ export function AdminProductsPage() {
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <Box className="h-3.5 w-3.5 text-accent" />
-          <span className="font-semibold">{products.reduce((sum, p) => sum + (p.total_stock || 0), 0)}</span>
+          <span className="font-semibold">{products.reduce((sum: any, p: any) => sum + (p.total_stock || 0), 0)}</span>
           <span className="text-muted-foreground">total stock</span>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <AlertTriangle className="h-3.5 w-3.5 text-warning" />
-          <span className="font-semibold">{products.filter((p) => p.total_stock <= 1).length}</span>
+          <span className="font-semibold">{products.filter((p: any) => p.total_stock <= 1).length}</span>
           <span className="text-muted-foreground">low stock</span>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
@@ -268,7 +268,7 @@ export function AdminProductsPage() {
         <EmptyState icon={Package} title="No products found" description={search ? 'Try a different search term' : 'Add your first product to get started'} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {visibleProducts.map((p, i) => {
+          {visibleProducts.map((p: any, i: any) => {
             const isSelected = selectedIds.has(p.id)
             return (
               <ScrollFadeIn key={p.id} delay={i * 0.04}>
@@ -419,7 +419,7 @@ export function AdminProductsPage() {
               <div className="space-y-1">
                 <Label>Category</Label>
                 <Select value={form.category_id} onChange={(e: any) => setForm({ ...form, category_id: e.target.value })}>
-                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </div>
               <div className="space-y-1">
@@ -463,7 +463,7 @@ export function AdminProductsPage() {
               />
               {suggestions.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {suggestions.map((item) => (
+                  {suggestions.map((item: any) => (
                     <button
                       key={item}
                       type="button"

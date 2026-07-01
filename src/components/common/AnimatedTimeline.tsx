@@ -15,7 +15,7 @@ export function AnimatedTimeline({ events = []  }: any) {
 
   return (
     <div className="space-y-0">
-      {events.map((event, i) => {
+      {events.map((event: any, i: any) => {
         const Icon = event.icon || Clock
         return (
           <motion.div

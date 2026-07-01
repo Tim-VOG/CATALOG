@@ -19,7 +19,7 @@ export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobi
         <Table>
           <TableHeader>
             <TableRow>
-              {columns.map((col) => (
+              {columns.map((col: any) => (
                 <TableHead key={col.key} className={col.className}>
                   {col.label}
                 </TableHead>
@@ -27,7 +27,7 @@ export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobi
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((item, i) => (
+            {data.map((item: any, i: any) => (
               <motion.tr
                 key={keyExtractor(item)}
                 initial={{ opacity: 0, y: 4 }}
@@ -44,7 +44,7 @@ export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobi
 
       {/* Mobile card list */}
       <div className="md:hidden space-y-3">
-        {data.map((item, i) => (
+        {data.map((item: any, i: any) => (
           <motion.div
             key={keyExtractor(item)}
             initial={{ opacity: 0, y: 8 }}

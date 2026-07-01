@@ -26,7 +26,7 @@ function getCategoryConfig(categoryName) {
   if (!categoryName) return null
   const lower = categoryName.toLowerCase()
   for (const [, config] of Object.entries(CATEGORY_CONFIG as Record<string, any>)) {
-    if (config.match.some((m) => lower.includes(m))) return config
+    if (config.match.some((m: any) => lower.includes(m))) return config
   }
   return null
 }
@@ -39,9 +39,9 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   const config = getCategoryConfig(product.category_name)
   const [selectedPlan, setSelectedPlan] = useState('')
   const [accessories, setAccessories] = useState<any[]>([])
-  const plans = config ? allPlans.filter((p) => config.planTypes.includes(p.type)) : allPlans
+  const plans = config ? allPlans.filter((p: any) => config.planTypes.includes(p.type)) : allPlans
   const availableAccessories = config?.accessories || []
-  const toggleAcc = (a) => setAccessories((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a])
+  const toggleAcc = (a) => setAccessories((prev) => prev.includes(a) ? prev.filter((x: any) => x !== a) : [...prev, a])
   const typeBadge = { call: 'bg-blue-500/15 text-blue-400', data: 'bg-purple-500/15 text-purple-400', both: 'bg-cyan-500/15 text-cyan-400' }
 
   return (
@@ -61,7 +61,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-sm font-semibold"><CreditCard className="h-4 w-4 text-primary" /> Subscription Plan</Label>
               <div className="space-y-1.5">
-                {plans.map((plan) => (
+                {plans.map((plan: any) => (
                   <button key={plan.id} type="button" onClick={() => setSelectedPlan(selectedPlan === plan.name ? '' : plan.name)}
                     className={cn('flex items-center justify-between w-full p-3 rounded-xl border-2 text-left transition-all text-sm', selectedPlan === plan.name ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30')}>
                     <div className="flex items-center gap-2"><span className="font-medium">{plan.name}</span><Badge className={cn('text-[10px]', typeBadge[plan.type])}>{plan.type}</Badge></div>
@@ -74,7 +74,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
           {availableAccessories.length > 0 && (
             <div className="space-y-2">
               <Label className="text-sm font-semibold">Accessories</Label>
-              {availableAccessories.map((a) => (
+              {availableAccessories.map((a: any) => (
                 <label key={a} className={cn('flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all', accessories.includes(a) ? 'border-primary/40 bg-primary/5' : 'border-border hover:border-primary/20')}>
                   <Checkbox checked={accessories.includes(a)} onCheckedChange={() => toggleAcc(a)} /><span className="text-sm">{a}</span>
                 </label>
@@ -100,7 +100,7 @@ export function ProductCard({ product, forecast }: any) {
   const { data: cartItems = [] } = useCart()
   const addToCart = useAddToCart()
   const showToast = useUIStore((s) => s.showToast)
-  const cartItem = cartItems.find((i) => i.product_id === product.id)
+  const cartItem = cartItems.find((i: any) => i.product_id === product.id)
   const inCart = !!cartItem
   const cartQty = cartItem?.quantity || 0
   const showOptions = needsOptions(product.category_name)
@@ -137,7 +137,7 @@ export function ProductCard({ product, forecast }: any) {
   const toggleFav = (e) => {
     e.preventDefault(); e.stopPropagation()
     const favs = JSON.parse(localStorage.getItem('vo-favorites') || '[]')
-    const next = isFav ? favs.filter((id) => id !== product.id) : [...favs, product.id]
+    const next = isFav ? favs.filter((id: any) => id !== product.id) : [...favs, product.id]
     localStorage.setItem('vo-favorites', JSON.stringify(next))
     setIsFav(!isFav)
     window.dispatchEvent(new Event('vo-favorites-changed'))

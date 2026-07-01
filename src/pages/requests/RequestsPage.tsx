@@ -79,7 +79,7 @@ export function RequestsPage() {
             </div>
             <Skeleton className="h-10 w-full" />
             <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
+              {Array.from({ length: 4 }).map((_: any, i: any) => (
                 <div key={i} className="rounded-lg border bg-card p-6 space-y-3">
                   <div className="flex items-center gap-2">
                     <Skeleton className="h-5 w-48" />
@@ -101,8 +101,8 @@ export function RequestsPage() {
 
   const requests = requestsQuery.data || []
 
-  const activeRequests = requests.filter((r) => ACTIVE_STATUSES.includes(r.status))
-  const pastRequests = requests.filter((r) => PAST_STATUSES.includes(r.status))
+  const activeRequests = requests.filter((r: any) => ACTIVE_STATUSES.includes(r.status))
+  const pastRequests = requests.filter((r: any) => PAST_STATUSES.includes(r.status))
 
   const currentList = tab === 'active' ? activeRequests : pastRequests
 
@@ -137,7 +137,7 @@ export function RequestsPage() {
         {[
           { id: 'active', label: 'Active', count: activeRequests.length, showCount: activeRequests.length > 0 },
           { id: 'past', label: 'Past', count: pastRequests.length, showCount: pastRequests.length > 0 },
-        ].map((t) => (
+        ].map((t: any) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
@@ -179,7 +179,7 @@ export function RequestsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {currentList.map((req, i) => (
+          {currentList.map((req: any, i: any) => (
             <DynamicsItem key={req.id} index={i}>
               <RequestCard req={req} />
             </DynamicsItem>

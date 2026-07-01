@@ -181,7 +181,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
   const byGroup = {}
   for (const it of items) (byGroup[it.group] = byGroup[it.group] || []).push(it)
   const total = items.length
-  const done = items.filter((i) => revoked.has(i.id)).length
+  const done = items.filter((i: any) => revoked.has(i.id)).length
 
   return (
     <Card variant="elevated">
@@ -208,7 +208,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
           <div key={group} className="space-y-1.5">
             <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{group}</div>
             <div className="space-y-1">
-              {list.map((item) => {
+              {list.map((item: any) => {
                 const isRevoked = revoked.has(item.id)
                 return (
                   <label key={item.id} className={cn(
@@ -320,7 +320,7 @@ export function AdminOffboardingRequestsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
 
   const requests = useMemo(
-    () => allRequests.filter((r) => r.type === 'offboarding'),
+    () => allRequests.filter((r: any) => r.type === 'offboarding'),
     [allRequests]
   )
 
@@ -356,10 +356,10 @@ export function AdminOffboardingRequestsPage() {
 
   const filtered = useMemo(() => {
     let result = requests
-    if (statusFilter !== 'all') result = result.filter((r) => r.status === statusFilter)
+    if (statusFilter !== 'all') result = result.filter((r: any) => r.status === statusFilter)
     if (search.trim()) {
       const q = search.toLowerCase()
-      result = result.filter((r) => {
+      result = result.filter((r: any) => {
         const data = r.data || {}
         return (data.employee_name || data.name || '').toLowerCase().includes(q) ||
           (r.requester_name || '').toLowerCase().includes(q) ||
@@ -369,10 +369,10 @@ export function AdminOffboardingRequestsPage() {
     return result
   }, [requests, search, statusFilter])
 
-  const pendingCount = requests.filter((r) => r.status === 'pending').length
+  const pendingCount = requests.filter((r: any) => r.status === 'pending').length
 
   const selectedRequest = useMemo(
-    () => requests.find((r) => r.id === selectedId),
+    () => requests.find((r: any) => r.id === selectedId),
     [requests, selectedId]
   )
 
@@ -436,7 +436,7 @@ export function AdminOffboardingRequestsPage() {
           { value: 'pending', label: 'Pending' },
           { value: 'in_progress', label: 'In Progress' },
           { value: 'ready', label: 'Ready' },
-        ].map((s) => (
+        ].map((s: any) => (
           <Button key={s.value} variant={statusFilter === s.value ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(s.value)}>
             {s.label}
             {s.value === 'pending' && pendingCount > 0 && (
@@ -455,7 +455,7 @@ export function AdminOffboardingRequestsPage() {
         <EmptyState icon={UserMinus} title="No offboarding requests" description="No requests match the current filter" />
       ) : (
         <div className="space-y-3">
-          {filtered.map((req) => {
+          {filtered.map((req: any) => {
             const data = req.data || {}
             const name = data.employee_name || data.name || req.requester_name || 'Unknown'
             const company = data.company || ''

@@ -30,9 +30,9 @@ export function UserFmbPanel({ user  }: any) {
     for (const m of mailboxes) {
       const leader = (m.project_leader || '').toLowerCase()
       // Project leader can be a single name or a comma-separated list
-      const isLeader = leader.split(',').map((s) => s.trim()).some((s) => s && s === lowerName)
+      const isLeader = leader.split(',').map((s: any) => s.trim()).some((s: any) => s && s === lowerName)
       const accessList = (m.have_access || '').toLowerCase()
-      const hasAccess = accessList.split(',').map((s) => s.trim()).some(
+      const hasAccess = accessList.split(',').map((s: any) => s.trim()).some(
         (s) => s && (s === lowerName || s === lowerEmail)
       )
       if (isLeader) led.push(m)

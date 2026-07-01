@@ -45,13 +45,13 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
   const barSegments = useMemo(() => {
     const seen = new Set()
     return barEvents
-      .filter((ev) => {
+      .filter((ev: any) => {
         if (seen.has(ev.id)) return false
         seen.add(ev.id)
         return true
       })
       .slice(0, 2)
-      .map((ev) => {
+      .map((ev: any) => {
         let position = 'single'
         if (ev.isMultiDay && ev.endDate) {
           const isStart = isSameDay(day, ev.startDate)
@@ -69,7 +69,7 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
   const labelEvents = useMemo(() => {
     if (!showLabels) return []
     const seen = new Set()
-    return events.filter((ev) => {
+    return events.filter((ev: any) => {
       if (seen.has(ev.id)) return false
       seen.add(ev.id)
       return true
@@ -113,7 +113,7 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
         {/* Desktop labels (when showLabels=true) */}
         {showLabels && labelEvents.length > 0 && (
           <div className="hidden sm:flex flex-col gap-px w-full">
-            {labelEvents.map((ev) => {
+            {labelEvents.map((ev: any) => {
               const Icon = TYPE_ICONS[ev.type] || Package
               return (
                 <div key={ev.id} className="flex items-center gap-0.5 px-0.5 truncate">
@@ -152,7 +152,7 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
           {/* Single-day type icons */}
           {dotEvents.length > 0 && (
             <div className="flex items-center gap-0.5 mt-0.5">
-              {dotEvents.slice(0, 3).map((ev) => {
+              {dotEvents.slice(0, 3).map((ev: any) => {
                 const Icon = TYPE_ICONS[ev.type] || Package
                 return (
                   <Icon

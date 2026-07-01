@@ -38,25 +38,25 @@ export function AdminStatsPage() {
 
   const stats = useMemo(() => {
     const allReqs = [...loanReqs, ...itReqs, ...mailboxReqs]
-    const thisMonth = allReqs.filter((r) => {
+    const thisMonth = allReqs.filter((r: any) => {
       const d = new Date(r.created_at)
       const now = new Date()
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
     })
-    const lastMonth = allReqs.filter((r) => {
+    const lastMonth = allReqs.filter((r: any) => {
       const d = new Date(r.created_at)
       const now = new Date()
       const lm = new Date(now.getFullYear(), now.getMonth() - 1)
       return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
     })
 
-    const pending = allReqs.filter((r) => r.status === 'pending').length
-    const inProgress = allReqs.filter((r) => r.status === 'in_progress').length
-    const ready = allReqs.filter((r) => r.status === 'ready').length
+    const pending = allReqs.filter((r: any) => r.status === 'pending').length
+    const inProgress = allReqs.filter((r: any) => r.status === 'in_progress').length
+    const ready = allReqs.filter((r: any) => r.status === 'ready').length
 
-    const assigned = qrCodes.filter((q) => q.status === 'assigned').length
-    const available = qrCodes.filter((q) => (q.status || 'available') === 'available').length
-    const lowStock = products.filter((p) => p.total_stock <= 1).length
+    const assigned = qrCodes.filter((q: any) => q.status === 'assigned').length
+    const available = qrCodes.filter((q: any) => (q.status || 'available') === 'available').length
+    const lowStock = products.filter((p: any) => p.total_stock <= 1).length
 
     // Most requested products
     const productCounts = {}

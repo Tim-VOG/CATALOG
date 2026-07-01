@@ -93,7 +93,7 @@ export function CatalogLoansView({ events  }: any) {
     switch (viewMode) {
       case '1W': {
         const days = eachDayOfInterval({ start, end: addDays(start, 6) })
-        cols = days.map((d) => ({
+        cols = days.map((d: any) => ({
           key: format(d, 'yyyy-MM-dd'),
           label: format(d, 'EEE d'),
           date: d,
@@ -105,7 +105,7 @@ export function CatalogLoansView({ events  }: any) {
       case '1M': {
         const mEnd = endOfMonth(start)
         const days = eachDayOfInterval({ start, end: mEnd })
-        cols = days.map((d) => ({
+        cols = days.map((d: any) => ({
           key: format(d, 'yyyy-MM-dd'),
           label: format(d, 'd'),
           sublabel: format(d, 'EEE'),
@@ -119,7 +119,7 @@ export function CatalogLoansView({ events  }: any) {
       case '3M': {
         const rangeEnd = addMonths(start, 3)
         const weeks = eachWeekOfInterval({ start, end: rangeEnd }, { weekStartsOn: 1 })
-        cols = weeks.map((w) => ({
+        cols = weeks.map((w: any) => ({
           key: format(w, 'yyyy-MM-dd'),
           label: format(w, 'd MMM'),
           date: w,
@@ -136,7 +136,7 @@ export function CatalogLoansView({ events  }: any) {
 
   // ── Filter catalog events that overlap the timeline ──
   const catalogEvents = useMemo(() => {
-    let result = events.filter((ev) => {
+    let result = events.filter((ev: any) => {
       if (ev.type !== 'catalog') return false
       if (!ev.startDate || !ev.endDate) return false
       const evStart = startOfDay(ev.startDate)
@@ -146,7 +146,7 @@ export function CatalogLoansView({ events  }: any) {
       return evStart <= rangeEnd && evEnd >= rangeStart
     })
     if (statusFilter.length > 0) {
-      result = result.filter((ev) => statusFilter.includes(ev.status))
+      result = result.filter((ev: any) => statusFilter.includes(ev.status))
     }
     return result
   }, [events, startDate, endDate, statusFilter])
@@ -162,14 +162,14 @@ export function CatalogLoansView({ events  }: any) {
 
   // ── Fetch items for visible catalog requests ──
   const requestIds = useMemo(
-    () => catalogEvents.map((ev) => ev.original?.id).filter(Boolean),
+    () => catalogEvents.map((ev: any) => ev.original?.id).filter(Boolean),
     [catalogEvents],
   )
   const { data: rawItems = [] } = useBatchLoanRequestItems(requestIds)
 
   // ── Merge items with request/event data and apply search ──
   const itemEvents = useMemo(() => {
-    let merged = rawItems.map((item) => {
+    let merged = rawItems.map((item: any) => {
       const ev = eventByRequestId.get(item.request_id)
       return {
         itemId: item.id,
@@ -187,7 +187,7 @@ export function CatalogLoansView({ events  }: any) {
         requestId: item.request_id,
         projectName: ev?.title || '',
       }
-    }).filter((item) => item.startDate && item.endDate)
+    }).filter((item: any) => item.startDate && item.endDate)
 
     if (search) {
       const q = search.toLowerCase()
@@ -268,7 +268,7 @@ export function CatalogLoansView({ events  }: any) {
 
   const toggleStatus = (status) => {
     setStatusFilter((prev) =>
-      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
+      prev.includes(status) ? prev.filter((s: any) => s !== status) : [...prev, status]
     )
   }
 
@@ -322,7 +322,7 @@ export function CatalogLoansView({ events  }: any) {
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">
-        {STATUS_PILLS.map((status) => {
+        {STATUS_PILLS.map((status: any) => {
           const isActive = statusFilter.includes(status)
           const barColor = STATUS_COLORS[status] || ''
           return (
@@ -376,7 +376,7 @@ export function CatalogLoansView({ events  }: any) {
                 Product
               </div>
               <div className="flex-1 flex">
-                {columns.map((col) => (
+                {columns.map((col: any) => (
                   <div
                     key={col.key}
                     className={cn(
@@ -407,7 +407,7 @@ export function CatalogLoansView({ events  }: any) {
                 <p className="text-sm text-muted-foreground">No catalog loans in this period</p>
               </div>
             ) : (
-              productRows.map((row, rowIndex) => {
+              productRows.map((row: any, rowIndex: any) => {
                 const rowHeight = getRowHeight(row.reservations)
                 return (
                   <div
@@ -445,7 +445,7 @@ export function CatalogLoansView({ events  }: any) {
                       )}
 
                       {/* Reservation bars — person names on bars */}
-                      {row.reservations.map((item, i) => {
+                      {row.reservations.map((item: any, i: any) => {
                         const barStyle = getBarStyle(item.startDate, item.endDate)
                         const statusColor = STATUS_COLORS[item.status] || STATUS_COLORS.pending
 

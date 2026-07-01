@@ -19,7 +19,7 @@ export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelect
       const dayEvents = eventsMap.get(key) || []
       // Deduplicate
       const seen = new Set()
-      const unique = dayEvents.filter((ev) => {
+      const unique = dayEvents.filter((ev: any) => {
         if (seen.has(ev.id)) return false
         seen.add(ev.id)
         return true
@@ -81,7 +81,7 @@ export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelect
               )}
             >
               <div className="space-y-1">
-                {events.slice(0, 6).map((ev) => {
+                {events.slice(0, 6).map((ev: any) => {
                   const colors = TYPE_COLORS[ev.type] || TYPE_COLORS.catalog
                   return (
                     <div

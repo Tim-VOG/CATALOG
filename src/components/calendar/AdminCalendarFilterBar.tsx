@@ -20,12 +20,12 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
   }, [open])
 
   const filtered = search
-    ? users.filter((u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase()))
+    ? users.filter((u: any) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase()))
     : users
 
   const toggleUser = (userId) => {
     const next = selectedUsers.includes(userId)
-      ? selectedUsers.filter((id) => id !== userId)
+      ? selectedUsers.filter((id: any) => id !== userId)
       : [...selectedUsers, userId]
     onChange(next)
   }
@@ -33,8 +33,8 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
   const clearAll = () => onChange([])
 
   const selectedNames = users
-    .filter((u) => selectedUsers.includes(u.id))
-    .map((u) => u.name.split(' ')[0])
+    .filter((u: any) => selectedUsers.includes(u.id))
+    .map((u: any) => u.name.split(' ')[0])
 
   return (
     <div ref={ref} className="relative">
@@ -90,7 +90,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
                 Clear all filters
               </button>
             )}
-            {filtered.map((user) => {
+            {filtered.map((user: any) => {
               const isActive = selectedUsers.includes(user.id)
               return (
                 <button

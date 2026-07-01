@@ -15,14 +15,14 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIndex = blocks.findIndex((b) => b.block_key === active.id)
-    const newIndex = blocks.findIndex((b) => b.block_key === over.id)
+    const oldIndex = blocks.findIndex((b: any) => b.block_key === active.id)
+    const newIndex = blocks.findIndex((b: any) => b.block_key === over.id)
     onChange(arrayMove(blocks, oldIndex, newIndex))
   }
 
   const handleToggle = (blockKey) => {
     onChange(
-      blocks.map((b) =>
+      blocks.map((b: any) =>
         b.block_key === blockKey ? { ...b, enabled: !b.enabled } : b
       )
     )
@@ -30,7 +30,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
 
   const handleContentChange = (blockKey, contentKey, value) => {
     onChange(
-      blocks.map((b) =>
+      blocks.map((b: any) =>
         b.block_key === blockKey ? { ...b, [contentKey]: value } : b
       )
     )
@@ -38,14 +38,14 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
 
   const handleOptionChange = (blockKey, options) => {
     onChange(
-      blocks.map((b) =>
+      blocks.map((b: any) =>
         b.block_key === blockKey ? { ...b, options } : b
       )
     )
   }
 
   const getTemplate = (blockKey) =>
-    blockTemplates.find((t) => t.block_key === blockKey)
+    blockTemplates.find((t: any) => t.block_key === blockKey)
 
   return (
     <DndContext
@@ -55,11 +55,11 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
       modifiers={[restrictToVerticalAxis]}
     >
       <SortableContext
-        items={blocks.map((b) => b.block_key)}
+        items={blocks.map((b: any) => b.block_key)}
         strategy={verticalListSortingStrategy}
       >
         <div className="space-y-2">
-          {blocks.map((block) => (
+          {blocks.map((block: any) => (
             <SortableBlock
               key={block.block_key}
               block={block}

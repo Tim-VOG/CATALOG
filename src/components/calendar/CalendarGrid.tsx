@@ -55,7 +55,7 @@ export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay,
     >
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-1 mb-1">
-        {DAYS.map((d) => (
+        {DAYS.map((d: any) => (
           <div key={d} className="text-center text-[10px] sm:text-xs font-semibold text-muted-foreground/60 py-1.5 uppercase tracking-wider">
             {d}
           </div>

@@ -92,11 +92,11 @@ export function AdminDeviceCredentialsPage() {
   const filtered = useMemo(() => {
     let r = rows
     if (categoryFilter !== 'all') {
-      r = r.filter((x) => x.qr_code?.product?.category?.name === categoryFilter)
+      r = r.filter((x: any) => x.qr_code?.product?.category?.name === categoryFilter)
     }
     if (search.trim()) {
       const q = search.toLowerCase()
-      r = r.filter((x) =>
+      r = r.filter((x: any) =>
         (x.qr_code?.code || '').toLowerCase().includes(q) ||
         (x.qr_code?.product?.name || '').toLowerCase().includes(q) ||
         (x.imei || '').toLowerCase().includes(q) ||
@@ -108,9 +108,9 @@ export function AdminDeviceCredentialsPage() {
     return r.sort((a, b) => (a.qr_code?.code || '').localeCompare(b.qr_code?.code || ''))
   }, [rows, search, categoryFilter])
 
-  const usedQrIds = useMemo(() => new Set(rows.map((r) => r.qr_code_id)), [rows])
+  const usedQrIds = useMemo(() => new Set(rows.map((r: any) => r.qr_code_id)), [rows])
   const availableQrs = useMemo(
-    () => qrCodes.filter((q) => !usedQrIds.has(q.id)).sort((a, b) => a.code.localeCompare(b.code)),
+    () => qrCodes.filter((q: any) => !usedQrIds.has(q.id)).sort((a, b) => a.code.localeCompare(b.code)),
     [qrCodes, usedQrIds],
   )
 
@@ -119,7 +119,7 @@ export function AdminDeviceCredentialsPage() {
       showToast('All QR codes already have credentials attached', 'info')
       return
     }
-    const choices = availableQrs.slice(0, 50).map((q, i) => `${i + 1}. ${q.code}`).join('\n')
+    const choices = availableQrs.slice(0, 50).map((q: any, i: any) => `${i + 1}. ${q.code}`).join('\n')
     const pick = prompt(`Pick a QR code (number):\n\n${choices}`)
     const idx = parseInt(pick, 10) - 1
     if (Number.isNaN(idx) || idx < 0 || idx >= availableQrs.length) return
@@ -148,17 +148,17 @@ export function AdminDeviceCredentialsPage() {
   }, [deleteItem, showToast])
 
   const handleExportCsv = useCallback(() => {
-    const headers = ['QR Code', 'Product', 'Category', 'Status', 'Assigned To', ...COLUMNS.map((c) => c.label)]
-    const lines = filtered.map((r) => {
+    const headers = ['QR Code', 'Product', 'Category', 'Status', 'Assigned To', ...COLUMNS.map((c: any) => c.label)]
+    const lines = filtered.map((r: any) => {
       const row = [
         r.qr_code?.code || '',
         r.qr_code?.product?.name || '',
         r.qr_code?.product?.category?.name || '',
         r.qr_code?.status || '',
         r.qr_code?.assigned_to_name || '',
-        ...COLUMNS.map((c) => r[c.key] ?? ''),
+        ...COLUMNS.map((c: any) => r[c.key] ?? ''),
       ]
-      return row.map((v) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(',')
+      return row.map((v: any) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(',')
     })
     const csv = [headers.join(','), ...lines].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -201,7 +201,7 @@ export function AdminDeviceCredentialsPage() {
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
           <option value="all">All categories</option>
-          {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+          {categories.map((c: any) => <option key={c} value={c}>{c}</option>)}
         </select>
         <Button
           variant="outline"
@@ -234,7 +234,7 @@ export function AdminDeviceCredentialsPage() {
               <th className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap" style={{ width: '100px' }}>
                 Status
               </th>
-              {COLUMNS.map((col) => (
+              {COLUMNS.map((col: any) => (
                 <th
                   key={col.key}
                   className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap"
@@ -255,7 +255,7 @@ export function AdminDeviceCredentialsPage() {
                 </td>
               </tr>
             ) : (
-              filtered.map((r) => (
+              filtered.map((r: any) => (
                 <tr key={r.id} className="hover:bg-muted/20">
                   <td className="px-2 py-1.5 align-middle font-mono text-[11px] text-foreground/90">
                     {r.qr_code?.code || '—'}
@@ -278,7 +278,7 @@ export function AdminDeviceCredentialsPage() {
                       </div>
                     )}
                   </td>
-                  {COLUMNS.map((col) => (
+                  {COLUMNS.map((col: any) => (
                     <td key={col.key} className="px-1 py-0.5 align-middle" style={{ width: col.width, minWidth: col.width }}>
                       <EditableCell
                         value={r[col.key]}

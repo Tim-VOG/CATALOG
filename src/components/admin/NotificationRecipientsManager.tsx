@@ -87,7 +87,7 @@ export function NotificationRecipientsManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recipients.map((r) => (
+                {recipients.map((r: any) => (
                   <TableRow key={r.id}>
                     <TableCell>
                       <div className="font-medium text-sm">{r.name || r.email}</div>

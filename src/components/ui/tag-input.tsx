@@ -21,8 +21,8 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
       // Split on comma, semicolon, or newline, then trim & deduplicate
       const newTags = raw
         .split(/[,;\n]/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0 && !value.includes(s))
+        .map((s: any) => s.trim())
+        .filter((s: any) => s.length > 0 && !value.includes(s))
       if (newTags.length > 0) {
         onChange([...value, ...newTags])
       }
@@ -32,7 +32,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
 
   const removeTag = useCallback(
     (index) => {
-      onChange(value.filter((_, i) => i !== index))
+      onChange(value.filter((_: any, i: any) => i !== index))
     },
     [value, onChange],
   )
@@ -76,7 +76,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
       )}
       onClick={() => inputRef.current?.focus()}
     >
-      {value.map((tag, i) => (
+      {value.map((tag: any, i: any) => (
         <span
           key={`${tag}-${i}`}
           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-medium max-w-[200px] group"

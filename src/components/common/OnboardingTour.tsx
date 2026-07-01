@@ -14,7 +14,7 @@ const STEPS = [
     description: 'Your one-stop platform for all IT needs: equipment, onboarding, offboarding, and mailbox requests. Everything in one place.',
     illustration: () => (
       <div className="flex items-center justify-center gap-4">
-        {[Package, UserPlus, Mail, Monitor].map((Icon, i) => (
+        {[Package, UserPlus, Mail, Monitor].map((Icon: any, i: any) => (
           <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.12, type: 'spring', stiffness: 300 }}
             className="h-14 w-14 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/10 flex items-center justify-center">
@@ -101,7 +101,7 @@ const STEPS = [
           { label: 'Request received', done: true },
           { label: 'Being prepared', done: true },
           { label: 'Ready for pickup', done: false },
-        ].map((item, i) => (
+        ].map((item: any, i: any) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -15 }}
@@ -298,7 +298,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
             <div className="px-8 pb-7 pt-3 flex items-center justify-between">
               {/* Dots */}
               <div className="flex items-center gap-2 h-8">
-                {STEPS.map((_, i) => (
+                {STEPS.map((_: any, i: any) => (
                   <button
                     key={i}
                     onClick={() => goTo(i)}

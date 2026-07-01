@@ -94,9 +94,9 @@ export function AdminSubscriptionPlansPage() {
   if (isLoading) return <PageLoading />
 
   // Group plans by type
-  const callPlans = plans.filter((p) => p.type === 'call')
-  const dataPlans = plans.filter((p) => p.type === 'data')
-  const comboPlans = plans.filter((p) => p.type === 'both')
+  const callPlans = plans.filter((p: any) => p.type === 'call')
+  const dataPlans = plans.filter((p: any) => p.type === 'data')
+  const comboPlans = plans.filter((p: any) => p.type === 'both')
 
   const renderPlanGroup = (title, icon, groupPlans) => {
     const Icon = icon
@@ -106,7 +106,7 @@ export function AdminSubscriptionPlansPage() {
         <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
           <Icon className="h-3.5 w-3.5" /> {title}
         </h3>
-        {groupPlans.map((plan) => (
+        {groupPlans.map((plan: any) => (
           <div
             key={plan.id}
             className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${!plan.is_active ? 'opacity-50' : ''}`}

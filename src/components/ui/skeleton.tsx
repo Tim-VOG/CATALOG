@@ -18,7 +18,7 @@ function Skeleton({ className, variant = 'pulse', ...props  }: any) {
 function SkeletonText({ lines = 3, className, variant  }: any) {
   return (
     <div className={cn('space-y-2.5', className)}>
-      {Array.from({ length: lines }).map((_, i) => (
+      {Array.from({ length: lines }).map((_: any, i: any) => (
         <Skeleton
           key={i}
           variant={variant}
@@ -56,7 +56,7 @@ function SkeletonAvatar({ className, variant  }: any) {
 function SkeletonTableRow({ cols = 4, className, variant  }: any) {
   return (
     <div className={cn('flex items-center gap-4 py-3', className)}>
-      {Array.from({ length: cols }).map((_, i) => (
+      {Array.from({ length: cols }).map((_: any, i: any) => (
         <Skeleton
           key={i}
           variant={variant}

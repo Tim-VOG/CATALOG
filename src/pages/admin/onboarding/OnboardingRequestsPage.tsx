@@ -115,10 +115,10 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
     setReserving(true)
     try {
       const out = await reserveOnboardingKit(req)
-      const productNames = out.reserved.map((r) => r.product_name).join(', ')
+      const productNames = out.reserved.map((r: any) => r.product_name).join(', ')
       showToast(`Kit reserved: ${productNames}`, 'success')
       if (out.missing.length) {
-        showToast(`Missing in catalog: ${out.missing.map((m) => m.tag).join(', ')}`, 'info')
+        showToast(`Missing in catalog: ${out.missing.map((m: any) => m.tag).join(', ')}`, 'info')
       }
     } catch (err: any) {
       showToast(err?.message || 'Could not reserve the kit', 'error')
@@ -213,7 +213,7 @@ export function OnboardingRequestsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
 
   const requests = useMemo(
-    () => allRequests.filter((r) => r.type === 'onboarding'),
+    () => allRequests.filter((r: any) => r.type === 'onboarding'),
     [allRequests]
   )
 
@@ -228,13 +228,13 @@ export function OnboardingRequestsPage() {
   const filtered = useMemo(() => {
     let result = requests
     if (statusFilter === 'welcome') {
-      result = result.filter((r) => r.status === 'ready' && !sentByRequestId[r.id])
+      result = result.filter((r: any) => r.status === 'ready' && !sentByRequestId[r.id])
     } else if (statusFilter !== 'all') {
-      result = result.filter((r) => r.status === statusFilter)
+      result = result.filter((r: any) => r.status === statusFilter)
     }
     if (search.trim()) {
       const q = search.toLowerCase()
-      result = result.filter((r) => {
+      result = result.filter((r: any) => {
         const data = r.data || {}
         return (data.name || '').toLowerCase().includes(q) ||
           (r.requester_name || '').toLowerCase().includes(q) ||
@@ -244,11 +244,11 @@ export function OnboardingRequestsPage() {
     return result
   }, [requests, search, statusFilter, sentByRequestId])
 
-  const pendingCount = requests.filter((r) => r.status === 'pending').length
-  const welcomeCount = requests.filter((r) => r.status === 'ready' && !sentByRequestId[r.id]).length
+  const pendingCount = requests.filter((r: any) => r.status === 'pending').length
+  const welcomeCount = requests.filter((r: any) => r.status === 'ready' && !sentByRequestId[r.id]).length
 
   const selectedRequest = useMemo(
-    () => requests.find((r) => r.id === selectedId),
+    () => requests.find((r: any) => r.id === selectedId),
     [requests, selectedId]
   )
 
@@ -321,7 +321,7 @@ export function OnboardingRequestsPage() {
           { value: 'in_progress', label: 'In Progress' },
           { value: 'ready', label: 'Ready' },
           { value: 'welcome', label: 'Welcome', count: welcomeCount, accent: true },
-        ].map((s) => (
+        ].map((s: any) => (
           <Button
             key={s.value}
             variant={statusFilter === s.value ? 'default' : 'outline'}
@@ -363,7 +363,7 @@ export function OnboardingRequestsPage() {
         />
       ) : (
         <div className="space-y-3">
-          {filtered.map((req) => {
+          {filtered.map((req: any) => {
             const data = req.data || {}
             const name = data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || req.requester_name || 'Unknown'
             const company = data.company || data.business_unit || ''

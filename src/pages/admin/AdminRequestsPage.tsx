@@ -29,9 +29,9 @@ export function AdminRequestsPage() {
 
   const filteredRequests = filter === 'all'
     ? requests
-    : requests.filter((r) => r.status === filter)
+    : requests.filter((r: any) => r.status === filter)
 
-  const pendingCount = requests.filter((r) => r.status === 'pending').length
+  const pendingCount = requests.filter((r: any) => r.status === 'pending').length
 
   if (isLoading) return <PageLoading />
 
@@ -44,7 +44,7 @@ export function AdminRequestsPage() {
         })), 'equipment-requests')}>
           <Download className="h-3.5 w-3.5" /> Export
         </Button>
-        {STATUS_FILTERS.map((s) => (
+        {STATUS_FILTERS.map((s: any) => (
           <Button
             key={s.value}
             variant={filter === s.value ? 'default' : 'outline'}
@@ -73,7 +73,7 @@ export function AdminRequestsPage() {
         <EmptyState icon={Inbox} title="No requests" description="No requests match the current filter" />
       ) : (
         <div className="space-y-3">
-          {filteredRequests.map((req) => (
+          {filteredRequests.map((req: any) => (
             <Link key={req.id} to={`/admin/requests/${req.id}`}>
               <Card className="hover:border-primary/30 hover:shadow-card-hover transition-all duration-200 cursor-pointer">
                 <CardContent className="p-5">

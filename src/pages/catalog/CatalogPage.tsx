@@ -68,7 +68,7 @@ export function CatalogPage() {
   const { data: categories = [] } = useCategories()
   const { data: cartItems = [] } = useCart()
   const { data: qrCodes = [] } = useQRCodes()
-  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+  const cartCount = cartItems.reduce((sum: any, i: any) => sum + i.quantity, 0)
 
   // Per-product live availability + earliest return date for the
   // "back soon" forecast. Built from real QR statuses, not total_stock.
@@ -94,7 +94,7 @@ export function CatalogPage() {
 
   const filtered = useMemo(() => {
     const favs = favoritesOnly ? JSON.parse(localStorage.getItem('vo-favorites') || '[]') : []
-    const list = products.filter((p) => {
+    const list = products.filter((p: any) => {
       if (p.is_visible === false) return false
       if (favoritesOnly && !favs.includes(p.id)) return false
       if (selectedCategory !== 'All' && p.category_name !== selectedCategory) return false
@@ -108,7 +108,7 @@ export function CatalogPage() {
     return sortProducts(list, sortBy)
   }, [products, favoritesOnly, favCount, selectedCategory, inStockOnly, searchQuery, sortBy])
 
-  const totalInStock = products.filter((p) => p.total_stock > 0).length
+  const totalInStock = products.filter((p: any) => p.total_stock > 0).length
 
   if (productsQuery.isLoading || productsQuery.isError) {
     return (
@@ -116,7 +116,7 @@ export function CatalogPage() {
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
           <div className="h-10 w-72 bg-muted rounded-xl animate-pulse" />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 8 }).map((_: any, i: any) => <SkeletonCard key={i} />)}
           </div>
         </div>
       } />
@@ -177,7 +177,7 @@ export function CatalogPage() {
       <div className="flex flex-wrap items-center gap-3 mb-6">
         {/* Categories */}
         <div className="flex gap-1.5 overflow-x-auto pb-1">
-          {[{ id: 'all', name: 'All' }, ...categories].map((c) => {
+          {[{ id: 'all', name: 'All' }, ...categories].map((c: any) => {
             const isActive = selectedCategory === c.name
             const count = categoryCounts[c.name] || 0
             return (
@@ -245,7 +245,7 @@ export function CatalogPage() {
         <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-1">
           <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
           <Select value={sortBy} onChange={(e: any) => setSortBy(e.target.value)} className="border-0 bg-transparent text-sm h-8 w-32">
-            {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {SORT_OPTIONS.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </Select>
         </div>
       </div>
@@ -263,7 +263,7 @@ export function CatalogPage() {
         <EmptyState icon={Package} title="No equipment found" description={searchQuery ? 'Try different keywords' : 'No products match your filters'} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-          {filtered.map((product, i) => (
+          {filtered.map((product: any, i: any) => (
             <ScrollFadeIn key={product.id} delay={i * 0.03}>
               <ProductCard product={product} forecast={forecastByProduct[product.id]} />
             </ScrollFadeIn>

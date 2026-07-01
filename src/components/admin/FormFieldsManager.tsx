@@ -50,7 +50,7 @@ const emptyField = {
 const fieldTypeLabel = (type) => {
   if (type === 'location') return 'Location Picker'
   if (type === 'priority') return 'Priority Selector'
-  return FIELD_TYPES.find((t) => t.value === type)?.label || type
+  return FIELD_TYPES.find((t: any) => t.value === type)?.label || type
 }
 
 function SortableFieldRow({ field, onToggle, onEdit, onDelete  }: any) {
@@ -172,7 +172,7 @@ export function FormFieldsManager() {
   const removeOption = (index) => {
     setForm({
       ...form,
-      options: form.options.filter((_, i) => i !== index),
+      options: form.options.filter((_: any, i: any) => i !== index),
     })
   }
 
@@ -228,8 +228,8 @@ export function FormFieldsManager() {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIdx = fields.findIndex((f) => f.id === active.id)
-    const newIdx = fields.findIndex((f) => f.id === over.id)
+    const oldIdx = fields.findIndex((f: any) => f.id === active.id)
+    const newIdx = fields.findIndex((f: any) => f.id === over.id)
     if (oldIdx === -1 || newIdx === -1) return
 
     // Build new order and persist all sort_order values
@@ -239,7 +239,7 @@ export function FormFieldsManager() {
 
     try {
       await Promise.all(
-        reordered.map((f, i) =>
+        reordered.map((f: any, i: any) =>
           f.sort_order !== i ? updateField.mutateAsync({ id: f.id, sort_order: i }) : null
         ).filter(Boolean)
       )
@@ -274,9 +274,9 @@ export function FormFieldsManager() {
               modifiers={[restrictToVerticalAxis]}
               onDragEnd={handleDragEnd}
             >
-              <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={fields.map((f: any) => f.id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-2">
-                  {fields.map((field) => (
+                  {fields.map((field: any) => (
                     <SortableFieldRow
                       key={field.id}
                       field={field}
@@ -322,7 +322,7 @@ export function FormFieldsManager() {
                 <div className="space-y-1">
                   <Label>Field Type</Label>
                   <Select value={form.field_type} onChange={(e: any) => setForm({ ...form, field_type: e.target.value })}>
-                    {FIELD_TYPES.map((t) => (
+                    {FIELD_TYPES.map((t: any) => (
                       <option key={t.value} value={t.value}>{t.label}</option>
                     ))}
                   </Select>
@@ -360,7 +360,7 @@ export function FormFieldsManager() {
                   <Button type="button" size="sm" onClick={addOption}>Add</Button>
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {form.options.map((opt, i) => (
+                  {form.options.map((opt: any, i: any) => (
                     <Badge key={i} variant="outline" className="gap-1 pr-1">
                       {opt.label}
                       <button onClick={() => removeOption(i)} className="ml-1 text-destructive hover:text-destructive/80">

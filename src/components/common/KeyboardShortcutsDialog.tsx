@@ -84,7 +84,7 @@ export function KeyboardShortcutsProvider({ children  }: any) {
               <div key={label} className="flex items-center justify-between py-2.5 text-sm">
                 <span className="text-muted-foreground">{label}</span>
                 <div className="flex items-center gap-1">
-                  {keys.map((k, i) => (
+                  {keys.map((k: any, i: any) => (
                     <span key={`${k}-${i}`} className="flex items-center gap-1">
                       <Kbd>{k}</Kbd>
                       {i < keys.length - 1 && <span className="text-muted-foreground text-xs">then</span>}

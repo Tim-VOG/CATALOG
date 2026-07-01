@@ -28,7 +28,7 @@ export function AdminItRequestsPage() {
   const filtered = useMemo(() => {
     let result = requests
     if (typeFilter !== 'all') {
-      result = result.filter((r) => (r.type || 'it_request') === typeFilter)
+      result = result.filter((r: any) => (r.type || 'it_request') === typeFilter)
     }
     if (search.trim()) {
       const q = search.toLowerCase()
@@ -133,7 +133,7 @@ export function AdminItRequestsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((req) => {
+          {filtered.map((req: any) => {
             const reqType = req.type || 'it_request'
             const data = req.data || {}
             // Resolve display name: new format uses data or requester_name, old uses first_name/last_name
@@ -215,7 +215,7 @@ export function AdminItRequestsPage() {
                       </span>
                       <span className="break-all">
                         {typeof value === 'boolean' ? (value ? 'Yes' : 'No')
-                          : Array.isArray(value) ? value.map((v, i) => <div key={i}>{typeof v === 'object' ? `${v.product_name} x${v.quantity}` : v}</div>)
+                          : Array.isArray(value) ? value.map((v: any, i: any) => <div key={i}>{typeof v === 'object' ? `${v.product_name} x${v.quantity}` : v}</div>)
                           : String(value)}
                       </span>
                     </div>

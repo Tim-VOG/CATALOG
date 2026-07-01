@@ -52,7 +52,7 @@ export function WelcomeRequestsPage() {
   const [preparing, setPreparing] = useState(false)
 
   const onboardingRequests = useMemo(
-    () => allRequests.filter((r) => r.type === 'onboarding'),
+    () => allRequests.filter((r: any) => r.type === 'onboarding'),
     [allRequests]
   )
 
@@ -67,11 +67,11 @@ export function WelcomeRequestsPage() {
   const filtered = useMemo(() => {
     let result = onboardingRequests
     result = filter === 'sent'
-      ? result.filter((r) => sentByRequestId[r.id])
-      : result.filter((r) => !sentByRequestId[r.id])
+      ? result.filter((r: any) => sentByRequestId[r.id])
+      : result.filter((r: any) => !sentByRequestId[r.id])
     if (search.trim()) {
       const q = search.toLowerCase()
-      result = result.filter((r) => {
+      result = result.filter((r: any) => {
         const data = r.data || {}
         const name = data.name || [data.first_name, data.last_name].filter(Boolean).join(' ')
         return (name || '').toLowerCase().includes(q) ||
@@ -81,11 +81,11 @@ export function WelcomeRequestsPage() {
     return result
   }, [onboardingRequests, sentByRequestId, filter, search])
 
-  const todoCount = onboardingRequests.filter((r) => !sentByRequestId[r.id]).length
-  const sentCount = onboardingRequests.filter((r) => sentByRequestId[r.id]).length
+  const todoCount = onboardingRequests.filter((r: any) => !sentByRequestId[r.id]).length
+  const sentCount = onboardingRequests.filter((r: any) => sentByRequestId[r.id]).length
 
   const selectedRequest = useMemo(
-    () => onboardingRequests.find((r) => r.id === selectedId),
+    () => onboardingRequests.find((r: any) => r.id === selectedId),
     [onboardingRequests, selectedId]
   )
 
@@ -268,7 +268,7 @@ export function WelcomeRequestsPage() {
         />
       ) : (
         <div className="space-y-3">
-          {filtered.map((req) => {
+          {filtered.map((req: any) => {
             const data = req.data || {}
             const name = data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
             const company = data.company || data.business_unit || ''

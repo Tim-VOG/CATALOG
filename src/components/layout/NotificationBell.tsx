@@ -59,18 +59,18 @@ export function NotificationBell() {
   const [filter, setFilter] = useState('all')
   const ref = useRef<any>(null)
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length
+  const unreadCount = notifications.filter((n: any) => !n.is_read).length
 
   // Categorize and filter notifications
   const categorizedNotifications = useMemo(() =>
-    notifications.map((n) => ({ ...n, _category: getNotificationCategory(n) })),
+    notifications.map((n: any) => ({ ...n, _category: getNotificationCategory(n) })),
     [notifications]
   )
 
   const filteredNotifications = useMemo(() =>
     filter === 'all'
       ? categorizedNotifications
-      : categorizedNotifications.filter((n) => n._category === filter),
+      : categorizedNotifications.filter((n: any) => n._category === filter),
     [categorizedNotifications, filter]
   )
 
@@ -130,7 +130,7 @@ export function NotificationBell() {
 
             {/* Category filter tabs */}
             <div className="flex gap-1 px-3 py-2 border-b overflow-x-auto">
-              {CATEGORY_FILTERS.map((cat) => (
+              {CATEGORY_FILTERS.map((cat: any) => (
                 <button
                   key={cat.key}
                   type="button"
@@ -154,7 +154,7 @@ export function NotificationBell() {
                   {filter === 'all' ? 'No notifications' : `No ${filter.replace('_', ' ')} notifications`}
                 </p>
               ) : (
-                filteredNotifications.slice(0, 20).map((n) => (
+                filteredNotifications.slice(0, 20).map((n: any) => (
                   <div key={n.id} onClick={() => handleNotificationClick(n)}>
                     {n.link ? (
                       <Link to={n.link} className="block">

@@ -17,7 +17,7 @@ export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasIt
   const toggleType = (type) => {
     const current = filters.types
     const next = current.includes(type)
-      ? current.filter((t) => t !== type)
+      ? current.filter((t: any) => t !== type)
       : [...current, type]
     onChange({ ...filters, types: next })
   }
@@ -25,7 +25,7 @@ export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasIt
   const toggleStatus = (status) => {
     const current = filters.statuses
     const next = current.includes(status)
-      ? current.filter((s) => s !== status)
+      ? current.filter((s: any) => s !== status)
       : [...current, status]
     onChange({ ...filters, statuses: next })
   }

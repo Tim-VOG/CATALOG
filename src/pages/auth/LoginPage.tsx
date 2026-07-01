@@ -229,7 +229,7 @@ export function LoginPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mt-3">
-                  {DEV_ACCOUNTS.map((account) => {
+                  {DEV_ACCOUNTS.map((account: any) => {
                     const Icon = account.icon
                     return (
                       <motion.button

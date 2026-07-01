@@ -88,7 +88,7 @@ export function AdminReservationsPage() {
       </AdminPageHeader>
 
       <div className="flex flex-wrap gap-1">
-        {['all', ...STATUS].map((s) => (
+        {['all', ...STATUS].map((s: any) => (
           <Button key={s} variant={statusFilter === s ? 'secondary' : 'ghost'} size="sm" className="text-xs h-8 capitalize" onClick={() => setStatusFilter(s)}>
             {s.replace('_', ' ')}
           </Button>

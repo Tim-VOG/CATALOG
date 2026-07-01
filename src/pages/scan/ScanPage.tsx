@@ -206,7 +206,7 @@ export function ScanPage() {
                     </p>
                   </Card>
                   <div className="space-y-1.5">
-                    {bulkResults.map((r, i) => (
+                    {bulkResults.map((r: any, i: any) => (
                       <div key={i} className={cn('flex items-center gap-3 p-2.5 rounded-lg text-sm', r.success ? 'bg-success/5' : 'bg-destructive/5')}>
                         {r.success ? <Check className="h-4 w-4 text-success shrink-0" /> : <X className="h-4 w-4 text-destructive shrink-0" />}
                         <span className="flex-1 truncate">{r.productName}</span>
@@ -254,7 +254,7 @@ export function ScanPage() {
                       </p>
                     ) : (
                       <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                        {bulkItems.map((item) => (
+                        {bulkItems.map((item: any) => (
                           <div key={item.code} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
                             <span className="text-sm flex-1 truncate">{item.qrData.product_name}</span>
                             <span className="text-[10px] font-mono text-muted-foreground">{item.code}</span>

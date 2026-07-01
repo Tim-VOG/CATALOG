@@ -105,7 +105,7 @@ function HeaderSearch() {
     )}>
       {hasResults ? (
         <div className="py-1.5">
-          {results.map((product, i) => (
+          {results.map((product: any, i: any) => (
             <button
               key={product.id}
               type="button"
@@ -243,7 +243,7 @@ function HeaderSearch() {
 
 function CartButton() {
   const { data: cartItems = [] } = useCart()
-  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+  const itemCount = cartItems.reduce((sum: any, i: any) => sum + i.quantity, 0)
   return (
     <Link to="/cart">
       <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9" aria-label={itemCount > 0 ? `Cart (${itemCount} items)` : 'Cart'}>

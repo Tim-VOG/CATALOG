@@ -43,7 +43,7 @@ const EQUIPMENT_ITEMS = [
 function StepProgress({ currentStep, steps  }: any) {
   return (
     <div className="flex items-center gap-1 mb-8">
-      {steps.map((step, idx) => {
+      {steps.map((step: any, idx: any) => {
         const Icon = step.icon
         const isActive = idx === currentStep
         const isDone = idx < currentStep
@@ -165,7 +165,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
 
   const toggleEquipment = (id) => {
     if (selected.includes(id)) {
-      setField('equipment_needed', selected.filter((s) => s !== id))
+      setField('equipment_needed', selected.filter((s: any) => s !== id))
       // Clear sub-selections when deselecting
       if (id === 'PC') setField('pc_type', '')
       if (id === 'SCREEN') setField('screen_model', '')
@@ -186,7 +186,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
       <div className="space-y-3">
         <Label>I need for my event</Label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {EQUIPMENT_ITEMS.map((item) => {
+          {EQUIPMENT_ITEMS.map((item: any) => {
             const Icon = item.icon
             const checked = selected.includes(item.id)
             // Check availability for screen/tablet/phone
@@ -254,7 +254,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
             {[
               { value: 'apple', label: 'Apple (Mac)', icon: Apple },
               { value: 'windows', label: 'Windows', icon: Laptop },
-            ].map((opt) => {
+            ].map((opt: any) => {
               const Icon = opt.icon
               const isSelected = form.pc_type === opt.value
               return (
@@ -293,7 +293,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
         >
           <Label>Select Screen</Label>
           <div className="space-y-2">
-            {screenModels.map((product) => {
+            {screenModels.map((product: any) => {
               const isAvailable = product.total_stock > 0
               const isSelected = form.screen_model === product.id
               return (
@@ -345,7 +345,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
         >
           <Label>Select Tablet</Label>
           <div className="space-y-2">
-            {tabletModels.map((product) => {
+            {tabletModels.map((product: any) => {
               const isAvailable = product.total_stock > 0
               const isSelected = form.tablet_model === product.id
               return (
@@ -397,7 +397,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
         >
           <Label>Select Phone Model</Label>
           <div className="space-y-2">
-            {phoneModels.map((product) => {
+            {phoneModels.map((product: any) => {
               const isAvailable = product.total_stock > 0
               const isSelected = form.phone_model === product.id
               return (
@@ -456,8 +456,8 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
 function StepSubscription({ form, setField, subscriptionPlans  }: any) {
   const [filterType, setFilterType] = useState('all')
 
-  const needsSubscription = (form.equipment_needed || []).some((id) => id === 'PHONE') ||
-    (form.equipment_needed || []).some((id) => id === 'ROUTER')
+  const needsSubscription = (form.equipment_needed || []).some((id: any) => id === 'PHONE') ||
+    (form.equipment_needed || []).some((id: any) => id === 'ROUTER')
 
   if (!needsSubscription) {
     return (
@@ -490,7 +490,7 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
             { value: 'call', label: 'Call' },
             { value: 'data', label: 'Data' },
             { value: 'both', label: 'Call + Data' },
-          ].map((opt) => (
+          ].map((opt: any) => (
             <Button
               key={opt.value}
               type="button"
@@ -509,7 +509,7 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
           {filteredPlans.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No plans available for this filter.</p>
           ) : (
-            filteredPlans.map((plan) => {
+            filteredPlans.map((plan: any) => {
               const isSelected = form.subscription_plan_id === plan.id
               const typeColors = {
                 call: 'border-blue-500/30 bg-blue-500/5',
@@ -572,7 +572,7 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
 
 function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
   const equipmentLabels = (form.equipment_needed || [])
-    .map((id) => EQUIPMENT_ITEMS.find((e) => e.id === id)?.label || id)
+    .map((id: any) => EQUIPMENT_ITEMS.find((e: any) => e.id === id)?.label || id)
     .join(', ')
 
   // Resolve product names for selected models

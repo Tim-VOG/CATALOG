@@ -15,7 +15,7 @@ const STEPS = [
 ]
 
 function getStepIndex(status) {
-  const idx = STEPS.findIndex((s) => s.key === status)
+  const idx = STEPS.findIndex((s: any) => s.key === status)
   return idx >= 0 ? idx : 0
 }
 
@@ -88,7 +88,7 @@ export function TrackingPage() {
           {/* Stepper */}
           <CardContent className="p-6">
             <div className="space-y-0">
-              {STEPS.map((step, idx) => {
+              {STEPS.map((step: any, idx: any) => {
                 const isDone = idx < currentStep
                 const isCurrent = idx === currentStep
                 const isPending = idx > currentStep

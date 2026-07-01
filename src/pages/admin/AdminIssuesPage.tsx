@@ -27,7 +27,7 @@ export function AdminIssuesPage() {
 
   if (isLoading) return <PageLoading />
 
-  const openCount = issues.filter((i) => i.status === 'open').length
+  const openCount = issues.filter((i: any) => i.status === 'open').length
 
   return (
     <div className="space-y-5">
@@ -38,7 +38,7 @@ export function AdminIssuesPage() {
       />
 
       <div className="flex flex-wrap gap-1">
-        {['open', 'resolved', 'all'].map((s) => (
+        {['open', 'resolved', 'all'].map((s: any) => (
           <Button key={s} variant={statusFilter === s ? 'secondary' : 'ghost'} size="sm" className="text-xs h-8 capitalize" onClick={() => setStatusFilter(s)}>
             {s}
           </Button>
@@ -52,7 +52,7 @@ export function AdminIssuesPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {issues.map((issue) => (
+          {issues.map((issue: any) => (
             <div key={issue.id} className="rounded-xl border border-border/50 bg-card p-4">
               <div className="flex items-start gap-3">
                 <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0',
