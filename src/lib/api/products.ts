@@ -1,0 +1,128 @@
+import { supabase } from '@/lib/supabase'
+import { sanitizeSearch } from '@/lib/sanitize'
+
+export const getProducts = async ({ search, category }: any = {}) => {
+  let query = supabase
+    .from('products_with_category')
+    .select('*')
+    .order('name')
+
+  if (category && category !== 'All') {
+    query = query.eq('category_name', category)
+  }
+
+  const q = sanitizeSearch(search)
+  if (q) {
+    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export const getProduct = async (id: any) => {
+  const { data, error } = await supabase
+    .from('products_with_category')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const createProduct = async (product: any) => {
+  const { data, error } = await supabase
+    .from('products')
+    .insert(product)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const updateProduct = async (id: any, updates: any) => {
+  const { data, error } = await supabase
+    .from('products')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const deleteProduct = async (id: any) => {
+  const { error } = await supabase.from('products').delete().eq('id', id)
+  if (error) throw error
+}
+
+export const decrementStockForRequest = async (requestId: any) => {
+  const { error } = await supabase.rpc('decrement_stock_for_request', { p_request_id: requestId })
+  if (error) throw error
+}
+
+export const incrementStockForRequest = async (requestId: any) => {
+  const { error } = await supabase.rpc('increment_stock_for_request', { p_request_id: requestId })
+  if (error) throw error
+}
+
+export const deleteProducts = async (ids: any) => {
+  if (!ids.length) return
+  const { error } = await supabase.from('products').delete().in('id', ids)
+  if (error) throw error
+}
+
+export const getProductReservations = async (productId: any) => {
+  const { data, error } = await supabase
+    .from('loan_request_items')
+    .select(`
+      quantity,
+      loan_requests!inner (
+        pickup_date,
+        return_date,
+        status
+      )
+    `)
+    .eq('product_id', productId)
+    .in('loan_requests.status', ['pending', 'in_progress', 'ready'])
+
+  if (error) throw error
+
+  return (data || []).map((item: any) => ({
+    pickup_date: item.loan_requests.pickup_date,
+    return_date: item.loan_requests.return_date,
+    quantity: item.quantity,
+    status: item.loan_requests.status,
+  }))
+}
+
+/**
+ * Get all active reservations that overlap with a given date range.
+ * Returns { [product_id]: totalReservedQty }.
+ */
+export const getReservationsInRange = async (pickupDate: any, returnDate: any) => {
+  const { data, error } = await supabase
+    .from('loan_request_items')
+    .select(`
+      product_id,
+      quantity,
+      loan_requests!inner (
+        pickup_date,
+        return_date,
+        status
+      )
+    `)
+    .in('loan_requests.status', ['pending', 'in_progress', 'ready'])
+    .lte('loan_requests.pickup_date', returnDate)
+    .gte('loan_requests.return_date', pickupDate)
+
+  if (error) throw error
+
+  // Aggregate reserved qty per product
+  const map = {}
+  for (const item of data || []) {
+    map[item.product_id] = (map[item.product_id] || 0) + item.quantity
+  }
+  return map
+}

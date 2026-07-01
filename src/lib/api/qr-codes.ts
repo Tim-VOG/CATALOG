@@ -1,0 +1,365 @@
+import { supabase } from '@/lib/supabase'
+import { sanitizeSearch } from '@/lib/sanitize'
+
+export const getQRCodesAssignedTo = async (userId: any) => {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('qr_codes_with_details')
+    .select('*')
+    .eq('assigned_to', userId)
+    .order('assigned_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// ── QR Codes ──────────────────────────────────────────
+
+export const getQRCodes = async ({ search, active }: any = {}) => {
+  let query = supabase
+    .from('qr_codes_with_details')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (active !== undefined) {
+    query = query.eq('is_active', active)
+  }
+
+  const q = sanitizeSearch(search)
+  if (q) {
+    query = query.or(`code.ilike.%${q}%,label.ilike.%${q}%,product_name.ilike.%${q}%`)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export const getQRCode = async (id: any) => {
+  const { data, error } = await supabase
+    .from('qr_codes_with_details')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const getQRCodeByCode = async (code: any) => {
+  const { data, error } = await supabase
+    .from('qr_codes_with_details')
+    .select('*')
+    .eq('code', code)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const createQRCode = async (qrCode: any) => {
+  const { data, error } = await supabase
+    .from('qr_codes')
+    .insert(qrCode)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const createQRCodes = async (qrCodes: any) => {
+  const { data, error } = await supabase
+    .from('qr_codes')
+    .insert(qrCodes)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export const updateQRCode = async (id: any, updates: any) => {
+  const { data, error } = await supabase
+    .from('qr_codes')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+// Atomic 'assign': only flips a QR to assigned when it was still
+// available. Two admins trying to grab the same code at the same time
+// will see one win and one get an error — instead of silently
+// overwriting each other (which was the case with plain updateQRCode).
+export const claimQRCode = async (id: any, assignment: any) => {
+  const { data, error } = await supabase
+    .from('qr_codes')
+    .update({ ...assignment, status: 'assigned' })
+    .eq('id', id)
+    .eq('status', 'available')
+    .select()
+  if (error) throw error
+  if (!data || data.length === 0) {
+    // Either the code disappeared or it was just claimed by someone else
+    // — refetch to surface the current state in the error message.
+    const { data: row } = await supabase
+      .from('qr_codes_with_details')
+      .select('code, status, assigned_to_name')
+      .eq('id', id)
+      .maybeSingle()
+    const taker = row?.assigned_to_name ? ` (held by ${row.assigned_to_name})` : ''
+    throw new Error(`${row?.code || 'This QR code'} is already assigned${taker}`)
+  }
+  return data[0]
+}
+
+// Atomic 'release': flips an assigned QR back to available only when it
+// was still owned by the expected request. Prevents a desync after a
+// retry / network glitch.
+export const releaseQRCode = async (id: any, expectedLoanRequestId: any) => {
+  let query = supabase
+    .from('qr_codes')
+    .update({
+      status: 'available',
+      assigned_to: null,
+      assigned_to_name: null,
+      assigned_to_email: null,
+      assigned_at: null,
+      loan_request_id: null,
+      loan_request_item_id: null,
+    })
+    .eq('id', id)
+  if (expectedLoanRequestId) query = query.eq('loan_request_id', expectedLoanRequestId)
+  const { data, error } = await query.select()
+  if (error) throw error
+  return data?.[0] || null
+}
+
+export const deleteQRCode = async (id: any) => {
+  const { error } = await supabase.from('qr_codes').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── QR Scan ──────────────────────────────────────────
+
+export const processQRScan = async ({ code, action, userId, userEmail, userName, notes, pickupDate, expectedReturnDate }: any) => {
+  const { data, error } = await supabase.rpc('process_qr_scan', {
+    p_qr_code: code,
+    p_action: action,
+    p_user_id: userId,
+    p_user_email: userEmail || null,
+    p_user_name: userName || null,
+    p_notes: notes || null,
+    p_pickup_date: pickupDate || null,
+    p_expected_return_date: expectedReturnDate || null,
+  })
+  if (error) throw error
+
+  // Update QR code assignment status
+  const qr = await getQRCodeByCode(code)
+  if (qr) {
+    if (action === 'take') {
+      await supabase.from('qr_codes').update({
+        status: 'assigned',
+        assigned_to: userId,
+        assigned_to_name: userName || null,
+        assigned_to_email: userEmail || null,
+        assigned_at: new Date().toISOString(),
+      }).eq('id', qr.id)
+    } else if (action === 'deposit') {
+      await supabase.from('qr_codes').update({
+        status: 'available',
+        assigned_to: null,
+        assigned_to_name: null,
+        assigned_to_email: null,
+        assigned_at: null,
+      }).eq('id', qr.id)
+    }
+  }
+
+  return data
+}
+
+// ── Scan Logs ──────────────────────────────────────────
+
+export const getScanLogs = async ({ search, action, limit = 100 }: any = {}) => {
+  let query = supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (action) {
+    query = query.eq('action', action)
+  }
+
+  const q2 = sanitizeSearch(search)
+  if (q2) {
+    query = query.or(`qr_code.ilike.%${q2}%,product_name.ilike.%${q2}%,user_name.ilike.%${q2}%,user_email.ilike.%${q2}%`)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+// Pick-up / return history for one user — feeds the profile activity feed.
+export const getScanLogsForUser = async (userId: any, limit = 50) => {
+  if (!userId) return []
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data || []
+}
+
+export const getScanLogsForProduct = async (productId: any) => {
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('product_id', productId)
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (error) throw error
+  return data
+}
+
+// Full lifecycle of one physical unit (one QR code).
+export const getScanLogsForQrCode = async (qrCodeId: any) => {
+  if (!qrCodeId) return []
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('qr_code_id', qrCodeId)
+    .order('created_at', { ascending: false })
+    .limit(100)
+  if (error) throw error
+  return data || []
+}
+
+// Get overdue equipment (taken but not returned past expected_return_date)
+// Filters out items that have been deposited after the take
+export const getOverdueScans = async () => {
+  const today = new Date().toISOString().split('T')[0]
+
+  // Get all takes past due
+  const { data: takes, error: takesErr } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('action', 'take')
+    .lt('expected_return_date', today)
+    .not('expected_return_date', 'is', null)
+    .order('expected_return_date', { ascending: true })
+  if (takesErr) throw takesErr
+
+  if (!takes?.length) return []
+
+  // Get all deposits to check which takes have been returned
+  const { data: deposits, error: depsErr } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, user_id, created_at')
+    .eq('action', 'deposit')
+  if (depsErr) throw depsErr
+
+  // Filter: keep only takes where no deposit exists for same user+product after the take
+  return takes.filter(take => {
+    return !deposits?.some(dep =>
+      dep.product_id === take.product_id &&
+      dep.user_id === take.user_id &&
+      new Date(dep.created_at) > new Date(take.created_at)
+    )
+  })
+}
+
+// Get equipment due for return tomorrow (for reminder emails)
+// Excludes items already returned
+export const getUpcomingReturns = async () => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+
+  const { data: takes, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('action', 'take')
+    .eq('expected_return_date', tomorrowStr)
+    .not('expected_return_date', 'is', null)
+  if (error) throw error
+
+  if (!takes?.length) return []
+
+  const { data: deposits } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, user_id, created_at')
+    .eq('action', 'deposit')
+
+  return takes.filter(take => {
+    return !deposits?.some(dep =>
+      dep.product_id === take.product_id &&
+      dep.user_id === take.user_id &&
+      new Date(dep.created_at) > new Date(take.created_at)
+    )
+  })
+}
+
+// Get all currently-loaned material: takes without a matching later deposit.
+// Used by the dashboard "Matériel en cours" tile.
+export const getActiveLoans = async () => {
+  const { data: takes, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('*')
+    .eq('action', 'take')
+    .order('pickup_date', { ascending: false })
+  if (error) throw error
+  if (!takes?.length) return []
+
+  const { data: deposits } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, user_id, created_at')
+    .eq('action', 'deposit')
+
+  return takes.filter((take) => {
+    return !deposits?.some((dep) =>
+      dep.product_id === take.product_id &&
+      dep.user_id === take.user_id &&
+      new Date(dep.created_at) > new Date(take.created_at)
+    )
+  })
+}
+
+// Count 'take' events per product over the last N days — usage
+// frequency signal for the utilization report.
+export const getTakeCounts = async (days = 90): Promise<Record<string, number>> => {
+  const since = new Date()
+  since.setDate(since.getDate() - days)
+  const { data, error } = await supabase
+    .from('qr_scan_logs')
+    .select('product_id, action, created_at')
+    .eq('action', 'take')
+    .gte('created_at', since.toISOString())
+  if (error) throw error
+  const counts: Record<string, number> = {}
+  for (const row of (data || []) as any[]) {
+    if (!row.product_id) continue
+    counts[row.product_id] = (counts[row.product_id] || 0) + 1
+  }
+  return counts
+}
+
+// Get scan stats grouped by category (for dashboard chart)
+export const getScanStatsByCategory = async () => {
+  const { data, error } = await supabase
+    .from('qr_scan_logs_with_details')
+    .select('category_name, action')
+  if (error) throw error
+
+  // Aggregate: { categoryName: { takes: N, deposits: N } }
+  const stats = {}
+  for (const row of data || []) {
+    const cat = row.category_name || 'Unknown'
+    if (!stats[cat]) stats[cat] = { takes: 0, deposits: 0 }
+    if (row.action === 'take') stats[cat].takes++
+    else stats[cat].deposits++
+  }
+  return stats
+}
