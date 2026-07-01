@@ -5,7 +5,7 @@
 export function formatTextToHtml(text: any) {
   const blocks = text.split(/\n\n+/)
   return blocks
-    .map((block) => {
+    .map((block: string) => {
       const trimmed = block.trim()
       if (!trimmed) return ''
       if (/<table[\s>]|<div[\s>]|<tr[\s>]/i.test(trimmed)) {
@@ -102,10 +102,10 @@ export function generateStyledVars(vars: any) {
 
 export function styledItemList(items: any) {
   if (!items || items.length === 0) return ''
-  const badges = items.map((item) => {
+  const badges = items.map((item: any) => {
     const qty = item.quantity > 1 ? ` &times;${item.quantity}` : ''
     const includes = (item.product_includes || [])
-      .map((inc) => `<span style="color:#8898aa;font-weight:400;"> + ${escapeHtml(inc)}</span>`)
+      .map((inc: any) => `<span style="color:#8898aa;font-weight:400;"> + ${escapeHtml(inc)}</span>`)
       .join('')
     return `<span style="display:inline-block;padding:6px 14px;border-radius:999px;background:#f6f9fc;border:1px solid #e6ebf1;color:#0a2540;font-weight:600;font-size:13px;margin:3px 4px 3px 0;">&#128230; ${escapeHtml(item.product_name || item.name || '')}${qty}${includes}</span>`
   })
@@ -113,8 +113,8 @@ export function styledItemList(items: any) {
 }
 
 export function generateItemsHtml(items: any, itemReturns: any = []) {
-  const rows = items.map((item) => {
-    const ret = itemReturns.find((r) => r.id === item.id)
+  const rows = items.map((item: any) => {
+    const ret = itemReturns.find((r: any) => r.id === item.id)
     const condition = ret?.return_condition
     const conditionStyles = {
       good: { color: '#0a7a3b', bg: '#e7f6ec' },
@@ -125,14 +125,14 @@ export function generateItemsHtml(items: any, itemReturns: any = []) {
 
     const includesBadges = (item.product_includes || [])
       .map(
-        (inc) =>
+        (inc: any) =>
           `<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f6f9fc;border:1px solid #e6ebf1;color:#525f7f;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(inc)}</span>`
       )
       .join('')
 
-    const flattenOption = (v) => {
+    const flattenOption = (v: any): string[] => {
       if (v == null) return []
-      if (Array.isArray(v)) return v.filter(Boolean).map((x) => (typeof x === 'object' ? flattenOption(x) : String(x))).flat()
+      if (Array.isArray(v)) return v.filter(Boolean).map((x: any) => (typeof x === 'object' ? flattenOption(x) : String(x))).flat()
       if (typeof v === 'object') return Object.values(v).map(flattenOption).flat()
       if (typeof v === 'boolean') return v ? [''] : []
       return [String(v)]
@@ -149,7 +149,7 @@ export function generateItemsHtml(items: any, itemReturns: any = []) {
       .map((display) => `<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eef4ff;border:1px solid #d9e4ff;color:#3955cf;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(display)}</span>`)
       .join('')
 
-    const cs = conditionStyles[condition]
+    const cs = (conditionStyles as Record<string, { color: string; bg: string }>)[condition]
     const conditionBadge = cs
       ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:${cs.bg};color:${cs.color};font-size:11px;font-weight:600;">${condition.charAt(0).toUpperCase() + condition.slice(1)}</span>`
       : ''
@@ -200,7 +200,7 @@ export function generateItemsHtml(items: any, itemReturns: any = []) {
  * caller doesn't have to re-fetch them. Cached for 60s per page load.
  */
 import { supabase } from '@/lib/supabase'
-let _brandingCache = null
+let _brandingCache: any = null
 let _brandingCacheAt = 0
 export async function getEmailBranding() {
   if (_brandingCache && Date.now() - _brandingCacheAt < 60_000) return _brandingCache
@@ -241,7 +241,7 @@ export function wrapEmailHtml(body: any, { appName = 'VO Hub', logoUrl = '', tag
   //  2. **bold** → <strong> (also in raw mode — DB templates use markdown bold
   //     inside their inline-HTML status boxes and shouldn't render as literal asterisks)
   const processedBody = (body || '')
-    .replace(/\{\{cta:([^|]+?)\|((?:[^{}]|\{\{[^}]+\}\})+?)\}\}(?!\})/g, (_, label, url) => ctaButton(label.trim(), url.trim()))
+    .replace(/\{\{cta:([^|]+?)\|((?:[^{}]|\{\{[^}]+\}\})+?)\}\}(?!\})/g, (_: string, label: string, url: string) => ctaButton(label.trim(), url.trim()))
     .replace(/\*\*([^*\n]+)\*\*/g, '<strong style="color:#0a2540;font-weight:600;">$1</strong>')
 
   const htmlBody = raw ? processedBody : formatTextToHtml(processedBody)
@@ -318,8 +318,8 @@ export function wrapEmailHtml(body: any, { appName = 'VO Hub', logoUrl = '', tag
 export function renderEmailTemplate(template: any, vars: any, { appName, logoUrl, tagline, logoHeight }: any = {}) {
   const resolvedVars = template.format === 'html' ? generateStyledVars(vars) : vars
 
-  let body = template.body.replace(/\{\{(\w+)\}\}/g, (_, key) => resolvedVars[key] || `[${key}]`)
-  const subject = template.subject.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
+  let body = template.body.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => resolvedVars[key] || `[${key}]`)
+  const subject = template.subject.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => vars[key] || `[${key}]`)
 
   if (template.format === 'html') {
     body = wrapEmailHtml(body, { appName, logoUrl, tagline, logoHeight })

@@ -10,7 +10,7 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
     project_name: request.project_name || '',
     pickup_date: request.pickup_date ? format(new Date(request.pickup_date), 'dd MMM yyyy') : '',
     return_date: request.return_date ? format(new Date(request.return_date), 'dd MMM yyyy') : '',
-    item_list: items.map((i) => `- ${i.product_name} x${i.quantity}`).join('\n'),
+    item_list: items.map((i: any) => `- ${i.product_name} x${i.quantity}`).join('\n'),
     items_html: generateItemsHtml(items),
     project_description: request.project_description || '',
     _items: items,
@@ -25,8 +25,8 @@ export function generateStatusEmailDraft({ template, request, items = [], appNam
   const isHtml = template?.format === 'html'
   const resolvedVars = isHtml ? generateStyledVars(vars) : vars
 
-  const substituteVars = (text, useRaw = false) =>
-    text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
+  const substituteVars = (text: string, useRaw = false) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
 
   const subject = substituteVars(template?.subject || '{{project_name}} — status update', true)
   let body = substituteVars(template?.body || 'Your request for {{project_name}} has been updated.')
@@ -66,8 +66,8 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
   const isHtml = template?.format === 'html'
   const resolvedVars = isHtml ? generateStyledVars(vars) : vars
 
-  const substituteVars = (text, useRaw = false) =>
-    text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
+  const substituteVars = (text: string, useRaw = false) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
 
   const subject = substituteVars(template?.subject || 'Extension update — {{project_name}}', true)
   let body = substituteVars(template?.body || 'Your extension request has been reviewed.')
@@ -85,15 +85,15 @@ export function generateExtensionEmailDraft({ template, extension, request, appN
  */
 export function generateReturnDraft({ template, request, items, itemReturns, recipients, appName, logoUrl, tagline, logoHeight }: any) {
   // Build item list text (plain text version)
-  const itemLines = items.map((item) => {
-    const ret = itemReturns.find((r) => r.id === item.id) || {}
+  const itemLines = items.map((item: any) => {
+    const ret = itemReturns.find((r: any) => r.id === item.id) || {}
     const condition = ret.return_condition || 'good'
-    const conditionLabel = {
+    const conditionLabel = ({
       good: 'Good',
       minor: 'Minor issues',
       damaged: 'Damaged',
       lost: 'Lost',
-    }[condition] || condition
+    } as Record<string, string>)[condition] || condition
 
     const returned = ret.is_returned !== false ? 'Returned' : 'NOT returned'
     const includes = item.product_includes?.length
@@ -110,8 +110,8 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   const itemsHtml = generateItemsHtml(items, itemReturns)
 
   // Build overall condition summary
-  const conditions = itemReturns.map((r) => r.return_condition || 'good')
-  const hasIssues = conditions.some((c) => c !== 'good')
+  const conditions = itemReturns.map((r: any) => r.return_condition || 'good')
+  const hasIssues = conditions.some((c: any) => c !== 'good')
   const overallCondition = hasIssues
     ? 'Some items have issues - see details below'
     : 'Good - no damage reported'
@@ -141,8 +141,8 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   const isHtml = template?.format === 'html'
   const resolvedVars = isHtml ? generateStyledVars(vars) : vars
 
-  const substituteVars = (text, useRaw = false) =>
-    text.replace(/\{\{(\w+)\}\}/g, (_, key) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
+  const substituteVars = (text: string, useRaw = false) =>
+    text.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => (useRaw ? vars : resolvedVars)[key] || `[${key}]`)
 
   // Subject always uses raw (plain text) vars
   const subject = substituteVars(template?.subject || 'Equipment return confirmed — {{project_name}}', true)
@@ -155,8 +155,8 @@ export function generateReturnDraft({ template, request, items, itemReturns, rec
   // Build recipients
   const to = request.user_email || ''
   const cc = (recipients || [])
-    .filter((r) => r.is_active && r.notify_on_return)
-    .map((r) => r.email)
+    .filter((r: any) => r.is_active && r.notify_on_return)
+    .map((r: any) => r.email)
 
   return { to, cc, subject, body, isHtml }
 }
