@@ -114,7 +114,7 @@ export function RequestsCalendar({
   const navigate = useCallback((dir: any) => {
     setDirection(dir)
     setSelectedDay(null)
-    setCurrentDate((d) => {
+    setCurrentDate((d: any) => {
       switch (viewMode) {
         case 'day': return dir > 0 ? addDays(d, 1) : subDays(d, 1)
         case 'week': return dir > 0 ? addWeeks(d, 1) : subWeeks(d, 1)

@@ -629,7 +629,7 @@ function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
 export function EquipmentRequestPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const { data: allProducts = [] } = useProducts()
   const { data: subscriptionPlans = [] } = useSubscriptionPlans()
 
@@ -841,7 +841,7 @@ export function EquipmentRequestPage() {
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
-          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s) => s - 1)}
+          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s: any) => s - 1)}
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -850,7 +850,7 @@ export function EquipmentRequestPage() {
 
         {currentStep < STEP_DEFS.length - 1 ? (
           <Button
-            onClick={() => setCurrentStep((s) => s + 1)}
+            onClick={() => setCurrentStep((s: any) => s + 1)}
             disabled={!canGoNext}
             className="gap-2"
           >

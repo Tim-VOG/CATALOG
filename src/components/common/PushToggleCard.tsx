@@ -16,7 +16,7 @@ import {
  */
 export function PushToggleCard() {
   const { user } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const [state, setState] = useState<'unsupported' | 'unconfigured' | 'denied' | 'subscribed' | 'idle'>('idle')
   const [busy, setBusy] = useState(false)
 

@@ -100,7 +100,7 @@ export function AdminProductsPage() {
   const deleteProduct = useDeleteProduct()
   const bulkDelete = useDeleteProducts()
   const createQRCodes = useCreateQRCodes()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<any>(null)

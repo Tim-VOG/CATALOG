@@ -261,7 +261,7 @@ function CartButton() {
 export function Header({ onOpenTour  }: any) {
   const { isAdmin, isStaff } = useAuth()
   const location = useLocation()
-  const toggleMobileNav = useUIStore((s) => s.toggleMobileNav)
+  const toggleMobileNav = useUIStore((s: any) => s.toggleMobileNav)
   const { data: settings } = useAppSettings()
   const themeMode = useThemeMode()
   const toggleTheme = useToggleTheme()

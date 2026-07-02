@@ -58,9 +58,9 @@ export async function reserveOnboardingKit(itRequest: OnboardingItRequest): Prom
   const missing: ReserveKitResult['missing'] = []
 
   for (const rule of KIT_RULES) {
-    const hit = (products || []).find((p) => {
+    const hit = (products || []).find((p: any) => {
       const name = (p.name || '').toLowerCase()
-      return rule.patterns.some((pat) => name.includes(pat))
+      return rule.patterns.some((pat: any) => name.includes(pat))
     })
     if (hit) {
       reserved.push({ product_id: hit.id, product_name: hit.name, tag: rule.tag })
@@ -101,7 +101,7 @@ export async function reserveOnboardingKit(itRequest: OnboardingItRequest): Prom
       status: 'pending',
       onboarding_request_id: itRequest.id,
     },
-    items: reserved.map((r) => ({
+    items: reserved.map((r: any) => ({
       product: { id: r.product_id },
       quantity: 1,
       options: { auto_reserved: true, kit_tag: r.tag },

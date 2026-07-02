@@ -42,7 +42,7 @@ export function generateCorporateEmail(
   businessUnit: string | null | undefined,
   units: readonly AnyBusinessUnit[] = BUSINESS_UNITS,
 ): string {
-  const unit = units.find((u) => u.value === businessUnit)
+  const unit = units.find((u: any) => u.value === businessUnit)
   if (!unit) return ''
 
   const first = normalizeName(firstName)

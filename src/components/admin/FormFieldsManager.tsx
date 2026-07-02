@@ -116,7 +116,7 @@ export function FormFieldsManager() {
   const createField = useCreateFormField()
   const updateField = useUpdateFormField()
   const deleteField = useDeleteFormField()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [showFieldDialog, setShowFieldDialog] = useState(false)
   const [editingField, setEditingField] = useState<any>(null)

@@ -68,14 +68,14 @@ export async function notifyRecipients(args: NotifyArgs): Promise<void> {
       console.warn('[notifyRecipients] recipient query failed:', error.message)
       return
     }
-    const recipients = (data ?? []).map((r) => r.email).filter(Boolean)
+    const recipients = (data ?? []).map((r: any) => r.email).filter(Boolean)
     if (recipients.length === 0) return
 
     const subject = buildSubject(args)
     const body = buildBody(args)
 
     await Promise.all(
-      recipients.map((to) =>
+      recipients.map((to: any) =>
         sendEmail({ to, subject, body, isHtml: true }).catch((err: any) => {
           console.warn('[notifyRecipients] send failed for', to, err)
         }),

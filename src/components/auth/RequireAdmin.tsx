@@ -22,7 +22,7 @@ function useProfileGate() {
         setRetrying(true)
         try { await refreshProfile() } catch { /* ignore */ }
         setRetrying(false)
-        setRetryCount((c) => c + 1)
+        setRetryCount((c: any) => c + 1)
       }, delay)
       return () => clearTimeout(timer)
     }

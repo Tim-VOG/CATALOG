@@ -108,7 +108,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
   const canChangeStatus = isAdmin
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const [reserving, setReserving] = useState(false)
 
   const handleReserveKit = async () => {
@@ -205,7 +205,7 @@ export function OnboardingRequestsPage() {
   const { data: emails = [] } = useOnboardingEmails()
   const updateRequest = useUpdateItRequest()
   const deleteRequest = useDeleteItRequest()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')

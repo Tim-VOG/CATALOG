@@ -186,7 +186,7 @@ export function AdminItFormBuilderPage() {
   const updateField = useUpdateItFormField()
   const deleteField = useDeleteItFormField()
   const reorderFields = useReorderItFormFields()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [editDialog, setEditDialog] = useState<any>(null) // null or field object
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null)

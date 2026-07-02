@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, PackageSearch, Check } from 'lucide-react'
 
 export function AdminLostItemsPage() {
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const { data: lost = [], isLoading } = useLostItems()
   const resolveLost = useResolveLost()
 

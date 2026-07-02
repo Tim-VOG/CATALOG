@@ -29,7 +29,7 @@ import { useAppSettings } from '@/hooks/use-settings'
 export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any) {
   const { user, profile } = useAuth()
   const { data: settings } = useAppSettings()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const { data: dbBlockTemplates = [], isLoading: blocksLoading, error: blocksError } = useOnboardingBlockTemplates()
   const { data: existingEmails = [] } = useOnboardingEmailsByRequest(requestId)

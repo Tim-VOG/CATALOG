@@ -510,7 +510,7 @@ export function FunctionalMailboxFormPage() {
   const { user, profile } = useAuth()
   const createRequest = useCreateMailboxRequest()
   const { data: formFields = [], isLoading: fieldsLoading } = useMailboxFormFields()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [currentStep, setCurrentStep] = useState(0)
   const [form, setForm] = useState<any>({
@@ -721,7 +721,7 @@ export function FunctionalMailboxFormPage() {
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
-          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s) => s - 1)}
+          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s: any) => s - 1)}
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -730,7 +730,7 @@ export function FunctionalMailboxFormPage() {
 
         {currentStep < activeSteps.length - 1 ? (
           <Button
-            onClick={() => setCurrentStep((s) => s + 1)}
+            onClick={() => setCurrentStep((s: any) => s + 1)}
             disabled={!canGoNext()}
             className="gap-2"
           >

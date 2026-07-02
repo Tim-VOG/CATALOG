@@ -105,7 +105,7 @@ export function AdminSharedMailboxesPage() {
   const createItem = useCreateSharedMailbox()
   const updateItem = useUpdateSharedMailbox()
   const deleteItem = useDeleteSharedMailbox()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [companyFilter, setCompanyFilter] = useState('all')

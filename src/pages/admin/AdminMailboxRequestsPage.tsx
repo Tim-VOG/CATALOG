@@ -73,7 +73,7 @@ function extractEmails(text: any) {
 }
 
 // ── Substitute template variables ──
-function fillTemplate(template, req, appName) {
+function fillTemplate(template: any, req: any, appName: any) {
   return template
     .replace(/\{\{requester_name\}\}/g, req.requested_by_name || 'User')
     .replace(/\{\{mailbox_email\}\}/g, req.email_to_create || '')
@@ -419,7 +419,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
   const [draftSaved, setDraftSaved] = useState(!!req.email_draft_body)
 
   const handleChange = (key: any, value: any) => {
-    setEmailForm((p) => ({ ...p, [key]: value }))
+    setEmailForm((p: any) => ({ ...p, [key]: value }))
     setDraftSaved(false)
   }
 
@@ -634,7 +634,7 @@ export function AdminMailboxRequestsPage() {
   const { data: settings } = useAppSettings()
   const { data: sharedMailboxes = [] } = useSharedMailboxes()
   const [showAddToInventory, setShowAddToInventory] = useState(false)
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<any>(null)

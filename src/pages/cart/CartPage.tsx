@@ -198,7 +198,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 export function CartPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const { data: items = [], isLoading } = useCart()
   const updateItem = useUpdateCartItem()

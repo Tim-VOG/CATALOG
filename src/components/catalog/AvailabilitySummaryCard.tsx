@@ -55,7 +55,7 @@ export function AvailabilitySummaryCard({
         {/* Toggle full view */}
         <button
           type="button"
-          onClick={() => setExpanded((e) => !e)}
+          onClick={() => setExpanded((e: any) => !e)}
           className="flex items-center justify-center gap-1.5 w-full text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors pt-1"
         >
           {expanded ? (

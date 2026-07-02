@@ -29,6 +29,6 @@ export function businessUnitFromEmail(
   const domain = email.slice(at + 1).trim().toLowerCase()
   if (!domain) return null
 
-  const match = units.find((u) => u.domain.toLowerCase() === domain)
+  const match = units.find((u: any) => u.domain.toLowerCase() === domain)
   return match ? match.value : null
 }

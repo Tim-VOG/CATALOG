@@ -318,8 +318,8 @@ export const getActiveLoans = async () => {
     .select('product_id, user_id, created_at')
     .eq('action', 'deposit')
 
-  return takes.filter((take) => {
-    return !deposits?.some((dep) =>
+  return takes.filter((take: any) => {
+    return !deposits?.some((dep: any) =>
       dep.product_id === take.product_id &&
       dep.user_id === take.user_id &&
       new Date(dep.created_at) > new Date(take.created_at)

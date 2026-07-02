@@ -16,7 +16,7 @@ export function AdminCategoriesPage() {
   const { data: categories = [], isLoading } = useCategories()
   const createCategory = useCreateCategory()
   const deleteCategory = useDeleteCategory()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')

@@ -77,7 +77,7 @@ export const useOnboardingEmailsByRequest = (requestId: any) =>
     queryKey: ['onboarding-emails', 'by-request', requestId],
     queryFn: async () => {
       const all = await getOnboardingEmails()
-      return all.filter((e) => e.it_request_id === requestId)
+      return all.filter((e: any) => e.it_request_id === requestId)
     },
     enabled: !!requestId,
     retry: 1,

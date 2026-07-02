@@ -99,7 +99,7 @@ export function ProductCard({ product, forecast }: any) {
   const nextReturn = forecast?.nextReturn || null
   const { data: cartItems = [] } = useCart()
   const addToCart = useAddToCart()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const cartItem = cartItems.find((i: any) => i.product_id === product.id)
   const inCart = !!cartItem
   const cartQty = cartItem?.quantity || 0

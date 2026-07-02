@@ -52,18 +52,18 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
   const prevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11)
-      setCurrentYear((y) => y - 1)
+      setCurrentYear((y: any) => y - 1)
     } else {
-      setCurrentMonth((m) => m - 1)
+      setCurrentMonth((m: any) => m - 1)
     }
   }
 
   const nextMonth = () => {
     if (currentMonth === 11) {
       setCurrentMonth(0)
-      setCurrentYear((y) => y + 1)
+      setCurrentYear((y: any) => y + 1)
     } else {
-      setCurrentMonth((m) => m + 1)
+      setCurrentMonth((m: any) => m + 1)
     }
   }
 

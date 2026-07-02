@@ -160,7 +160,7 @@ export function AdminOffboardingFormBuilderPage() {
   const createField = useCreateOffboardingField()
   const updateField = useUpdateOffboardingField()
   const deleteField = useDeleteOffboardingField()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [editDialog, setEditDialog] = useState<any>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null)

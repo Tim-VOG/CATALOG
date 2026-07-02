@@ -51,7 +51,7 @@ export function AdminEmailTemplatesPage() {
   const { data: templates = [], isLoading, isError, error, refetch } = useEmailTemplates()
   const { data: settings } = useAppSettings()
   const updateTemplate = useUpdateEmailTemplate()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [activeTab, setActiveTab] = useState('templates')
   const [editing, setEditing] = useState<any>(null)

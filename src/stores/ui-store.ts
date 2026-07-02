@@ -10,7 +10,7 @@ export interface UIStore {
   closeMobileNav: () => void
 }
 
-export const useUIStore = create<UIStore>((set) => ({
+export const useUIStore = create<UIStore>((set: any) => ({
   mobileNavOpen: false,
 
   showToast: (message, type = 'success') => {
@@ -19,6 +19,6 @@ export const useUIStore = create<UIStore>((set) => ({
     else toast.success(message)
   },
 
-  toggleMobileNav: () => set((s) => ({ mobileNavOpen: !s.mobileNavOpen })),
+  toggleMobileNav: () => set((s: any) => ({ mobileNavOpen: !s.mobileNavOpen })),
   closeMobileNav: () => set({ mobileNavOpen: false }),
 }))

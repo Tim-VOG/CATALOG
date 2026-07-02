@@ -13,7 +13,7 @@ export function QRScanner({ onScan, scanning = true  }: any) {
     if (!scanning) return
 
     const scannerId = 'qr-scanner-region'
-    let html5Qr = null
+    let html5Qr: any = null
 
     const startScanner = async () => {
       try {

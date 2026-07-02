@@ -378,7 +378,7 @@ export function ItRequestFormPage() {
   const createRequest = useCreateItRequest()
   const { data: formFields = [], isLoading: fieldsLoading } = useItFormFields()
   const { data: dbBusinessUnits } = useBusinessUnits()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   // Prefer the live DB list (admins can edit it from /admin/business-units);
   // fall back to the constant for the first paint before the query resolves.
@@ -590,7 +590,7 @@ export function ItRequestFormPage() {
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
-          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s) => s - 1)}
+          onClick={() => currentStep === 0 ? navigate('/') : setCurrentStep((s: any) => s - 1)}
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -599,7 +599,7 @@ export function ItRequestFormPage() {
 
         {currentStep < activeSteps.length - 1 ? (
           <Button
-            onClick={() => setCurrentStep((s) => s + 1)}
+            onClick={() => setCurrentStep((s: any) => s + 1)}
             disabled={!canGoNext()}
             className="gap-2"
           >

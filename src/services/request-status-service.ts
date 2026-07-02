@@ -78,7 +78,7 @@ function substitute(text: string, vars: Record<string, any>) {
  * (not yet wrapped by wrapEmailHtml).
  */
 export async function renderTemplate(key: string, vars: Record<string, any>) {
-  let tmpl = null
+  let tmpl: any = null
   try { tmpl = await getEmailTemplateByKey(key) } catch {}
   const source = tmpl || (FALLBACK_TEMPLATES as Record<string, any>)[key as keyof typeof FALLBACK_TEMPLATES] || { subject: '', body: '' }
   return {

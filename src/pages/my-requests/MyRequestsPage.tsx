@@ -192,7 +192,7 @@ function RequestCard({ request, type, onOpen  }: any) {
 
 export function MyRequestsPage() {
   const { user } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const [typeFilter, setTypeFilter] = useState('all')
   // Keep only the open request's identity (id + type) so we can pull the
   // freshest row from allRequests on every render — otherwise saving a

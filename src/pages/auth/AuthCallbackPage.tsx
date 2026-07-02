@@ -26,7 +26,7 @@ export function AuthCallbackPage() {
     })
 
     // Also listen for auth state change as fallback
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any) => {
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && !handled.current) {
         handled.current = true
         clearTimeout(timeout)

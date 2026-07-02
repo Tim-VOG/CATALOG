@@ -29,7 +29,7 @@ const CREATED_IN = ['AD', 'Cloud']
  */
 export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }: any) {
   const createMailbox = useCreateSharedMailbox()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [form, setForm] = useState<any>({
     category: 'LEGER',

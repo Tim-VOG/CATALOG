@@ -114,7 +114,7 @@ function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
 export function AdminDesignPage() {
   const { data: settings, isLoading } = useAppSettings()
   const updateSettings = useUpdateAppSettings()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   // General
   const [appName, setAppName] = useState('')
@@ -318,7 +318,7 @@ export function AdminDesignPage() {
     }
   }
 
-  const handleDrop = (e, variant = '') => {
+  const handleDrop = (e: any, variant: any = '') => {
     e.preventDefault()
     if (variant === 'dark') setDragOverDark(false)
     else if (variant === 'light') setDragOverLight(false)
@@ -327,8 +327,8 @@ export function AdminDesignPage() {
     if (file) handleLogoUpload(file, variant)
   }
 
-  const updateDarkPalette = (key: any, value: any) => setDarkPalette((p) => ({ ...p, [key]: value }))
-  const updateLightPalette = (key: any, value: any) => setLightPalette((p) => ({ ...p, [key]: value }))
+  const updateDarkPalette = (key: any, value: any) => setDarkPalette((p: any) => ({ ...p, [key]: value }))
+  const updateLightPalette = (key: any, value: any) => setLightPalette((p: any) => ({ ...p, [key]: value }))
 
   const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map((k: any) => [k, ''])) as any)
   const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map((k: any) => [k, ''])) as any)

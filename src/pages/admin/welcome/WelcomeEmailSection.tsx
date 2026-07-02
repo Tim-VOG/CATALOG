@@ -44,7 +44,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   const { data: recipients = [] } = useOnboardingRecipients()
   const createRecipient = useCreateRecipient()
   const updateRecipient = useUpdateRecipient()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [personalEmail, setPersonalEmail] = useState('')
   const [recipientForCompose, setRecipientForCompose] = useState<any>(null)

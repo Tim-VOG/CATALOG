@@ -16,7 +16,7 @@ export function NotificationRecipientsManager() {
   const createRecipient = useCreateNotificationRecipient()
   const updateRecipient = useUpdateNotificationRecipient()
   const deleteRecipient = useDeleteNotificationRecipient()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [showRecipientDialog, setShowRecipientDialog] = useState(false)
   const [recipientForm, setRecipientForm] = useState<any>({ email: '', name: '' })

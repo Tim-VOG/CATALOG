@@ -24,7 +24,7 @@ const STATUS_STYLE: Record<string, string> = {
 
 export function AdminReservationsPage() {
   const { user } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const [statusFilter, setStatusFilter] = useState('active')
   const { data: reservations = [], isLoading } = useReservations(
     statusFilter === 'all' ? {} : { status: statusFilter },

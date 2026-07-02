@@ -32,7 +32,7 @@ export function ImageUpload({
   const fileInputRef = useRef<any>(null)
 
   const validateDimensions = (file: File): Promise<true | string> =>
-    new Promise((resolve) => {
+    new Promise((resolve: any) => {
       if (!requiredWidth && !requiredHeight) return resolve(true)
       const img = new window.Image()
       img.onload = () => {

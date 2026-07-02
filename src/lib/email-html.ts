@@ -146,7 +146,7 @@ export function generateItemsHtml(items: any, itemReturns: any = []) {
         if (Array.isArray(v)) return flattenOption(v).filter(Boolean)
         return [String(v)]
       })
-      .map((display) => `<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eef4ff;border:1px solid #d9e4ff;color:#3955cf;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(display)}</span>`)
+      .map((display: any) => `<span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eef4ff;border:1px solid #d9e4ff;color:#3955cf;font-size:11px;margin-right:4px;margin-top:2px;">${escapeHtml(display)}</span>`)
       .join('')
 
     const cs = (conditionStyles as Record<string, { color: string; bg: string }>)[condition]

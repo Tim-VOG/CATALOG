@@ -52,6 +52,6 @@ export const reorderItFormFields = async (orderedItems: any) => {
       .eq('id', id)
   )
   const results = await Promise.all(updates)
-  const failed = results.find((r) => r.error)
+  const failed = results.find((r: any) => r.error)
   if (failed?.error) throw failed.error
 }

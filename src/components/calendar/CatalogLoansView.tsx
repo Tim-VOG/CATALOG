@@ -87,7 +87,7 @@ export function CatalogLoansView({ events  }: any) {
   // ── Column headers ──
   const { columns, cellWidth } = useMemo(() => {
     const start = startOfDay(startDate)
-    let cols = []
+    let cols: any[] = []
     let width: any
 
     switch (viewMode) {

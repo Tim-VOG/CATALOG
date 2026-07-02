@@ -31,7 +31,7 @@ export function AdminSubscriptionPlansPage() {
   const createPlan = useCreateSubscriptionPlan()
   const updatePlan = useUpdateSubscriptionPlan()
   const deletePlan = useDeleteSubscriptionPlan()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [showDialog, setShowDialog] = useState(false)
   const [editing, setEditing] = useState<any>(null)

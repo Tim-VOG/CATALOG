@@ -50,7 +50,7 @@ export function AdminUserDetailPage() {
   const navigate = useNavigate()
   const { data: profile, isLoading } = useProfile(userId)
   const updateProfile = useUpdateProfile()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const [departureDate, setDepartureDate] = useState('')
 
   useEffect(() => {

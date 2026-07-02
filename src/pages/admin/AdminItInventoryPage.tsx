@@ -16,7 +16,7 @@ const fmtMoney = (n: any) => {
   return Number(n).toLocaleString('fr-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })
 }
 
-const fmtNum = (n, d = 2) => {
+const fmtNum = (n: any, d: any = 2) => {
   if (n == null || isNaN(Number(n))) return ''
   return Number(n).toLocaleString('fr-BE', { maximumFractionDigits: d })
 }
@@ -128,7 +128,7 @@ export function AdminItInventoryPage() {
   const createItem = useCreateItInventoryItem()
   const updateItem = useUpdateItInventoryItem()
   const deleteItem = useDeleteItInventoryItem()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [companyFilter, setCompanyFilter] = useState('all')

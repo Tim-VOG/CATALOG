@@ -35,7 +35,7 @@ export function ProfilePage() {
   const { data: itReqs = [] } = useMyItRequests(user?.id)
   const { data: mailboxReqs = [] } = useMyMailboxRequests(user?.id)
   const requests = [...loanReqs, ...itReqs, ...mailboxReqs]
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const themeMode = useThemeMode()
   const toggleTheme = useToggleTheme()
   const clearThemeOverride = useClearThemeOverride()

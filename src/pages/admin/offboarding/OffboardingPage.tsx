@@ -34,7 +34,7 @@ export function OffboardingPage() {
   const { data: allRequests = [], isLoading } = useItRequests()
   const updateRequest = useUpdateItRequest()
   const deleteRequest = useDeleteItRequest()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')

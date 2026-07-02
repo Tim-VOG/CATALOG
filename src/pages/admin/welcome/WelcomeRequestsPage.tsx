@@ -42,7 +42,7 @@ export function WelcomeRequestsPage() {
   const { data: emails = [] } = useOnboardingEmails()
   const createRecipient = useCreateRecipient()
   const updateRecipient = useUpdateRecipient()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('todo') // todo | sent

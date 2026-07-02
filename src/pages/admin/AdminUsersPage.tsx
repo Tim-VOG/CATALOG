@@ -132,7 +132,7 @@ export function AdminUsersPage() {
   const upsertAccess = useUpsertModuleAccess()
 
   const { user: currentUser } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [confirmDialog, setConfirmDialog] = useState<any>(null)
   const [deleteDialog, setDeleteDialog] = useState<any>(null)

@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils'
 function AdminNotes({ requestId, initialNotes  }: any) {
   const [notes, setNotes] = useState(initialNotes)
   const [saving, setSaving] = useState(false)
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const changed = notes !== initialNotes
 
   const handleSave = async () => {
@@ -62,7 +62,7 @@ export function AdminRequestDetailPage() {
   const releaseQR = useReleaseQRCode()
   const assignBatch = useAssignEquipmentBatch()
   const { user } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [assigningItem, setAssigningItem] = useState<any>(null)
   const [assignMode, setAssignMode] = useState('scan')

@@ -191,11 +191,11 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
   const next = () => {
     if (step === STEPS.length - 1) { close(); return }
     setDirection(1)
-    setStep((s) => s + 1)
+    setStep((s: any) => s + 1)
   }
 
   const back = () => {
-    if (step > 0) { setDirection(-1); setStep((s) => s - 1) }
+    if (step > 0) { setDirection(-1); setStep((s: any) => s - 1) }
   }
 
   const goTo = (i: any) => {

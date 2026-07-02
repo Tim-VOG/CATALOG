@@ -18,7 +18,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 export function AdminItRequestsPage() {
   const { data: requests = [], isLoading } = useItRequests()
   const deleteRequest = useDeleteItRequest()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')

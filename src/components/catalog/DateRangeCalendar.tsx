@@ -48,12 +48,12 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
   const days = useMemo(() => getMonthGrid(currentYear, currentMonth), [currentYear, currentMonth])
 
   const prevMonth = () => {
-    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear((y) => y - 1) }
-    else setCurrentMonth((m) => m - 1)
+    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear((y: any) => y - 1) }
+    else setCurrentMonth((m: any) => m - 1)
   }
   const nextMonth = () => {
-    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear((y) => y + 1) }
-    else setCurrentMonth((m) => m + 1)
+    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear((y: any) => y + 1) }
+    else setCurrentMonth((m: any) => m + 1)
   }
 
   const handleDayClick = (dateStr: any) => {

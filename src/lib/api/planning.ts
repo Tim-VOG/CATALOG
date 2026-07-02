@@ -13,7 +13,7 @@ export const getPlanningData = async ({ startDate, endDate }: any) => {
   if (reqError) throw reqError
 
   // Fetch items for those requests
-  const requestIds = requests.map((r) => r.id)
+  const requestIds = requests.map((r: any) => r.id)
   if (requestIds.length === 0) return []
 
   const { data: items, error: itemsError } = await supabase
@@ -24,8 +24,8 @@ export const getPlanningData = async ({ startDate, endDate }: any) => {
   if (itemsError) throw itemsError
 
   // Merge items with their request data
-  return items.map((item) => {
-    const request = requests.find((r) => r.id === item.request_id)
+  return items.map((item: any) => {
+    const request = requests.find((r: any) => r.id === item.request_id)
     return {
       ...item,
       request_status: request?.status,

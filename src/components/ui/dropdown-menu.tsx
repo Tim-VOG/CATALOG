@@ -50,7 +50,7 @@ function DropdownMenuTrigger({ children, asChild, ...props  }: any) {
   const { open, setOpen } = React.useContext(DropdownContext)
   const handleClick = (e: any) => {
     e.preventDefault()
-    setOpen((o) => !o)
+    setOpen((o: any) => !o)
   }
   const handleKeyDown = (e: any) => {
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {

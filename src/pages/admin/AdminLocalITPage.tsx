@@ -54,7 +54,7 @@ export function AdminLocalITPage() {
   const { data: products = [] } = useProducts()
   const { data: recentLogs = [] } = useScanLogs({ limit: 50 })
   const updateQR = useUpdateQRCode()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')

@@ -50,7 +50,7 @@ export function AdminBusinessUnitsPage() {
   const createUnit = useCreateBusinessUnit()
   const updateUnit = useUpdateBusinessUnit()
   const deleteUnit = useDeleteBusinessUnit()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [showDialog, setShowDialog] = useState(false)
   const [editing, setEditing] = useState<BusinessUnit | null>(null)

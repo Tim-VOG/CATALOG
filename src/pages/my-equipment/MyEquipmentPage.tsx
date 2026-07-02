@@ -127,7 +127,7 @@ interface EquipmentCardProps {
 
 function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
   const { user, profile } = useAuth()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const createIssue = useCreateEquipmentIssue()
   const [issueOpen, setIssueOpen] = useState(false)
   const [desc, setDesc] = useState('')

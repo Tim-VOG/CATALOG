@@ -74,7 +74,7 @@ export function AdminDeviceCredentialsPage() {
   const createItem = useCreateDeviceCredential()
   const updateItem = useUpdateDeviceCredential()
   const deleteItem = useDeleteDeviceCredential()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
 
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -206,7 +206,7 @@ export function AdminDeviceCredentialsPage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setRevealSecrets((v) => !v)}
+          onClick={() => setRevealSecrets((v: any) => !v)}
           className="gap-1.5"
         >
           {revealSecrets ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}

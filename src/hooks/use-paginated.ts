@@ -23,7 +23,7 @@ export function usePaginated(allItems, pageSize = 50) {
     total,
     visible,
     hasMore,
-    loadMore: () => setVisible((v) => v + pageSize),
+    loadMore: () => setVisible((v: any) => v + pageSize),
     reset: () => setVisible(pageSize),
   }
 }

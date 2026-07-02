@@ -11,7 +11,7 @@ import { AlertTriangle, Check, Wrench, Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function AdminIssuesPage() {
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const [statusFilter, setStatusFilter] = useState('open')
   const { data: issues = [], isLoading } = useEquipmentIssues(statusFilter)
   const resolve = useResolveEquipmentIssue()

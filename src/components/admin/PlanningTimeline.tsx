@@ -32,7 +32,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
   // Calculate the date columns based on view mode
   const { columns, endDate, cellWidth } = useMemo(() => {
     const start = startOfDay(startDate)
-    let cols = []
+    let cols: any[] = []
     let end: any
     let width: any
 

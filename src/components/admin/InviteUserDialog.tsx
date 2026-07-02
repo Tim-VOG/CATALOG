@@ -43,7 +43,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
   const createInvitation = useCreateInvitation()
   const updateInvitation = useUpdateInvitation()
   const { data: businessUnits = [] } = useBusinessUnits()
-  const showToast = useUIStore((s) => s.showToast)
+  const showToast = useUIStore((s: any) => s.showToast)
   const bodyRef = useRef<any>(null)
 
   const [email, setEmail] = useState('')
