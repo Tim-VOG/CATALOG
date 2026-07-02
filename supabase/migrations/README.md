@@ -66,10 +66,36 @@ psql "$DATABASE_URL" -f supabase/tests/fn_audit_test.sql
 The test wraps everything in `BEGIN … ROLLBACK`, so it never
 persists anything.
 
+## `supabase/baseline.sql` (Phase F)
+
+A single-file, verbatim in-order concatenation of every migration
+(001…114), generated as a convenience baseline. Running it once on a
+**fresh** database is equivalent to running all the migrations in
+sequence.
+
+- It lives **outside** `migrations/` on purpose, so the migration
+  runner does not execute it alongside the individual files (that
+  would double-run everything).
+- The individual migration files remain the **source of truth** and
+  history — the baseline is a convenience for spinning up a brand-new
+  database quickly.
+- **Never** run it against prod/staging: those are already migrated.
+
+To regenerate it after adding migrations:
+
+```bash
+{ for f in $(ls supabase/migrations/*.sql | sort); do echo; cat "$f"; done; } > supabase/baseline.sql
+```
+
+A future "true" squash (a clean `pg_dump --schema-only` snapshot that
+replaces the individual files) should wait until the production schema
+is verified consistent — see the squash section above.
+
 ## `supabase/full_schema.sql`
 
 Stale. Kept for historical reference only — see the header in that
-file. Do not use it to provision a new database.
+file. Do not use it to provision a new database. Superseded by
+`supabase/baseline.sql`.
 
 ## Historical notes (intentional back-and-forth)
 
