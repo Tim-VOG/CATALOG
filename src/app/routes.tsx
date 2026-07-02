@@ -52,6 +52,7 @@ const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage').then(
 const AdminEmailTemplatesPage = lazy(() => import('@/pages/admin/AdminEmailTemplatesPage').then((m) => ({ default: m.AdminEmailTemplatesPage })))
 const AdminSubscriptionPlansPage = lazy(() => import('@/pages/admin/AdminSubscriptionPlansPage').then((m) => ({ default: m.AdminSubscriptionPlansPage })))
 const AdminBusinessUnitsPage = lazy(() => import('@/pages/admin/AdminBusinessUnitsPage').then((m) => ({ default: m.AdminBusinessUnitsPage })))
+const AdminExtensionsPage = lazy(() => import('@/pages/admin/AdminExtensionsPage').then((m) => ({ default: m.AdminExtensionsPage })))
 const OnboardingRequestsPage = lazy(() => import('@/pages/admin/onboarding/OnboardingRequestsPage').then((m) => ({ default: m.OnboardingRequestsPage })))
 const AdminItInventoryPage = lazy(() => import('@/pages/admin/AdminItInventoryPage').then((m) => ({ default: m.AdminItInventoryPage })))
 const AdminOffboardingRequestsPage = lazy(() => import('@/pages/admin/AdminOffboardingRequestsPage').then((m) => ({ default: m.AdminOffboardingRequestsPage })))
@@ -149,6 +150,7 @@ export function AppRoutes() {
             <Route path="product-options" element={<Navigate to="/admin/products" replace />} />
             <Route path="categories" element={<AdminOnly><AdminCategoriesPage /></AdminOnly>} />
             <Route path="requests" element={<AdminOnly><AdminRequestsPage /></AdminOnly>} />
+            <Route path="extensions" element={<AdminOnly><AdminExtensionsPage /></AdminOnly>} />
             <Route path="requests/:requestId" element={<AdminOnly><AdminRequestDetailPage /></AdminOnly>} />
             <Route path="new-request" element={<Navigate to="/admin/requests" replace />} />
             <Route path="returns" element={<Navigate to="/admin/requests" replace />} />

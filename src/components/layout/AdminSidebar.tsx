@@ -59,6 +59,7 @@ export function AdminSidebar() {
       defaultOpen: true,
       links: [
         { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
+        { to: '/admin/extensions', label: 'Extensions', icon: CalendarClock },
         { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
         { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
         { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox, managerOk: true },

@@ -1,13 +1,25 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems } from '@/hooks/use-loan-requests'
-import { ArrowLeft, Calendar, User, Clock, Package } from 'lucide-react'
+import { useCreateExtensionRequest, useMyExtensionRequests } from '@/hooks/use-extension-requests'
+import { useAuth } from '@/lib/auth'
+import { useUIStore } from '@/stores/ui-store'
+import { ArrowLeft, Calendar, CalendarClock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { QueryWrapper } from '@/components/common/QueryWrapper'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
+
+// Loan states where asking for more time makes sense (gear is out / booked).
+const EXTENDABLE = ['approved', 'reserved', 'ready', 'picked_up']
 
 const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -15,9 +27,36 @@ const formatDate = (d: any) =>
 export function RequestDetailPage() {
   const { requestId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const showToast = useUIStore((s) => s.showToast)
   const requestQuery = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
+  const { data: myExtensions = [] } = useMyExtensionRequests(requestId)
+  const createExtension = useCreateExtensionRequest()
   const request = requestQuery.data
+
+  const [extOpen, setExtOpen] = useState(false)
+  const [extDays, setExtDays] = useState('7')
+  const [extReason, setExtReason] = useState('')
+
+  const submitExtension = async () => {
+    const days = Number.parseInt(extDays, 10)
+    if (!days || days < 1) { showToast('Enter a valid number of days', 'error'); return }
+    if (!extReason.trim()) { showToast('Please give a reason', 'error'); return }
+    try {
+      await createExtension.mutateAsync({
+        request_id: requestId as string,
+        user_id: (request?.user_id as string) || (user?.id as string),
+        requested_days: days,
+        reason: extReason.trim(),
+      })
+      showToast('Extension request sent')
+      setExtOpen(false)
+      setExtReason('')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to send', 'error')
+    }
+  }
 
   if (requestQuery.isLoading || requestQuery.isError) {
     return (
@@ -57,6 +96,27 @@ export function RequestDetailPage() {
         )}
       </div>
 
+      {/* Extension: ask for more time on an active loan */}
+      {EXTENDABLE.includes(request.status) && (
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3 flex-wrap">
+            <CalendarClock className="h-4 w-4 text-primary shrink-0" />
+            {myExtensions.some((e: any) => e.status === 'pending') ? (
+              <span className="text-sm text-muted-foreground flex-1">
+                Extension request pending review. <Badge className="ml-1 text-[10px] bg-amber-500/15 text-amber-600">pending</Badge>
+              </span>
+            ) : (
+              <>
+                <span className="text-sm text-muted-foreground flex-1">Need to keep this equipment longer?</span>
+                <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setExtOpen(true)}>
+                  <CalendarClock className="h-3.5 w-3.5" /> Request extension
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader><CardTitle className="text-base">Details</CardTitle></CardHeader>
@@ -95,6 +155,31 @@ export function RequestDetailPage() {
           ))}
         </CardContent>
       </Card>
+
+      <Dialog open={extOpen} onOpenChange={setExtOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request an extension</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label>Extra days</Label>
+              <Input type="number" min={1} value={extDays} onChange={(e) => setExtDays(e.target.value)} />
+              <p className="text-[10px] text-muted-foreground">
+                Current return date: {formatDate(request.return_date)}. An admin will review your request.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <Label>Reason</Label>
+              <Textarea value={extReason} onChange={(e) => setExtReason(e.target.value)} rows={3} placeholder="Why do you need more time?" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExtOpen(false)}>Cancel</Button>
+            <Button onClick={submitExtension} disabled={createExtension.isPending}>Send request</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
