@@ -22,7 +22,7 @@ export function safeParse(dateStr: any) {
 
 // ── Normalize requests into unified calendar events ──
 function normalizeEvents(loanRequests: any, itRequests: any, mailboxRequests: any) {
-  const events = []
+  const events: any[] = []
 
   // Catalog / Loan requests
   for (const req of loanRequests) {

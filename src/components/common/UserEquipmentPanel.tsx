@@ -45,7 +45,7 @@ export function UserEquipmentPanel({ userId  }: any) {
   )
 
   const history = useMemo(() => {
-    const items = []
+    const items: any[] = []
     for (const r of loanReqs) {
       items.push({
         id: `loan-${r.id}`,

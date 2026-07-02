@@ -58,7 +58,7 @@ export function MobileNav() {
   const isActive = (to: any, exact: any) => exact ? location.pathname === to : location.pathname.startsWith(to)
 
   // Module links
-  const moduleLinks = []
+  const moduleLinks: any[] = []
   if (hasOnboarding && isAdmin) moduleLinks.push({ to: '/admin/onboarding', label: 'Onboarding', icon: UserPlus })
   if (hasItForm) moduleLinks.push({ to: '/it-request', label: 'IT Request', icon: ClipboardList })
   if (hasMailbox) moduleLinks.push({ to: '/functional-mailbox', label: 'Mailbox Request', icon: Mail })

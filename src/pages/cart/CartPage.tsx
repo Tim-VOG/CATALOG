@@ -29,7 +29,7 @@ import { getCategoryConfig, needsOptions } from '@/components/catalog/ProductCar
 // ── Helpers ──
 function getOptionsSummary(options: any) {
   if (!options) return []
-  const tags = []
+  const tags: any[] = []
   const services = options.services || {}
   const accessories = options.accessories || []
   if (services.subscription_plan) tags.push(services.subscription_plan)

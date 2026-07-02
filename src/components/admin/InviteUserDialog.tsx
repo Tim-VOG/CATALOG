@@ -123,7 +123,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
       login_url: loginUrl,
     }
 
-    const resolvedBody = emailBody.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
+    const resolvedBody = emailBody.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => (vars as any)[key] || `[${key}]`)
     return wrapEmailHtml(resolvedBody, { appName, logoUrl, tagline, logoHeight })
   }, [emailBody, firstName, lastName, appName, logoUrl, tagline, logoHeight])
 
@@ -250,8 +250,8 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
         app_name: appName,
         login_url: loginUrl,
       }
-      const resolvedSubject = emailSubject.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
-      const resolvedBody = emailBody.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || `[${key}]`)
+      const resolvedSubject = emailSubject.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => (vars as any)[key] || `[${key}]`)
+      const resolvedBody = emailBody.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => (vars as any)[key] || `[${key}]`)
       const wrappedBody = wrapEmailHtml(resolvedBody, { appName, logoUrl, tagline, logoHeight })
 
       // Send

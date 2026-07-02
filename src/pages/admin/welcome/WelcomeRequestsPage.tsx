@@ -57,7 +57,7 @@ export function WelcomeRequestsPage() {
   )
 
   const sentByRequestId = useMemo(() => {
-    const map = {}
+    const map: Record<string, any> = {}
     for (const e of emails) {
       if (e.it_request_id && e.status === 'sent') map[e.it_request_id] = e
     }
@@ -105,7 +105,7 @@ export function WelcomeRequestsPage() {
       if (!recipient) {
         recipient = await createRecipient.mutateAsync(payload)
       } else {
-        const updates = {}
+        const updates: Record<string, any> = {}
         for (const key of ['first_name', 'last_name', 'email', 'personal_email', 'team', 'department', 'start_date', 'language']) {
           if (payload[key] && payload[key] !== recipient[key]) updates[key] = payload[key]
         }

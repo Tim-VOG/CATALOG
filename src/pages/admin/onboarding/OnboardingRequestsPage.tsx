@@ -218,7 +218,7 @@ export function OnboardingRequestsPage() {
   )
 
   const sentByRequestId = useMemo(() => {
-    const map = {}
+    const map: Record<string, any> = {}
     for (const e of emails) {
       if (e.it_request_id && e.status === 'sent') map[e.it_request_id] = e
     }

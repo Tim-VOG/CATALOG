@@ -420,7 +420,7 @@ export function ItRequestFormPage() {
 
   // Group active fields by step
   const fieldsByStep = useMemo(() => {
-    const groups = {}
+    const groups: Record<string, any> = {}
     for (const step of STEP_DEFS) {
       if (step.id === 'review') continue
       groups[step.id] = activeFields.filter((f: any) => f.step === step.id)

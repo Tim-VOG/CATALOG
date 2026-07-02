@@ -110,14 +110,14 @@ export function AdminUsersPage() {
 
   // Count active loans per user (takes - deposits)
   const userLoanCounts = useMemo(() => {
-    const counts = {}
+    const counts: Record<string, any> = {}
     for (const log of scanLogs) {
       if (!log.user_id) continue
       if (!counts[log.user_id]) counts[log.user_id] = { takes: 0, deposits: 0 }
       if (log.action === 'take') counts[log.user_id].takes++
       else counts[log.user_id].deposits++
     }
-    const result = {}
+    const result: Record<string, any> = {}
     for (const [uid, c] of Object.entries(counts as Record<string, any>)) {
       result[uid] = { active: Math.max(0, c.takes - c.deposits), total: c.takes }
     }
@@ -140,7 +140,7 @@ export function AdminUsersPage() {
 
   // Access map: "userId:moduleKey" -> granted
   const accessMap = useMemo(() => {
-    const map = {}
+    const map: Record<string, any> = {}
     allAccess.forEach((row: any) => {
       map[`${row.user_id}:${row.module_key}`] = row.granted
     })

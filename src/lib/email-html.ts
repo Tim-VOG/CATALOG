@@ -45,7 +45,7 @@ export function styledCondition(value: any) {
  * Info card: a clean white card with sections.
  */
 export function generateDetailsCard(vars: any) {
-  const rows = []
+  const rows: any[] = []
 
   if (vars.project_name) {
     rows.push(`<tr><td style="padding:18px 22px;border-bottom:1px solid #eef2f7;">
@@ -54,7 +54,7 @@ export function generateDetailsCard(vars: any) {
     </td></tr>`)
   }
 
-  const cells = []
+  const cells: any[] = []
   if (vars.pickup_date) {
     cells.push({ label: 'Pickup', value: escapeHtml(vars.pickup_date), accent: '#ea580c' })
   }

@@ -101,7 +101,7 @@ export function ImageUpload({
     setError('')
   }
 
-  const dimensionHint = []
+  const dimensionHint: any[] = []
   if (requiredWidth) dimensionHint.push(`min ${requiredWidth}px wide`)
   if (requiredHeight) dimensionHint.push(`min ${requiredHeight}px tall`)
 

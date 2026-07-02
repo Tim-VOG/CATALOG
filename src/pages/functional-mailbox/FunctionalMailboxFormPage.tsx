@@ -121,7 +121,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
     const text = e.clipboardData.getData('text')
     // Split by comma, semicolon, newline, or space
     const emails = text.split(/[,;\n\s]+/).filter(Boolean)
-    const valid = []
+    const valid: any[] = []
     for (const email of emails) {
       const trimmed = email.trim().toLowerCase()
       if (isValidEmail(trimmed) && !tags.includes(trimmed) && !valid.includes(trimmed)) {
@@ -555,7 +555,7 @@ export function FunctionalMailboxFormPage() {
 
   // Group active fields by step
   const fieldsByStep = useMemo(() => {
-    const groups = {}
+    const groups: Record<string, any> = {}
     for (const step of STEP_DEFS) {
       if (step.id === 'review') continue
       groups[step.id] = activeFields.filter((f: any) => f.step === step.id)

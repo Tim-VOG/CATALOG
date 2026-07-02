@@ -24,8 +24,8 @@ const TYPE_BARS = {
 export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, events, onSelect, showLabels = false  }: any) {
   // Separate multi-day (bar) events from single-day (icon) events
   const { barEvents, dotEvents } = useMemo(() => {
-    const bars = []
-    const dots = []
+    const bars: any[] = []
+    const dots: any[] = []
     const seenTypes = new Set()
 
     for (const ev of events) {

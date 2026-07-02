@@ -138,7 +138,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
   const onboardingData = onboardingMatch?.data || {}
 
   // Pull every access-shaped field from the matching onboarding payload
-  const items = []
+  const items: any[] = []
   const push = (label: any, value: any) => {
     if (!value) return
     const list = Array.isArray(value) ? value : String(value).split(/[,;]\s*/).filter(Boolean)
@@ -178,7 +178,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
   }
 
   // Group items for display
-  const byGroup = {}
+  const byGroup: Record<string, any> = {}
   for (const it of items) (byGroup[it.group] = byGroup[it.group] || []).push(it)
   const total = items.length
   const done = items.filter((i: any) => revoked.has(i.id)).length
@@ -326,7 +326,7 @@ export function AdminOffboardingRequestsPage() {
 
   // Index onboarding requests by lowercased "first last" name for matching
   const onboardingByName = useMemo(() => {
-    const map = {}
+    const map: Record<string, any> = {}
     for (const r of allRequests) {
       if (r.type !== 'onboarding') continue
       const d = r.data || {}

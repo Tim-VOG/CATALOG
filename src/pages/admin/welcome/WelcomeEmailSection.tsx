@@ -100,7 +100,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
       if (!recipient) {
         recipient = await createRecipient.mutateAsync(payload)
       } else {
-        const updates = {}
+        const updates: Record<string, any> = {}
         for (const key of ['first_name', 'last_name', 'email', 'personal_email', 'team', 'department', 'start_date', 'language']) {
           if (payload[key] && payload[key] !== recipient[key]) updates[key] = payload[key]
         }

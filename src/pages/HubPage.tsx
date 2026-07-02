@@ -113,7 +113,7 @@ export function HubPage() {
   const greeting = getGreeting()
   const day = getDayLabel()
 
-  const cards = []
+  const cards: any[] = []
   cards.push(
     <HubCard key="catalog" to="/catalog" icon={Package}
       title={settings?.hub_catalog_title || 'Equipment Catalog'}

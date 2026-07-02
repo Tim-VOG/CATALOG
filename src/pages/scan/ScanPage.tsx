@@ -105,7 +105,7 @@ export function ScanPage() {
     setBulkProcessing(true)
     setBulkDatesStep(false)
     const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')
-    const results = []
+    const results: any[] = []
 
     for (const item of bulkItems) {
       try {

@@ -59,7 +59,7 @@ export function AdminStatsPage() {
     const lowStock = products.filter((p: any) => p.total_stock <= 1).length
 
     // Most requested products
-    const productCounts = {}
+    const productCounts: Record<string, any> = {}
     for (const r of loanReqs) {
       const name = r.project_name || 'Unknown'
       productCounts[name] = (productCounts[name] || 0) + 1

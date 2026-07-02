@@ -153,9 +153,9 @@ export function AdminAllRequestsPage() {
   const clearSelection = useCallback(() => setSelectedIds(new Set()), [])
 
   const handleBulkDelete = useCallback(async () => {
-    const catalogIds = []
-    const itIds = []
-    const mailboxIds = []
+    const catalogIds: any[] = []
+    const itIds: any[] = []
+    const mailboxIds: any[] = []
 
     for (const id of selectedIds) {
       const ev = events.find((e: any) => e.id === id)
@@ -167,7 +167,7 @@ export function AdminAllRequestsPage() {
     }
 
     try {
-      const promises = []
+      const promises: any[] = []
       if (catalogIds.length > 0) promises.push(deleteLoan.mutateAsync(catalogIds))
       if (itIds.length > 0) promises.push(deleteIt.mutateAsync(itIds))
       if (mailboxIds.length > 0) promises.push(deleteMail.mutateAsync(mailboxIds))

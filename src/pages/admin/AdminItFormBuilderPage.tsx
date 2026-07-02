@@ -199,7 +199,7 @@ export function AdminItFormBuilderPage() {
 
   // Group fields by step for display
   const groupedFields = useMemo(() => {
-    const groups = {}
+    const groups: Record<string, any> = {}
     for (const step of STEPS) {
       groups[step.value] = fields.filter((f: any) => f.step === step.value)
     }

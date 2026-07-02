@@ -14,7 +14,7 @@ function getMonthGrid(year: any, month: any) {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const startPad = (firstDay.getDay() + 6) % 7 // Monday = 0
-  const days = []
+  const days: any[] = []
 
   for (let i = 0; i < startPad; i++) {
     days.push(null)
@@ -35,7 +35,7 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
 
   const reservedByDate = useMemo(() => {
-    const map = {}
+    const map: Record<string, any> = {}
     for (const res of reservations) {
       const start = new Date(res.pickup_date)
       const end = new Date(res.return_date)

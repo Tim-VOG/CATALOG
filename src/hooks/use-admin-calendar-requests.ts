@@ -6,7 +6,7 @@ import { safeParse } from '@/hooks/use-calendar-requests'
 
 // ── Normalize ALL requests (admin-level, all users) into calendar events ──
 function normalizeAdminEvents(loanRequests: any, itRequests: any, mailboxRequests: any) {
-  const events = []
+  const events: any[] = []
 
   // Catalog / Loan requests
   for (const req of loanRequests) {

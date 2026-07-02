@@ -24,8 +24,8 @@ export function UserFmbPanel({ user  }: any) {
   const lowerEmail = (user?.email || '').toLowerCase()
 
   const { ledMailboxes, accessMailboxes } = useMemo(() => {
-    const led = []
-    const access = []
+    const led: any[] = []
+    const access: any[] = []
     if (!lowerName && !lowerEmail) return { ledMailboxes: led, accessMailboxes: access }
     for (const m of mailboxes) {
       const leader = (m.project_leader || '').toLowerCase()

@@ -10,7 +10,7 @@ function getMonthGrid(year: any, month: any) {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const startPad = (firstDay.getDay() + 6) % 7 // Monday = 0
-  const days = []
+  const days: any[] = []
 
   // Previous month padding
   for (let i = startPad - 1; i >= 0; i--) {

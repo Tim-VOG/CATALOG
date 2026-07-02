@@ -212,7 +212,7 @@ export function MyRequestsPage() {
   const isLoading = loansLoading || itLoading || mailboxLoading
 
   const allRequests = useMemo(() => {
-    const items = []
+    const items: any[] = []
     for (const r of loanRequests) items.push({ ...r, _type: 'equipment' })
     for (const r of itRequests) items.push({ ...r, _type: r.type || 'onboarding' })
     for (const r of mailboxRequests) items.push({ ...r, _type: 'mailbox' })
@@ -226,7 +226,7 @@ export function MyRequestsPage() {
   }, [allRequests, typeFilter])
 
   const typeCounts = useMemo(() => {
-    const counts = {}
+    const counts: Record<string, any> = {}
     for (const r of allRequests) counts[r._type] = (counts[r._type] || 0) + 1
     return counts
   }, [allRequests])

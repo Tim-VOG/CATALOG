@@ -149,7 +149,7 @@ export function AdminRequestDetailPage() {
   // an earlier session never showed up until the admin re-assigned them.
   useEffect(() => {
     if (!request?.id) return
-    const next = {}
+    const next: Record<string, any> = {}
     for (const qr of allQRCodes) {
       if (qr.loan_request_id !== request.id) continue
       const key = qr.loan_request_item_id
@@ -175,7 +175,7 @@ export function AdminRequestDetailPage() {
         // with quantity 2 becomes two rows, each carrying its own QR code.
         const assignments = items.flatMap((item: any) => {
           const qrs = assignedQRs[item.id] || []
-          const rows = []
+          const rows: any[] = []
           for (let i = 0; i < item.quantity; i++) {
             const qr = qrs[i]
             rows.push({
