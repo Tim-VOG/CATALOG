@@ -45,7 +45,7 @@ export function AdminItRequestsPage() {
   }, [requests, search, typeFilter])
 
   const typeCounts = useMemo(() => {
-    const counts = { all: requests.length }
+    const counts: Record<string, number> = { all: requests.length }
     for (const r of requests) {
       const t = r.type || 'it_request'
       counts[t] = (counts[t] || 0) + 1

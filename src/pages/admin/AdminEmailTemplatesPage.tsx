@@ -69,7 +69,7 @@ export function AdminEmailTemplatesPage() {
       request_type: 'equipment', product_name: 'MacBook Pro 16"',
       return_date: '15 Jun 2026',
     }
-    const resolved = body.replace(/\{\{(\w+)\}\}/g, (_, k) => sample[k] ?? `[${k}]`)
+    const resolved = body.replace(/\{\{(\w+)\}\}/g, (_: string, k: string) => (sample as any)[k] ?? `[${k}]`)
     const raw = /^\s*</.test(resolved)
     return wrapEmailHtml(resolved, {
       appName: settings?.app_name || 'VO Hub',

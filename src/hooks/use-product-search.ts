@@ -7,7 +7,7 @@ import { useProducts } from './use-products'
  * - Returns top N matches for a given query string.
  * - Used by the Header quick-search and can be shared with other pages.
  */
-export function useProductSearch(query, { limit = 6 } = {}) {
+export function useProductSearch(query: any, { limit = 6 }: any = {}) {
   const { data: products = [], isLoading } = useProducts()
 
   const results = useMemo(() => {

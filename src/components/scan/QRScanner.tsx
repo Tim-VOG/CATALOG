@@ -27,7 +27,7 @@ export function QRScanner({ onScan, scanning = true  }: any) {
             qrbox: { width: 250, height: 250 },
             aspectRatio: 1,
           },
-          (decodedText) => {
+          (decodedText: any) => {
             // Haptic feedback on successful scan
             if (navigator.vibrate) navigator.vibrate(100)
             // Short beep sound

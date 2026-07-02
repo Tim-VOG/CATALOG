@@ -353,7 +353,7 @@ function StepReview({ form, profile, allFields  }: any) {
         Please review the information below before submitting.
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
-        {rows.map(({ label, value }, idx) => (
+        {rows.map(({ label, value }: any, idx: any) => (
           <div
             key={label}
             className={`flex items-start gap-4 px-5 py-3 ${

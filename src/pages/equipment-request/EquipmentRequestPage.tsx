@@ -473,7 +473,7 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
     )
   }
   const filteredPlans = subscriptionPlans.filter(
-    (p) => filterType === 'all' || p.type === filterType || p.type === 'both'
+    (p: any) => filterType === 'all' || p.type === filterType || p.type === 'both'
   )
 
   return (

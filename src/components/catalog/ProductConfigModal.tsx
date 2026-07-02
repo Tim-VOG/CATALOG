@@ -13,7 +13,7 @@ export function ProductConfigModal({ product, subscriptionPlans, onConfirm, onCl
   })
 
   const filteredPlans = subscriptionPlans.filter(
-    (p) => p.type === options.subscriptionType || p.type === 'both'
+    (p: any) => p.type === options.subscriptionType || p.type === 'both'
   )
 
   return (

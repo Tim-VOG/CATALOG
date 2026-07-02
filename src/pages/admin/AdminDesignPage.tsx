@@ -293,7 +293,7 @@ export function AdminDesignPage() {
 
   // ── Handlers ────────────────────────────────
 
-  const handleLogoUpload = async (file, variant = '') => {
+  const handleLogoUpload = async (file: any, variant = '') => {
     if (!file) return
     if (!['image/png', 'image/svg+xml', 'image/jpeg', 'image/webp'].includes(file.type)) {
       showToast('Please upload a PNG, SVG, JPEG or WebP image', 'error')

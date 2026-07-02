@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react'
  *   const { items, hasMore, loadMore, reset, total } =
  *     usePaginated(filtered, 50)
  */
-export function usePaginated(allItems, pageSize = 50) {
+export function usePaginated(allItems: any, pageSize = 50) {
   const [visible, setVisible] = useState(pageSize)
 
   // Reset visible count when the underlying list shrinks below it

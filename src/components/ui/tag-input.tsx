@@ -17,7 +17,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
   const inputRef = useRef<any>(null)
 
   const addTags = useCallback(
-    (raw) => {
+    (raw: any) => {
       // Split on comma, semicolon, or newline, then trim & deduplicate
       const newTags = raw
         .split(/[,;\n]/)
@@ -31,7 +31,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
   )
 
   const removeTag = useCallback(
-    (index) => {
+    (index: any) => {
       onChange(value.filter((_: any, i: any) => i !== index))
     },
     [value, onChange],

@@ -32,7 +32,7 @@ export const STATUS_TRANSITIONS = {
   returned: [],
 }
 
-export function getAvailableTransitions(currentStatus: string) {
+export function getAvailableTransitions(currentStatus: any) {
   return (STATUS_TRANSITIONS as Record<string, any>)[currentStatus as keyof typeof STATUS_TRANSITIONS] || []
 }
 
