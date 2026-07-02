@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, createContext, useContext } from 'react'
 
-const LiveRegionContext = createContext(null)
+const LiveRegionContext = createContext<any>(null)
 
 /**
  * LiveRegionProvider — wraps the app and provides an `announce()` function

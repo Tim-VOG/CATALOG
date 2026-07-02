@@ -107,7 +107,7 @@ export function WelcomeRequestsPage() {
       } else {
         const updates: Record<string, any> = {}
         for (const key of ['first_name', 'last_name', 'email', 'personal_email', 'team', 'department', 'start_date', 'language']) {
-          if (payload[key] && payload[key] !== recipient[key]) updates[key] = payload[key]
+          if ((payload as any)[key] && (payload as any)[key] !== (recipient as any)[key]) (updates as any)[key] = (payload as any)[key]
         }
         if (Object.keys(updates).length > 0) {
           const updated = await updateRecipient.mutateAsync({ id: recipient.id, ...updates })

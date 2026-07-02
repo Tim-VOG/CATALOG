@@ -173,13 +173,13 @@ export function ProfilePage() {
                   Chat on Teams
                 </a>
               )}
-              {profile?.job_title && (
+              {!!profile?.job_title && (
                 <p className="text-sm flex items-center gap-1.5">
                   <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
                   {String(profile.job_title)}
                 </p>
               )}
-              {profile?.department && (
+              {!!profile?.department && (
                 <p className="text-sm flex items-center gap-1.5">
                   <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
                   {String(profile.department)}

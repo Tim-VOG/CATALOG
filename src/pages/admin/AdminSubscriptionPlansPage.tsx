@@ -14,17 +14,17 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { EmptyState } from '@/components/common/EmptyState'
 import { useUIStore } from '@/stores/ui-store'
 
-const typeLabel = (t: any) => ({ call: 'Call', data: 'Data', both: 'Call + Data' }[t] || t)
-const typeColor = (t: any) => ({
+const typeLabel = (t: any) => (({ call: 'Call', data: 'Data', both: 'Call + Data' } as Record<string, any>)[t] || t)
+const typeColor = (t: any) => (({
   call: 'bg-blue-500/20 text-blue-400',
   data: 'bg-purple-500/20 text-purple-400',
   both: 'bg-cyan-500/20 text-cyan-400',
-}[t] || '')
-const typeIcon = (t: any) => ({
+} as Record<string, any>)[t] || '')
+const typeIcon = (t: any) => (({
   call: PhoneCall,
   data: Wifi,
   both: Phone,
-}[t] || CreditCard)
+} as Record<string, any>)[t] || CreditCard)
 
 export function AdminSubscriptionPlansPage() {
   const { data: plans = [], isLoading } = useAllSubscriptionPlans()

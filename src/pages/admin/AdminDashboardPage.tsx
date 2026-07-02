@@ -122,7 +122,7 @@ function MaterialRow({ loan, now  }: any) {
   }[status]
   const dueText = !expected ? '—'
     : isOverdue
-      ? `${Math.abs(daysLeft)}j de retard`
+      ? `${Math.abs(daysLeft!)}j de retard`
       : daysLeft === 0
         ? `${hoursLeft}h`
         : daysLeft === 1

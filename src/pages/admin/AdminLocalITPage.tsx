@@ -65,7 +65,7 @@ export function AdminLocalITPage() {
 
   // Stats
   const stats = useMemo(() => {
-    const s = { total: allQR.length, available: 0, assigned: 0, reserved: 0, in_repair: 0, lost: 0 }
+    const s: Record<string, number> = { total: allQR.length, available: 0, assigned: 0, reserved: 0, in_repair: 0, lost: 0 }
     for (const qr of allQR) {
       const st = qr.status || 'available'
       if (s[st] !== undefined) s[st]++

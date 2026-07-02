@@ -656,7 +656,7 @@ export function EquipmentRequestPage() {
 
   // Group products by category name (case-insensitive matching)
   const productsByCategory = useMemo(() => {
-    const result = { pc: [], screen: [], tablet: [], phone: [] }
+    const result: Record<string, any[]> = { pc: [], screen: [], tablet: [], phone: [] }
     for (const product of allProducts) {
       const cat = (product.category_name || '').toLowerCase()
       if (cat.includes('screen') || cat.includes('monitor') || cat.includes('display')) {

@@ -54,7 +54,7 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const counts = useMemo(() => {
-    const c = { catalog: 0, it: 0, mailbox: 0 }
+    const c: Record<string, number> = { catalog: 0, it: 0, mailbox: 0 }
     for (const id of selectedIds) {
       const ev = events.find((e: any) => e.id === id)
       if (ev) c[ev.type] = (c[ev.type] || 0) + 1

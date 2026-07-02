@@ -121,7 +121,7 @@ export function AdminDeviceCredentialsPage() {
     }
     const choices = availableQrs.slice(0, 50).map((q: any, i: any) => `${i + 1}. ${q.code}`).join('\n')
     const pick = prompt(`Pick a QR code (number):\n\n${choices}`)
-    const idx = parseInt(pick, 10) - 1
+    const idx = parseInt(pick!, 10) - 1
     if (Number.isNaN(idx) || idx < 0 || idx >= availableQrs.length) return
     try {
       await createItem.mutateAsync({ qr_code_id: availableQrs[idx].id })

@@ -32,7 +32,7 @@ const monthDiff = (start: any, end: any) => {
  * Derive read-only financial columns from the stored row.
  * - Total leasing months = leasing_end - leasing_start
  * - Months elapsed = today - leasing_start (clamped 0..total)
- * - Amortised cumulative = price * (elapsed / total)
+ * - Amortised cumulative = price * ((elapsed || 0) / total)
  * - Remaining value = price - amortised
  * - Deductible amount = price * deductible_pct / 100
  */
@@ -43,7 +43,7 @@ function compute(row: any) {
   const elapsed = row.leasing_start
     ? Math.min(Math.max(0, monthDiff(row.leasing_start, new Date()) || 0), total || 0)
     : null
-  const amortised = total && total > 0 ? Math.min(price - residual, ((price - residual) * (elapsed / total))) : null
+  const amortised = total && total > 0 ? Math.min(price - residual, ((price - residual) * ((elapsed || 0) / total))) : null
   const remaining = price && amortised != null ? Math.max(0, price - amortised) : null
   const deductible = price * (Number(row.deductible_pct) || 0) / 100
   return { totalMonths: total, elapsed, amortised, remaining, deductible }

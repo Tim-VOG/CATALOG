@@ -67,7 +67,7 @@ export function AdminStatsPage() {
     const topRequested = Object.entries(productCounts as Record<string, any>).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5)
 
     // Requests by type
-    const byType = { equipment: loanReqs.length, onboarding: 0, offboarding: 0, mailbox: mailboxReqs.length }
+    const byType: Record<string, number> = { equipment: loanReqs.length, onboarding: 0, offboarding: 0, mailbox: mailboxReqs.length }
     for (const r of itReqs) {
       const t = r.type || 'it'
       if (byType[t] !== undefined) byType[t]++

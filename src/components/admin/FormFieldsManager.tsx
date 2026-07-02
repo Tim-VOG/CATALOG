@@ -164,7 +164,7 @@ export function FormFieldsManager() {
     const value = optionInput.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_')
     setForm({
       ...form,
-      options: [...form.options, { label: optionInput.trim(), value }],
+      options: [...form.options, { label: optionInput.trim(), value }] as any,
     })
     setOptionInput('')
   }

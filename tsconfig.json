@@ -15,11 +15,8 @@
     "skipLibCheck": true,
 
     "strict": true,
-    // TODO: re-enable these and clear the ~1100 cleanup errors in a follow-up.
-    // strict=true is on; we just relax the two flags that would otherwise gate
-    // most of the codebase until the typing pass is done.
-    "noImplicitAny": false,
-    "strictNullChecks": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
 
     "noUnusedLocals": false,

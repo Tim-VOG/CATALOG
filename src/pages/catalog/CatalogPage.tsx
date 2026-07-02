@@ -87,7 +87,7 @@ export function CatalogPage() {
   }, [qrCodes])
 
   const categoryCounts = useMemo(() => {
-    const counts = { All: products.length }
+    const counts: Record<string, number> = { All: products.length }
     for (const p of products) { counts[p.category_name || 'Other'] = (counts[p.category_name || 'Other'] || 0) + 1 }
     return counts
   }, [products])

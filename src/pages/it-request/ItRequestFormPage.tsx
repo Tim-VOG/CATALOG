@@ -477,7 +477,7 @@ export function ItRequestFormPage() {
       sendEmail({
         to: (user?.email || ""),
         subject: 'Your IT request has been received',
-        body: await buildConfirmationEmail({ name: submitterName, type: 'IT', detail: null }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'IT', detail: undefined }),
         isHtml: true,
       })
 
