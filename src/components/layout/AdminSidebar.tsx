@@ -54,29 +54,38 @@ export function AdminSidebar() {
       ],
     },
     {
+      // All the "someone submitted a request" flows in one place.
       label: 'Requests',
       defaultOpen: true,
       links: [
         { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
-        { to: '/admin/issues', label: 'Issues', icon: Wrench },
         { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
         { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
         { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
+        { to: '/admin/issues', label: 'Issues', icon: Wrench },
       ],
     },
     {
+      // The physical stock / catalog side: what we own and lend.
       label: 'Inventory',
       defaultOpen: false,
       links: [
-        { to: '/admin/local-it', label: 'Local IT', icon: Monitor },
-        { to: '/admin/it-inventory', label: 'IT Inventory', icon: ScrollText },
-        { to: '/admin/shared-mailboxes', label: 'Shared Mailboxes', icon: Mail },
         { to: '/admin/products', label: 'Products', icon: Package },
-        { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
+        { to: '/admin/it-inventory', label: 'IT Inventory', icon: ScrollText },
+        { to: '/admin/local-it', label: 'Local IT', icon: Monitor },
+        { to: '/admin/shared-mailboxes', label: 'Shared Mailboxes', icon: Mail },
         { to: '/admin/reservations', label: 'Reservations', icon: CalendarClock },
-        { to: '/admin/lost-items', label: 'Lost Items', icon: PackageSearch },
         { to: '/admin/device-credentials', label: 'Device Credentials', icon: KeyRound },
+      ],
+    },
+    {
+      // Everything QR / scanning / tracking of gear in the field.
+      label: 'QR & Tracking',
+      defaultOpen: false,
+      links: [
+        { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
         { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
+        { to: '/admin/lost-items', label: 'Lost Items', icon: PackageSearch },
       ],
     },
     {
