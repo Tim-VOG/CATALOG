@@ -353,14 +353,25 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           <Label>
             Company <span className="text-destructive ml-1">*</span>
           </Label>
-          <Select value={form.company} onChange={(e: any) => update('company', e.target.value)}>
-            <option value="">Select...</option>
-            {COMPANIES.map((c: any) => (
-              <option key={c} value={c}>
-                {(COMPANY_FULL_NAMES as Record<string, any>)[c] ? `${c} — ${(COMPANY_FULL_NAMES as Record<string, any>)[c]}` : c}
-              </option>
-            ))}
-          </Select>
+          {form.company ? (
+            // Locked after selection — the company drives the new hire's
+            // email domain, so we freeze it once chosen. "Change" re-opens it.
+            <div className="flex items-center gap-2">
+              <Input value={form.company} disabled readOnly className="bg-muted/40 cursor-not-allowed flex-1" />
+              <Button type="button" variant="ghost" size="sm" className="text-xs shrink-0" onClick={() => update('company', '')}>
+                Change
+              </Button>
+            </div>
+          ) : (
+            <Select value={form.company} onChange={(e: any) => update('company', e.target.value)}>
+              <option value="">Select...</option>
+              {COMPANIES.map((c: any) => (
+                <option key={c} value={c}>
+                  {(COMPANY_FULL_NAMES as Record<string, any>)[c] ? `${c} — ${(COMPANY_FULL_NAMES as Record<string, any>)[c]}` : c}
+                </option>
+              ))}
+            </Select>
+          )}
         </div>
       </div>
       <div className="space-y-2">

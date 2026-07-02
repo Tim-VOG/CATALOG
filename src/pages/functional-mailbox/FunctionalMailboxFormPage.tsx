@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateMailboxRequest } from '@/hooks/use-mailbox-requests'
 import { useMailboxFormFields } from '@/hooks/use-mailbox-form-fields'
+import { useBusinessUnits } from '@/hooks/use-business-units'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildConfirmationEmail } from '@/services/request-status-service'
@@ -242,8 +243,26 @@ function FileUploadField({ value, onChange, helpText  }: any) {
 }
 
 // ── Render a single dynamic field ──
-function DynamicField({ field, value, onChange  }: any) {
+function DynamicField({ field, value, onChange, emailDomain  }: any) {
   const options = Array.isArray(field.options) ? field.options : []
+
+  // Mailbox address: the part before @ is editable, the domain after @ is
+  // locked to the requester's business unit (can't be changed).
+  if (field.field_key === 'email_to_create' && emailDomain) {
+    const local = (value || '').split('@')[0]
+    return (
+      <div className="flex items-center rounded-lg border bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 transition-all overflow-hidden">
+        <input
+          value={local}
+          onChange={(e: any) => onChange(`${e.target.value.replace(/\s/g, '')}@${emailDomain}`)}
+          placeholder="name"
+          maxLength={20}
+          className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm outline-none"
+        />
+        <span className="shrink-0 px-3 py-2 text-sm text-muted-foreground border-l bg-muted/40 select-none">@{emailDomain}</span>
+      </div>
+    )
+  }
 
   switch (field.field_type) {
     case 'text':
@@ -369,7 +388,7 @@ function DynamicField({ field, value, onChange  }: any) {
 }
 
 // ── Dynamic step: renders all fields for a given step ──
-function DynamicFormStep({ fields, form, setField  }: any) {
+function DynamicFormStep({ fields, form, setField, emailDomain  }: any) {
   return (
     <div className="space-y-5">
       {fields.map((field: any) => {
@@ -396,6 +415,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
               field={field}
               value={value}
               onChange={handleChange}
+              emailDomain={emailDomain}
             />
             {field.help_text && field.field_type !== 'checkbox' && field.field_type !== 'file' && (
               <p className="text-[11px] text-muted-foreground">{field.help_text}</p>
@@ -509,7 +529,12 @@ export function FunctionalMailboxFormPage() {
   const { user, profile } = useAuth()
   const createRequest = useCreateMailboxRequest()
   const { data: formFields = [], isLoading: fieldsLoading } = useMailboxFormFields()
+  const { data: businessUnits = [] } = useBusinessUnits()
   const showToast = useUIStore((s: any) => s.showToast)
+
+  // The mailbox address domain is locked to the requester's own business
+  // unit (from their profile). Empty → the email field stays free-text.
+  const emailDomain = businessUnits.find((bu: any) => bu.value === profile?.business_unit)?.domain || ''
 
   const [currentStep, setCurrentStep] = useState(0)
   const [form, setForm] = useState<any>({
@@ -693,6 +718,7 @@ export function FunctionalMailboxFormPage() {
                   fields={fieldsByStep[currentStepDef.id] || []}
                   form={form}
                   setField={setField}
+                  emailDomain={emailDomain}
                 />
               )}
             </motion.div>
