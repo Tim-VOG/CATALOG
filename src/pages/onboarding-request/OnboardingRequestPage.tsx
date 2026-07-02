@@ -5,7 +5,6 @@ import { useCreateItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
-import { notifyRecipients } from '@/lib/api/notify-recipients'
 import { buildConfirmationEmail, buildConfirmationSubject } from '@/services/request-status-service'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useUIStore } from '@/stores/ui-store'
@@ -801,41 +800,6 @@ export function OnboardingRequestPage() {
         subject: await buildConfirmationSubject({ type: 'onboarding', newHireName: fullName }),
         body: await buildConfirmationEmail({ name: submitterName, type: 'onboarding', newHireName: fullName, detail: fullName }),
         isHtml: true,
-      })
-
-      // 4. Notify admin
-      sendEmail({
-        to: 'admin@vo-group.be',
-        subject: `New Onboarding Request: ${fullName}`,
-        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an onboarding request:
-          <ul>
-            <li><strong>Name:</strong> ${fullName}</li>
-            <li><strong>Mail to be created:</strong> ${fullEmail || '—'}</li>
-            <li><strong>Profile:</strong> ${form.profile}</li>
-            <li><strong>Company:</strong> ${form.company}</li>
-            <li><strong>Job Title:</strong> ${form.job_title || '—'}</li>
-            <li><strong>Project / Mission:</strong> ${form.project_name || '—'}</li>
-            <li><strong>Language:</strong> ${form.language || '—'}</li>
-            <li><strong>Country:</strong> ${form.country_based || '—'}</li>
-            <li><strong>Entry Date:</strong> ${form.first_day}</li>
-            <li><strong>Exit Date:</strong> ${form.last_day || '—'}</li>
-            <li><strong>Access:</strong> ${Array.isArray(form.what_access) ? form.what_access.join(', ') : '—'}</li>
-            <li><strong>Folder Access:</strong> ${form.which_folders || '—'}</li>
-            <li><strong>Emailing list:</strong> ${Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '—'}</li>
-            <li><strong>Internal Newsletter:</strong> ${form.internal_newsletter === true ? 'Yes' : form.internal_newsletter === false ? 'No' : '—'}</li>
-            <li><strong>Welcome Interview:</strong> ${form.welcome_interview === true ? 'Yes' : form.welcome_interview === false ? 'No' : '—'}</li>
-          </ul>`, { ...(await getEmailBranding()), raw: true }),
-        isHtml: true,
-      })
-
-      notifyRecipients({
-        kind: 'onboarding',
-        event: 'new_request',
-        submitter: submitterName,
-        subject: fullName,
-        detail: [form.company, form.job_title, form.first_day && `starts ${form.first_day}`]
-          .filter(Boolean)
-          .join(' · ') || null,
       })
 
       navigate('/')

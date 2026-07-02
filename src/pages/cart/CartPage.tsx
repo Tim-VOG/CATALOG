@@ -279,13 +279,6 @@ export function CartPage() {
         body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
         isHtml: true,
       })
-      sendEmail({
-        to: 'admin@vo-group.be',
-        subject: `New Equipment Request from ${submitterName}`,
-        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an equipment request: <strong>${projectName || 'Equipment'}</strong> (${totalItems} items). Please review it in the admin panel.`, await getEmailBranding()),
-        isHtml: true,
-      })
-
       navigate('/my-requests')
       setTimeout(() => showToast('Request submitted successfully!'), 100)
     } catch (err: any) {

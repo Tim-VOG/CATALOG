@@ -1,16 +1,7 @@
 import { sendEmail } from '@/lib/api/send-email'
-import { notifyRecipients, type RequestKind } from '@/lib/api/notify-recipients'
 import { supabase } from '@/lib/supabase'
 import { wrapEmailHtml, generateItemsHtml, getEmailBranding } from '@/lib/email-html'
 import { getEmailTemplateByKey } from '@/lib/api/email-templates'
-
-function toRequestKind(requestType: string): RequestKind {
-  if (requestType === 'onboarding') return 'onboarding'
-  if (requestType === 'offboarding') return 'offboarding'
-  if (requestType === 'mailbox') return 'mailbox'
-  if (requestType === 'equipment') return 'equipment'
-  return 'it'
-}
 
 export async function createNotification(userId: any, title: string, message: string, type = 'status_change') {
   if (!userId) return
@@ -224,34 +215,6 @@ export async function sendStatusChangeEmail(newStatus: any, { request, requestTy
     ? `Your ${requestType} request is being prepared by the IT team.`
     : `Your ${requestType} request is ready! Come pick it up at the IT desk.`
   createNotification(userId, notifTitle, notifMsg)
-
-  // Fan-out to configured notification_recipients (notify_on_status_change).
-  notifyRecipients({
-    kind: toRequestKind(requestType),
-    event: 'status_change',
-    submitter: name,
-    subject: subjectNameFor(request, requestType),
-    detail: `New status: ${newStatus.replace('_', ' ')}`,
-  })
-}
-
-/**
- * Fire-and-forget: notify recipients when an equipment loan is returned.
- * Called from the QR-scan / admin "mark returned" flow.
- */
-export function notifyReturnRecipients(opts: {
-  requestType?: string
-  submitter?: string | null
-  subject?: string | null
-  detail?: string | null
-}) {
-  notifyRecipients({
-    kind: toRequestKind(opts.requestType ?? 'equipment'),
-    event: 'return',
-    submitter: opts.submitter ?? null,
-    subject: opts.subject ?? null,
-    detail: opts.detail ?? null,
-  })
 }
 
 

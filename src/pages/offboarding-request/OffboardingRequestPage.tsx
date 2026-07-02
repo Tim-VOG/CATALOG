@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
-import { notifyRecipients } from '@/lib/api/notify-recipients'
 import { buildConfirmationEmail } from '@/services/request-status-service'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { useUserEquipmentFor } from '@/hooks/use-user-equipment'
@@ -615,24 +614,6 @@ export function OffboardingRequestPage() {
         subject: 'Your offboarding request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name }),
         isHtml: true,
-      })
-
-      // Notify admin
-      sendEmail({
-        to: 'admin@vo-group.be',
-        subject: `Offboarding Request: ${form.name || 'Unknown'}`,
-        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted an offboarding request for <strong>${form.name}</strong> (${form.company}).<br><br>Departure date: ${form.departure_on}<br><br>Please review it in the admin panel.`, await getEmailBranding()),
-        isHtml: true,
-      })
-
-      notifyRecipients({
-        kind: 'offboarding',
-        event: 'new_request',
-        submitter: submitterName,
-        subject: form.name || null,
-        detail: [form.company, form.departure_on && `leaves ${form.departure_on}`]
-          .filter(Boolean)
-          .join(' · ') || null,
       })
 
       navigate('/')

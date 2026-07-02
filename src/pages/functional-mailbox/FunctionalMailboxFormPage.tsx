@@ -5,7 +5,6 @@ import { useCreateMailboxRequest } from '@/hooks/use-mailbox-requests'
 import { useMailboxFormFields } from '@/hooks/use-mailbox-form-fields'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
-import { notifyRecipients } from '@/lib/api/notify-recipients'
 import { buildConfirmationEmail } from '@/services/request-status-service'
 import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import { supabase } from '@/lib/supabase'
@@ -626,22 +625,6 @@ export function FunctionalMailboxFormPage() {
         to: (user?.email || ""),
         subject: 'Your mailbox request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name }),
-        isHtml: true,
-      })
-
-      notifyRecipients({
-        kind: 'mailbox',
-        event: 'new_request',
-        submitter: submitterName,
-        subject: form.email_to_create || form.project_name || null,
-        detail: form.project_leader ? `Project leader: ${form.project_leader}` : null,
-      })
-
-      // Notify admin
-      sendEmail({
-        to: 'admin@vo-group.be',
-        subject: `Mailbox Request: ${form.email_to_create || form.project_name}`,
-        body: wrapEmailHtml(`<strong>${submitterName}</strong> submitted a mailbox request. Please review it in the admin panel.`, await getEmailBranding()),
         isHtml: true,
       })
 
