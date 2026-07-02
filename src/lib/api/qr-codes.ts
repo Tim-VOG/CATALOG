@@ -171,6 +171,29 @@ export const processQRScan = async ({ code, action, userId, userEmail, userName,
         assigned_to_email: null,
         assigned_at: null,
       }).eq('id', qr.id)
+
+      // Scan-driven return: if this physical unit belongs to a loan request,
+      // close that request as soon as every unit tied to it is back in stock.
+      // The manual "Mark returned" button stays as a fallback for when a QR
+      // is lost/damaged and can't be scanned.
+      if (qr.loan_request_id) {
+        try {
+          const { data: siblings } = await supabase
+            .from('qr_codes')
+            .select('status')
+            .eq('loan_request_id', qr.loan_request_id)
+          const allBack = (siblings || []).every((s: any) => (s.status || 'available') === 'available')
+          if (allBack) {
+            await supabase
+              .from('loan_requests')
+              .update({ status: 'returned' })
+              .eq('id', qr.loan_request_id)
+              .neq('status', 'returned')
+          }
+        } catch (e) {
+          console.warn('[processQRScan] could not auto-close loan request', e)
+        }
+      }
     }
   }
 
