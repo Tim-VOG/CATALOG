@@ -464,7 +464,7 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
     zIndex: isDragging ? 50 : 'auto',
   }
 
-  const colors = BLOCK_COLORS[block.block_key] || DEFAULT_COLOR
+  const colors = (BLOCK_COLORS as Record<string, any>)[block.block_key] || DEFAULT_COLOR
   const BlockIcon = getIcon(blockTemplate?.icon)
   const label = language === 'fr' ? blockTemplate?.label_fr : blockTemplate?.label_en
   const content = language === 'fr' ? block.content_fr : block.content_en

@@ -117,7 +117,7 @@ export function AdminReservationsPage() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-medium">{r.reserved_date ? format(new Date(r.reserved_date), 'd MMM yyyy', { locale: fr }) : '—'}</p>
-                  <Badge variant="outline" className={cn('text-[10px] mt-0.5', STATUS_STYLE[r.status])}>{r.status.replace('_', ' ')}</Badge>
+                  <Badge variant="outline" className={cn('text-[10px] mt-0.5', (STATUS_STYLE as Record<string, any>)[r.status])}>{r.status.replace('_', ' ')}</Badge>
                 </div>
                 {r.status === 'active' && (
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0" onClick={() => handleCancel(r.id)} title="Cancel">

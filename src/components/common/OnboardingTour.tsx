@@ -203,7 +203,7 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
     setStep(i)
   }
 
-  const currentStep = STEPS[step]
+  const currentStep = (STEPS as Record<string, any>)[step]
   const isLast = step === STEPS.length - 1
 
   const slideVariants = {

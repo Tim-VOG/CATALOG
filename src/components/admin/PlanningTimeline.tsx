@@ -194,7 +194,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
         {Object.entries(STATUS_COLORS as Record<string, any>).map(([status, color]) => (
           <div key={status} className="flex items-center gap-2">
             <div className={cn('h-3 w-3 rounded-full', color)} />
-            <span className="text-muted-foreground font-medium">{STATUS_LABELS[status]}</span>
+            <span className="text-muted-foreground font-medium">{(STATUS_LABELS as Record<string, any>)[status]}</span>
           </div>
         ))}
       </div>
@@ -272,7 +272,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
                     {/* Reservation bars */}
                     {row.reservations.map((res: any, i: any) => {
                       const barStyle = getBarStyle(res.pickup_date, res.return_date)
-                      const statusColor = STATUS_COLORS[res.request_status] || STATUS_COLORS.pending
+                      const statusColor = (STATUS_COLORS as Record<string, any>)[res.request_status] || STATUS_COLORS.pending
 
                       return (
                         <Link

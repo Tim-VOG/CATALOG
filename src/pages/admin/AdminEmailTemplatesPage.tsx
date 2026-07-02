@@ -160,8 +160,8 @@ export function AdminEmailTemplatesPage() {
                   </div>
 
                   {cat.templates.map((template: any) => {
-                    const icon = TEMPLATE_ICONS[template.template_key] || '📧'
-                    const desc = template.description || TEMPLATE_DESCRIPTIONS[template.template_key] || ''
+                    const icon = (TEMPLATE_ICONS as Record<string, any>)[template.template_key] || '📧'
+                    const desc = template.description || (TEMPLATE_DESCRIPTIONS as Record<string, any>)[template.template_key] || ''
                     return (
                       <Card key={template.id} className="hover:shadow-md transition-shadow">
                         <CardContent className="p-5">

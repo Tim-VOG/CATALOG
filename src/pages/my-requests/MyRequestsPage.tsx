@@ -150,7 +150,7 @@ function RequestDataRows({ request  }: any) {
 }
 
 function RequestCard({ request, type, onOpen  }: any) {
-  const config = TYPE_CONFIG[type] || TYPE_CONFIG.equipment
+  const config = (TYPE_CONFIG as Record<string, any>)[type] || TYPE_CONFIG.equipment
   const TypeIcon = config.icon
   const data = request.data || {}
 
@@ -274,7 +274,7 @@ export function MyRequestsPage() {
   if (isLoading) return <PageLoading />
 
   const canCancel = detail && detail.status === 'pending'
-  const detailType = detail ? (TYPE_CONFIG[detail._type] || TYPE_CONFIG.equipment) : null
+  const detailType = detail ? ((TYPE_CONFIG as Record<string, any>)[detail._type] || TYPE_CONFIG.equipment) : null
   const detailTitle = detail
     ? (detail._type === 'equipment'
         ? (detail.project_name || 'Equipment Request')

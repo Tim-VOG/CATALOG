@@ -151,7 +151,7 @@ export function AdminItRequestsPage() {
               equipment: { icon: Package, bg: 'bg-primary/10', color: 'text-primary' },
               it_request: { icon: ClipboardList, bg: 'bg-amber-500/10', color: 'text-amber-500' },
             }
-            const style = TYPE_STYLES[reqType] || TYPE_STYLES.it_request
+            const style = (TYPE_STYLES as Record<string, any>)[reqType] || TYPE_STYLES.it_request
             const TypeIcon = style.icon
 
             return (

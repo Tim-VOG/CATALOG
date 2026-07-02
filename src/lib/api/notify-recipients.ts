@@ -34,14 +34,14 @@ const EVENT_VERB: Record<NotificationEvent, string> = {
 }
 
 function buildSubject({ kind, event, subject }: NotifyArgs): string {
-  const label = KIND_LABEL[kind]
-  const verb = EVENT_VERB[event]
+  const label = (KIND_LABEL as Record<string, any>)[kind]
+  const verb = (EVENT_VERB as Record<string, any>)[event]
   return subject ? `[VO Hub] ${label} ${verb}: ${subject}` : `[VO Hub] ${label} ${verb}`
 }
 
 function buildBody({ kind, event, submitter, subject, detail }: NotifyArgs): string {
   const lines: string[] = []
-  lines.push(`<p>A ${KIND_LABEL[kind].toLowerCase()} was just ${EVENT_VERB[event]} in VO Hub.</p>`)
+  lines.push(`<p>A ${(KIND_LABEL as Record<string, any>)[kind].toLowerCase()} was just ${(EVENT_VERB as Record<string, any>)[event]} in VO Hub.</p>`)
   if (subject) lines.push(`<p><strong>${subject}</strong></p>`)
   if (submitter) lines.push(`<p><span style="color:#666">Submitted by:</span> ${submitter}</p>`)
   if (detail) lines.push(`<p style="color:#444">${detail}</p>`)

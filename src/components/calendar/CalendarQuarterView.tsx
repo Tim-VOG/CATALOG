@@ -88,7 +88,7 @@ function MiniMonth({ monthDate, eventsMap, onDayClick  }: any) {
                   {[...types].slice(0, 3).map((type: any) => (
                     <span
                       key={type}
-                      className={cn('h-1 w-1 rounded-full', TYPE_DOTS[type] || 'bg-primary')}
+                      className={cn('h-1 w-1 rounded-full', (TYPE_DOTS as Record<string, any>)[type] || 'bg-primary')}
                     />
                   ))}
                 </div>

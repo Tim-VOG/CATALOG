@@ -26,7 +26,7 @@ export function Breadcrumb({ items, className  }: any) {
     let path = ''
     for (const seg of segments) {
       path += `/${seg}`
-      const label = ROUTE_LABELS[seg] || seg.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      const label = (ROUTE_LABELS as Record<string, any>)[seg] || seg.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
       auto.push({ label, to: path })
     }
     return auto

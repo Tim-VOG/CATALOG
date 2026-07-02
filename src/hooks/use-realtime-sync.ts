@@ -29,7 +29,7 @@ export function useRealtimeSync() {
     const channel = supabase.channel('vo-hub-realtime')
 
     const invalidate = (table: string) => {
-      for (const key of TABLE_KEYS[table] || []) {
+      for (const key of (TABLE_KEYS as Record<string, any>)[table] || []) {
         qc.invalidateQueries({ queryKey: key })
       }
     }

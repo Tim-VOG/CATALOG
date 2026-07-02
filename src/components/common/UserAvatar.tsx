@@ -41,9 +41,9 @@ export function UserAvatar({
     '?'
 
   return (
-    <Avatar className={cn(SIZES[size] || SIZES.md, className)}>
+    <Avatar className={cn((SIZES as Record<string, any>)[size] || SIZES.md, className)}>
       {avatarUrl && <AvatarImage src={avatarUrl} alt={`${firstName || ''} ${lastName || ''}`.trim() || 'Avatar'} />}
-      <AvatarFallback className={cn(SIZES[size] || SIZES.md)}>{initials}</AvatarFallback>
+      <AvatarFallback className={cn((SIZES as Record<string, any>)[size] || SIZES.md)}>{initials}</AvatarFallback>
     </Avatar>
   )
 }

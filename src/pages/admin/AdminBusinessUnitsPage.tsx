@@ -156,7 +156,7 @@ export function AdminBusinessUnitsPage() {
                       {unit.domain}
                     </Badge>
                     <Badge className="text-[10px] bg-muted/50 text-muted-foreground">
-                      {PATTERN_EXAMPLE[unit.email_pattern]}
+                      {(PATTERN_EXAMPLE as Record<string, any>)[unit.email_pattern]}
                     </Badge>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">

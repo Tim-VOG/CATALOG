@@ -57,7 +57,7 @@ export function UserFmbPanel({ user  }: any) {
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-medium truncate">{m.name}</span>
           {m.category && (
-            <Badge variant="outline" className={`text-[10px] ${CAT_COLORS[m.category] || ''}`}>
+            <Badge variant="outline" className={`text-[10px] ${(CAT_COLORS as Record<string, any>)[m.category] || ''}`}>
               {m.category}
             </Badge>
           )}

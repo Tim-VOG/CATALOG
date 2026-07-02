@@ -145,7 +145,7 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
                 'relative w-full max-h-[85vh] overflow-y-auto pointer-events-auto',
                 'bg-card shadow-2xl',
                 'rounded-2xl p-6',
-                DIALOG_SIZES[size] || DIALOG_SIZES.default,
+                (DIALOG_SIZES as Record<string, any>)[size] || DIALOG_SIZES.default,
                 className
               )}
               onClick={(e: any) => e.stopPropagation()}

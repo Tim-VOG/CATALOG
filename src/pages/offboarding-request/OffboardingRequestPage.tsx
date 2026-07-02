@@ -565,7 +565,7 @@ export function OffboardingRequestPage() {
 
   // Validation per step
   const canGoNext = () => {
-    const step = STEPS[currentStep]
+    const step = (STEPS as Record<string, any>)[currentStep]
     switch (step.id) {
       case 'who':
         return !!form.name.trim() && !!form.company
@@ -635,7 +635,7 @@ export function OffboardingRequestPage() {
     }
   }
 
-  const currentStepDef = STEPS[currentStep]
+  const currentStepDef = (STEPS as Record<string, any>)[currentStep]
   const isReview = currentStepDef.id === 'review'
 
   return (

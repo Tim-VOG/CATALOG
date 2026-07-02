@@ -688,7 +688,7 @@ export function EquipmentRequestPage() {
 
   // Validation per step
   const canGoNext = useMemo(() => {
-    const step = STEP_DEFS[currentStep]
+    const step = (STEP_DEFS as Record<string, any>)[currentStep]
     if (!step) return true
 
     switch (step.id) {
@@ -770,7 +770,7 @@ export function EquipmentRequestPage() {
     setSubmitting(false)
   }
 
-  const currentStepDef = STEP_DEFS[currentStep]
+  const currentStepDef = (STEP_DEFS as Record<string, any>)[currentStep]
   const isReview = currentStepDef?.id === 'review'
 
   return (

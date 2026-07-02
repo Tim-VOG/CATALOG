@@ -74,7 +74,7 @@ export function OffboardingChecklist({ req }: { req: any }) {
           {Object.entries(grouped).map(([step, items]) => (
             <div key={step}>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1.5">
-                {STEP_LABELS[step] || step}
+                {(STEP_LABELS as Record<string, any>)[step] || step}
               </p>
               <div className="space-y-1">
                 {items.map((t: any) => {

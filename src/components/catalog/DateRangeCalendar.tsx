@@ -115,7 +115,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
           <ChevronLeft className="h-3.5 w-3.5" />
         </Button>
         <span className="font-semibold text-xs">
-          {MONTHS[currentMonth]} {currentYear}
+          {(MONTHS as Record<string, any>)[currentMonth]} {currentYear}
         </span>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth} aria-label="Next month">
           <ChevronRight className="h-3.5 w-3.5" />

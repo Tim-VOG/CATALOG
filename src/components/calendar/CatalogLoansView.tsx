@@ -324,7 +324,7 @@ export function CatalogLoansView({ events  }: any) {
       <div className="flex flex-wrap items-center gap-1.5">
         {STATUS_PILLS.map((status: any) => {
           const isActive = statusFilter.includes(status)
-          const barColor = STATUS_COLORS[status] || ''
+          const barColor = (STATUS_COLORS as Record<string, any>)[status] || ''
           return (
             <button
               key={status}
@@ -337,7 +337,7 @@ export function CatalogLoansView({ events  }: any) {
               )}
             >
               <span className={cn('h-2 w-2 rounded-full', barColor.split(' ')[0])} />
-              {STATUS_LABELS[status]}
+              {(STATUS_LABELS as Record<string, any>)[status]}
             </button>
           )
         })}
@@ -362,7 +362,7 @@ export function CatalogLoansView({ events  }: any) {
           {Object.entries(STATUS_COLORS as Record<string, any>).map(([status, color]) => (
             <div key={status} className="flex items-center gap-2">
               <div className={cn('h-2.5 w-2.5 rounded-full', color.split(' ')[0])} />
-              <span className="text-muted-foreground font-medium">{STATUS_LABELS[status]}</span>
+              <span className="text-muted-foreground font-medium">{(STATUS_LABELS as Record<string, any>)[status]}</span>
             </div>
           ))}
         </div>
@@ -447,7 +447,7 @@ export function CatalogLoansView({ events  }: any) {
                       {/* Reservation bars — person names on bars */}
                       {row.reservations.map((item: any, i: any) => {
                         const barStyle = getBarStyle(item.startDate, item.endDate)
-                        const statusColor = STATUS_COLORS[item.status] || STATUS_COLORS.pending
+                        const statusColor = (STATUS_COLORS as Record<string, any>)[item.status] || STATUS_COLORS.pending
 
                         return (
                           <Link

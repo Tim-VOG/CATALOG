@@ -139,10 +139,10 @@ function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  
                 {field.is_system && (
                   <Lock className="h-3 w-3 text-muted-foreground/50" />
                 )}
-                <Badge variant="outline" className={cn('text-[10px]', TYPE_COLORS[field.field_type] || '')}>
+                <Badge variant="outline" className={cn('text-[10px]', (TYPE_COLORS as Record<string, any>)[field.field_type] || '')}>
                   {field.field_type.replace('_', ' ')}
                 </Badge>
-                <Badge variant="outline" className={cn('text-[10px]', STEP_COLORS[field.step] || '')}>
+                <Badge variant="outline" className={cn('text-[10px]', (STEP_COLORS as Record<string, any>)[field.step] || '')}>
                   {STEPS.find((s: any) => s.value === field.step)?.label || field.step}
                 </Badge>
                 {field.is_required && (

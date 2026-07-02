@@ -90,7 +90,7 @@ const BLOCK_THEME: Record<string, BlockTheme> = {
  */
 function getSectionLabel(block: any, language: string): string {
   const opts = block.options || {}
-  const theme = BLOCK_THEME[block.block_key] || { label_fr: 'Bloc', label_en: 'Block' }
+  const theme = (BLOCK_THEME as Record<string, any>)[block.block_key] || { label_fr: 'Bloc', label_en: 'Block' }
 
   // Per-block override from admin UI
   if (language === 'fr' && opts.section_label_fr) return opts.section_label_fr
@@ -108,7 +108,7 @@ function buildBlockMjml(block: any, language: string, vars: Record<string, any>,
 
   const rendered = substituteVars(content, vars)
   const opts = block.options || {}
-  const theme = BLOCK_THEME[block.block_key] || { emoji: '&#x1F4DD;', color: '#64748b', label_fr: 'Bloc', label_en: 'Block' }
+  const theme = (BLOCK_THEME as Record<string, any>)[block.block_key] || { emoji: '&#x1F4DD;', color: '#64748b', label_fr: 'Bloc', label_en: 'Block' }
   const sectionLabel = getSectionLabel(block, language)
 
   // Special handling: salutation block — hero greeting, no card wrapper

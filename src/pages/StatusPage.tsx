@@ -95,7 +95,7 @@ export function StatusPage() {
     : checks.some((c: any) => c.status === 'degraded' || c.status === 'pending') ? 'degraded'
     : 'ok'
 
-  const heroStyle = STATUS_STYLES[overall]
+  const heroStyle = (STATUS_STYLES as Record<string, any>)[overall]
   const HeroIcon = heroStyle.icon
 
   return (
@@ -137,7 +137,7 @@ export function StatusPage() {
         {/* Individual checks */}
         <div className="space-y-2">
           {checks.map((c: any) => {
-            const style = STATUS_STYLES[c.status]
+            const style = (STATUS_STYLES as Record<string, any>)[c.status]
             const Icon = style.icon
             return (
               <div key={c.key} className="rounded-xl border border-border/50 bg-card/40 p-4 flex items-center gap-3">
@@ -150,7 +150,7 @@ export function StatusPage() {
                   {c.message && <p className="text-[11px] text-rose-500 truncate mt-0.5">{c.message}</p>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className={cn('text-xs font-medium', style.color)}>{STATUS_LABEL[c.status]}</p>
+                  <p className={cn('text-xs font-medium', style.color)}>{(STATUS_LABEL as Record<string, any>)[c.status]}</p>
                   {c.latencyMs != null && (
                     <p className="text-[10px] text-muted-foreground tabular-nums mt-0.5">{c.latencyMs} ms</p>
                   )}

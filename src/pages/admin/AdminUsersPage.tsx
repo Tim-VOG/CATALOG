@@ -431,7 +431,7 @@ export function AdminUsersPage() {
                   <TableCell>
                     {isSelf ? (
                       (() => {
-                        const opt = ROLE_OPTIONS.find((r: any) => r.value === p.role) || ROLE_OPTIONS[0]
+                        const opt = ROLE_OPTIONS.find((r: any) => r.value === p.role) || (ROLE_OPTIONS as Record<string, any>)[0]
                         return <Badge className={opt.color}>{opt.label}</Badge>
                       })()
                     ) : (

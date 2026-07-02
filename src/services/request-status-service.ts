@@ -33,7 +33,7 @@ export const STATUS_TRANSITIONS = {
 }
 
 export function getAvailableTransitions(currentStatus: string) {
-  return STATUS_TRANSITIONS[currentStatus as keyof typeof STATUS_TRANSITIONS] || []
+  return (STATUS_TRANSITIONS as Record<string, any>)[currentStatus as keyof typeof STATUS_TRANSITIONS] || []
 }
 
 // ── Hardcoded fallbacks (used if DB template is unavailable) ──
@@ -80,7 +80,7 @@ function substitute(text: string, vars: Record<string, any>) {
 export async function renderTemplate(key: string, vars: Record<string, any>) {
   let tmpl = null
   try { tmpl = await getEmailTemplateByKey(key) } catch {}
-  const source = tmpl || FALLBACK_TEMPLATES[key as keyof typeof FALLBACK_TEMPLATES] || { subject: '', body: '' }
+  const source = tmpl || (FALLBACK_TEMPLATES as Record<string, any>)[key as keyof typeof FALLBACK_TEMPLATES] || { subject: '', body: '' }
   return {
     subject: substitute(source.subject, vars),
     body: substitute(source.body, vars),

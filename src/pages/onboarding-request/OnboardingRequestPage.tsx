@@ -62,7 +62,7 @@ const COMPANY_DOMAINS = {
   'VO LAB': 'vo-lab.be',
 }
 const DEFAULT_DOMAIN = 'vo-group.be'
-const domainForCompany = (company: any) => COMPANY_DOMAINS[company] || DEFAULT_DOMAIN
+const domainForCompany = (company: any) => (COMPANY_DOMAINS as Record<string, any>)[company] || DEFAULT_DOMAIN
 
 const LANGUAGES = ['EN', 'FR', 'NL']
 
@@ -157,7 +157,7 @@ const DISTRIBUTION_LIST_INFO = {
 }
 
 const distributionListsFor = (company: any) => {
-  const extra = DISTRIBUTION_LISTS_BY_COMPANY[company] || []
+  const extra = (DISTRIBUTION_LISTS_BY_COMPANY as Record<string, any>)[company] || []
   return [...new Set([...DISTRIBUTION_LISTS_GLOBAL, ...extra])]
 }
 
@@ -358,7 +358,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
             <option value="">Select...</option>
             {COMPANIES.map((c: any) => (
               <option key={c} value={c}>
-                {COMPANY_FULL_NAMES[c] ? `${c} — ${COMPANY_FULL_NAMES[c]}` : c}
+                {(COMPANY_FULL_NAMES as Record<string, any>)[c] ? `${c} — ${(COMPANY_FULL_NAMES as Record<string, any>)[c]}` : c}
               </option>
             ))}
           </Select>

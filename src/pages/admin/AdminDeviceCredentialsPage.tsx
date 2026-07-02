@@ -268,7 +268,7 @@ export function AdminDeviceCredentialsPage() {
                   </td>
                   <td className="px-2 py-1.5 align-middle">
                     {r.qr_code?.status && (
-                      <Badge variant="outline" className={cn('text-[10px]', STATUS_COLORS[r.qr_code.status])}>
+                      <Badge variant="outline" className={cn('text-[10px]', (STATUS_COLORS as Record<string, any>)[r.qr_code.status])}>
                         {r.qr_code.status}
                       </Badge>
                     )}

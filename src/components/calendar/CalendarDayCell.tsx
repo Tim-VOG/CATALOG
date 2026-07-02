@@ -114,11 +114,11 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
         {showLabels && labelEvents.length > 0 && (
           <div className="hidden sm:flex flex-col gap-px w-full">
             {labelEvents.map((ev: any) => {
-              const Icon = TYPE_ICONS[ev.type] || Package
+              const Icon = (TYPE_ICONS as Record<string, any>)[ev.type] || Package
               return (
                 <div key={ev.id} className="flex items-center gap-0.5 px-0.5 truncate">
-                  <Icon className={cn('h-2.5 w-2.5 shrink-0', TYPE_COLORS[ev.type] || 'text-primary')} />
-                  <span className={cn('text-[8px] leading-tight truncate font-medium', TYPE_COLORS[ev.type] || 'text-primary')}>
+                  <Icon className={cn('h-2.5 w-2.5 shrink-0', (TYPE_COLORS as Record<string, any>)[ev.type] || 'text-primary')} />
+                  <span className={cn('text-[8px] leading-tight truncate font-medium', (TYPE_COLORS as Record<string, any>)[ev.type] || 'text-primary')}>
                     {ev.title}
                   </span>
                 </div>
@@ -140,7 +140,7 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
               key={event.id}
               className={cn(
                 'h-1 sm:h-1.5 w-full',
-                TYPE_BARS[event.type] || 'bg-primary/50',
+                (TYPE_BARS as Record<string, any>)[event.type] || 'bg-primary/50',
                 position === 'start' && 'rounded-l-full pl-0.5',
                 position === 'end' && 'rounded-r-full pr-0.5',
                 position === 'single' && 'rounded-full mx-1',
@@ -153,13 +153,13 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
           {dotEvents.length > 0 && (
             <div className="flex items-center gap-0.5 mt-0.5">
               {dotEvents.slice(0, 3).map((ev: any) => {
-                const Icon = TYPE_ICONS[ev.type] || Package
+                const Icon = (TYPE_ICONS as Record<string, any>)[ev.type] || Package
                 return (
                   <Icon
                     key={ev.id}
                     className={cn(
                       'h-2.5 w-2.5 sm:h-3 sm:w-3',
-                      TYPE_COLORS[ev.type] || 'text-primary',
+                      (TYPE_COLORS as Record<string, any>)[ev.type] || 'text-primary',
                     )}
                   />
                 )

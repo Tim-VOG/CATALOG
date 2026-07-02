@@ -82,7 +82,7 @@ export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelect
             >
               <div className="space-y-1">
                 {events.slice(0, 6).map((ev: any) => {
-                  const colors = TYPE_COLORS[ev.type] || TYPE_COLORS.catalog
+                  const colors = (TYPE_COLORS as Record<string, any>)[ev.type] || TYPE_COLORS.catalog
                   return (
                     <div
                       key={ev.id}

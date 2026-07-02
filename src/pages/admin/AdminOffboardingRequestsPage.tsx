@@ -111,7 +111,7 @@ function OffboardingRequestInfoCard({ req  }: any) {
                 <p className="text-xs text-muted-foreground">{corporateEmail}</p>
               </div>
             </div>
-            <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[req.status])}>
+            <Badge variant="outline" className={cn('text-xs', (STATUS_COLORS as Record<string, any>)[req.status])}>
               {req.status}
             </Badge>
           </div>

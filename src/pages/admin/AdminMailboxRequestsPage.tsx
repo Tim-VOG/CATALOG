@@ -170,7 +170,7 @@ function RequestInfoCard({ req  }: any) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[req.status])}>
+              <Badge variant="outline" className={cn('text-xs', (STATUS_COLORS as Record<string, any>)[req.status])}>
                 {req.status}
               </Badge>
               {req.confirmation_email_sent && (
@@ -1009,7 +1009,7 @@ export function AdminMailboxRequestsPage() {
       ) : (
         <div className="space-y-2">
           {filtered.map((req: any) => {
-            const StatusIcon = STATUS_ICONS[req.status] || Clock
+            const StatusIcon = (STATUS_ICONS as Record<string, any>)[req.status] || Clock
             return (
               <Card
                 key={req.id}
@@ -1031,7 +1031,7 @@ export function AdminMailboxRequestsPage() {
                         {req.agency && (
                           <Badge variant="secondary" className="text-[10px]">{req.agency}</Badge>
                         )}
-                        <Badge variant="outline" className={cn('text-[10px] gap-1', STATUS_COLORS[req.status])}>
+                        <Badge variant="outline" className={cn('text-[10px] gap-1', (STATUS_COLORS as Record<string, any>)[req.status])}>
                           <StatusIcon className="h-2.5 w-2.5" />
                           {req.status}
                         </Badge>

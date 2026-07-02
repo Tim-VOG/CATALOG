@@ -55,7 +55,7 @@ export function AdminAuditLogPage() {
     return logs.filter((l: any) =>
       actorName(l).toLowerCase().includes(q) ||
       l.action.toLowerCase().includes(q) ||
-      (ENTITY_LABELS[l.entity_type] || l.entity_type).toLowerCase().includes(q) ||
+      ((ENTITY_LABELS as Record<string, any>)[l.entity_type] || l.entity_type).toLowerCase().includes(q) ||
       changedKeys(l).toLowerCase().includes(q),
     )
   }, [logs, search])
@@ -66,7 +66,7 @@ export function AdminAuditLogPage() {
       new Date(l.created_at).toISOString(),
       actorName(l),
       l.action,
-      ENTITY_LABELS[l.entity_type] || l.entity_type,
+      (ENTITY_LABELS as Record<string, any>)[l.entity_type] || l.entity_type,
       l.entity_id || '',
       changedKeys(l),
     ].map((v: any) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(','))
@@ -111,7 +111,7 @@ export function AdminAuditLogPage() {
               className="text-xs h-8"
               onClick={() => setEntityType(e)}
             >
-              {e === 'all' ? 'All' : ENTITY_LABELS[e]}
+              {e === 'all' ? 'All' : (ENTITY_LABELS as Record<string, any>)[e]}
             </Button>
           ))}
         </div>
@@ -140,7 +140,7 @@ export function AdminAuditLogPage() {
                       <span className="font-medium">{actorName(log)}</span>
                       <span className="text-muted-foreground"> · </span>
                       <Badge variant="outline" className={cn('text-[10px] align-middle', meta.classes)}>{meta.label}</Badge>
-                      <span className="text-muted-foreground"> · {ENTITY_LABELS[log.entity_type] || log.entity_type}</span>
+                      <span className="text-muted-foreground"> · {(ENTITY_LABELS as Record<string, any>)[log.entity_type] || log.entity_type}</span>
                     </p>
                     {fields && (
                       <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5 font-mono">{fields}</p>

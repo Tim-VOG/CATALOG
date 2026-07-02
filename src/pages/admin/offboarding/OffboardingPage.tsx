@@ -96,7 +96,7 @@ export function OffboardingPage() {
   }
 
   const getStatusBadge = (status: any) => {
-    const opt = STATUS_OPTIONS.find((s: any) => s.value === status) || STATUS_OPTIONS[0]
+    const opt = STATUS_OPTIONS.find((s: any) => s.value === status) || (STATUS_OPTIONS as Record<string, any>)[0]
     return (
       <Badge variant="outline" className={cn('gap-1 text-[11px]', opt.color)}>
         <opt.icon className="h-3 w-3" />

@@ -26,7 +26,7 @@ FadeIn.displayName = 'FadeIn'
 const SLIDE_OFFSETS = { left: { x: -20 }, right: { x: 20 }, top: { y: -20 }, bottom: { y: 20 } }
 const SlideIn = React.forwardRef<any, any>(
   ({ children, className, from = 'right', duration = 0.2, ...props }, ref) => {
-    const offset = SLIDE_OFFSETS[from]
+    const offset = (SLIDE_OFFSETS as Record<string, any>)[from]
     return (
       <motion.div
         ref={ref}
@@ -170,7 +170,7 @@ const ScrollReveal = React.forwardRef<any, any>(
     const combinedRef = ref || innerRef
     const isInView = useInView(combinedRef as any, { once, margin: margin as any })
 
-    const directionOffset = REVEAL_DIRECTIONS[direction] || REVEAL_DIRECTIONS.up
+    const directionOffset = (REVEAL_DIRECTIONS as Record<string, any>)[direction] || REVEAL_DIRECTIONS.up
     const initialState = {
       opacity: 0,
       ...directionOffset,
@@ -216,7 +216,7 @@ function StaggerReveal({
   const ref = React.useRef<any>(null)
   const isInView = useInView(ref, { once: true, margin: margin as any })
 
-  const dirOffset = REVEAL_DIRECTIONS[direction] || REVEAL_DIRECTIONS.up
+  const dirOffset = (REVEAL_DIRECTIONS as Record<string, any>)[direction] || REVEAL_DIRECTIONS.up
 
   return (
     <motion.div

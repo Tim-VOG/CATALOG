@@ -59,10 +59,10 @@ export function KeyboardShortcutsProvider({ children  }: any) {
         setTimeout(() => setPendingG(false), 1200)
         return
       }
-      if (pendingG && ROUTE_MAP[e.key]) {
+      if (pendingG && (ROUTE_MAP as Record<string, any>)[e.key]) {
         e.preventDefault()
         setPendingG(false)
-        navigate(ROUTE_MAP[e.key])
+        navigate((ROUTE_MAP as Record<string, any>)[e.key])
       }
     }
     document.addEventListener('keydown', onKey)

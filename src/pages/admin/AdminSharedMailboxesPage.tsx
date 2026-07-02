@@ -256,7 +256,7 @@ export function AdminSharedMailboxesPage() {
                     <td key={col.key} className="px-1 py-0.5 align-middle" style={{ width: col.width, minWidth: col.width }}>
                       {col.type === 'select' && col.render === 'badge' && r[col.key] ? (
                         <div className="px-2 py-1">
-                          <Badge variant="outline" className={cn('text-[10px]', CAT_COLORS[r[col.key]])}>
+                          <Badge variant="outline" className={cn('text-[10px]', (CAT_COLORS as Record<string, any>)[r[col.key]])}>
                             {r[col.key]}
                           </Badge>
                         </div>

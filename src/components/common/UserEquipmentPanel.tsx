@@ -62,7 +62,7 @@ export function UserEquipmentPanel({ userId  }: any) {
       items.push({
         id: `it-${r.id}`,
         type: r.type || 'it',
-        title: name || REQ_TYPE_META[r.type || 'it']?.label || 'IT Request',
+        title: name || (REQ_TYPE_META as Record<string, any>)[r.type || 'it']?.label || 'IT Request',
         subtitle: data.company || data.business_unit || '',
         status: r.status,
         date: r.created_at,
@@ -174,7 +174,7 @@ export function UserEquipmentPanel({ userId  }: any) {
           ) : (
             <div className="space-y-1.5">
               {history.map((h: any) => {
-                const meta = REQ_TYPE_META[h.type] || REQ_TYPE_META.it
+                const meta = (REQ_TYPE_META as Record<string, any>)[h.type] || REQ_TYPE_META.it
                 const Icon = meta.icon
                 return (
                   <div key={h.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
@@ -187,7 +187,7 @@ export function UserEquipmentPanel({ userId  }: any) {
                         {meta.label}{h.subtitle ? ` · ${h.subtitle}` : ''} · {fmtDate(h.date)}
                       </div>
                     </div>
-                    <Badge variant="outline" className={`text-[10px] shrink-0 ${STATUS_COLOR[h.status] || ''}`}>
+                    <Badge variant="outline" className={`text-[10px] shrink-0 ${(STATUS_COLOR as Record<string, any>)[h.status] || ''}`}>
                       {h.status}
                     </Badge>
                   </div>

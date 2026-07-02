@@ -176,7 +176,7 @@ export function NotificationBell() {
 
 function NotificationItem({ notification  }: any) {
   const category = getNotificationCategory(notification)
-  const catConfig = REQUEST_CATEGORIES[category] || REQUEST_CATEGORIES.default
+  const catConfig = (REQUEST_CATEGORIES as Record<string, any>)[category] || REQUEST_CATEGORIES.default
   const CatIcon = catConfig.icon
 
   return (

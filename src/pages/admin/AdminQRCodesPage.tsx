@@ -230,7 +230,7 @@ export function AdminQRCodesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((qr: any, i: any) => {
             const qrStatus = qr.status || 'available'
-            const style = STATUS_STYLE[qrStatus] || STATUS_STYLE.available
+            const style = (STATUS_STYLE as Record<string, any>)[qrStatus] || STATUS_STYLE.available
             return (
               <ScrollFadeIn key={qr.id} delay={i * 0.03}>
                 <Card className={cn('transition-all hover:shadow-md', !qr.is_active && 'opacity-50')}>

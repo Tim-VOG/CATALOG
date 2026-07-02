@@ -101,8 +101,8 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
           </Button>
           <span className={cn('font-semibold', compact ? 'text-xs' : 'text-sm')}>
             {compact
-              ? `${MONTHS[currentMonth].slice(0, 3)} ${currentYear}`
-              : `${MONTHS[currentMonth]} ${currentYear}`}
+              ? `${(MONTHS as Record<string, any>)[currentMonth].slice(0, 3)} ${currentYear}`
+              : `${(MONTHS as Record<string, any>)[currentMonth]} ${currentYear}`}
           </span>
           <Button
             variant="ghost"

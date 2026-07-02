@@ -24,8 +24,8 @@ const STATUS_MAP = {
 }
 
 function EventCard({ event, showUser, selectable, isSelected, onToggleSelect  }: any) {
-  const typeCfg = TYPE_CONFIG[event.type] || TYPE_CONFIG.catalog
-  const statusCfg = STATUS_MAP[event.status] || STATUS_MAP.pending
+  const typeCfg = (TYPE_CONFIG as Record<string, any>)[event.type] || TYPE_CONFIG.catalog
+  const statusCfg = (STATUS_MAP as Record<string, any>)[event.status] || STATUS_MAP.pending
   const StatusIcon = statusCfg.icon
   const TypeIcon = typeCfg.icon
 

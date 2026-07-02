@@ -196,7 +196,7 @@ export function AdminLocalITPage() {
               <tbody>
                 {filtered.map((qr: any) => {
                   const st = qr.status || 'available'
-                  const config = STATUS_CONFIG[st] || STATUS_CONFIG.available
+                  const config = (STATUS_CONFIG as Record<string, any>)[st] || STATUS_CONFIG.available
                   const StatusIcon = config.icon
                   return (
                     <tr key={qr.id} className="border-b border-border/20 hover:bg-muted/30 transition-colors">
@@ -272,8 +272,8 @@ export function AdminLocalITPage() {
                 <div><span className="text-muted-foreground">Category</span><p className="font-medium">{detailQR.category_name || '—'}</p></div>
                 <div><span className="text-muted-foreground">Sub-type</span><p className="font-medium">{detailQR.product_sub_type || '—'}</p></div>
                 <div><span className="text-muted-foreground">Status</span>
-                  <Badge variant="outline" className={cn('text-[10px] gap-1 mt-1', STATUS_CONFIG[detailQR.status || 'available']?.bg, STATUS_CONFIG[detailQR.status || 'available']?.color)}>
-                    {STATUS_CONFIG[detailQR.status || 'available']?.label}
+                  <Badge variant="outline" className={cn('text-[10px] gap-1 mt-1', (STATUS_CONFIG as Record<string, any>)[detailQR.status || 'available']?.bg, (STATUS_CONFIG as Record<string, any>)[detailQR.status || 'available']?.color)}>
+                    {(STATUS_CONFIG as Record<string, any>)[detailQR.status || 'available']?.label}
                   </Badge>
                 </div>
                 {detailQR.assigned_to_name && (
@@ -326,7 +326,7 @@ export function AdminLocalITPage() {
           <p className="text-sm text-muted-foreground">{statusChangeQR?.product_name}</p>
           <div className="space-y-2 mt-2">
             {ALL_STATUSES.map((st: any) => {
-              const config = STATUS_CONFIG[st]
+              const config = (STATUS_CONFIG as Record<string, any>)[st]
               const Icon = config.icon
               return (
                 <button key={st} onClick={() => setNewStatus(st)}

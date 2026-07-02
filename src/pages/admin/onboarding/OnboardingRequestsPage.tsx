@@ -76,7 +76,7 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[displayStatus(req.status, sentEmail)])}>
+              <Badge variant="outline" className={cn('text-xs', (STATUS_COLORS as Record<string, any>)[displayStatus(req.status, sentEmail)])}>
                 {displayStatus(req.status, sentEmail)}
               </Badge>
               {sentEmail && (
