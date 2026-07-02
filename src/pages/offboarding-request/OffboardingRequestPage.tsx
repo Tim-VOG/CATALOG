@@ -137,12 +137,21 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
           Company
           <span className="text-destructive ml-1">*</span>
         </Label>
-        <Select value={form.company} onChange={(e: any) => setField('company', e.target.value)}>
-          <option value="">Select...</option>
-          {COMPANIES.map((c: any) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </Select>
+        {form.leaving_user_id && form.company ? (
+          // A profile is linked and has a business unit → lock the company
+          // to that person's BU (can't be changed by hand).
+          <>
+            <Input value={form.company} disabled readOnly className="bg-muted/40 cursor-not-allowed" />
+            <p className="text-[11px] text-muted-foreground">🔒 Locked to the selected person's business unit.</p>
+          </>
+        ) : (
+          <Select value={form.company} onChange={(e: any) => setField('company', e.target.value)}>
+            <option value="">Select...</option>
+            {COMPANIES.map((c: any) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </Select>
+        )}
       </div>
     </div>
   )
