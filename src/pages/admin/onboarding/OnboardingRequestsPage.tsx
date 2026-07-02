@@ -103,7 +103,7 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
 // ── Inline detail view ──
 function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: any) {
   const { user, isAdmin } = useAuth()
-  const isOwnRequest = !!user && (req.requester_id === user.id || req.requested_by === user.id)
+  const isOwnRequest = !!user && (req.requester_id === user!.id || req.requested_by === user!.id)
   const canDelete = isAdmin || isOwnRequest
   const canChangeStatus = isAdmin
   const data = req.data || {}

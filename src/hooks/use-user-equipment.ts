@@ -6,7 +6,7 @@ export const useMyEquipment = () => {
   const { user } = useAuth()
   return useQuery({
     queryKey: ['user-equipment', 'mine', user?.id],
-    queryFn: () => api.getMyEquipment(user.id),
+    queryFn: () => api.getMyEquipment(user!.id),
     enabled: !!user?.id,
   })
 }

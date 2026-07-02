@@ -60,7 +60,7 @@ export function ProfilePage() {
     if (!phoneChanged) return
     setSaving(true)
     try {
-      await updateProfile(user.id, { phone })
+      await updateProfile(user!.id, { phone })
       await refreshProfile()
       showToast('Phone number updated')
     } catch (err: any) {
@@ -90,7 +90,7 @@ export function ProfilePage() {
     setUploadingAvatar(true)
     try {
       const ext = file.name.split('.').pop()
-      const path = `${user.id}/avatar-${Date.now()}.${ext}`
+      const path = `${user!.id}/avatar-${Date.now()}.${ext}`
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -98,7 +98,7 @@ export function ProfilePage() {
       if (uploadError) throw uploadError
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-      await updateProfile(user.id, { avatar_url: data.publicUrl })
+      await updateProfile(user!.id, { avatar_url: data.publicUrl })
       await refreshProfile()
       showToast('Profile photo updated')
     } catch (err: any) {
@@ -164,7 +164,7 @@ export function ProfilePage() {
               </p>
               {user?.email && (
                 <a
-                  href={`https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(user.email)}`}
+                  href={`https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent((user?.email || ""))}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm text-[#6264A7] hover:underline w-fit"
@@ -232,10 +232,10 @@ export function ProfilePage() {
       </div>
 
       {/* My equipment, QR codes, history */}
-      {user?.id && <UserEquipmentPanel userId={user.id} />}
+      {user?.id && <UserEquipmentPanel userId={user!.id} />}
 
       {/* Full chronological activity feed (requests + pickups/returns) */}
-      {user?.id && <ActivityTimeline userId={user.id} />}
+      {user?.id && <ActivityTimeline userId={user!.id} />}
 
       {/* Appearance */}
       <Card>

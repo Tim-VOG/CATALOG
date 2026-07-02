@@ -35,7 +35,7 @@ export function useRealtimeSync() {
     }
 
     // Everyone: their own notifications + the shared fleet.
-    channel.on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, () => invalidate('notifications'))
+    channel.on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user!.id}` }, () => invalidate('notifications'))
     channel.on('postgres_changes', { event: '*', schema: 'public', table: 'qr_codes' }, () => invalidate('qr_codes'))
 
     // Staff: the request streams + issue tickets.

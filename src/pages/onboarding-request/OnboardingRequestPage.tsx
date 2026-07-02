@@ -767,10 +767,10 @@ export function OnboardingRequestPage() {
       // 1. Create it_request
       const { error: reqError } = await supabase.from('it_requests').insert({
         type: 'onboarding',
-        requester_id: user.id,
-        requester_email: user.email,
+        requester_id: user!.id,
+        requester_email: (user?.email || ""),
         requester_name: submitterName,
-        onboarded_by_manager_id: profile?.role === 'manager' ? user.id : null,
+        onboarded_by_manager_id: profile?.role === 'manager' ? user!.id : null,
         data: { ...form, name: fullName, email_to_create: fullEmail, submitted_at: new Date().toISOString() },
         status: 'pending',
       })
@@ -797,7 +797,7 @@ export function OnboardingRequestPage() {
 
       // 3. Confirmation email to the requester (with HR personal-info reminder)
       sendEmail({
-        to: user.email,
+        to: (user?.email || ""),
         subject: await buildConfirmationSubject({ type: 'onboarding', newHireName: fullName }),
         body: await buildConfirmationEmail({ name: submitterName, type: 'onboarding', newHireName: fullName, detail: fullName }),
         isHtml: true,

@@ -35,7 +35,7 @@ export function PushToggleCard() {
         await unsubscribeFromPush()
         showToast('Push notifications disabled on this device', 'success')
       } else {
-        await subscribeToPush(user.id)
+        await subscribeToPush(user!.id)
         showToast('Push notifications enabled', 'success')
       }
       setState(await getPushState())

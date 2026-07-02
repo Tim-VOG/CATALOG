@@ -233,7 +233,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
 // ── Inline detail view ──
 function RequestDetail({ req, onBack, onDelete, onStatusChange, onboardingMatch, onToggleRevoked  }: any) {
   const { user, isAdmin } = useAuth()
-  const isOwnRequest = !!user && (req.requester_id === user.id || req.requested_by === user.id)
+  const isOwnRequest = !!user && (req.requester_id === user!.id || req.requested_by === user!.id)
   const canDelete = isAdmin || isOwnRequest
   const canChangeStatus = isAdmin
   const data = req.data || {}

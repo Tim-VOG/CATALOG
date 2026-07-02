@@ -623,7 +623,7 @@ export function FunctionalMailboxFormPage() {
       // Confirmation email to user
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
-        to: user.email,
+        to: (user?.email || ""),
         subject: 'Your mailbox request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name }),
         isHtml: true,

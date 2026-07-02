@@ -592,17 +592,17 @@ export function OffboardingRequestPage() {
 
       await supabase.from('it_requests').insert({
         type: 'offboarding',
-        requester_id: user.id,
-        requester_email: user.email,
+        requester_id: user!.id,
+        requester_email: (user?.email || ""),
         requester_name: submitterName,
-        onboarded_by_manager_id: profile?.role === 'manager' ? user.id : null,
+        onboarded_by_manager_id: profile?.role === 'manager' ? user!.id : null,
         data: { ...form, submitted_at: new Date().toISOString() },
         status: 'pending',
       })
 
       // Confirmation email to user
       sendEmail({
-        to: user.email,
+        to: (user?.email || ""),
         subject: 'Your offboarding request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name }),
         isHtml: true,

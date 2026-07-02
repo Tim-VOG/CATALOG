@@ -24,7 +24,7 @@ export function LanguageCard() {
   const pick = (code: string) => {
     i18n.changeLanguage(code)
     if (user?.id) {
-      updateProfile(user.id, { language: code } as any).catch(() => { /* silent */ })
+      updateProfile(user!.id, { language: code } as any).catch(() => { /* silent */ })
     }
   }
 

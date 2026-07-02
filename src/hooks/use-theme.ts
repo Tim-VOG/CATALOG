@@ -55,7 +55,7 @@ export function useToggleTheme() {
     const next = mode === 'dark' ? 'light' : 'dark'
     themeOverrideStore.set(next)
     if (user?.id) {
-      updateProfile(user.id, { theme_preference: next } as any)
+      updateProfile(user!.id, { theme_preference: next } as any)
         .then(() => refreshProfile())
         .catch(() => { /* silent — column may not exist yet (migration 097) */ })
     }
@@ -70,7 +70,7 @@ export function useClearThemeOverride() {
   return useCallback(() => {
     themeOverrideStore.set(null)
     if (user?.id) {
-      updateProfile(user.id, { theme_preference: null } as any)
+      updateProfile(user!.id, { theme_preference: null } as any)
         .then(() => refreshProfile())
         .catch(() => { /* silent */ })
     }

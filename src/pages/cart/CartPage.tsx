@@ -242,7 +242,7 @@ export function CartPage() {
   const handleCheckout = async () => {
     try {
       const newRequestId = await checkout.mutateAsync({
-        userId: user.id,
+        userId: user!.id,
         projectName: projectName || 'Equipment Request',
         projectDescription: null,
         globalComment: globalComment || null,
@@ -274,7 +274,7 @@ export function CartPage() {
 
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
-        to: user.email,
+        to: (user?.email || ""),
         subject: 'Your equipment request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
         isHtml: true,

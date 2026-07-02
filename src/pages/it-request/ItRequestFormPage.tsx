@@ -475,7 +475,7 @@ export function ItRequestFormPage() {
       // Confirmation email to user
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
-        to: user.email,
+        to: (user?.email || ""),
         subject: 'Your IT request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'IT', detail: null }),
         isHtml: true,

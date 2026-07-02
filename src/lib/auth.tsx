@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUserProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     if (session?.user) {
-      await loadProfile(session.user.id)
+      await loadProfile(session.user!.id)
     }
   }
 

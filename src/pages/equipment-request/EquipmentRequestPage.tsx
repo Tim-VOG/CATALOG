@@ -725,8 +725,8 @@ export function EquipmentRequestPage() {
 
       const { error } = await supabase.from('it_requests').insert({
         type: 'equipment',
-        requester_id: user.id,
-        requester_email: user.email,
+        requester_id: user!.id,
+        requester_email: (user?.email || ""),
         requester_name: submitterName,
         data: {
           ...form,
@@ -740,7 +740,7 @@ export function EquipmentRequestPage() {
 
       // Confirmation email to user
       sendEmail({
-        to: user.email,
+        to: (user?.email || ""),
         subject: 'Your equipment request has been received',
         body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: form.event_name }),
         isHtml: true,

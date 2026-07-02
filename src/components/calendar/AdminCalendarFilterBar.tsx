@@ -91,11 +91,11 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
               </button>
             )}
             {filtered.map((user: any) => {
-              const isActive = selectedUsers.includes(user.id)
+              const isActive = selectedUsers.includes(user!.id)
               return (
                 <button
-                  key={user.id}
-                  onClick={() => toggleUser(user.id)}
+                  key={user!.id}
+                  onClick={() => toggleUser(user!.id)}
                   className={cn(
                     'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all',
                     isActive ? 'bg-blue-500/10 text-foreground' : 'hover:bg-muted/30 text-muted-foreground'
@@ -105,7 +105,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
                     avatarUrl={user.avatar}
                     firstName={user.name?.split(' ')[0]}
                     lastName={user.name?.split(' ')[1]}
-                    email={user.email}
+                    email={(user?.email || "")}
                     size="sm"
                     className="h-6 w-6 text-[9px]"
                   />
