@@ -745,8 +745,7 @@ export function EquipmentRequestPage() {
         isHtml: true,
       })
 
-      navigate('/')
-      setTimeout(() => showToast('Equipment request submitted successfully!'), 100)
+      navigate('/request-sent')
     } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }

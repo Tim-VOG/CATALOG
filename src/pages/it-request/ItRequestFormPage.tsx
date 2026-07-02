@@ -496,9 +496,7 @@ export function ItRequestFormPage() {
         // Don't block the IT request on onboarding creation failure
       }
 
-      navigate('/')
-      // Show toast after navigation so it's visible on the hub page
-      setTimeout(() => showToast('IT request submitted successfully!'), 100)
+      navigate('/request-sent')
     } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }

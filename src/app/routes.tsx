@@ -25,6 +25,7 @@ import { ScanPage } from '@/pages/scan/ScanPage'
 import { TrackingPage } from '@/pages/track/TrackingPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { StatusPage } from '@/pages/StatusPage'
+import { RequestSentPage } from '@/pages/RequestSentPage'
 
 // ── Lazy: heavy form pages ─────────────────────────────────
 // Big form pages — only fetched when the user opens the matching link.
@@ -113,6 +114,7 @@ export function AppRoutes() {
           <Route path="cart" element={<CartPage />} />
           <Route path="equipment-request" element={<EquipmentRequestPage />} />
           <Route path="offboarding-request" element={<OffboardingRequestPage />} />
+          <Route path="request-sent" element={<RequestSentPage />} />
 
           {/* Admin + manager (staff) area. Managers see people-ops
               pages; AdminOnly bounces them off the sensitive ones. */}

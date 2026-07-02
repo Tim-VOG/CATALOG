@@ -42,6 +42,12 @@ const en = {
     inStock: 'In stock', outOfStock: 'Coming soon', backSoon: 'Back soon',
     availableFrom: 'Available from {{date}}', addToCart: 'Add to cart',
   },
+  requestSent: {
+    title: 'Request sent!',
+    message: 'Your request has been sent successfully. You will receive a confirmation email shortly.',
+    backToHub: 'Back to Hub',
+    myRequests: 'View my requests',
+  },
 }
 
 // French — the primary language for VO Group.
@@ -81,6 +87,12 @@ const fr = {
     inStock: 'En stock', outOfStock: 'Bientôt', backSoon: 'Bientôt de retour',
     availableFrom: 'Dispo à partir du {{date}}', addToCart: 'Ajouter au panier',
   },
+  requestSent: {
+    title: 'Demande envoyée !',
+    message: 'Votre demande a bien été envoyée. Vous recevrez un email de confirmation sous peu.',
+    backToHub: "Retour à l'accueil",
+    myRequests: 'Voir mes demandes',
+  },
 }
 
 // Dutch — for VO's NL-speaking colleagues.
@@ -119,6 +131,12 @@ const nl = {
   catalog: {
     inStock: 'Op voorraad', outOfStock: 'Binnenkort', backSoon: 'Snel terug',
     availableFrom: 'Beschikbaar vanaf {{date}}', addToCart: 'Toevoegen aan winkelmand',
+  },
+  requestSent: {
+    title: 'Aanvraag verzonden!',
+    message: 'Uw aanvraag is succesvol verzonden. U ontvangt binnenkort een bevestigingsmail.',
+    backToHub: 'Terug naar Hub',
+    myRequests: 'Mijn aanvragen bekijken',
   },
 }
 

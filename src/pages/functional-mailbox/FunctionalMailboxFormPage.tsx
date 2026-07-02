@@ -653,8 +653,7 @@ export function FunctionalMailboxFormPage() {
         isHtml: true,
       })
 
-      navigate('/')
-      setTimeout(() => showToast('Mailbox request submitted successfully!'), 100)
+      navigate('/request-sent')
     } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }

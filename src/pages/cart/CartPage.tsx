@@ -279,8 +279,7 @@ export function CartPage() {
         body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
         isHtml: true,
       })
-      navigate('/my-requests')
-      setTimeout(() => showToast('Request submitted successfully!'), 100)
+      navigate('/request-sent')
     } catch (err: any) {
       showToast(err.message || 'Failed to submit request', 'error')
     }
