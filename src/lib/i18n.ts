@@ -83,6 +83,45 @@ const fr = {
   },
 }
 
+// Dutch — for VO's NL-speaking colleagues.
+const nl = {
+  common: {
+    save: 'Opslaan', cancel: 'Annuleren', close: 'Sluiten', delete: 'Verwijderen',
+    edit: 'Bewerken', search: 'Zoeken', loading: 'Laden…', back: 'Terug',
+    yes: 'Ja', no: 'Nee', confirm: 'Bevestigen', send: 'Verzenden',
+    available: 'Beschikbaar', unavailable: 'Niet beschikbaar',
+  },
+  nav: {
+    hub: 'Hub', catalog: 'Catalogus', cart: 'Winkelmand', profile: 'Profiel',
+    scan: 'Scannen', myRequests: 'Mijn aanvragen', myEquipment: 'Mijn materiaal',
+    admin: 'Admin', staff: 'Staff', backToHub: 'Terug naar Hub',
+  },
+  hub: {
+    greetingMorning: 'Goedemorgen', greetingAfternoon: 'Goedemiddag',
+    greetingEvening: 'Goedenavond', greetingNight: 'Goedenacht',
+    catalogTitle: 'Materiaalcatalogus',
+    catalogDesc: 'Blader door en vraag IT-materiaal aan voor events of projecten.',
+    myEquipmentTitle: 'Mijn materiaal',
+    myEquipmentDesc: 'De apparaten die je nu in handen hebt — vervaldata, retours, problemen.',
+  },
+  profile: {
+    title: 'Profiel', appearance: 'Weergave', theme: 'Thema',
+    notifications: 'Meldingen', language: 'Taal', contact: 'Contact',
+    switchToLight: 'Naar licht thema', switchToDark: 'Naar donker thema',
+    useDefault: 'Standaard gebruiken',
+  },
+  equipment: {
+    title: 'Mijn materiaal', none: 'Niets in bruikleen',
+    requestReturn: 'Retour aanvragen', reportProblem: 'Probleem melden',
+    dueIn: 'nog {{count}} d', overdue: '{{count}} d te laat',
+    whereToPickup: 'Waar ophalen',
+  },
+  catalog: {
+    inStock: 'Op voorraad', outOfStock: 'Binnenkort', backSoon: 'Snel terug',
+    availableFrom: 'Beschikbaar vanaf {{date}}', addToCart: 'Toevoegen aan winkelmand',
+  },
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -90,9 +129,10 @@ i18n
     resources: {
       en: { translation: en },
       fr: { translation: fr },
+      nl: { translation: nl },
     },
     fallbackLng: 'fr',
-    supportedLngs: ['fr', 'en'],
+    supportedLngs: ['fr', 'en', 'nl'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],

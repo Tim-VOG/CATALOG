@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 
 const LANGS = [
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
 ]
 
@@ -19,7 +20,8 @@ const LANGS = [
 export function LanguageCard() {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
-  const current = i18n.language?.startsWith('en') ? 'en' : 'fr'
+  const lng = i18n.language || 'fr'
+  const current = lng.startsWith('en') ? 'en' : lng.startsWith('nl') ? 'nl' : 'fr'
 
   const pick = (code: string) => {
     i18n.changeLanguage(code)
