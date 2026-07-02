@@ -620,7 +620,7 @@ export function AdminDesignPage() {
                 label={label}
                 desc={desc}
                 value={activePalette[key]}
-                defaultValue={activeDefaults[key]}
+                defaultValue={(activeDefaults as Record<string, any>)[key]}
                 onChange={(v: any) => updateActivePalette(key, v)}
               />
             ))}

@@ -364,7 +364,7 @@ export function MyRequestsPage() {
       </motion.div>
 
       <div className="flex flex-wrap gap-1.5">
-        {TYPE_FILTERS.filter((t: any) => t.key === 'all' || typeCounts[t.key]).map((t: any) => (
+        {TYPE_FILTERS.filter((t: any) => t.key === 'all' || (typeCounts as Record<string, any>)[t.key]).map((t: any) => (
           <Button
             key={t.key}
             variant={typeFilter === t.key ? 'default' : 'outline'}
@@ -373,8 +373,8 @@ export function MyRequestsPage() {
             onClick={() => setTypeFilter(t.key)}
           >
             {t.label}
-            {t.key !== 'all' && typeCounts[t.key] > 0 && (
-              <span className="ml-1 text-[10px] opacity-70">({typeCounts[t.key]})</span>
+            {t.key !== 'all' && (typeCounts as Record<string, any>)[t.key] > 0 && (
+              <span className="ml-1 text-[10px] opacity-70">({(typeCounts as Record<string, any>)[t.key]})</span>
             )}
           </Button>
         ))}

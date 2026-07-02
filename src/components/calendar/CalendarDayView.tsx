@@ -133,7 +133,7 @@ export function CalendarDayView({
       if (a.isMultiDay && !b.isMultiDay) return -1
       if (!a.isMultiDay && b.isMultiDay) return 1
       const typeOrder = { catalog: 0, it: 1, mailbox: 2 }
-      return (typeOrder[a.type] || 0) - (typeOrder[b.type] || 0)
+      return ((typeOrder as Record<string, any>)[a.type] || 0) - ((typeOrder as Record<string, any>)[b.type] || 0)
     })
   }, [events])
 

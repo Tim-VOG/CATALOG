@@ -268,7 +268,7 @@ export function AdminItInventoryPage() {
                 <tr key={row.id} className="hover:bg-muted/20 transition-colors border-b border-border/30">
                   {COLUMNS.map((col: any) => {
                     if (col.computed) {
-                      const v = computedValues[col.key]
+                      const v = (computedValues as Record<string, any>)[col.key]
                       return (
                         <td key={col.key} className="px-3 py-1 text-foreground/70 italic" style={{ minWidth: col.width }}>
                           {col.money ? fmtMoney(v) : (v ?? '')}

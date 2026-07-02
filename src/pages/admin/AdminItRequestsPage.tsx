@@ -98,7 +98,7 @@ export function AdminItRequestsPage() {
           { key: 'offboarding', label: 'Offboarding' },
           { key: 'equipment', label: 'Equipment' },
           { key: 'it_request', label: 'IT Request' },
-        ].filter((t: any) => t.key === 'all' || typeCounts[t.key]).map(({ key, label }: any) => (
+        ].filter((t: any) => t.key === 'all' || (typeCounts as Record<string, any>)[t.key]).map(({ key, label }: any) => (
           <button
             key={key}
             onClick={() => setTypeFilter(key)}
@@ -107,8 +107,8 @@ export function AdminItRequestsPage() {
             }`}
           >
             {label}
-            {typeCounts[key] > 0 && (
-              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">{typeCounts[key]}</span>
+            {(typeCounts as Record<string, any>)[key] > 0 && (
+              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">{(typeCounts as Record<string, any>)[key]}</span>
             )}
           </button>
         ))}

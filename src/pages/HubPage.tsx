@@ -54,7 +54,7 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
     amber: { iconBg: 'bg-gradient-to-br from-amber-500/30 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/40', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
     rose: { iconBg: 'bg-gradient-to-br from-rose-500/30 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/40', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
   }
-  const c = colorMap[color] || colorMap.primary
+  const c = (colorMap as Record<string, any>)[color] || colorMap.primary
 
   return (
     <Link to={to} className="block h-full group">

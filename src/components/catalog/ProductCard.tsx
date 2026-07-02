@@ -64,7 +64,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
                 {plans.map((plan: any) => (
                   <button key={plan.id} type="button" onClick={() => setSelectedPlan(selectedPlan === plan.name ? '' : plan.name)}
                     className={cn('flex items-center justify-between w-full p-3 rounded-xl border-2 text-left transition-all text-sm', selectedPlan === plan.name ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30')}>
-                    <div className="flex items-center gap-2"><span className="font-medium">{plan.name}</span><Badge className={cn('text-[10px]', typeBadge[plan.type])}>{plan.type}</Badge></div>
+                    <div className="flex items-center gap-2"><span className="font-medium">{plan.name}</span><Badge className={cn('text-[10px]', (typeBadge as Record<string, any>)[plan.type])}>{plan.type}</Badge></div>
                     <div className="flex items-center gap-2"><span className="text-muted-foreground">{plan.price}</span>{selectedPlan === plan.name && <Check className="h-3.5 w-3.5 text-primary" />}</div>
                   </button>
                 ))}

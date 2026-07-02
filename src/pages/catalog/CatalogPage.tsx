@@ -179,7 +179,7 @@ export function CatalogPage() {
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {[{ id: 'all', name: 'All' }, ...categories].map((c: any) => {
             const isActive = selectedCategory === c.name
-            const count = categoryCounts[c.name] || 0
+            const count = (categoryCounts as Record<string, any>)[c.name] || 0
             return (
               <button
                 key={c.id}

@@ -150,7 +150,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
                   >
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{plan.name}</span>
-                      <Badge className={cn('text-[9px]', typeBadge[plan.type] || '')}>{plan.type}</Badge>
+                      <Badge className={cn('text-[9px]', (typeBadge as Record<string, any>)[plan.type] || '')}>{plan.type}</Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">{plan.price}</span>

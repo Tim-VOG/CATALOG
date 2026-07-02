@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'motion/react'
 
 function getIcon(iconName: any) {
-  const Icon = Icons[iconName]
+  const Icon = (Icons as Record<string, any>)[iconName]
   return Icon || Icons.FileText
 }
 

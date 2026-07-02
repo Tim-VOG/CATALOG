@@ -529,13 +529,13 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
                   className={`flex items-center gap-3 w-full p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${
                     isSelected
                       ? 'border-primary bg-primary/5 shadow-sm'
-                      : `border-border hover:${typeColors[plan.type] || 'border-muted-foreground/30'}`
+                      : `border-border hover:${(typeColors as Record<string, any>)[plan.type] || 'border-muted-foreground/30'}`
                   }`}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">{plan.name}</span>
-                      <Badge className={`text-[10px] ${typeBadgeColors[plan.type] || ''}`}>
+                      <Badge className={`text-[10px] ${(typeBadgeColors as Record<string, any>)[plan.type] || ''}`}>
                         {plan.type === 'call' ? 'Call' : plan.type === 'data' ? 'Data' : 'Call + Data'}
                       </Badge>
                     </div>

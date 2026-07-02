@@ -9,6 +9,6 @@ const statusConfig = {
 }
 
 export function StatusBadge({ status  }: any) {
-  const config = statusConfig[status] || { label: status, variant: 'outline' }
+  const config = (statusConfig as Record<string, any>)[status] || { label: status, variant: 'outline' }
   return <Badge variant={config.variant} dot={config.dot}>{config.label}</Badge>
 }
