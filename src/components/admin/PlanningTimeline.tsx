@@ -132,11 +132,11 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
       }
     }
 
-    return Array.from(map.values()).sort((a, b) => a.productName.localeCompare(b.productName))
+    return Array.from(map.values()).sort((a: any, b: any) => a.productName.localeCompare(b.productName))
   }, [items, allProducts])
 
   // Calculate bar position as percentage of timeline
-  const getBarStyle = (pickupDate, returnDate) => {
+  const getBarStyle = (pickupDate: any, returnDate: any) => {
     const timelineStart = startOfDay(startDate)
     let timelineEnd
 
@@ -182,7 +182,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
   }, [viewMode, startDate])
 
   // Calculate needed row height based on max stacked reservations
-  const getRowHeight = (reservations) => {
+  const getRowHeight = (reservations: any) => {
     const count = reservations.length
     return Math.max(56, 14 + count * 36)
   }

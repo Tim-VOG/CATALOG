@@ -29,7 +29,7 @@ function HeaderSearch() {
 
   // Close dropdown on click outside
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const handleClickOutside = (e: any) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsOpen(false)
       }

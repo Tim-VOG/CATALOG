@@ -111,7 +111,7 @@ export function AdminQRCodesPage() {
   }
 
   const openNew = () => { setEditing(null); setForm({ ...emptyForm, code: generateCode('VO') }); setShowDialog(true) }
-  const openEdit = (qr) => { setEditing(qr); setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', serial_number: qr.serial_number || '', is_active: qr.is_active }); setShowDialog(true) }
+  const openEdit = (qr: any) => { setEditing(qr); setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', serial_number: qr.serial_number || '', is_active: qr.is_active }); setShowDialog(true) }
 
   const handleSave = async () => {
     try {
@@ -137,7 +137,7 @@ export function AdminQRCodesPage() {
     } catch (err: any) { toast.error(err.message) }
   }
 
-  const copyCode = (code) => { navigator.clipboard.writeText(code); setCopiedId(code); setTimeout(() => setCopiedId(null), 2000) }
+  const copyCode = (code: any) => { navigator.clipboard.writeText(code); setCopiedId(code); setTimeout(() => setCopiedId(null), 2000) }
 
   const downloadQR = async (code, label) => {
     const url = await QRCodeLib.toDataURL(code, { width: 400, margin: 2 })

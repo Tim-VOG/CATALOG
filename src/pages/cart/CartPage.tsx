@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils'
 import { getCategoryConfig, needsOptions } from '@/components/catalog/ProductCard'
 
 // ── Helpers ──
-function getOptionsSummary(options) {
+function getOptionsSummary(options: any) {
   if (!options) return []
   const tags = []
   const services = options.services || {}
@@ -93,7 +93,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 
   const availableAccessories = config?.accessories || []
 
-  const toggleAccessory = (acc) => {
+  const toggleAccessory = (acc: any) => {
     setSelectedAccessories((prev) =>
       prev.includes(acc) ? prev.filter((a: any) => a !== acc) : [...prev, acc]
     )
@@ -219,7 +219,7 @@ export function CartPage() {
 
   const totalItems = items.reduce((sum: any, i: any) => sum + i.quantity, 0)
 
-  const handleQuantityChange = (item, delta) => {
+  const handleQuantityChange = (item: any, delta: any) => {
     const newQty = item.quantity + delta
     if (newQty <= 0) {
       removeItem.mutate(item.id)
@@ -235,7 +235,7 @@ export function CartPage() {
     updateItem.mutate({ id: item.id, quantity: newQty })
   }
 
-  const handleOptionsUpdate = (item, options) => {
+  const handleOptionsUpdate = (item: any, options: any) => {
     updateItem.mutate({ id: item.id, options })
   }
 

@@ -66,7 +66,7 @@ const TEMPLATE_VARS = [
 ]
 
 // ── Parse CC emails from text ──
-function extractEmails(text) {
+function extractEmails(text: any) {
   if (!text) return []
   const matches = text.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g)
   return matches || []
@@ -84,7 +84,7 @@ function fillTemplate(template, req, appName) {
 }
 
 // ── Format date for display ──
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : null
+const fmtDate = (d: any) => d ? new Date(d).toLocaleDateString('fr-FR') : null
 
 // ── Banner download (fetch blob → Save As dialog) ──
 function BannerDownloadButton({ url, projectName  }: any) {
@@ -259,9 +259,9 @@ function EditableCCEmails({ req, onSave  }: any) {
     setEditing(false)
   }, [req.who_needs_access])
 
-  const isValidEmail = (email) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
+  const isValidEmail = (email: any) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
 
-  const addTag = (raw) => {
+  const addTag = (raw: any) => {
     const email = raw.trim().toLowerCase()
     if (!email) return
     if (!isValidEmail(email)) { setError('Invalid email'); return }
@@ -271,9 +271,9 @@ function EditableCCEmails({ req, onSave  }: any) {
     setInputValue('')
   }
 
-  const removeTag = (idx) => setTags((prev) => prev.filter((_: any, i: any) => i !== idx))
+  const removeTag = (idx: any) => setTags((prev) => prev.filter((_: any, i: any) => i !== idx))
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
       e.preventDefault()
       addTag(inputValue)
@@ -418,7 +418,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
   const [showVars, setShowVars] = useState(false)
   const [draftSaved, setDraftSaved] = useState(!!req.email_draft_body)
 
-  const handleChange = (key, value) => {
+  const handleChange = (key: any, value: any) => {
     setEmailForm((p) => ({ ...p, [key]: value }))
     setDraftSaved(false)
   }

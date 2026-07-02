@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'motion/react'
 
-function getIcon(iconName) {
+function getIcon(iconName: any) {
   const Icon = Icons[iconName]
   return Icon || Icons.FileText
 }
@@ -77,7 +77,7 @@ function SectionLabelOptions({ blockKey, options, update  }: any) {
 
 // Block-specific option fields
 function BlockOptions({ blockKey, options, onChange  }: any) {
-  const update = (key, value) => onChange({ ...options, [key]: value })
+  const update = (key: any, value: any) => onChange({ ...options, [key]: value })
 
   // Render specific options + generic section label options
   const sectionLabel = <SectionLabelOptions blockKey={blockKey} options={options} update={update} />

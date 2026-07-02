@@ -101,7 +101,7 @@ export function HubPage() {
       ...myItRequests.map((r: any) => ({ ...r, _type: r.type || 'onboarding' })),
       ...myMailboxRequests.map((r: any) => ({ ...r, _type: 'mailbox' })),
     ]
-    list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    list.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     return list
   }, [myLoanRequests, myItRequests, myMailboxRequests])
 

@@ -55,7 +55,7 @@ export function MobileNav() {
   const tagline = settings?.header_tagline || 'Book. Borrow. Return.'
   const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : ''
 
-  const isActive = (to, exact) => exact ? location.pathname === to : location.pathname.startsWith(to)
+  const isActive = (to: any, exact: any) => exact ? location.pathname === to : location.pathname.startsWith(to)
 
   // Module links
   const moduleLinks = []
@@ -66,7 +66,7 @@ export function MobileNav() {
 
   let linkIndex = 0
 
-  const renderSection = (title, links) => (
+  const renderSection = (title: any, links: any) => (
     <>
       <div className="my-2 mx-2">
         <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />

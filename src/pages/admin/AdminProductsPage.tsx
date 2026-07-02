@@ -118,10 +118,10 @@ export function AdminProductsPage() {
         }
       }
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b))
+    return Array.from(set).sort((a: any, b: any) => a.localeCompare(b))
   }, [products])
 
-  const toggleSelect = (id) => {
+  const toggleSelect = (id: any) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -136,7 +136,7 @@ export function AdminProductsPage() {
     setShowForm(true)
   }
 
-  const openDuplicate = (product) => {
+  const openDuplicate = (product: any) => {
     setEditing(null)
     setForm({
       name: `${product.name} (copy)`, description: product.description || '',
@@ -149,7 +149,7 @@ export function AdminProductsPage() {
     setShowForm(true)
   }
 
-  const openEdit = (product) => {
+  const openEdit = (product: any) => {
     setEditing(product)
     setForm({
       name: product.name, description: product.description || '',

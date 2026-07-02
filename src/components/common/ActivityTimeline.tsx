@@ -84,7 +84,7 @@ export function ActivityTimeline({ userId }: { userId: string }) {
       })
     }
 
-    return out.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    return out.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [loanReqs, itReqs, mailboxReqs, scans])
 
   return (

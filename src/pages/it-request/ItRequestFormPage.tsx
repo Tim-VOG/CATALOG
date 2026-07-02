@@ -45,7 +45,7 @@ const SYSTEM_FIELD_KEYS = new Set([
 ])
 
 // ── Evaluate conditional logic ──
-function evaluateCondition(field, formValues) {
+function evaluateCondition(field: any, formValues: any) {
   if (!field.condition_field) return true
 
   const value = formValues[field.condition_field]
@@ -123,7 +123,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
 
     case 'multi_select': {
       const selected = Array.isArray(value) ? value : []
-      const toggleOpt = (opt) => {
+      const toggleOpt = (opt: any) => {
         if (selected.includes(opt)) {
           onChange(selected.filter((s: any) => s !== opt))
         } else {
@@ -228,7 +228,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
         const isSystem = SYSTEM_FIELD_KEYS.has(field.field_key)
         const value = isSystem ? form[field.field_key] : (form.custom_fields?.[field.field_key] ?? '')
 
-        const handleChange = (val) => {
+        const handleChange = (val: any) => {
           if (isSystem) {
             setField(field.field_key, val)
           } else {
@@ -405,7 +405,7 @@ export function ItRequestFormPage() {
     custom_fields: {},
   })
 
-  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
 
   // Auto-generate corporate email when name or business unit changes
   useEffect(() => {

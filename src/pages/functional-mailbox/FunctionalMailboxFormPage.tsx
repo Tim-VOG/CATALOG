@@ -50,7 +50,7 @@ const FIELD_TO_COLUMN = {
 }
 
 // ── Evaluate conditional logic ──
-function evaluateCondition(field, formValues) {
+function evaluateCondition(field: any, formValues: any) {
   if (!field.condition_field) return true
 
   const value = formValues[field.condition_field]
@@ -82,9 +82,9 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
   // Parse comma-separated string to array
   const tags = value ? value.split(',').map((t: any) => t.trim()).filter(Boolean) : []
 
-  const isValidEmail = (email) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
+  const isValidEmail = (email: any) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(email.trim())
 
-  const addTag = (raw) => {
+  const addTag = (raw: any) => {
     const email = raw.trim().toLowerCase()
     if (!email) return
     if (!isValidEmail(email)) {
@@ -101,12 +101,12 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
     setInputValue('')
   }
 
-  const removeTag = (idx) => {
+  const removeTag = (idx: any) => {
     const updated = tags.filter((_: any, i: any) => i !== idx)
     onChange(updated.join(', '))
   }
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
       e.preventDefault()
       addTag(inputValue)
@@ -116,7 +116,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
     }
   }
 
-  const handlePaste = (e) => {
+  const handlePaste = (e: any) => {
     e.preventDefault()
     const text = e.clipboardData.getData('text')
     // Split by comma, semicolon, newline, or space
@@ -279,7 +279,7 @@ function DynamicField({ field, value, onChange  }: any) {
 
     case 'multi_select': {
       const selected = Array.isArray(value) ? value : []
-      const toggleOpt = (opt) => {
+      const toggleOpt = (opt: any) => {
         if (selected.includes(opt)) {
           onChange(selected.filter((s: any) => s !== opt))
         } else {
@@ -377,7 +377,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
         const isSystem = SYSTEM_FIELD_KEYS.has(field.field_key)
         const value = isSystem ? form[field.field_key] : (form.custom_fields?.[field.field_key] ?? '')
 
-        const handleChange = (val) => {
+        const handleChange = (val: any) => {
           if (isSystem) {
             setField(field.field_key, val)
           } else {
@@ -534,7 +534,7 @@ export function FunctionalMailboxFormPage() {
     custom_fields: {},
   })
 
-  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {

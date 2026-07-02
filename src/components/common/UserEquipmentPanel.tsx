@@ -8,7 +8,7 @@ import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 
-const fmtDate = (d) =>
+const fmtDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 const REQ_TYPE_META = {
@@ -78,7 +78,7 @@ export function UserEquipmentPanel({ userId  }: any) {
         date: r.created_at,
       })
     }
-    return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    return items.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [loanReqs, itReqs, mailboxReqs])
 
   return (

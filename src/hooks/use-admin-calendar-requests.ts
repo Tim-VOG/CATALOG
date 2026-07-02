@@ -99,7 +99,7 @@ function extractUsers(events: any) {
     }
   }
   // Sort by name
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+  return [...map.values()].sort((a: any, b: any) => a.name.localeCompare(b.name))
 }
 
 // ── Main admin hook ──

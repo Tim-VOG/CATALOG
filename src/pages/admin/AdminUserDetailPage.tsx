@@ -14,7 +14,7 @@ import { UserEquipmentPanel } from '@/components/common/UserEquipmentPanel'
 import { ActivityTimeline } from '@/components/common/ActivityTimeline'
 import { UserFmbPanel } from '@/components/common/UserFmbPanel'
 
-const fmtDate = (d) =>
+const fmtDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 // Notion-style property row: small uppercase label on the left, value on the right

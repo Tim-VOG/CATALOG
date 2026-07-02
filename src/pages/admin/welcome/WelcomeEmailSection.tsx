@@ -14,7 +14,7 @@ const WelcomeComposer = lazy(() =>
   import('./WelcomeComposer').then((m) => ({ default: m.WelcomeComposer }))
 )
 
-function requestToRecipient(req, personalEmail) {
+function requestToRecipient(req: any, personalEmail: any) {
   const data = req.data || {}
   const email = data.email_local && data.email_domain
     ? `${data.email_local}@${data.email_domain}`
@@ -32,7 +32,7 @@ function requestToRecipient(req, personalEmail) {
   }
 }
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 /**

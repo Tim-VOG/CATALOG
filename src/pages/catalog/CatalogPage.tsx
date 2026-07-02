@@ -24,13 +24,13 @@ const SORT_OPTIONS = [
   { value: 'stock-asc', label: 'Least stock' },
 ]
 
-function sortProducts(products, sortBy) {
+function sortProducts(products: any, sortBy: any) {
   const list = [...products]
   switch (sortBy) {
-    case 'name-asc': return list.sort((a, b) => a.name.localeCompare(b.name))
-    case 'name-desc': return list.sort((a, b) => b.name.localeCompare(a.name))
-    case 'stock-desc': return list.sort((a, b) => b.total_stock - a.total_stock)
-    case 'stock-asc': return list.sort((a, b) => a.total_stock - b.total_stock)
+    case 'name-asc': return list.sort((a: any, b: any) => a.name.localeCompare(b.name))
+    case 'name-desc': return list.sort((a: any, b: any) => b.name.localeCompare(a.name))
+    case 'stock-desc': return list.sort((a: any, b: any) => b.total_stock - a.total_stock)
+    case 'stock-asc': return list.sort((a: any, b: any) => a.total_stock - b.total_stock)
     default: return list
   }
 }

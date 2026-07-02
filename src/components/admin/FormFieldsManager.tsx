@@ -47,7 +47,7 @@ const emptyField = {
   is_active: true,
 }
 
-const fieldTypeLabel = (type) => {
+const fieldTypeLabel = (type: any) => {
   if (type === 'location') return 'Location Picker'
   if (type === 'priority') return 'Priority Selector'
   return FIELD_TYPES.find((t: any) => t.value === type)?.label || type
@@ -135,7 +135,7 @@ export function FormFieldsManager() {
     setShowFieldDialog(true)
   }
 
-  const openEditField = (field) => {
+  const openEditField = (field: any) => {
     setEditingField(field)
     setForm({
       label: field.label,
@@ -152,7 +152,7 @@ export function FormFieldsManager() {
     setShowFieldDialog(true)
   }
 
-  const handleLabelChange = (label) => {
+  const handleLabelChange = (label: any) => {
     const key = editingField
       ? form.field_key
       : label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
@@ -169,7 +169,7 @@ export function FormFieldsManager() {
     setOptionInput('')
   }
 
-  const removeOption = (index) => {
+  const removeOption = (index: any) => {
     setForm({
       ...form,
       options: form.options.filter((_: any, i: any) => i !== index),

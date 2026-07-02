@@ -90,7 +90,7 @@ export function ImageUpload({
     }
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: any) => {
     e.preventDefault()
     setDragOver(false)
     handleUpload(e.dataTransfer.files[0])

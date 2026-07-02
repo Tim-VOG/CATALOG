@@ -12,7 +12,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 const STATUS_FILTERS = [

@@ -71,7 +71,7 @@ export function CatalogLoansView({ events  }: any) {
   }, [viewMode, baseDate])
 
   // ── Navigation ──
-  const navigate = (direction) => {
+  const navigate = (direction: any) => {
     setBaseDate((prev) => {
       switch (viewMode) {
         case '1W': return direction > 0 ? addWeeks(prev, 1) : subWeeks(prev, 1)
@@ -217,11 +217,11 @@ export function CatalogLoansView({ events  }: any) {
       }
       map.get(item.productId).reservations.push(item)
     }
-    return Array.from(map.values()).sort((a, b) => a.productName.localeCompare(b.productName))
+    return Array.from(map.values()).sort((a: any, b: any) => a.productName.localeCompare(b.productName))
   }, [itemEvents])
 
   // ── Bar position calculation ──
-  const getBarStyle = (pickupDate, returnDate) => {
+  const getBarStyle = (pickupDate: any, returnDate: any) => {
     const timelineStart = startOfDay(startDate)
     let timelineEnd
 
@@ -264,9 +264,9 @@ export function CatalogLoansView({ events  }: any) {
     return `${(offset / totalDays) * 100}%`
   }, [viewMode, startDate])
 
-  const getRowHeight = (reservations) => Math.max(56, 14 + reservations.length * 36)
+  const getRowHeight = (reservations: any) => Math.max(56, 14 + reservations.length * 36)
 
-  const toggleStatus = (status) => {
+  const toggleStatus = (status: any) => {
     setStatusFilter((prev) =>
       prev.includes(status) ? prev.filter((s: any) => s !== status) : [...prev, status]
     )

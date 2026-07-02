@@ -29,7 +29,7 @@ const VIEW_MODES = [
 
 const STORAGE_KEY = 'calendar-view-mode'
 
-function getTitle(currentDate, viewMode) {
+function getTitle(currentDate: any, viewMode: any) {
   switch (viewMode) {
     case 'day':
       return format(currentDate, 'EEEE, d MMMM yyyy')

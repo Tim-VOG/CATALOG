@@ -129,7 +129,7 @@ export function CalendarDayView({
 
   // Sort: multi-day first, then by type
   const sorted = useMemo(() => {
-    return [...events].sort((a, b) => {
+    return [...events].sort((a: any, b: any) => {
       if (a.isMultiDay && !b.isMultiDay) return -1
       if (!a.isMultiDay && b.isMultiDay) return 1
       const typeOrder = { catalog: 0, it: 1, mailbox: 2 }

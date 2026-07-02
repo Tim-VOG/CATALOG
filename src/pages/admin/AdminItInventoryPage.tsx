@@ -11,7 +11,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
-const fmtMoney = (n) => {
+const fmtMoney = (n: any) => {
   if (n == null || isNaN(Number(n))) return ''
   return Number(n).toLocaleString('fr-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })
 }
@@ -21,7 +21,7 @@ const fmtNum = (n, d = 2) => {
   return Number(n).toLocaleString('fr-BE', { maximumFractionDigits: d })
 }
 
-const monthDiff = (start, end) => {
+const monthDiff = (start: any, end: any) => {
   if (!start || !end) return null
   const s = new Date(start), e = new Date(end)
   if (isNaN(s.getTime()) || isNaN(e.getTime())) return null
@@ -36,7 +36,7 @@ const monthDiff = (start, end) => {
  * - Remaining value = price - amortised
  * - Deductible amount = price * deductible_pct / 100
  */
-function compute(row) {
+function compute(row: any) {
   const price = Number(row.purchase_price) || 0
   const residual = Number(row.residual_value) || 0
   const total = monthDiff(row.leasing_start, row.leasing_end)

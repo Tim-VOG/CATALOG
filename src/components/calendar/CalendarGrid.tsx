@@ -6,7 +6,7 @@ import { CalendarDayCell } from './CalendarDayCell'
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 // Generate month grid with padding days from adjacent months
-function getMonthGrid(year, month) {
+function getMonthGrid(year: any, month: any) {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const startPad = (firstDay.getDay() + 6) % 7 // Monday = 0

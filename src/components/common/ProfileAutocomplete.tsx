@@ -23,7 +23,7 @@ export function ProfileAutocomplete({ value, onChange, onSelect, placeholder  }:
 
   // Close on outside click
   useEffect(() => {
-    const onDocClick = (e) => {
+    const onDocClick = (e: any) => {
       if (!wrapperRef.current?.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', onDocClick)

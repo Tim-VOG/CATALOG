@@ -11,7 +11,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
     })
   )
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event: any) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -20,7 +20,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
     onChange(arrayMove(blocks, oldIndex, newIndex))
   }
 
-  const handleToggle = (blockKey) => {
+  const handleToggle = (blockKey: any) => {
     onChange(
       blocks.map((b: any) =>
         b.block_key === blockKey ? { ...b, enabled: !b.enabled } : b
@@ -36,7 +36,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
     )
   }
 
-  const handleOptionChange = (blockKey, options) => {
+  const handleOptionChange = (blockKey: any, options: any) => {
     onChange(
       blocks.map((b: any) =>
         b.block_key === blockKey ? { ...b, options } : b
@@ -44,7 +44,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
     )
   }
 
-  const getTemplate = (blockKey) =>
+  const getTemplate = (blockKey: any) =>
     blockTemplates.find((t: any) => t.block_key === blockKey)
 
   return (

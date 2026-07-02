@@ -140,7 +140,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
   }, [buildPreview, emailBody, firstName, lastName])
 
   // Insert variable at cursor position in textarea
-  const insertVariable = (varKey) => {
+  const insertVariable = (varKey: any) => {
     const textarea = bodyRef.current
     if (!textarea) return
     const tag = `{{${varKey}}}`

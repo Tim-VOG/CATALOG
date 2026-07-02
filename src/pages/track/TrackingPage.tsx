@@ -14,12 +14,12 @@ const STEPS = [
   { key: 'ready', label: 'Ready', description: 'Ready for pickup', icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500' },
 ]
 
-function getStepIndex(status) {
+function getStepIndex(status: any) {
   const idx = STEPS.findIndex((s: any) => s.key === status)
   return idx >= 0 ? idx : 0
 }
 
-function useTrackingData(token) {
+function useTrackingData(token: any) {
   return useQuery({
     queryKey: ['tracking', token],
     queryFn: async () => {

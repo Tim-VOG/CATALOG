@@ -10,7 +10,7 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-function getMonthGrid(year, month) {
+function getMonthGrid(year: any, month: any) {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const startPad = (firstDay.getDay() + 6) % 7 // Monday = 0
@@ -25,7 +25,7 @@ function getMonthGrid(year, month) {
   return days
 }
 
-function toDateStr(date) {
+function toDateStr(date: any) {
   return date.toISOString().slice(0, 10)
 }
 
@@ -67,7 +67,7 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
     }
   }
 
-  const getAvailability = (date) => {
+  const getAvailability = (date: any) => {
     if (!date) return null
     const key = toDateStr(date)
     const reserved = reservedByDate[key] || 0
@@ -77,7 +77,7 @@ export function AvailabilityCalendar({ reservations = [], totalStock = 1, compac
     return 'available'
   }
 
-  const isPast = (date) => {
+  const isPast = (date: any) => {
     if (!date) return false
     const todayStr = toDateStr(today)
     return toDateStr(date) < todayStr

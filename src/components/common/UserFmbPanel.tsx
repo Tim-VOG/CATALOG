@@ -44,7 +44,7 @@ export function UserFmbPanel({ user  }: any) {
   if (isLoading) return null
   if (ledMailboxes.length === 0 && accessMailboxes.length === 0) return null
 
-  const renderRow = (m) => (
+  const renderRow = (m: any) => (
     <Link
       key={m.id}
       to="/admin/shared-mailboxes"

@@ -24,14 +24,14 @@ import './lib/monitoring' // registers Sentry if VITE_SENTRY_DSN is set
 const CHUNK_RELOAD_COUNTER = 'vo-hub-chunk-reload-count'
 const CHUNK_RELOAD_MAX = 3
 const CHUNK_RECENT_RELOAD = 'vo-hub-chunk-last-reload'
-function isStaleChunkError(error) {
+function isStaleChunkError(error: any) {
   const message = typeof error === 'string' ? error : (error?.message || '')
   const name = error?.name || ''
   if (name === 'ChunkLoadError') return true
   if (!message) return false
   return /Failed to (fetch|load) dynamically imported module|Importing a module script failed|Loading chunk \d+ failed|error loading dynamically imported module|Unable to preload CSS/i.test(message)
 }
-function recoverFromStaleChunk(error) {
+function recoverFromStaleChunk(error: any) {
   if (!isStaleChunkError(error)) return
   // Debounce: ignore further fires while a reload was just triggered for
   // the same error burst (Suspense fires both window.error and React's

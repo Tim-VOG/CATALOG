@@ -39,7 +39,7 @@ export function AppLayout() {
 
   // Keyboard shortcuts: Cmd/Ctrl+K = focus search, Cmd/Ctrl+N = catalog
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: any) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
         ;(document.querySelector('[data-search-input]') as HTMLElement | null)?.focus()

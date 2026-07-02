@@ -72,7 +72,7 @@ const STEP_COLORS = {
   additional: 'bg-gray-500/15 text-gray-600 border-gray-500/30',
 }
 
-function generateFieldKey(label) {
+function generateFieldKey(label: any) {
   return (label || '')
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
@@ -231,7 +231,7 @@ export function AdminItFormBuilderPage() {
   }
 
   // ── Open edit dialog ──
-  const handleEdit = (field) => {
+  const handleEdit = (field: any) => {
     setEditDialog({
       ...field,
       options: field.options || [],

@@ -19,12 +19,12 @@ const STATUS_OPTIONS = [
 
 const STATUS_FILTERS = ['all', 'pending', 'in_progress', 'ready']
 
-function formatDate(d) {
+function formatDate(d: any) {
   if (!d) return ''
   return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function getInitials(name) {
+function getInitials(name: any) {
   if (!name) return '?'
   const parts = name.split(' ')
   return parts.map((p: any) => p[0] || '').join('').toUpperCase().slice(0, 2)
@@ -95,7 +95,7 @@ export function OffboardingPage() {
     setDeleteConfirm(null)
   }
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: any) => {
     const opt = STATUS_OPTIONS.find((s: any) => s.value === status) || STATUS_OPTIONS[0]
     return (
       <Badge variant="outline" className={cn('gap-1 text-[11px]', opt.color)}>

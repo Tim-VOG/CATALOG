@@ -23,7 +23,7 @@ import { ActivityTimeline } from '@/components/common/ActivityTimeline'
 import { PushToggleCard } from '@/components/common/PushToggleCard'
 import { LanguageCard } from '@/components/common/LanguageCard'
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024 // 2MB

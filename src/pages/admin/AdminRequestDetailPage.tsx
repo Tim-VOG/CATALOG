@@ -265,7 +265,7 @@ export function AdminRequestDetailPage() {
     }
   }
 
-  const getAvailableQRsForProduct = (productId) => {
+  const getAvailableQRsForProduct = (productId: any) => {
     // Exclude QRs already used elsewhere in this request so the same code
     // can't be picked twice for two slots of the same product.
     const usedIds = new Set(Object.values(assignedQRs).flat().map((q: any) => q?.id).filter(Boolean))
@@ -279,7 +279,7 @@ export function AdminRequestDetailPage() {
 
   // An item is fully assigned when as many QR codes are linked as the
   // quantity requested.
-  const isItemFullyAssigned = (item) => (assignedQRs[item.id]?.length || 0) >= item.quantity
+  const isItemFullyAssigned = (item: any) => (assignedQRs[item.id]?.length || 0) >= item.quantity
   const allItemsAssigned = items.every(isItemFullyAssigned)
   const timeline = buildTimeline(request)
 

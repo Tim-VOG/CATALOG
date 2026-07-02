@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { DateRangeCalendar } from './DateRangeCalendar'
 import { cn } from '@/lib/utils'
 
-const formatDate = (s) => {
+const formatDate = (s: any) => {
   if (!s) return null
   const d = new Date(s + 'T00:00:00')
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
@@ -19,7 +19,7 @@ export function CompactDateBar({ startDate, endDate, onChange  }: any) {
   // Close on click outside
   useEffect(() => {
     if (!open) return
-    const handler = (e) => {
+    const handler = (e: any) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
@@ -28,7 +28,7 @@ export function CompactDateBar({ startDate, endDate, onChange  }: any) {
 
   const hasRange = startDate && endDate
 
-  const handleClear = (e) => {
+  const handleClear = (e: any) => {
     e.stopPropagation()
     onChange(null, null)
     setOpen(false)

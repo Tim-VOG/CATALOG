@@ -12,7 +12,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
   // Close on outside click
   useEffect(() => {
     if (!open) return
-    const handler = (e) => {
+    const handler = (e: any) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
@@ -23,7 +23,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
     ? users.filter((u: any) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase()))
     : users
 
-  const toggleUser = (userId) => {
+  const toggleUser = (userId: any) => {
     const next = selectedUsers.includes(userId)
       ? selectedUsers.filter((id: any) => id !== userId)
       : [...selectedUsers, userId]

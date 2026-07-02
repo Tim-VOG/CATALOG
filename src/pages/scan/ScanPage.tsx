@@ -60,7 +60,7 @@ export function ScanPage() {
     toast.success(`Added: ${qrData.product_name}`)
   }
 
-  const handleManualSubmit = (e) => {
+  const handleManualSubmit = (e: any) => {
     e.preventDefault()
     if (!manualCode.trim()) return
     if (bulkMode) {
@@ -150,7 +150,7 @@ export function ScanPage() {
     setScannedCode(null)
   }
 
-  const removeBulkItem = (code) => {
+  const removeBulkItem = (code: any) => {
     setBulkItems(prev => prev.filter(i => i.code !== code))
   }
 

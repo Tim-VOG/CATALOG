@@ -105,12 +105,12 @@ export function AdminDeviceCredentialsPage() {
         (x.notes || '').toLowerCase().includes(q),
       )
     }
-    return r.sort((a, b) => (a.qr_code?.code || '').localeCompare(b.qr_code?.code || ''))
+    return r.sort((a: any, b: any) => (a.qr_code?.code || '').localeCompare(b.qr_code?.code || ''))
   }, [rows, search, categoryFilter])
 
   const usedQrIds = useMemo(() => new Set(rows.map((r: any) => r.qr_code_id)), [rows])
   const availableQrs = useMemo(
-    () => qrCodes.filter((q: any) => !usedQrIds.has(q.id)).sort((a, b) => a.code.localeCompare(b.code)),
+    () => qrCodes.filter((q: any) => !usedQrIds.has(q.id)).sort((a: any, b: any) => a.code.localeCompare(b.code)),
     [qrCodes, usedQrIds],
   )
 

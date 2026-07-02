@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
  * Determines if text should be white or dark based on background color brightness.
  * Uses relative luminance formula.
  */
-function getContrastColor(hex) {
+function getContrastColor(hex: any) {
   if (!hex || !hex.startsWith('#')) return '#ffffff'
   const r = parseInt(hex.slice(1, 3), 16)
   const g = parseInt(hex.slice(3, 5), 16)

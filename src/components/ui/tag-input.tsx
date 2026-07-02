@@ -37,7 +37,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
     [value, onChange],
   )
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === 'Enter' || e.key === ',' || e.key === ';') {
       e.preventDefault()
       if (input.trim()) {
@@ -50,7 +50,7 @@ export function TagInput({ value = [], onChange, placeholder = 'Add item...', cl
     }
   }
 
-  const handlePaste = (e) => {
+  const handlePaste = (e: any) => {
     e.preventDefault()
     const pasted = e.clipboardData.getData('text')
     if (pasted) {

@@ -15,10 +15,10 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { WelcomeComposer } from './WelcomeComposer'
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
-function requestToRecipient(req, personalEmail) {
+function requestToRecipient(req: any, personalEmail: any) {
   const data = req.data || {}
   const email = data.email_local && data.email_domain
     ? `${data.email_local}@${data.email_domain}`

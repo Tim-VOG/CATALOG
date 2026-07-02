@@ -107,7 +107,7 @@ export function AdminSidebar() {
     }))
     .filter((section: any) => section.links.length > 0)
 
-  const isActive = (to, exact) => {
+  const isActive = (to: any, exact: any) => {
     if (exact) return location.pathname === to
     return location.pathname.startsWith(to)
   }

@@ -80,14 +80,14 @@ export function AdminEmailTemplatesPage() {
     })
   }, [body, settings])
 
-  const openEdit = (template) => {
+  const openEdit = (template: any) => {
     setEditing(template)
     setSubject(template.subject)
     setBody(template.body)
     setEditTab('edit')
   }
 
-  const openPreview = (template) => {
+  const openPreview = (template: any) => {
     setEditing(template)
     setSubject(template.subject)
     setBody(template.body)

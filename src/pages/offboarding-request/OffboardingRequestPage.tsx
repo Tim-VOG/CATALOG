@@ -98,7 +98,7 @@ function StepProgress({ currentStep, steps  }: any) {
 
 // ── Step 1: Who ──
 function StepWho({ form, setField, setMultipleFields  }: any) {
-  const handlePickProfile = (profile) => {
+  const handlePickProfile = (profile: any) => {
     const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email
     setMultipleFields({
       name: fullName,
@@ -301,7 +301,7 @@ function StepRevocation({ form, setField  }: any) {
 }
 
 // ── Step 4: Equipment ──
-const matches = (text, keywords) => {
+const matches = (text: any, keywords: any) => {
   const t = (text || '').toLowerCase()
   return keywords.some((k: any) => t.includes(k))
 }
@@ -549,8 +549,8 @@ export function OffboardingRequestPage() {
     requested_on: new Date().toISOString().split('T')[0],
   })
 
-  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
-  const setMultipleFields = (updates) => setForm((prev) => ({ ...prev, ...updates }))
+  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setMultipleFields = (updates: any) => setForm((prev) => ({ ...prev, ...updates }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {

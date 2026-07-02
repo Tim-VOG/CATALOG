@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/use-notifications'
 import { cn } from '@/lib/utils'
 
-const formatRelative = (dateStr) => {
+const formatRelative = (dateStr: any) => {
   const diff = Date.now() - new Date(dateStr).getTime()
   const mins = Math.floor(diff / 60000)
   if (mins < 1) return 'Just now'
@@ -28,7 +28,7 @@ const REQUEST_CATEGORIES = {
   default: { label: 'General', icon: Inbox, color: 'text-muted-foreground bg-muted/30' },
 }
 
-function getNotificationCategory(notification) {
+function getNotificationCategory(notification: any) {
   const title = (notification.title || '').toLowerCase()
   const message = (notification.message || '').toLowerCase()
   const type = (notification.type || '').toLowerCase()
@@ -75,14 +75,14 @@ export function NotificationBell() {
   )
 
   useEffect(() => {
-    const handleClick = (e) => {
+    const handleClick = (e: any) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = (notification: any) => {
     if (!notification.is_read) {
       markAsRead.mutate(notification.id)
     }

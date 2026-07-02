@@ -27,7 +27,7 @@ export function UserSearchSelect({ value, onChange, placeholder = 'Search user b
 
   // Close dropdown on outside click
   useEffect(() => {
-    const handleClick = (e) => {
+    const handleClick = (e: any) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setOpen(false)
       }
@@ -45,7 +45,7 @@ export function UserSearchSelect({ value, onChange, placeholder = 'Search user b
     .filter((p: any) => p.is_active !== false)
     .slice(0, 8)
 
-  const handleSelect = (profile) => {
+  const handleSelect = (profile: any) => {
     onChange(profile)
     setSearch('')
     setOpen(false)

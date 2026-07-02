@@ -16,7 +16,7 @@ const SHORTCUTS = [
 
 const ROUTE_MAP = { h: '/', c: '/catalog', r: '/my-requests', p: '/profile', a: '/admin' }
 
-function isTyping(target) {
+function isTyping(target: any) {
   if (!target) return false
   const tag = (target.tagName || '').toLowerCase()
   if (tag === 'input' || tag === 'textarea' || tag === 'select') return true
@@ -38,7 +38,7 @@ export function KeyboardShortcutsProvider({ children  }: any) {
   const [pendingG, setPendingG] = useState(false)
 
   useEffect(() => {
-    const onKey = (e) => {
+    const onKey = (e: any) => {
       if (e.defaultPrevented) return
       if (isTyping(e.target)) return
       if (e.metaKey || e.ctrlKey || e.altKey) return

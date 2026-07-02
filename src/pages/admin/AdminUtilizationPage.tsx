@@ -47,8 +47,8 @@ export function AdminUtilizationPage() {
     }
 
     const finish = (r: Row) => { r.utilization = r.total ? Math.round((r.inUse / r.total) * 100) : 0; return r }
-    const byCategory = Object.values(cat).map(finish).sort((a, b) => b.utilization - a.utilization)
-    const byProduct = Object.values(prod).map(finish).sort((a, b) => b.utilization - a.utilization)
+    const byCategory = Object.values(cat).map(finish).sort((a: any, b: any) => b.utilization - a.utilization)
+    const byProduct = Object.values(prod).map(finish).sort((a: any, b: any) => b.utilization - a.utilization)
     return { byCategory, byProduct, overall: total ? Math.round((inUse / total) * 100) : 0 }
   }, [qrCodes, takeCounts])
 

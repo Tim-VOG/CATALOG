@@ -78,7 +78,7 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
   // ESC key handler
   React.useEffect(() => {
     if (!open) return
-    const handler = (e) => {
+    const handler = (e: any) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
         onOpenChange?.(false)
@@ -89,7 +89,7 @@ const DialogContent = React.forwardRef<any, any>(({ className, children, size = 
   }, [open, onOpenChange])
 
   // Focus trap
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key !== 'Tab') return
     const el = contentRef.current
     if (!el) return

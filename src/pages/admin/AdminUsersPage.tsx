@@ -206,7 +206,7 @@ export function AdminUsersPage() {
     }
   }
 
-  const handleDelete = (userId, userName) => {
+  const handleDelete = (userId: any, userName: any) => {
     setDeleteDialog({ userId, userName })
   }
 

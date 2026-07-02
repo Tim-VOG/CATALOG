@@ -231,7 +231,7 @@ export function AdminDashboardPage() {
   }), [loanReqs, itReqs, mailboxReqs, overdueScans, products])
 
   const sortedLoans = useMemo(() => {
-    return [...activeLoans].sort((a, b) => {
+    return [...activeLoans].sort((a: any, b: any) => {
       const da = a.expected_return_date ? new Date(a.expected_return_date) : new Date('2999-01-01')
       const db = b.expected_return_date ? new Date(b.expected_return_date) : new Date('2999-01-01')
       return da.getTime() - db.getTime()
@@ -247,7 +247,7 @@ export function AdminDashboardPage() {
       e.total++
       if (q.status === 'available') e.available++
     })
-    return Array.from(map.entries()).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.total - a.total)
+    return Array.from(map.entries()).map(([name, v]) => ({ name, ...v })).sort((a: any, b: any) => b.total - a.total)
   }, [qrCodes])
 
   if (loadingRequests || loadingProducts) return <PageLoading />

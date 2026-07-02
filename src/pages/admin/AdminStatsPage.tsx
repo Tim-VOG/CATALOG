@@ -64,7 +64,7 @@ export function AdminStatsPage() {
       const name = r.project_name || 'Unknown'
       productCounts[name] = (productCounts[name] || 0) + 1
     }
-    const topRequested = Object.entries(productCounts as Record<string, any>).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    const topRequested = Object.entries(productCounts as Record<string, any>).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5)
 
     // Requests by type
     const byType = { equipment: loanReqs.length, onboarding: 0, offboarding: 0, mailbox: mailboxReqs.length }

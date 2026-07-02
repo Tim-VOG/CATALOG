@@ -80,7 +80,7 @@ export function AdminLocalITPage() {
       const cat = qr.category_name || 'Other'
       cats[cat] = (cats[cat] || 0) + 1
     }
-    return Object.entries(cats as Record<string, any>).sort((a, b) => b[1] - a[1])
+    return Object.entries(cats as Record<string, any>).sort((a: any, b: any) => b[1] - a[1])
   }, [allQR])
 
   // Filter

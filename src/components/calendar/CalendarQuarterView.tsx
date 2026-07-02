@@ -11,7 +11,7 @@ const TYPE_DOTS = {
   mailbox: 'bg-violet-500',
 }
 
-function getMonthGrid(year, month) {
+function getMonthGrid(year: any, month: any) {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const startPad = (firstDay.getDay() + 6) % 7

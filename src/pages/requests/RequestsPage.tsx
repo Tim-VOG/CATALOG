@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 const ACTIVE_STATUSES = ['pending', 'in_progress']
 const PAST_STATUSES = ['ready']
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 function RequestCard({ req  }: any) {

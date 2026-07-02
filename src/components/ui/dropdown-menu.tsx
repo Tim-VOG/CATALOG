@@ -13,7 +13,7 @@ function DropdownMenu({ children  }: any) {
   // !open so re-opens via the trigger aren't immediately re-closed.
   React.useEffect(() => {
     if (!open) return
-    const handler = (e) => {
+    const handler = (e: any) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
     // Defer attaching so the click that opened the menu doesn't get
@@ -29,7 +29,7 @@ function DropdownMenu({ children  }: any) {
   // ESC key to close
   React.useEffect(() => {
     if (!open) return
-    const handler = (e) => {
+    const handler = (e: any) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
         setOpen(false)
@@ -48,11 +48,11 @@ function DropdownMenu({ children  }: any) {
 
 function DropdownMenuTrigger({ children, asChild, ...props  }: any) {
   const { open, setOpen } = React.useContext(DropdownContext)
-  const handleClick = (e) => {
+  const handleClick = (e: any) => {
     e.preventDefault()
     setOpen((o) => !o)
   }
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       setOpen(true)
@@ -89,7 +89,7 @@ function DropdownMenuContent({ className, align = 'end', children, ...props  }: 
   }, [open])
 
   // Arrow key navigation within menu
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     const el = contentRef.current
     if (!el) return
     const items = Array.from(el.querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])')) as HTMLElement[]
@@ -141,12 +141,12 @@ function DropdownMenuContent({ className, align = 'end', children, ...props  }: 
 
 function DropdownMenuItem({ className, children, onClick, disabled, ...props  }: any) {
   const { setOpen } = React.useContext(DropdownContext)
-  const handleClick = (e) => {
+  const handleClick = (e: any) => {
     if (disabled) return
     onClick?.(e)
     setOpen(false)
   }
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleClick(e)

@@ -22,7 +22,7 @@ const CATEGORY_CONFIG = {
   router: { match: ['5g router', 'router', 'modem'], planTypes: ['data'], accessories: ['Power Adapter', 'Ethernet Cable'] },
 }
 
-function getCategoryConfig(categoryName) {
+function getCategoryConfig(categoryName: any) {
   if (!categoryName) return null
   const lower = categoryName.toLowerCase()
   for (const [, config] of Object.entries(CATEGORY_CONFIG as Record<string, any>)) {
@@ -31,7 +31,7 @@ function getCategoryConfig(categoryName) {
   return null
 }
 
-export function needsOptions(categoryName) { return getCategoryConfig(categoryName) !== null }
+export function needsOptions(categoryName: any) { return getCategoryConfig(categoryName) !== null }
 export { getCategoryConfig }
 
 function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
@@ -41,7 +41,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   const [accessories, setAccessories] = useState<any[]>([])
   const plans = config ? allPlans.filter((p: any) => config.planTypes.includes(p.type)) : allPlans
   const availableAccessories = config?.accessories || []
-  const toggleAcc = (a) => setAccessories((prev) => prev.includes(a) ? prev.filter((x: any) => x !== a) : [...prev, a])
+  const toggleAcc = (a: any) => setAccessories((prev) => prev.includes(a) ? prev.filter((x: any) => x !== a) : [...prev, a])
   const typeBadge = { call: 'bg-blue-500/15 text-blue-400', data: 'bg-purple-500/15 text-purple-400', both: 'bg-cyan-500/15 text-cyan-400' }
 
   return (
@@ -113,7 +113,7 @@ export function ProductCard({ product, forecast }: any) {
     })
   }
 
-  const handleAdd = (e) => {
+  const handleAdd = (e: any) => {
     e?.preventDefault?.(); e?.stopPropagation?.()
     if (outOfStock) return
     if (showOptions && !inCart) setOptionsOpen(true)
@@ -134,7 +134,7 @@ export function ProductCard({ product, forecast }: any) {
   const [isFav, setIsFav] = useState(() => {
     try { return JSON.parse(localStorage.getItem('vo-favorites') || '[]').includes(product.id) } catch { return false }
   })
-  const toggleFav = (e) => {
+  const toggleFav = (e: any) => {
     e.preventDefault(); e.stopPropagation()
     const favs = JSON.parse(localStorage.getItem('vo-favorites') || '[]')
     const next = isFav ? favs.filter((id: any) => id !== product.id) : [...favs, product.id]

@@ -9,14 +9,14 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
-function toDateStr(date) {
+function toDateStr(date: any) {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
 }
 
-function getMonthGrid(year, month) {
+function getMonthGrid(year: any, month: any) {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
   const startPad = (firstDay.getDay() + 6) % 7 // Monday = 0
@@ -56,7 +56,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
     else setCurrentMonth((m) => m + 1)
   }
 
-  const handleDayClick = (dateStr) => {
+  const handleDayClick = (dateStr: any) => {
     if (dateStr < todayStr) return // can't pick past dates
 
     if (!startDate || (startDate && endDate)) {
@@ -84,7 +84,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
   const rangeStart = startDate || null
   const rangeEnd = endDate || (isSelectingEnd && hoverDate > startDate ? hoverDate : null)
 
-  const getDayState = (dateStr) => {
+  const getDayState = (dateStr: any) => {
     if (!dateStr) return 'empty'
     if (dateStr < todayStr) return 'past'
     if (dateStr === rangeStart && dateStr === rangeEnd) return 'single'
@@ -96,7 +96,7 @@ export function DateRangeCalendar({ startDate, endDate, onChange  }: any) {
 
   const formatSelectedRange = () => {
     if (!startDate) return null
-    const fmt = (s) => {
+    const fmt = (s: any) => {
       const d = new Date(s + 'T00:00:00')
       return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     }

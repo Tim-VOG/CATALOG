@@ -39,13 +39,13 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
     setSelectedDuration(7)
   }
 
-  const handleQuickDuration = (days) => {
+  const handleQuickDuration = (days: any) => {
     setSelectedDuration(days)
     const pickup = pickupDate ? new Date(pickupDate + 'T12:00:00') : today
     setReturnDate(format(addDays(pickup, days), 'yyyy-MM-dd'))
   }
 
-  const handlePickupChange = (e) => {
+  const handlePickupChange = (e: any) => {
     setPickupDate(e.target.value)
     // Recalculate return date if a duration was selected
     if (selectedDuration) {
@@ -53,7 +53,7 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
     }
   }
 
-  const handleReturnChange = (e) => {
+  const handleReturnChange = (e: any) => {
     setReturnDate(e.target.value)
     setSelectedDuration(null)
   }

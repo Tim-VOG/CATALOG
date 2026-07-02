@@ -19,7 +19,7 @@ import { StatusBadge } from '@/components/common/StatusBadge'
 import { OffboardingChecklist } from '@/components/admin/OffboardingChecklist'
 import { cn } from '@/lib/utils'
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 const STATUS_COLORS = {
@@ -34,7 +34,7 @@ function OffboardingRequestInfoCard({ req  }: any) {
   const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
   const corporateEmail = data.email || data.corporate_email || data.email_to_revoke || '—'
 
-  const fmtBool = (v) => (v === true ? 'Yes' : v === false ? 'No' : '—')
+  const fmtBool = (v: any) => (v === true ? 'Yes' : v === false ? 'No' : '—')
   const ooo = data.ooo_enabled
     ? [
         ['Out Of Office', 'Yes'],
@@ -139,7 +139,7 @@ function RevokeChecklist({ req, onboardingMatch, onToggle  }: any) {
 
   // Pull every access-shaped field from the matching onboarding payload
   const items = []
-  const push = (label, value) => {
+  const push = (label: any, value: any) => {
     if (!value) return
     const list = Array.isArray(value) ? value : String(value).split(/[,;]\s*/).filter(Boolean)
     for (const v of list) items.push({ id: `${label}::${v}`, group: label, label: v })
@@ -336,7 +336,7 @@ export function AdminOffboardingRequestsPage() {
     return map
   }, [allRequests])
 
-  const findOnboardingFor = (req) => {
+  const findOnboardingFor = (req: any) => {
     const d = req.data || {}
     const name = (d.employee_name || d.name || `${d.first_name || ''} ${d.last_name || ''}`).trim().toLowerCase()
     return onboardingByName[name] || null

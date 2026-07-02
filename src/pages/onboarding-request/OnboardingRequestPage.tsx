@@ -62,7 +62,7 @@ const COMPANY_DOMAINS = {
   'VO LAB': 'vo-lab.be',
 }
 const DEFAULT_DOMAIN = 'vo-group.be'
-const domainForCompany = (company) => COMPANY_DOMAINS[company] || DEFAULT_DOMAIN
+const domainForCompany = (company: any) => COMPANY_DOMAINS[company] || DEFAULT_DOMAIN
 
 const LANGUAGES = ['EN', 'FR', 'NL']
 
@@ -156,7 +156,7 @@ const DISTRIBUTION_LIST_INFO = {
   'SUFW-RH': 'SUFW HR team',
 }
 
-const distributionListsFor = (company) => {
+const distributionListsFor = (company: any) => {
   const extra = DISTRIBUTION_LISTS_BY_COMPANY[company] || []
   return [...new Set([...DISTRIBUTION_LISTS_GLOBAL, ...extra])]
 }
@@ -218,7 +218,7 @@ function StepProgress({ currentStep, steps  }: any) {
 // ── Multi-select field ──
 function MultiSelectField({ options, value, onChange, descriptions  }: any) {
   const selected = Array.isArray(value) ? value : []
-  const toggle = (opt) => {
+  const toggle = (opt: any) => {
     if (selected.includes(opt)) {
       onChange(selected.filter((s: any) => s !== opt))
     } else {
@@ -562,7 +562,7 @@ function StepRequester({ form, update  }: any) {
 
 // ── Step: Review ──
 function StepReview({ form, update  }: any) {
-  const fmtBool = (v) => (v === true ? 'Yes' : v === false ? 'No' : '—')
+  const fmtBool = (v: any) => (v === true ? 'Yes' : v === false ? 'No' : '—')
   const isVoEurope = form.company === 'VO EUROPE'
   const fields = [
     { label: 'First Name', value: form.first_name },
@@ -673,7 +673,7 @@ export function OnboardingRequestPage() {
     ...(editStash || {}),
   })
 
-  const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+  const update = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {
@@ -689,7 +689,7 @@ export function OnboardingRequestPage() {
   // Auto-suggest email local part: first letter of first name + full last name (until user edits it manually)
   useEffect(() => {
     if (emailLocalEdited) return
-    const slug = (s) => (s || '').trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '')
+    const slug = (s: any) => (s || '').trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '')
     const first = slug(form.first_name)
     const last = slug(form.last_name)
     const suggestion = first && last ? `${first[0]}${last}` : ''

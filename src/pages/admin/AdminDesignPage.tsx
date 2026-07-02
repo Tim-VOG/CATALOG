@@ -327,8 +327,8 @@ export function AdminDesignPage() {
     if (file) handleLogoUpload(file, variant)
   }
 
-  const updateDarkPalette = (key, value) => setDarkPalette((p) => ({ ...p, [key]: value }))
-  const updateLightPalette = (key, value) => setLightPalette((p) => ({ ...p, [key]: value }))
+  const updateDarkPalette = (key: any, value: any) => setDarkPalette((p) => ({ ...p, [key]: value }))
+  const updateLightPalette = (key: any, value: any) => setLightPalette((p) => ({ ...p, [key]: value }))
 
   const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map(k => [k, ''])) as any)
   const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map(k => [k, ''])) as any)
@@ -394,7 +394,7 @@ export function AdminDesignPage() {
 
   // ── Change detection ────────────────────────
 
-  const str = (v) => v || ''
+  const str = (v: any) => v || ''
   const hasChanges = settings && (
     appName !== (settings.app_name || '') ||
     logoUrl !== (settings.logo_url || '') ||

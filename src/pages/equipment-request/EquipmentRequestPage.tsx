@@ -163,7 +163,7 @@ function StepEvent({ form, setField  }: any) {
 function StepEquipment({ form, setField, productsByCategory  }: any) {
   const selected = form.equipment_needed || []
 
-  const toggleEquipment = (id) => {
+  const toggleEquipment = (id: any) => {
     if (selected.includes(id)) {
       setField('equipment_needed', selected.filter((s: any) => s !== id))
       // Clear sub-selections when deselecting
@@ -576,7 +576,7 @@ function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
     .join(', ')
 
   // Resolve product names for selected models
-  const resolveProductName = (category, productId) => {
+  const resolveProductName = (category: any, productId: any) => {
     if (!productId) return null
     const products = productsByCategory[category] || []
     const product = products.find(p => p.id === productId)
@@ -652,7 +652,7 @@ export function EquipmentRequestPage() {
     additional_notes: '',
   })
 
-  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
 
   // Group products by category name (case-insensitive matching)
   const productsByCategory = useMemo(() => {

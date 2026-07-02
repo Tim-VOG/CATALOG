@@ -20,7 +20,7 @@ import { reserveOnboardingKit } from '@/lib/api/onboarding-kit'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { WelcomeEmailSection } from '@/pages/admin/welcome/WelcomeEmailSection'
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 const STATUS_COLORS = {
@@ -32,7 +32,7 @@ const STATUS_COLORS = {
 
 // Onboarding requests in 'ready' state without a welcome email sent yet
 // are surfaced as 'welcome' in the UI so admins know what's left to do.
-const displayStatus = (status, sentEmail) =>
+const displayStatus = (status: any, sentEmail: any) =>
   status === 'ready' && !sentEmail ? 'welcome' : status
 
 // ── Info card (full request details, no expand) ──

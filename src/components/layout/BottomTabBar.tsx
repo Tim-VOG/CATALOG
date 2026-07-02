@@ -18,7 +18,7 @@ export function BottomTabBar() {
   const { data: cartItems = [] } = useCart()
   const cartCount = cartItems.reduce((sum: any, i: any) => sum + i.quantity, 0)
 
-  const isActive = (to, exact) => exact ? location.pathname === to : location.pathname.startsWith(to)
+  const isActive = (to: any, exact: any) => exact ? location.pathname === to : location.pathname.startsWith(to)
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 md:hidden glass-panel border-t border-primary/10 shadow-[0_-4px_20px_0_rgb(var(--color-primary)/0.06)] pb-safe">

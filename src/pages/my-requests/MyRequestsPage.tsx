@@ -41,12 +41,12 @@ const TYPE_FILTERS = [
   { key: 'mailbox', label: 'Mailbox' },
 ]
 
-function getStepIndex(status) {
+function getStepIndex(status: any) {
   const idx = STEPS.findIndex((s: any) => s.key === status)
   return idx >= 0 ? idx : 0
 }
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 function RequestStepper({ status  }: any) {
@@ -89,7 +89,7 @@ function RequestStepper({ status  }: any) {
 function SatisfactionRating({ requestId  }: any) {
   const key = `satisfaction-${requestId}`
   const [rating, setRating] = useState(() => localStorage.getItem(key))
-  const rate = (value) => { localStorage.setItem(key, value); setRating(value) }
+  const rate = (value: any) => { localStorage.setItem(key, value); setRating(value) }
   if (rating) {
     return (
       <div className="mt-3 pl-14 flex items-center gap-2 text-xs text-muted-foreground">
@@ -216,7 +216,7 @@ export function MyRequestsPage() {
     for (const r of loanRequests) items.push({ ...r, _type: 'equipment' })
     for (const r of itRequests) items.push({ ...r, _type: r.type || 'onboarding' })
     for (const r of mailboxRequests) items.push({ ...r, _type: 'mailbox' })
-    items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    items.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     return items
   }, [loanRequests, itRequests, mailboxRequests])
 
@@ -237,7 +237,7 @@ export function MyRequestsPage() {
     if (!selectedKey) return null
     return allRequests.find((r: any) => `${r._type}:${r.id}` === selectedKey) || null
   }, [allRequests, selectedKey])
-  const setDetail = (req) => setSelectedKey(req ? `${req._type}:${req.id}` : null)
+  const setDetail = (req: any) => setSelectedKey(req ? `${req._type}:${req.id}` : null)
 
   // Read the persisted note for the currently-viewed request, depending on its type.
   const currentNote = !detail ? '' : (

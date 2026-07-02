@@ -9,7 +9,7 @@ import { CategoryBadge } from '@/components/common/CategoryBadge'
 import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 
-const formatDate = (d) =>
+const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 export function RequestDetailPage() {
