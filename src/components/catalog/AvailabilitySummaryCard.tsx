@@ -11,7 +11,7 @@ export function AvailabilitySummaryCard({
   totalStock,
   reservations = [],
   className,
-}) {
+}: any) {
   const [expanded, setExpanded] = useState(false)
 
   const stockVariant = available > 1

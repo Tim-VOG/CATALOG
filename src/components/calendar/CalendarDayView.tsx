@@ -113,7 +113,7 @@ export function CalendarDayView({
   selectable = false,
   selectedIds,
   onToggleSelect,
-}) {
+}: any) {
   const dateKey = format(currentDate, 'yyyy-MM-dd')
   const dayEvents = eventsMap.get(dateKey) || []
 

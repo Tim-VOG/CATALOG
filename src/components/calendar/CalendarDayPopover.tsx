@@ -120,7 +120,7 @@ export function CalendarDayPopover({
   selectable = false,
   selectedIds,
   onToggleSelect,
-}) {
+}: any) {
   if (!events.length) return null
 
   // Deduplicate events (multi-day events appear multiple times)

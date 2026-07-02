@@ -212,7 +212,7 @@ function StaggerReveal({
   duration = 0.5,
   margin = '-60px',
   ...props
-}) {
+}: any) {
   const ref = React.useRef<any>(null)
   const isInView = useInView(ref, { once: true, margin: margin as any })
 
@@ -319,7 +319,7 @@ function CountUp({
   suffix = '',
   separator = ',',
   decimals = 0,
-}) {
+}: any) {
   const ref = React.useRef<any>(null)
   const isInView = useInView(ref, { once: true, margin: '-40px' })
   const motionValue = useMotionValue(0)

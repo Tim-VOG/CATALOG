@@ -25,7 +25,7 @@ export function ImageUpload({
   requiredWidth,
   requiredHeight,
   className = '',
-}) {
+}: any) {
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
