@@ -25,6 +25,7 @@ import {
 } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
 import { useProfiles } from '@/hooks/use-profiles'
+import { getKitItems, saveQrAccessories, type KitItem } from '@/lib/api/qr-kits'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -58,6 +59,7 @@ export function AdminQRCodesPage() {
   const [showBulkDialog, setShowBulkDialog] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState(emptyForm)
+  const [accessories, setAccessories] = useState<KitItem[]>([])
   const [bulkProductId, setBulkProductId] = useState('')
   const [bulkCount, setBulkCount] = useState(5)
   const [bulkPrefix, setBulkPrefix] = useState('VO')
@@ -110,16 +112,34 @@ export function AdminQRCodesPage() {
     }
   }
 
-  const openNew = () => { setEditing(null); setForm({ ...emptyForm, code: generateCode('VO') }); setShowDialog(true) }
-  const openEdit = (qr: any) => { setEditing(qr); setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', serial_number: qr.serial_number || '', is_active: qr.is_active }); setShowDialog(true) }
+  const openNew = () => { setEditing(null); setForm({ ...emptyForm, code: generateCode('VO') }); setAccessories([]); setShowDialog(true) }
+  const openEdit = (qr: any) => {
+    setEditing(qr)
+    setForm({ code: qr.code, product_id: qr.product_id, label: qr.label || '', serial_number: qr.serial_number || '', is_active: qr.is_active })
+    if (qr.kit_id) getKitItems(qr.kit_id).then(setAccessories).catch(() => setAccessories([]))
+    else setAccessories([])
+    setShowDialog(true)
+  }
 
   const handleSave = async () => {
     try {
-      if (editing) { await updateQR.mutateAsync({ id: editing.id, ...form }); toast.success('QR code updated') }
-      else { await createQR.mutateAsync(form); toast.success('QR code created') }
+      if (editing) {
+        await updateQR.mutateAsync({ id: editing.id, ...form })
+        await saveQrAccessories(editing.id, editing.kit_id || null, form.code, accessories)
+        toast.success('QR code updated')
+      } else {
+        const created = await createQR.mutateAsync(form)
+        await saveQrAccessories(created.id, null, form.code, accessories)
+        toast.success('QR code created')
+      }
       setShowDialog(false)
     } catch (err: any) { toast.error(err.message) }
   }
+
+  const addAccessory = () => setAccessories((a) => [...a, { product_id: '', quantity: 1 }])
+  const updateAccessory = (i: number, patch: Partial<KitItem>) =>
+    setAccessories((a) => a.map((row, idx) => (idx === i ? { ...row, ...patch } : row)))
+  const removeAccessory = (i: number) => setAccessories((a) => a.filter((_, idx) => idx !== i))
 
   const handleDelete = async (id: any) => {
     if (!confirm('Delete this QR code?')) return
@@ -362,6 +382,45 @@ export function AdminQRCodesPage() {
                 className="font-mono text-xs"
               />
               <p className="text-[10px] text-muted-foreground">The physical asset's serial — shown when the QR is scanned.</p>
+            </div>
+
+            {/* Bundled accessories: scanning this device also moves these items. */}
+            <div className="space-y-2 border-t pt-3">
+              <div className="flex items-center justify-between">
+                <Label>Included accessories</Label>
+                <Button type="button" variant="ghost" size="sm" className="text-xs gap-1" onClick={addAccessory}>
+                  <Plus className="h-3.5 w-3.5" /> Add
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground -mt-1">
+                Scanning this device (take/return) also moves these accessories' stock.
+              </p>
+              {accessories.length === 0 ? (
+                <p className="text-[11px] text-muted-foreground italic">No accessories bundled.</p>
+              ) : (
+                accessories.map((row, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Select
+                      value={row.product_id}
+                      onChange={(e: any) => updateAccessory(i, { product_id: e.target.value })}
+                      className="flex-1 text-xs"
+                    >
+                      <option value="">Select accessory…</option>
+                      {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </Select>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={row.quantity}
+                      onChange={(e: any) => updateAccessory(i, { quantity: Number.parseInt(e.target.value, 10) || 1 })}
+                      className="w-16 text-xs"
+                    />
+                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeAccessory(i)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
           <DialogFooter>
