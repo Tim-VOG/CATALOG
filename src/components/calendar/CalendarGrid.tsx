@@ -32,9 +32,9 @@ function getMonthGrid(year: any, month: any) {
 }
 
 const gridVariants = {
-  enter: (dir) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
+  enter: (dir: any) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (dir) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
+  exit: (dir: any) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 }
 
 export function CalendarGrid({ currentDate, eventsMap, selectedDay, onSelectDay, direction, showLabels = false  }: any) {

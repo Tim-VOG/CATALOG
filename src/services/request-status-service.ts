@@ -138,7 +138,7 @@ function subjectNameFor(req: any, requestType: string) {
   // For IT requests the form payload lives in req.data (jsonb) — dig into
   // it too so we never end up showing just the capitalised type.
   const data = req?.data || {}
-  let v
+  let v: any
   if (requestType === 'onboarding' || requestType === 'offboarding') {
     v = fullName(req, data)
       || req?.new_hire_name || data?.new_hire_name

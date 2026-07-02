@@ -37,7 +37,7 @@ export function ScanPage() {
   const joinWaitlist = useJoinWaitlist()
   const scanMutation = useProcessQRScan()
 
-  const handleScan = useCallback((code) => {
+  const handleScan = useCallback((code: any) => {
     if (bulkMode) {
       // In bulk mode, add to list if not already there
       if (bulkItems.some((item: any) => item.code === code)) {

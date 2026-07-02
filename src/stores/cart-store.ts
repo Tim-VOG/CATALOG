@@ -11,6 +11,6 @@ export interface CartStore {
 
 export const useCartStore = create<CartStore>((set, get) => ({
   itemCount: 0,
-  setItemCount: (count) => set({ itemCount: count }),
+  setItemCount: (count: any) => set({ itemCount: count }),
   getItemCount: () => get().itemCount,
 }))

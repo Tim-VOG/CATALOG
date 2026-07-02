@@ -41,7 +41,7 @@ export const useToggleProfileActive = () => {
 export const useDeleteProfile = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (userId) => deleteProfile(userId),
+    mutationFn: (userId: any) => deleteProfile(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] })
       queryClient.invalidateQueries({ queryKey: ['module-access'] })

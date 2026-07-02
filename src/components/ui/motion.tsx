@@ -280,7 +280,7 @@ function Magnetic({ children, className, strength = 0.3, ...props  }: any) {
   const smoothX = useSpring(x, { stiffness: 300, damping: 20 })
   const smoothY = useSpring(y, { stiffness: 300, damping: 20 })
 
-  const handleMouseMove = React.useCallback((e) => {
+  const handleMouseMove = React.useCallback((e: any) => {
     const el = ref.current
     if (!el) return
     const rect = el.getBoundingClientRect()

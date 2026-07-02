@@ -97,7 +97,7 @@ export function CompactDateBar({ startDate, endDate, onChange  }: any) {
               <DateRangeCalendar
                 startDate={startDate}
                 endDate={endDate}
-                onChange={(start, end) => {
+                onChange={(start: any, end: any) => {
                   onChange(start, end)
                   // Auto-close when both dates selected
                   if (start && end) {

@@ -188,7 +188,7 @@ export function AdminItInventoryPage() {
     const lines = filtered.map((r: any) => {
       const c = compute(r)
       return COLUMNS.map((col: any) => {
-        let v
+        let v: any
         if (col.key === '_total_months')  v = c.totalMonths
         else if (col.key === '_elapsed')  v = c.elapsed
         else if (col.key === '_amortised') v = c.amortised

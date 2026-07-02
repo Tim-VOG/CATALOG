@@ -12,7 +12,7 @@ export const useUpdateAppSettings = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: updateAppSettings,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.setQueryData(['app-settings'], data)
     },
   })

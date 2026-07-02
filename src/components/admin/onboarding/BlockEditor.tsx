@@ -66,7 +66,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
               blockTemplate={getTemplate(block.block_key)}
               language={language}
               onToggle={() => handleToggle(block.block_key)}
-              onContentChange={(key, val) => handleContentChange(block.block_key, key, val)}
+              onContentChange={(key: any, val: any) => handleContentChange(block.block_key, key, val)}
               onOptionChange={(opts: any) => handleOptionChange(block.block_key, opts)}
             />
           ))}

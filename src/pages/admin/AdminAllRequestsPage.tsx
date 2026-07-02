@@ -141,7 +141,7 @@ export function AdminAllRequestsPage() {
   const deleteMail = useDeleteMailboxRequests()
   const isDeleting = deleteLoan.isPending || deleteIt.isPending || deleteMail.isPending
 
-  const toggleSelect = useCallback((eventId) => {
+  const toggleSelect = useCallback((eventId: any) => {
     setSelectedIds((prev: any) => {
       const next = new Set(prev)
       if (next.has(eventId)) next.delete(eventId)

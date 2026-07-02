@@ -12,7 +12,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-let headers
+let headers: any
 
 beforeAll(async () => {
   const raw = await readFile(path.resolve(__dirname, '../../vercel.json'), 'utf8')

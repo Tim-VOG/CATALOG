@@ -465,11 +465,11 @@ const REVIEW_FIELDS = [
   { key: 'revoke_vpn_tools_access', label: 'Revoke VPN / Tools Access', type: 'toggle' },
   { key: 'transfer_mailbox_data', label: 'Transfer Mailbox Data', type: 'toggle' },
   { key: 'transfer_sharepoint_data', label: 'Transfer SharePoint Data', type: 'toggle' },
-  { key: 'transfer_details', label: 'Transfer Details', showIf: (f) => f.transfer_mailbox_data || f.transfer_sharepoint_data },
+  { key: 'transfer_details', label: 'Transfer Details', showIf: (f: any) => f.transfer_mailbox_data || f.transfer_sharepoint_data },
   { key: 'ooo_enabled', label: 'Out Of Office Reply', type: 'toggle' },
-  { key: 'ooo_start', label: 'OOO From', showIf: (f) => f.ooo_enabled },
-  { key: 'ooo_end', label: 'OOO Until', showIf: (f) => f.ooo_enabled },
-  { key: 'ooo_message', label: 'OOO Message', showIf: (f) => f.ooo_enabled },
+  { key: 'ooo_start', label: 'OOO From', showIf: (f: any) => f.ooo_enabled },
+  { key: 'ooo_end', label: 'OOO Until', showIf: (f: any) => f.ooo_enabled },
+  { key: 'ooo_message', label: 'OOO Message', showIf: (f: any) => f.ooo_enabled },
   { key: 'collect_laptop', label: 'Collect Laptop', type: 'toggle' },
   { key: 'collect_phone', label: 'Collect Phone', type: 'toggle' },
   { key: 'collect_badge_keys', label: 'Collect Badge/Keys', type: 'toggle' },
@@ -483,7 +483,7 @@ function StepReview({ form  }: any) {
     .filter((f: any) => !f.showIf || f.showIf(form))
     .map((f: any) => {
       const raw = form[f.key]
-      let display
+      let display: any
       if (f.type === 'toggle') {
         display = raw ? 'Yes' : 'No'
       } else {

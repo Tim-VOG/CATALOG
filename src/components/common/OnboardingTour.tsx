@@ -207,9 +207,9 @@ export function OnboardingTour({ forceOpen = false, onClose  }: any) {
   const isLast = step === STEPS.length - 1
 
   const slideVariants = {
-    enter: (dir) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
+    enter: (dir: any) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
     center: { x: 0, opacity: 1 },
-    exit: (dir) => ({ x: dir > 0 ? -80 : 80, opacity: 0 }),
+    exit: (dir: any) => ({ x: dir > 0 ? -80 : 80, opacity: 0 }),
   }
 
   if (!open) return null

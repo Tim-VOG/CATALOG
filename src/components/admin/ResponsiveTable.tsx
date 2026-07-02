@@ -9,7 +9,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
  *   data: Array<Record>
  *   renderRow: (item, i) => TableRow content (for desktop)
  *   renderMobileCard: (item, i) => card content (for mobile)
- *   keyExtractor: (item) => unique key
+ *   keyExtractor: (item: any) => unique key
  */
 export function ResponsiveTable({ columns = [], data = [], renderRow, renderMobileCard, keyExtractor  }: any) {
   return (

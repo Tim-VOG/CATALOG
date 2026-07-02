@@ -33,8 +33,8 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
   const { columns, endDate, cellWidth } = useMemo(() => {
     const start = startOfDay(startDate)
     let cols = []
-    let end
-    let width
+    let end: any
+    let width: any
 
     switch (viewMode) {
       case '1D': {
@@ -138,7 +138,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
   // Calculate bar position as percentage of timeline
   const getBarStyle = (pickupDate: any, returnDate: any) => {
     const timelineStart = startOfDay(startDate)
-    let timelineEnd
+    let timelineEnd: any
 
     switch (viewMode) {
       case '1D': timelineEnd = addDays(timelineStart, 1); break
@@ -165,7 +165,7 @@ export function PlanningTimeline({ items = [], allProducts = [], viewMode, start
   const todayPosition = useMemo(() => {
     const timelineStart = startOfDay(startDate)
     const today = startOfDay(new Date())
-    let timelineEnd
+    let timelineEnd: any
 
     switch (viewMode) {
       case '1D': timelineEnd = addDays(timelineStart, 1); break

@@ -43,7 +43,7 @@ function HeaderSearch() {
     setSelectedIndex(-1)
   }, [results])
 
-  const handleSelect = useCallback((product) => {
+  const handleSelect = useCallback((product: any) => {
     // The standalone product detail page is gone — drop the user on the
     // catalog with the product name pre-filled in the search so they can
     // act on it (heart, add to cart, etc.) without losing context.
@@ -53,7 +53,7 @@ function HeaderSearch() {
     setTimeout(() => setQuery(''), 0)
   }, [navigate])
 
-  const handleKeyDown = useCallback((e) => {
+  const handleKeyDown = useCallback((e: any) => {
     if (!showDropdown || !hasResults) {
       if (e.key === 'Escape') {
         setIsOpen(false)

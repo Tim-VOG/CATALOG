@@ -109,7 +109,7 @@ export function ProductCard({ product, forecast }: any) {
   const doAdd = (options = {}) => {
     addToCart.mutate({ productId: product.id, quantity: 1, options }, {
       onSuccess: () => showToast(`${product.name} added to cart`),
-      onError: (err) => showToast(err.message, 'error'),
+      onError: (err: any) => showToast(err.message, 'error'),
     })
   }
 

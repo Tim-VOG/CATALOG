@@ -111,7 +111,7 @@ export function RequestsCalendar({
     return count
   }, [eventsMap])
 
-  const navigate = useCallback((dir) => {
+  const navigate = useCallback((dir: any) => {
     setDirection(dir)
     setSelectedDay(null)
     setCurrentDate((d) => {
@@ -133,11 +133,11 @@ export function RequestsCalendar({
     setSelectedDay(null)
   }, [currentDate, viewMode])
 
-  const handleSelectDay = useCallback((day) => {
+  const handleSelectDay = useCallback((day: any) => {
     setSelectedDay((prev: any) => prev && isSameDay(prev, day) ? null : day)
   }, [])
 
-  const handleViewModeChange = useCallback((mode) => {
+  const handleViewModeChange = useCallback((mode: any) => {
     setViewMode(mode)
     setSelectedDay(null)
     // Reset to proper granularity
@@ -147,7 +147,7 @@ export function RequestsCalendar({
   }, [currentDate])
 
   // Allow quarter view to drill into month
-  const handleQuarterDayClick = useCallback((day) => {
+  const handleQuarterDayClick = useCallback((day: any) => {
     setCurrentDate(startOfMonth(day))
     setViewMode('month')
     setSelectedDay(day)

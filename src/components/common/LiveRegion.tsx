@@ -11,7 +11,7 @@ const LiveRegionContext = createContext(null)
 export function LiveRegionProvider({ children  }: any) {
   const [message, setMessage] = useState('')
 
-  const announce = useCallback((text) => {
+  const announce = useCallback((text: any) => {
     // Clear then set to ensure repeated identical messages are announced
     setMessage('')
     requestAnimationFrame(() => setMessage(text))

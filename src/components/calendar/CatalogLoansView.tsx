@@ -88,7 +88,7 @@ export function CatalogLoansView({ events  }: any) {
   const { columns, cellWidth } = useMemo(() => {
     const start = startOfDay(startDate)
     let cols = []
-    let width
+    let width: any
 
     switch (viewMode) {
       case '1W': {
@@ -223,7 +223,7 @@ export function CatalogLoansView({ events  }: any) {
   // ── Bar position calculation ──
   const getBarStyle = (pickupDate: any, returnDate: any) => {
     const timelineStart = startOfDay(startDate)
-    let timelineEnd
+    let timelineEnd: any
 
     switch (viewMode) {
       case '1W': timelineEnd = addDays(timelineStart, 7); break
@@ -249,7 +249,7 @@ export function CatalogLoansView({ events  }: any) {
   const todayPosition = useMemo(() => {
     const timelineStart = startOfDay(startDate)
     const today = startOfDay(new Date())
-    let timelineEnd
+    let timelineEnd: any
 
     switch (viewMode) {
       case '1W': timelineEnd = addDays(timelineStart, 7); break
