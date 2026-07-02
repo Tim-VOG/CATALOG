@@ -405,12 +405,12 @@ export function ItRequestFormPage() {
     custom_fields: {},
   })
 
-  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
 
   // Auto-generate corporate email when name or business unit changes
   useEffect(() => {
     const email = generateCorporateEmail(form.first_name, form.last_name, form.business_unit, businessUnits)
-    setForm((prev) => (prev.generated_email !== email ? { ...prev, generated_email: email } : prev))
+    setForm((prev: any) => (prev.generated_email !== email ? { ...prev, generated_email: email } : prev))
   }, [form.first_name, form.last_name, form.business_unit, businessUnits])
 
   // Active fields only, filtered by conditional logic

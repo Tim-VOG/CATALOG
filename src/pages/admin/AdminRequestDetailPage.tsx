@@ -117,7 +117,7 @@ export function AdminRequestDetailPage() {
       } catch (e: any) {
         console.warn('[handleScannedCode] could not decrement product stock', e)
       }
-      setAssignedQRs((prev) => {
+      setAssignedQRs((prev: any) => {
         const list = prev[assigningItem.id] || []
         return { ...prev, [assigningItem.id]: [...list, qr] }
       })
@@ -233,7 +233,7 @@ export function AdminRequestDetailPage() {
         console.warn('[handleAssignQR] could not decrement product stock', e)
       }
 
-      setAssignedQRs((prev) => {
+      setAssignedQRs((prev: any) => {
         const list = prev[assigningItem.id] || []
         return { ...prev, [assigningItem.id]: [...list, qrCode] }
       })
@@ -255,7 +255,7 @@ export function AdminRequestDetailPage() {
       } catch (e: any) {
         console.warn('[handleUnassignQR] could not bump product stock back', e)
       }
-      setAssignedQRs((prev) => {
+      setAssignedQRs((prev: any) => {
         const list = (prev[item.id] || []).filter((q: any) => q.id !== qrCode.id)
         return { ...prev, [item.id]: list }
       })

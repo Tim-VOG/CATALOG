@@ -23,7 +23,7 @@ export function BottomTabBar() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 md:hidden glass-panel border-t border-primary/10 shadow-[0_-4px_20px_0_rgb(var(--color-primary)/0.06)] pb-safe">
       <div className="flex items-center justify-around h-16 px-2">
-        {tabs.map(({ to, labelKey, icon: Icon, exact, showBadge }) => {
+        {tabs.map(({ to, labelKey, icon: Icon, exact, showBadge }: any) => {
           const active = isActive(to, exact)
           return (
             <Link

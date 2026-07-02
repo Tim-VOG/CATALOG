@@ -157,7 +157,7 @@ function SidebarSection({ section, isActive  }: any) {
       </button>
       {open && (
         <div className="space-y-px">
-          {section.links.map(({ to, label, icon: Icon, exact, badge }) => {
+          {section.links.map(({ to, label, icon: Icon, exact, badge }: any) => {
             const active = isActive(to, exact)
             return (
               <Link key={to} to={to}>

@@ -267,11 +267,11 @@ function EditableCCEmails({ req, onSave  }: any) {
     if (!isValidEmail(email)) { setError('Invalid email'); return }
     if (tags.includes(email)) { setError('Already added'); return }
     setError('')
-    setTags((prev) => [...prev, email])
+    setTags((prev: any) => [...prev, email])
     setInputValue('')
   }
 
-  const removeTag = (idx: any) => setTags((prev) => prev.filter((_: any, i: any) => i !== idx))
+  const removeTag = (idx: any) => setTags((prev: any) => prev.filter((_: any, i: any) => i !== idx))
 
   const handleKeyDown = (e: any) => {
     if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
@@ -407,7 +407,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
   // Once the DB template loads (after mount), refresh body/subject if no draft exists
   useEffect(() => {
     if (!dbTemplate || req.email_draft_body) return
-    setEmailForm((prev) => ({
+    setEmailForm((prev: any) => ({
       ...prev,
       subject: savedSubject.replace(/\{\{app_name\}\}/g, appName),
       body: fillTemplate(savedTemplate, req, appName),

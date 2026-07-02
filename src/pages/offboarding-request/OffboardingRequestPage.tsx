@@ -549,14 +549,14 @@ export function OffboardingRequestPage() {
     requested_on: new Date().toISOString().split('T')[0],
   })
 
-  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
-  const setMultipleFields = (updates: any) => setForm((prev) => ({ ...prev, ...updates }))
+  const setField = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
+  const setMultipleFields = (updates: any) => setForm((prev: any) => ({ ...prev, ...updates }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {
     if (profile) {
       const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
-      setForm((prev) => ({
+      setForm((prev: any) => ({
         ...prev,
         requested_by: prev.requested_by || fullName,
       }))

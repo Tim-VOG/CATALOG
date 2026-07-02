@@ -69,7 +69,7 @@ export function AdminScanLogsPage() {
             { value: '', label: 'All' },
             { value: 'take', label: 'Takes', icon: ArrowUpFromLine },
             { value: 'deposit', label: 'Deposits', icon: ArrowDownToLine },
-          ].map(({ value, label, icon: Icon }) => (
+          ].map(({ value, label, icon: Icon }: any) => (
             <button
               key={value}
               onClick={() => setActionFilter(value)}

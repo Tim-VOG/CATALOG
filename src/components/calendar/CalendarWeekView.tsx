@@ -37,7 +37,7 @@ export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelect
     >
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-border/30">
-        {days.map(({ date, key }) => {
+        {days.map(({ date, key }: any) => {
           const isToday = checkIsToday(date)
           const isSelected = selectedDay && isSameDay(date, selectedDay)
           return (
@@ -66,7 +66,7 @@ export function CalendarWeekView({ currentDate, eventsMap, selectedDay, onSelect
 
       {/* Event rows */}
       <div className="grid grid-cols-7 min-h-[200px]">
-        {days.map(({ date, key, events }) => {
+        {days.map(({ date, key, events }: any) => {
           const isToday = checkIsToday(date)
           const isSelected = selectedDay && isSameDay(date, selectedDay)
           return (

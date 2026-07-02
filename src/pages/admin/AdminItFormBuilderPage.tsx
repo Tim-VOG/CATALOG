@@ -411,7 +411,7 @@ export function AdminItFormBuilderPage() {
                   value={editDialog.label}
                   onChange={(e: any) => {
                     const label = e.target.value
-                    setEditDialog((prev) => ({
+                    setEditDialog((prev: any) => ({
                       ...prev,
                       label,
                       ...(prev._isNew ? { field_key: generateFieldKey(label) } : {}),
@@ -426,7 +426,7 @@ export function AdminItFormBuilderPage() {
                 <Label>Field Key</Label>
                 <Input
                   value={editDialog.field_key}
-                  onChange={(e: any) => setEditDialog((prev) => ({ ...prev, field_key: e.target.value }))}
+                  onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_key: e.target.value }))}
                   placeholder="field_key"
                   disabled={editDialog.is_system || !editDialog._isNew}
                   className="font-mono text-sm"
@@ -442,7 +442,7 @@ export function AdminItFormBuilderPage() {
                   <Label>Type</Label>
                   <Select
                     value={editDialog.field_type}
-                    onChange={(e: any) => setEditDialog((prev) => ({ ...prev, field_type: e.target.value }))}
+                    onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_type: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {FIELD_TYPES.map((t: any) => (
@@ -454,7 +454,7 @@ export function AdminItFormBuilderPage() {
                   <Label>Step</Label>
                   <Select
                     value={editDialog.step}
-                    onChange={(e: any) => setEditDialog((prev) => ({ ...prev, step: e.target.value }))}
+                    onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, step: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {STEPS.map((s: any) => (
@@ -469,7 +469,7 @@ export function AdminItFormBuilderPage() {
                 <Label>Placeholder</Label>
                 <Input
                   value={editDialog.placeholder}
-                  onChange={(e: any) => setEditDialog((prev) => ({ ...prev, placeholder: e.target.value }))}
+                  onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, placeholder: e.target.value }))}
                   placeholder="Placeholder text"
                 />
               </div>
@@ -479,7 +479,7 @@ export function AdminItFormBuilderPage() {
                 <Label>Help Text</Label>
                 <Input
                   value={editDialog.help_text}
-                  onChange={(e: any) => setEditDialog((prev) => ({ ...prev, help_text: e.target.value }))}
+                  onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, help_text: e.target.value }))}
                   placeholder="Displayed below the field"
                 />
               </div>
@@ -506,7 +506,7 @@ export function AdminItFormBuilderPage() {
                 <Label>Required</Label>
                 <Switch
                   checked={editDialog.is_required}
-                  onCheckedChange={(v: any) => setEditDialog((prev) => ({ ...prev, is_required: v }))}
+                  onCheckedChange={(v: any) => setEditDialog((prev: any) => ({ ...prev, is_required: v }))}
                 />
               </div>
 
@@ -527,7 +527,7 @@ export function AdminItFormBuilderPage() {
                     value={editDialog.condition_field || '_none'}
                     onChange={(e: any) => {
                       const v = e.target.value
-                      setEditDialog((prev) => ({
+                      setEditDialog((prev: any) => ({
                         ...prev,
                         condition_field: v === '_none' ? '' : v,
                         condition_operator: v === '_none' ? '' : prev.condition_operator || 'equals',
@@ -552,7 +552,7 @@ export function AdminItFormBuilderPage() {
                       <Label className="text-xs">Operator</Label>
                       <Select
                         value={editDialog.condition_operator || 'equals'}
-                        onChange={(e: any) => setEditDialog((prev) => ({ ...prev, condition_operator: e.target.value }))}
+                        onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_operator: e.target.value }))}
                       >
                         {OPERATORS.map((o: any) => (
                           <option key={o.value} value={o.value}>{o.label}</option>
@@ -564,7 +564,7 @@ export function AdminItFormBuilderPage() {
                         <Label className="text-xs">Value</Label>
                         <Input
                           value={editDialog.condition_value}
-                          onChange={(e: any) => setEditDialog((prev) => ({ ...prev, condition_value: e.target.value }))}
+                          onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_value: e.target.value }))}
                           placeholder="Expected value"
                         />
                       </div>

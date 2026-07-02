@@ -41,7 +41,7 @@ function OptionsDialog({ product, open, onClose, onConfirm  }: any) {
   const [accessories, setAccessories] = useState<any[]>([])
   const plans = config ? allPlans.filter((p: any) => config.planTypes.includes(p.type)) : allPlans
   const availableAccessories = config?.accessories || []
-  const toggleAcc = (a: any) => setAccessories((prev) => prev.includes(a) ? prev.filter((x: any) => x !== a) : [...prev, a])
+  const toggleAcc = (a: any) => setAccessories((prev: any) => prev.includes(a) ? prev.filter((x: any) => x !== a) : [...prev, a])
   const typeBadge = { call: 'bg-blue-500/15 text-blue-400', data: 'bg-purple-500/15 text-purple-400', both: 'bg-cyan-500/15 text-cyan-400' }
 
   return (

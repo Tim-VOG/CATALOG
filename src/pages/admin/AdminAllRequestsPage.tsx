@@ -142,7 +142,7 @@ export function AdminAllRequestsPage() {
   const isDeleting = deleteLoan.isPending || deleteIt.isPending || deleteMail.isPending
 
   const toggleSelect = useCallback((eventId) => {
-    setSelectedIds((prev) => {
+    setSelectedIds((prev: any) => {
       const next = new Set(prev)
       if (next.has(eventId)) next.delete(eventId)
       else next.add(eventId)

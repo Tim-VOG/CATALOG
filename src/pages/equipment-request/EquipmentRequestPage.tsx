@@ -652,7 +652,7 @@ export function EquipmentRequestPage() {
     additional_notes: '',
   })
 
-  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
 
   // Group products by category name (case-insensitive matching)
   const productsByCategory = useMemo(() => {
@@ -676,7 +676,7 @@ export function EquipmentRequestPage() {
   useEffect(() => {
     if (profile) {
       const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
-      setForm((prev) => ({
+      setForm((prev: any) => ({
         ...prev,
         requested_by: prev.requested_by || fullName,
       }))

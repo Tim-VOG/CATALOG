@@ -53,7 +53,7 @@ export function AddToSharedMailboxDialog({ request, open, onClose, onCreated  }:
 
   if (!request) return null
 
-  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
 
   const handleSubmit = async () => {
     try {

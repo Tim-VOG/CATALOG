@@ -67,11 +67,11 @@ function HeaderSearch() {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0))
+        setSelectedIndex((prev: any) => (prev < results.length - 1 ? prev + 1 : 0))
         break
       case 'ArrowUp':
         e.preventDefault()
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1))
+        setSelectedIndex((prev: any) => (prev > 0 ? prev - 1 : results.length - 1))
         break
       case 'Enter':
         e.preventDefault()
@@ -89,7 +89,7 @@ function HeaderSearch() {
   }, [showDropdown, hasResults, results, selectedIndex, handleSelect])
 
   const handleMobileToggle = () => {
-    setMobileOpen((prev) => !prev)
+    setMobileOpen((prev: any) => !prev)
     if (!mobileOpen) {
       setTimeout(() => mobileInputRef.current?.focus(), 100)
     } else {
@@ -301,7 +301,7 @@ export function Header({ onOpenTour  }: any) {
               { to: '/', label: 'Hub', icon: Home, exact: true },
               { to: '/catalog', label: 'Catalog', icon: Package },
               ...(isAdmin ? [{ to: '/scan', label: 'Scan', icon: QrCode }] : []),
-            ].map(({ to, label, icon: Icon, exact }) => (
+            ].map(({ to, label, icon: Icon, exact }: any) => (
               <Link key={to} to={to}>
                 <Button
                   variant={(exact ? location.pathname === to : location.pathname.startsWith(to)) ? 'secondary' : 'ghost'}

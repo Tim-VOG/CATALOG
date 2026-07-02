@@ -80,7 +80,7 @@ export function KeyboardShortcutsProvider({ children  }: any) {
             </DialogTitle>
           </DialogHeader>
           <div className="mt-3 divide-y divide-border/50">
-            {SHORTCUTS.map(({ keys, label }) => (
+            {SHORTCUTS.map(({ keys, label }: any) => (
               <div key={label} className="flex items-center justify-between py-2.5 text-sm">
                 <span className="text-muted-foreground">{label}</span>
                 <div className="flex items-center gap-1">

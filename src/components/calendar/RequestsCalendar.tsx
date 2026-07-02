@@ -134,7 +134,7 @@ export function RequestsCalendar({
   }, [currentDate, viewMode])
 
   const handleSelectDay = useCallback((day) => {
-    setSelectedDay((prev) => prev && isSameDay(prev, day) ? null : day)
+    setSelectedDay((prev: any) => prev && isSameDay(prev, day) ? null : day)
   }, [])
 
   const handleViewModeChange = useCallback((mode) => {
@@ -164,7 +164,7 @@ export function RequestsCalendar({
         {/* View mode tabs */}
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-0.5 p-0.5 rounded-xl bg-muted/30 border border-border/30">
-            {VIEW_MODES.map(({ key, icon: Icon, label }) => (
+            {VIEW_MODES.map(({ key, icon: Icon, label }: any) => (
               <button
                 key={key}
                 onClick={() => handleViewModeChange(key)}

@@ -156,7 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             clearTimeout(timeout)
             if (event === 'SIGNED_IN' && profileData) {
               const name = profileData.first_name || currentUser.email?.split('@')[0]
-              import('sonner').then(({ toast }) => {
+              import('sonner').then(({ toast }: any) => {
                 toast.success(`Welcome back, ${name}!`)
               }).catch(() => {})
             }

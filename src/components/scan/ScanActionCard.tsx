@@ -191,7 +191,7 @@ export function ScanActionCard({ qrData, onAction, loading, result, onJoinWaitli
             <div className="mb-3">
               <Label className="text-xs text-muted-foreground">Duration</Label>
               <div className="flex flex-wrap gap-2 mt-1">
-                {QUICK_DURATIONS.map(({ label, days }) => (
+                {QUICK_DURATIONS.map(({ label, days }: any) => (
                   <button
                     key={days}
                     onClick={() => handleQuickDuration(days)}

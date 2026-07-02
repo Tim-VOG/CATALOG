@@ -72,7 +72,7 @@ export function CatalogLoansView({ events  }: any) {
 
   // ── Navigation ──
   const navigate = (direction: any) => {
-    setBaseDate((prev) => {
+    setBaseDate((prev: any) => {
       switch (viewMode) {
         case '1W': return direction > 0 ? addWeeks(prev, 1) : subWeeks(prev, 1)
         case '1M': return direction > 0 ? addMonths(prev, 1) : subMonths(prev, 1)
@@ -267,7 +267,7 @@ export function CatalogLoansView({ events  }: any) {
   const getRowHeight = (reservations: any) => Math.max(56, 14 + reservations.length * 36)
 
   const toggleStatus = (status: any) => {
-    setStatusFilter((prev) =>
+    setStatusFilter((prev: any) =>
       prev.includes(status) ? prev.filter((s: any) => s !== status) : [...prev, status]
     )
   }
@@ -293,7 +293,7 @@ export function CatalogLoansView({ events  }: any) {
         </div>
 
         <div className="flex gap-1 bg-muted/40 rounded-full p-1 border">
-          {VIEW_MODES.map(({ key, label }) => (
+          {VIEW_MODES.map(({ key, label }: any) => (
             <Button
               key={key}
               variant={viewMode === key ? 'default' : 'ghost'}

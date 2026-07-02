@@ -534,12 +534,12 @@ export function FunctionalMailboxFormPage() {
     custom_fields: {},
   })
 
-  const setField = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
+  const setField = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {
     if (profile) {
-      setForm((prev) => ({
+      setForm((prev: any) => ({
         ...prev,
         first_name: prev.first_name || profile.first_name || '',
         last_name: prev.last_name || profile.last_name || '',

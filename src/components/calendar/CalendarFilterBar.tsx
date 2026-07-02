@@ -43,7 +43,7 @@ export function CalendarFilterBar({ filters, onChange, counts, hasCatalog, hasIt
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Type toggles */}
-      {types.map(({ key, count }) => {
+      {types.map(({ key, count }: any) => {
         const cfg = TYPE_CONFIG[key]
         const isActive = filters.types.includes(key)
         return (

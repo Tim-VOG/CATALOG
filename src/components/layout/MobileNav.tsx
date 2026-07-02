@@ -72,7 +72,7 @@ export function MobileNav() {
         <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
       </div>
       <p className="px-3 py-1 text-xs font-semibold uppercase text-muted-foreground tracking-wider">{title}</p>
-      {links.map(({ to, label, icon: Icon, exact }) => {
+      {links.map(({ to, label, icon: Icon, exact }: any) => {
         const i = linkIndex++
         return (
           <motion.div key={to} custom={i} initial="hidden" animate="visible" variants={linkVariants}>
@@ -129,7 +129,7 @@ export function MobileNav() {
 
             {/* Navigation */}
             <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-              {mainLinks.map(({ to, label, icon: Icon, exact }) => {
+              {mainLinks.map(({ to, label, icon: Icon, exact }: any) => {
                 const i = linkIndex++
                 return (
                   <motion.div key={to} custom={i} initial="hidden" animate="visible" variants={linkVariants}>

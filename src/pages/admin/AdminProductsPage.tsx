@@ -122,7 +122,7 @@ export function AdminProductsPage() {
   }, [products])
 
   const toggleSelect = (id: any) => {
-    setSelectedIds((prev) => {
+    setSelectedIds((prev: any) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)

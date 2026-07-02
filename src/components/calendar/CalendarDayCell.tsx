@@ -135,7 +135,7 @@ export function CalendarDayCell({ day, isCurrentMonth, isToday, isSelected, even
         {/* Mobile: always show icons & bars (also desktop fallback when no labels) */}
         <div className={cn(showLabels ? 'sm:hidden' : '', 'flex flex-col items-center gap-0.5 w-full')}>
           {/* Multi-day bar segments */}
-          {barSegments.map(({ event, position }) => (
+          {barSegments.map(({ event, position }: any) => (
             <div
               key={event.id}
               className={cn(

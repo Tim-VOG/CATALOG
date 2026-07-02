@@ -673,13 +673,13 @@ export function OnboardingRequestPage() {
     ...(editStash || {}),
   })
 
-  const update = (key: any, value: any) => setForm((prev) => ({ ...prev, [key]: value }))
+  const update = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
 
   // Auto-fill requester fields from profile
   useEffect(() => {
     if (profile) {
       const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
-      setForm((prev) => ({
+      setForm((prev: any) => ({
         ...prev,
         requested_by: prev.requested_by || fullName,
       }))
@@ -693,7 +693,7 @@ export function OnboardingRequestPage() {
     const first = slug(form.first_name)
     const last = slug(form.last_name)
     const suggestion = first && last ? `${first[0]}${last}` : ''
-    setForm((prev) => prev.email_local === suggestion ? prev : { ...prev, email_local: suggestion })
+    setForm((prev: any) => prev.email_local === suggestion ? prev : { ...prev, email_local: suggestion })
   }, [form.first_name, form.last_name, emailLocalEdited])
 
   // Domain follows the selected company — and a company change might also
@@ -701,7 +701,7 @@ export function OnboardingRequestPage() {
   // the new company, so we prune them too.
   useEffect(() => {
     const expectedDomain = domainForCompany(form.company)
-    setForm((prev) => {
+    setForm((prev: any) => {
       const newDomain = prev.email_domain === expectedDomain ? prev.email_domain : expectedDomain
       const allowed = distributionListsFor(prev.company)
       const filteredSubscribe = (prev.subscribe_to || []).filter((s: any) => allowed.includes(s))

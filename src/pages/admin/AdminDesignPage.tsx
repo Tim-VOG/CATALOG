@@ -736,7 +736,7 @@ export function AdminDesignPage() {
               { label: 'Success', color: successColor || SHARED_DEFAULTS.success_color },
               { label: 'Warning', color: warningColor || SHARED_DEFAULTS.warning_color },
               { label: 'Destructive', color: destructiveColor || SHARED_DEFAULTS.destructive_color },
-            ].map(({ label, color }) => (
+            ].map(({ label, color }: any) => (
               <div key={label} className="flex-1 text-center">
                 <div className="h-8 rounded-md mb-1" style={{ background: color }} />
                 <span className="text-[10px] text-muted-foreground">{label}</span>
@@ -755,7 +755,7 @@ export function AdminDesignPage() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-3 flex-wrap">
-            {RADIUS_OPTIONS.map(({ value, label, preview }) => (
+            {RADIUS_OPTIONS.map(({ value, label, preview }: any) => (
               <button
                 key={value}
                 type="button"

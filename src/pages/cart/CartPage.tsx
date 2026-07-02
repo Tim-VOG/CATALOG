@@ -94,7 +94,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
   const availableAccessories = config?.accessories || []
 
   const toggleAccessory = (acc: any) => {
-    setSelectedAccessories((prev) =>
+    setSelectedAccessories((prev: any) =>
       prev.includes(acc) ? prev.filter((a: any) => a !== acc) : [...prev, acc]
     )
   }
