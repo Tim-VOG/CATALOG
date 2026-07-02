@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
-import { useBusinessUnits } from '@/hooks/use-business-units'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/api/send-email'
@@ -635,7 +634,6 @@ function StepReview({ form, update  }: any) {
 export function OnboardingRequestPage() {
   const navigate = useNavigate()
   const { user, profile } = useAuth()
-  const { data: businessUnits = [] } = useBusinessUnits()
   const showToast = useUIStore((s: any) => s.showToast)
 
   const [currentStep, setCurrentStep] = useState(0)
@@ -687,17 +685,13 @@ export function OnboardingRequestPage() {
 
   const update = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
 
-  // Auto-fill requester fields from profile. The company defaults to the
-  // submitter's own business unit (the new hire most often joins the same
-  // entity) and then locks — the "Change" button re-opens the dropdown for
-  // the rare cross-entity onboarding.
+  // Auto-fill requester fields from profile
   useEffect(() => {
     if (profile) {
       const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
       setForm((prev: any) => ({
         ...prev,
         requested_by: prev.requested_by || fullName,
-        company: prev.company || profile.business_unit || '',
       }))
     }
   }, [profile])
@@ -716,11 +710,7 @@ export function OnboardingRequestPage() {
   // invalidate previously-picked distribution lists that aren't allowed for
   // the new company, so we prune them too.
   useEffect(() => {
-    // Prefer the authoritative domain from the business_units table (admin-
-    // editable); fall back to the hard-coded onboarding map for companies
-    // that aren't registered as business units.
-    const buDomain = businessUnits.find((bu: any) => bu.value === form.company)?.domain
-    const expectedDomain = buDomain || domainForCompany(form.company)
+    const expectedDomain = domainForCompany(form.company)
     setForm((prev: any) => {
       const newDomain = prev.email_domain === expectedDomain ? prev.email_domain : expectedDomain
       const allowed = distributionListsFor(prev.company)
@@ -730,7 +720,7 @@ export function OnboardingRequestPage() {
       }
       return { ...prev, email_domain: newDomain, subscribe_to: filteredSubscribe }
     })
-  }, [form.company, businessUnits])
+  }, [form.company])
 
   const fullEmail = form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : ''
 
