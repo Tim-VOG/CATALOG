@@ -35,7 +35,7 @@ export function AdminCategoriesPage() {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: any) => {
     if (!confirm('Delete this category? Products in this category will need to be reassigned.')) return
     try {
       await deleteCategory.mutateAsync(id)

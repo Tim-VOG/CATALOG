@@ -28,7 +28,7 @@ export function BlockEditor({ blocks, blockTemplates, language, onChange  }: any
     )
   }
 
-  const handleContentChange = (blockKey, contentKey, value) => {
+  const handleContentChange = (blockKey: any, contentKey: any, value: any) => {
     onChange(
       blocks.map((b: any) =>
         b.block_key === blockKey ? { ...b, [contentKey]: value } : b

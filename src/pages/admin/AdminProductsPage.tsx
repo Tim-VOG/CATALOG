@@ -187,7 +187,7 @@ export function AdminProductsPage() {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: any) => {
     if (!confirm('Delete this product?')) return
     try {
       await deleteProduct.mutateAsync(id)

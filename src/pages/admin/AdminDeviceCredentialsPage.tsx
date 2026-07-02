@@ -130,7 +130,7 @@ export function AdminDeviceCredentialsPage() {
     }
   }, [availableQrs, createItem, showToast])
 
-  const handleUpdate = useCallback(async (id, field, value) => {
+  const handleUpdate = useCallback(async (id: any, field: any, value: any) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
     } catch (err: any) {
@@ -138,7 +138,7 @@ export function AdminDeviceCredentialsPage() {
     }
   }, [updateItem, showToast])
 
-  const handleDelete = useCallback(async (id) => {
+  const handleDelete = useCallback(async (id: any) => {
     if (!confirm('Delete these credentials? The QR code itself stays.')) return
     try {
       await deleteItem.mutateAsync(id)

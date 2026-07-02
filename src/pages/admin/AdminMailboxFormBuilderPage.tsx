@@ -213,7 +213,7 @@ export function AdminMailboxFormBuilderPage() {
   }, [fields])
 
   // ── Drag end: reorder ──
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = async (event: any) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -310,7 +310,7 @@ export function AdminMailboxFormBuilderPage() {
   }
 
   // ── Toggle active ──
-  const handleToggleActive = async (field) => {
+  const handleToggleActive = async (field: any) => {
     try {
       await updateField.mutateAsync({ id: field.id, updates: { is_active: !field.is_active } })
     } catch (err: any) {

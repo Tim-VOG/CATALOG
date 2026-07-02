@@ -70,7 +70,7 @@ export function ProfilePage() {
     }
   }
 
-  const handleAvatarUpload = async (e) => {
+  const handleAvatarUpload = async (e: any) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = '' // Reset so same file can be re-selected

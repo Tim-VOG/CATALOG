@@ -256,7 +256,7 @@ export function AdminOffboardingFormBuilderPage() {
   }
 
   // ── Toggle active ──
-  const handleToggleActive = async (field) => {
+  const handleToggleActive = async (field: any) => {
     try {
       await updateField.mutateAsync({ id: field.id, is_active: !field.is_active })
     } catch (err: any) {

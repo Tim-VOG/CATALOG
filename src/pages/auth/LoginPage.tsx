@@ -72,7 +72,7 @@ export function LoginPage() {
     }
   }, [])
 
-  const handleDevLogin = async (account) => {
+  const handleDevLogin = async (account: any) => {
     setDevLoading(account.email)
     setDevError(null)
     try {

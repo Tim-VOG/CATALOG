@@ -662,7 +662,7 @@ export function AdminMailboxRequestsPage() {
   }, [requests, search])
 
   // ── Status change ──
-  const handleStatusChange = async (req, newStatus) => {
+  const handleStatusChange = async (req: any, newStatus: any) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       sendStatusChangeEmail(newStatus, { request: req, requestType: 'mailbox' })
@@ -673,7 +673,7 @@ export function AdminMailboxRequestsPage() {
   }
 
   // ── Save draft ──
-  const handleSaveDraft = async (draftData) => {
+  const handleSaveDraft = async (draftData: any) => {
     if (!selectedRequest) return
     try {
       await updateRequest.mutateAsync({ id: selectedRequest.id, updates: draftData })
@@ -684,7 +684,7 @@ export function AdminMailboxRequestsPage() {
   }
 
   // ── Send email ──
-  const handleSendEmail = async (emailForm) => {
+  const handleSendEmail = async (emailForm: any) => {
     if (!selectedRequest) return
     setSending(true)
 
@@ -804,7 +804,7 @@ export function AdminMailboxRequestsPage() {
         {/* Editable CC emails (Who Needs Access) */}
         <EditableCCEmails
           req={selectedRequest}
-          onSave={async (newEmails) => {
+          onSave={async (newEmails: any) => {
             try {
               await updateRequest.mutateAsync({ id: selectedRequest.id, updates: { who_needs_access: newEmails } })
               showToast('CC emails updated')

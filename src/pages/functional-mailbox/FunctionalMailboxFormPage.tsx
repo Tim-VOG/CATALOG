@@ -180,7 +180,7 @@ function FileUploadField({ value, onChange, helpText  }: any) {
   const fileInputRef = useRef<any>(null)
   const [uploading, setUploading] = useState(false)
 
-  const handleUpload = async (file) => {
+  const handleUpload = async (file: any) => {
     if (!file) return
     // Validate size (10MB max)
     if (file.size > 10 * 1024 * 1024) {

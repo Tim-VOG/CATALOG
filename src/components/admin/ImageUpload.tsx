@@ -51,7 +51,7 @@ export function ImageUpload({
       img.src = URL.createObjectURL(file)
     })
 
-  const handleUpload = async (file) => {
+  const handleUpload = async (file: any) => {
     if (!file) return
     setError('')
 

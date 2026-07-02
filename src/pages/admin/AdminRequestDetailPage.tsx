@@ -78,7 +78,7 @@ export function AdminRequestDetailPage() {
   // render before any conditional early-return — otherwise React
   // throws "Rendered more hooks than during the previous render".
   // ──────────────────────────────────────────────────────────────
-  const handleScannedCode = useCallback(async (scannedCode) => {
+  const handleScannedCode = useCallback(async (scannedCode: any) => {
     if (!assigningItem) return
     setScanError(null)
     const qr = allQRCodes.find(
@@ -165,7 +165,7 @@ export function AdminRequestDetailPage() {
 
   const requesterName = `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim()
 
-  const handleStatusUpdate = async (status) => {
+  const handleStatusUpdate = async (status: any) => {
     try {
       await updateStatus.mutateAsync({ id: request.id, status })
       showToast(`Request marked as ${status.replace('_', ' ')}`)
@@ -208,7 +208,7 @@ export function AdminRequestDetailPage() {
     }
   }
 
-  const handleAssignQR = async (qrCode) => {
+  const handleAssignQR = async (qrCode: any) => {
     // Guard against double-assigning the same QR inside the same request
     const alreadyHere = Object.values(assignedQRs).flat().some((q: any) => q?.id === qrCode.id)
     if (alreadyHere) {
@@ -247,7 +247,7 @@ export function AdminRequestDetailPage() {
 
   // Free a previously-assigned QR so the admin can swap it for another
   // before marking the request as ready.
-  const handleUnassignQR = async (item, qrCode) => {
+  const handleUnassignQR = async (item: any, qrCode: any) => {
     try {
       await releaseQR.mutateAsync({ id: qrCode.id, expectedLoanRequestId: request.id })
       try {

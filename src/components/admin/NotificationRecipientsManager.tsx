@@ -36,7 +36,7 @@ export function NotificationRecipientsManager() {
     }
   }
 
-  const handleToggleRecipientNotif = async (recipient, key) => {
+  const handleToggleRecipientNotif = async (recipient: any, key: any) => {
     try {
       await updateRecipient.mutateAsync({ id: recipient.id, [key]: !recipient[key] })
     } catch (err: any) {
@@ -44,7 +44,7 @@ export function NotificationRecipientsManager() {
     }
   }
 
-  const handleDeleteRecipient = async (id) => {
+  const handleDeleteRecipient = async (id: any) => {
     if (!confirm('Remove this recipient?')) return
     try {
       await deleteRecipient.mutateAsync(id)

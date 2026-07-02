@@ -252,7 +252,7 @@ export function OnboardingRequestsPage() {
     [requests, selectedId]
   )
 
-  const handleStatusChange = async (req, newStatus) => {
+  const handleStatusChange = async (req: any, newStatus: any) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       const label = newStatus === 'ready' ? 'welcome' : newStatus.replace('_', ' ')

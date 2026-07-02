@@ -53,7 +53,7 @@ export function AdminItRequestsPage() {
     return counts
   }, [requests])
 
-  const handleCreateOnboarding = async (req) => {
+  const handleCreateOnboarding = async (req: any) => {
     try {
       const recipient = await createOnboardingRecipient({
         first_name: req.first_name,

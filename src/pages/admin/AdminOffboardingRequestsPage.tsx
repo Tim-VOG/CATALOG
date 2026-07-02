@@ -342,7 +342,7 @@ export function AdminOffboardingRequestsPage() {
     return onboardingByName[name] || null
   }
 
-  const handleToggleRevoked = async (req, itemId) => {
+  const handleToggleRevoked = async (req: any, itemId: any) => {
     const current = new Set(req.data?.revoked_accesses || [])
     if (current.has(itemId)) current.delete(itemId)
     else current.add(itemId)
@@ -376,7 +376,7 @@ export function AdminOffboardingRequestsPage() {
     [requests, selectedId]
   )
 
-  const handleStatusChange = async (req, newStatus) => {
+  const handleStatusChange = async (req: any, newStatus: any) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       showToast(`Request marked as ${newStatus.replace('_', ' ')}`)

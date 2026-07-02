@@ -73,7 +73,7 @@ export function AdminSubscriptionPlansPage() {
     }
   }
 
-  const handleToggle = async (plan) => {
+  const handleToggle = async (plan: any) => {
     try {
       await updatePlan.mutateAsync({ id: plan.id, is_active: !plan.is_active })
     } catch (err: any) {
@@ -81,7 +81,7 @@ export function AdminSubscriptionPlansPage() {
     }
   }
 
-  const handleDelete = async (plan) => {
+  const handleDelete = async (plan: any) => {
     if (!confirm(`Delete "${plan.name}"?`)) return
     try {
       await deletePlan.mutateAsync(plan.id)
@@ -98,7 +98,7 @@ export function AdminSubscriptionPlansPage() {
   const dataPlans = plans.filter((p: any) => p.type === 'data')
   const comboPlans = plans.filter((p: any) => p.type === 'both')
 
-  const renderPlanGroup = (title, icon, groupPlans) => {
+  const renderPlanGroup = (title: any, icon: any, groupPlans: any) => {
     const Icon = icon
     if (groupPlans.length === 0) return null
     return (

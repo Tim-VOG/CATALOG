@@ -121,7 +121,7 @@ export function AdminQRCodesPage() {
     } catch (err: any) { toast.error(err.message) }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: any) => {
     if (!confirm('Delete this QR code?')) return
     try { await deleteQR.mutateAsync(id); toast.success('QR code deleted') }
     catch (err: any) { toast.error(err.message) }
@@ -139,7 +139,7 @@ export function AdminQRCodesPage() {
 
   const copyCode = (code: any) => { navigator.clipboard.writeText(code); setCopiedId(code); setTimeout(() => setCopiedId(null), 2000) }
 
-  const downloadQR = async (code, label) => {
+  const downloadQR = async (code: any, label: any) => {
     const url = await QRCodeLib.toDataURL(code, { width: 400, margin: 2 })
     const a = document.createElement('a'); a.href = url; a.download = `qr-${label || code}.png`; a.click()
   }

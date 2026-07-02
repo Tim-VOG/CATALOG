@@ -166,7 +166,7 @@ export function AdminItInventoryPage() {
     }
   }, [createItem, showToast])
 
-  const handleUpdate = useCallback(async (id, field, value) => {
+  const handleUpdate = useCallback(async (id: any, field: any, value: any) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
     } catch (err: any) {
@@ -174,7 +174,7 @@ export function AdminItInventoryPage() {
     }
   }, [updateItem, showToast])
 
-  const handleDelete = useCallback(async (id) => {
+  const handleDelete = useCallback(async (id: any) => {
     if (!confirm('Delete this asset row?')) return
     try {
       await deleteItem.mutateAsync(id)

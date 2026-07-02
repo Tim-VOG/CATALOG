@@ -101,7 +101,7 @@ export function ScanPage() {
     setBulkDatesStep(true)
   }
 
-  const handleBulkProcess = async (action) => {
+  const handleBulkProcess = async (action: any) => {
     setBulkProcessing(true)
     setBulkDatesStep(false)
     const userName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ')

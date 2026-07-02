@@ -75,7 +75,7 @@ export function OffboardingPage() {
     completed: offboardingRequests.filter((r: any) => r.status === 'ready').length,
   }), [offboardingRequests])
 
-  const handleStatusChange = async (request, newStatus) => {
+  const handleStatusChange = async (request: any, newStatus: any) => {
     try {
       await updateRequest.mutateAsync({ id: request.id, updates: { status: newStatus } })
       showToast(`Status updated to ${newStatus.replace('_', ' ')}`)

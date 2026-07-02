@@ -202,7 +202,7 @@ export function FormFieldsManager() {
     }
   }
 
-  const handleDeleteField = async (field) => {
+  const handleDeleteField = async (field: any) => {
     if (field.is_system) {
       showToast('System fields cannot be deleted', 'error')
       return
@@ -216,7 +216,7 @@ export function FormFieldsManager() {
     }
   }
 
-  const handleToggleField = async (field) => {
+  const handleToggleField = async (field: any) => {
     try {
       await updateField.mutateAsync({ id: field.id, is_active: !field.is_active })
     } catch (err: any) {
@@ -224,7 +224,7 @@ export function FormFieldsManager() {
     }
   }
 
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = async (event: any) => {
     const { active, over } = event
     if (!over || active.id === over.id) return
 

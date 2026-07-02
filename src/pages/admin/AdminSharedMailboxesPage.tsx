@@ -148,7 +148,7 @@ export function AdminSharedMailboxesPage() {
     }
   }, [createItem, showToast])
 
-  const handleUpdate = useCallback(async (id, field, value) => {
+  const handleUpdate = useCallback(async (id: any, field: any, value: any) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
     } catch (err: any) {
@@ -156,7 +156,7 @@ export function AdminSharedMailboxesPage() {
     }
   }, [updateItem, showToast])
 
-  const handleDelete = useCallback(async (id) => {
+  const handleDelete = useCallback(async (id: any) => {
     if (!confirm('Delete this shared mailbox row?')) return
     try {
       await deleteItem.mutateAsync(id)

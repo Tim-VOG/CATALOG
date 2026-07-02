@@ -160,7 +160,7 @@ export function AdminUsersPage() {
 
   /* ---------- handlers ---------- */
 
-  const handleRoleChange = (userId, newRole, userName) => {
+  const handleRoleChange = (userId: any, newRole: any, userName: any) => {
     setConfirmDialog({ userId, newRole, userName })
   }
 
@@ -175,7 +175,7 @@ export function AdminUsersPage() {
     setConfirmDialog(null)
   }
 
-  const handleToggleActive = async (userId, currentActive) => {
+  const handleToggleActive = async (userId: any, currentActive: any) => {
     try {
       await toggleActive.mutateAsync({ userId, isActive: !currentActive })
       showToast(currentActive ? 'User deactivated' : 'User activated')
@@ -184,7 +184,7 @@ export function AdminUsersPage() {
     }
   }
 
-  const handleBuChange = async (userId, value) => {
+  const handleBuChange = async (userId: any, value: any) => {
     try {
       await updateProfile.mutateAsync({ userId, business_unit: value || null })
       showToast('Business unit updated')
@@ -193,7 +193,7 @@ export function AdminUsersPage() {
     }
   }
 
-  const handleModuleToggle = async (userId, moduleKey, granted) => {
+  const handleModuleToggle = async (userId: any, moduleKey: any, granted: any) => {
     const key = `${userId}:${moduleKey}`
     setUpdatingKey(key)
     try {
@@ -223,7 +223,7 @@ export function AdminUsersPage() {
 
   /* ---------- render ---------- */
 
-  const handleCancelInvitation = async (inv) => {
+  const handleCancelInvitation = async (inv: any) => {
     try {
       await cancelInvitation.mutateAsync(inv.id)
       showToast('Invitation cancelled')
