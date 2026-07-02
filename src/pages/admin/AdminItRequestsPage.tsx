@@ -98,7 +98,7 @@ export function AdminItRequestsPage() {
           { key: 'offboarding', label: 'Offboarding' },
           { key: 'equipment', label: 'Equipment' },
           { key: 'it_request', label: 'IT Request' },
-        ].filter(t => t.key === 'all' || typeCounts[t.key]).map(({ key, label }: any) => (
+        ].filter((t: any) => t.key === 'all' || typeCounts[t.key]).map(({ key, label }: any) => (
           <button
             key={key}
             onClick={() => setTypeFilter(key)}

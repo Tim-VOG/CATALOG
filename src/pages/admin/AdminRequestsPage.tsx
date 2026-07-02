@@ -38,7 +38,7 @@ export function AdminRequestsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title="Equipment Requests" description={`${requests.length} total requests`}>
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filteredRequests.map(r => ({
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filteredRequests.map((r: any) => ({
           Request: r.request_number, Project: r.project_name, User: `${r.user_first_name} ${r.user_last_name}`,
           Status: r.status, Priority: r.priority, Pickup: r.pickup_date, Return: r.return_date, Items: r.item_count,
         })), 'equipment-requests')}>

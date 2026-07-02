@@ -40,7 +40,7 @@ export function ScanPage() {
   const handleScan = useCallback((code) => {
     if (bulkMode) {
       // In bulk mode, add to list if not already there
-      if (bulkItems.some(item => item.code === code)) {
+      if (bulkItems.some((item: any) => item.code === code)) {
         toast.info('Item already in list')
         return
       }
@@ -54,7 +54,7 @@ export function ScanPage() {
   }, [scannedCode, bulkMode, bulkItems])
 
   // When in bulk mode and qrData arrives, add to list
-  if (bulkMode && qrData && scannedCode && !bulkItems.some(i => i.code === scannedCode)) {
+  if (bulkMode && qrData && scannedCode && !bulkItems.some((i: any) => i.code === scannedCode)) {
     setBulkItems(prev => [...prev, { code: scannedCode, qrData }])
     setScannedCode(null) // Reset for next scan
     toast.success(`Added: ${qrData.product_name}`)
@@ -127,7 +127,7 @@ export function ScanPage() {
     setBulkProcessing(false)
     setBulkResults(results)
 
-    const successCount = results.filter(r => r.success).length
+    const successCount = results.filter((r: any) => r.success).length
     toast.success(`${successCount}/${results.length} items processed`)
   }
 
@@ -151,7 +151,7 @@ export function ScanPage() {
   }
 
   const removeBulkItem = (code: any) => {
-    setBulkItems(prev => prev.filter(i => i.code !== code))
+    setBulkItems(prev => prev.filter((i: any) => i.code !== code))
   }
 
   return (
@@ -202,7 +202,7 @@ export function ScanPage() {
                     <Check className="h-10 w-10 mx-auto text-success mb-2" />
                     <h3 className="font-display font-bold text-lg">Bulk Complete</h3>
                     <p className="text-sm text-muted-foreground">
-                      {bulkResults.filter(r => r.success).length} of {bulkResults.length} items processed
+                      {bulkResults.filter((r: any) => r.success).length} of {bulkResults.length} items processed
                     </p>
                   </Card>
                   <div className="space-y-1.5">

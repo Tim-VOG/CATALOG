@@ -330,8 +330,8 @@ export function AdminDesignPage() {
   const updateDarkPalette = (key: any, value: any) => setDarkPalette((p) => ({ ...p, [key]: value }))
   const updateLightPalette = (key: any, value: any) => setLightPalette((p) => ({ ...p, [key]: value }))
 
-  const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map(k => [k, ''])) as any)
-  const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map(k => [k, ''])) as any)
+  const resetDarkPalette = () => setDarkPalette(Object.fromEntries(Object.keys(DARK_DEFAULTS).map((k: any) => [k, ''])) as any)
+  const resetLightPalette = () => setLightPalette(Object.fromEntries(Object.keys(LIGHT_DEFAULTS).map((k: any) => [k, ''])) as any)
 
   const handleSave = async () => {
     try {

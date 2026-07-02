@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { usePaginated } from './use-paginated'
 
-const seed = (n) => Array.from({ length: n }, (_, i) => ({ id: i }))
+const seed = (n: any) => Array.from({ length: n }, (_, i) => ({ id: i }))
 
 describe('usePaginated', () => {
   it('exposes the first page of items', () => {

@@ -112,7 +112,7 @@ export async function printBrandedQRCodes(items: QRPrintItem[]): Promise<void> {
       .card img { width: 200px; }
       @media print { body { gap: 8px; padding: 10px; } .card { break-inside: avoid; border-color: #ddd; } }
     </style></head><body>
-    ${images.map(img => `<div class="card"><img src="${img.url}" /></div>`).join('')}
+    ${images.map((img: any) => `<div class="card"><img src="${img.url}" /></div>`).join('')}
     </body></html>
   `)
   win.document.close()

@@ -158,7 +158,7 @@ export function AdminSubscriptionPlansPage() {
           <span className="text-muted-foreground">total plans</span>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
-          <span className="font-semibold text-green-400">{plans.filter(p => p.is_active).length}</span>
+          <span className="font-semibold text-green-400">{plans.filter((p: any) => p.is_active).length}</span>
           <span className="text-muted-foreground">active</span>
         </div>
       </div>

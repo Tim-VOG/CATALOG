@@ -44,17 +44,17 @@ describe('buildTimeline', () => {
 
   it('appends an "In Progress" event once status moves past pending', () => {
     const events = buildTimeline({ status: 'in_progress', created_at: t0, updated_at: t1 })
-    expect(events.map((e) => e.label)).toEqual(['Submitted', 'In Progress'])
+    expect(events.map((e: any) => e.label)).toEqual(['Submitted', 'In Progress'])
     expect(events[1].date).toBe(t1)
   })
 
   it('appends both "In Progress" and "Ready" when status is ready', () => {
     const events = buildTimeline({ status: 'ready', created_at: t0, updated_at: t1 })
-    expect(events.map((e) => e.label)).toEqual(['Submitted', 'In Progress', 'Ready'])
+    expect(events.map((e: any) => e.label)).toEqual(['Submitted', 'In Progress', 'Ready'])
   })
 
   it('appends "Returned" as the final event when status is returned', () => {
     const events = buildTimeline({ status: 'returned', created_at: t0, updated_at: t1 })
-    expect(events.map((e) => e.label)).toEqual(['Submitted', 'In Progress', 'Ready', 'Returned'])
+    expect(events.map((e: any) => e.label)).toEqual(['Submitted', 'In Progress', 'Ready', 'Returned'])
   })
 })

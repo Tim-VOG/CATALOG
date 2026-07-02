@@ -191,7 +191,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
             const checked = selected.includes(item.id)
             // Check availability for screen/tablet/phone
             const categoryProducts = productsByCategory[item.category] || []
-            const hasAvailable = item.category === 'pc' || categoryProducts.some(p => p.total_stock > 0)
+            const hasAvailable = item.category === 'pc' || categoryProducts.some((p: any) => p.total_stock > 0)
             const isDisabled = !hasAvailable && item.category !== 'pc'
 
             return (
@@ -579,7 +579,7 @@ function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
   const resolveProductName = (category: any, productId: any) => {
     if (!productId) return null
     const products = productsByCategory[category] || []
-    const product = products.find(p => p.id === productId)
+    const product = products.find((p: any) => p.id === productId)
     return product?.name || productId
   }
 
@@ -595,7 +595,7 @@ function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
     ...(form.screen_model ? [{ label: 'Screen', value: resolveProductName('screen', form.screen_model) }] : []),
     ...(form.tablet_model ? [{ label: 'Tablet', value: resolveProductName('tablet', form.tablet_model) }] : []),
     ...(form.phone_model ? [{ label: 'Phone', value: resolveProductName('phone', form.phone_model) }] : []),
-    ...(form.subscription_plan_id ? [{ label: 'Subscription Plan', value: (() => { const plan = subscriptionPlans.find(p => p.id === form.subscription_plan_id); return plan ? `${plan.name} (${plan.price})` : '—' })() }] : []),
+    ...(form.subscription_plan_id ? [{ label: 'Subscription Plan', value: (() => { const plan = subscriptionPlans.find((p: any) => p.id === form.subscription_plan_id); return plan ? `${plan.name} (${plan.price})` : '—' })() }] : []),
     ...(form.additional_notes ? [{ label: 'Notes', value: form.additional_notes }] : []),
   ]
 
@@ -720,7 +720,7 @@ export function EquipmentRequestPage() {
       // Note: Stock is NOT decremented here — it only decrements on QR scan
       // Resolve subscription plan name for the stored data
       const selectedPlan = form.subscription_plan_id
-        ? subscriptionPlans.find(p => p.id === form.subscription_plan_id)
+        ? subscriptionPlans.find((p: any) => p.id === form.subscription_plan_id)
         : null
 
       const { error } = await supabase.from('it_requests').insert({

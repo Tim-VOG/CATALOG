@@ -17,9 +17,9 @@ let headers
 beforeAll(async () => {
   const raw = await readFile(path.resolve(__dirname, '../../vercel.json'), 'utf8')
   const cfg = JSON.parse(raw)
-  const rootRule = cfg.headers?.find((h) => h.source === '/(.*)')
+  const rootRule = cfg.headers?.find((h: any) => h.source === '/(.*)')
   expect(rootRule, 'vercel.json must define a root /(.*) headers rule').toBeDefined()
-  headers = Object.fromEntries(rootRule.headers.map((h) => [h.key, h.value]))
+  headers = Object.fromEntries(rootRule.headers.map((h: any) => [h.key, h.value]))
 })
 
 describe('vercel.json edge security headers', () => {

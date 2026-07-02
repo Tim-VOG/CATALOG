@@ -129,7 +129,7 @@ export function AdminLocalITPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title="Local IT" description={`${stats.total} devices tracked`}>
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filtered.map(qr => ({
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filtered.map((qr: any) => ({
           Code: qr.code, Product: qr.product_name, Category: qr.category_name, Status: qr.status || 'available',
           'Assigned To': qr.assigned_to_name || '', 'Assigned Email': qr.assigned_to_email || '',
           'Since': qr.assigned_at ? format(new Date(qr.assigned_at), 'dd/MM/yyyy') : '',
