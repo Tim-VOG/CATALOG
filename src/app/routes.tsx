@@ -9,23 +9,27 @@ import { RequireModuleAccess } from '@/components/auth/RequireModuleAccess'
 import { useAuth } from '@/lib/auth'
 
 // ── Eager (shipped in the initial bundle) ──────────────────
-// Public + light user-facing routes so the first paint after login
-// doesn't wait on a network chunk.
+// Only the landing page + auth flow + tiny fallback stay eager so the
+// first paint after login doesn't wait on a network chunk. Everything
+// else is lazy (below) to keep the initial JS bundle small — matters most
+// on mobile / slow connections.
 import { HubPage } from '@/pages/HubPage'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage'
-import { CatalogPage } from '@/pages/catalog/CatalogPage'
-import { RequestsPage } from '@/pages/requests/RequestsPage'
-import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
-import { ProfilePage } from '@/pages/profile/ProfilePage'
-import { MyRequestsPage } from '@/pages/my-requests/MyRequestsPage'
-import { MyEquipmentPage } from '@/pages/my-equipment/MyEquipmentPage'
-import { CartPage } from '@/pages/cart/CartPage'
-import { ScanPage } from '@/pages/scan/ScanPage'
-import { TrackingPage } from '@/pages/track/TrackingPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
-import { StatusPage } from '@/pages/StatusPage'
-import { RequestSentPage } from '@/pages/RequestSentPage'
+
+// ── Lazy: user-facing pages (fetched on first navigation) ──
+const CatalogPage = lazy(() => import('@/pages/catalog/CatalogPage').then((m) => ({ default: m.CatalogPage })))
+const RequestsPage = lazy(() => import('@/pages/requests/RequestsPage').then((m) => ({ default: m.RequestsPage })))
+const RequestDetailPage = lazy(() => import('@/pages/requests/RequestDetailPage').then((m) => ({ default: m.RequestDetailPage })))
+const ProfilePage = lazy(() => import('@/pages/profile/ProfilePage').then((m) => ({ default: m.ProfilePage })))
+const MyRequestsPage = lazy(() => import('@/pages/my-requests/MyRequestsPage').then((m) => ({ default: m.MyRequestsPage })))
+const MyEquipmentPage = lazy(() => import('@/pages/my-equipment/MyEquipmentPage').then((m) => ({ default: m.MyEquipmentPage })))
+const CartPage = lazy(() => import('@/pages/cart/CartPage').then((m) => ({ default: m.CartPage })))
+const ScanPage = lazy(() => import('@/pages/scan/ScanPage').then((m) => ({ default: m.ScanPage })))
+const TrackingPage = lazy(() => import('@/pages/track/TrackingPage').then((m) => ({ default: m.TrackingPage })))
+const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })))
+const RequestSentPage = lazy(() => import('@/pages/RequestSentPage').then((m) => ({ default: m.RequestSentPage })))
 
 // ── Lazy: heavy form pages ─────────────────────────────────
 // Big form pages — only fetched when the user opens the matching link.
