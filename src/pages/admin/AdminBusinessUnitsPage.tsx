@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Pencil, Trash2, Building2 } from 'lucide-react'
 import {
   useBusinessUnits,
@@ -46,6 +47,7 @@ const PATTERN_EXAMPLE: Record<EmailPattern, string> = {
 }
 
 export function AdminBusinessUnitsPage() {
+  const { t } = useTranslation()
   const { data: units = [], isLoading } = useBusinessUnits()
   const createUnit = useCreateBusinessUnit()
   const updateUnit = useUpdateBusinessUnit()
@@ -77,7 +79,7 @@ export function AdminBusinessUnitsPage() {
     const value = form.value.trim().toUpperCase()
     const domain = form.domain.trim().toLowerCase()
     if (!value || !domain) {
-      showToast('Name and domain are required', 'error')
+      showToast(t('admin.businessUnits.nameDomainRequired'), 'error')
       return
     }
     const payload = {
@@ -89,27 +91,27 @@ export function AdminBusinessUnitsPage() {
     try {
       if (editing) {
         await updateUnit.mutateAsync({ id: editing.id, ...payload })
-        showToast('Business unit updated')
+        showToast(t('admin.businessUnits.updated'))
       } else {
         await createUnit.mutateAsync(payload)
-        showToast('Business unit created')
+        showToast(t('admin.businessUnits.created'))
       }
       setShowDialog(false)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Save failed'
+      const message = err instanceof Error ? err.message : t('admin.businessUnits.saveFailed')
       showToast(message, 'error')
     }
   }
 
   const handleDelete = async (unit: BusinessUnit) => {
-    if (!confirm(`Delete "${unit.value}"?\n\nUsers and requests already linked to this BU will keep the text label but the dropdown will no longer offer it.`)) {
+    if (!confirm(t('admin.businessUnits.confirmDelete', { name: unit.value }))) {
       return
     }
     try {
       await deleteUnit.mutateAsync(unit.id)
-      showToast('Business unit deleted')
+      showToast(t('admin.businessUnits.deleted'))
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Delete failed'
+      const message = err instanceof Error ? err.message : t('admin.businessUnits.deleteFailed')
       showToast(message, 'error')
     }
   }
@@ -119,27 +121,26 @@ export function AdminBusinessUnitsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Business Units"
-        description="Manage the list of business units and their corporate email domains. Used by onboarding forms and corporate email generation."
+        title={t('admin.businessUnits.title')}
+        description={t('admin.businessUnits.description')}
       >
         <Button onClick={openCreate} className="gap-2">
-          <Plus className="h-4 w-4" /> Add Business Unit
+          <Plus className="h-4 w-4" /> {t('admin.businessUnits.add')}
         </Button>
       </AdminPageHeader>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <Building2 className="h-3.5 w-3.5 text-primary" />
-          <span className="font-semibold">{units.length}</span>
-          <span className="text-muted-foreground">business unit{units.length === 1 ? '' : 's'}</span>
+          <span className="text-muted-foreground">{t('admin.businessUnits.count', { count: units.length })}</span>
         </div>
       </div>
 
       {units.length === 0 ? (
         <EmptyState
           icon={Building2}
-          title="No business units"
-          description="Add a business unit so it shows up in onboarding forms and powers corporate email generation."
+          title={t('admin.businessUnits.empty')}
+          description={t('admin.businessUnits.emptyDesc')}
         />
       ) : (
         <Card>
@@ -160,7 +161,7 @@ export function AdminBusinessUnitsPage() {
                     </Badge>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">
-                    sort order: {unit.sort_order}
+                    {t('admin.businessUnits.sortOrder', { n: unit.sort_order })}
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -185,52 +186,52 @@ export function AdminBusinessUnitsPage() {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Business Unit' : 'Add Business Unit'}</DialogTitle>
+            <DialogTitle>{editing ? t('admin.businessUnits.edit') : t('admin.businessUnits.add')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label>Name *</Label>
+              <Label>{t('admin.businessUnits.name')} *</Label>
               <Input
                 value={form.value}
                 onChange={(e: any) => setForm({ ...form, value: e.target.value })}
-                placeholder="e.g. VO EUROPE"
+                placeholder={t('admin.businessUnits.namePlaceholder')}
               />
-              <p className="text-[10px] text-muted-foreground">Displayed in onboarding forms. Stored in uppercase.</p>
+              <p className="text-[10px] text-muted-foreground">{t('admin.businessUnits.nameHelp')}</p>
             </div>
             <div className="space-y-1">
-              <Label>Email domain *</Label>
+              <Label>{t('admin.businessUnits.domain')} *</Label>
               <Input
                 value={form.domain}
                 onChange={(e: any) => setForm({ ...form, domain: e.target.value })}
-                placeholder="e.g. vo-europe.eu"
+                placeholder={t('admin.businessUnits.domainPlaceholder')}
               />
-              <p className="text-[10px] text-muted-foreground">Used to generate the new hire's corporate email. Stored in lowercase.</p>
+              <p className="text-[10px] text-muted-foreground">{t('admin.businessUnits.domainHelp')}</p>
             </div>
             <div className="space-y-1">
-              <Label>Email pattern *</Label>
+              <Label>{t('admin.businessUnits.pattern')} *</Label>
               <Select
                 value={form.email_pattern}
                 onChange={(e: any) => setForm({ ...form, email_pattern: e.target.value as EmailPattern })}
               >
-                <option value="initial_last">{PATTERN_LABEL.initial_last}</option>
-                <option value="first">{PATTERN_LABEL.first}</option>
-                <option value="initials">{PATTERN_LABEL.initials}</option>
+                <option value="initial_last">{t('admin.businessUnits.patternInitialLast')}</option>
+                <option value="first">{t('admin.businessUnits.patternFirst')}</option>
+                <option value="initials">{t('admin.businessUnits.patternInitials')}</option>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Sort order</Label>
+              <Label>{t('admin.businessUnits.sortOrderLabel')}</Label>
               <Input
                 type="number"
                 value={form.sort_order}
                 onChange={(e: any) => setForm({ ...form, sort_order: e.target.value })}
               />
-              <p className="text-[10px] text-muted-foreground">Lower values appear first in dropdowns.</p>
+              <p className="text-[10px] text-muted-foreground">{t('admin.businessUnits.sortOrderHelp')}</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowDialog(false)}>{t('admin.businessUnits.cancel')}</Button>
             <Button onClick={handleSave} disabled={createUnit.isPending || updateUnit.isPending}>
-              Save
+              {t('admin.businessUnits.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
