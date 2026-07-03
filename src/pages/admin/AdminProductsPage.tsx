@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePaginated } from '@/hooks/use-paginated'
 import { motion, AnimatePresence } from 'motion/react'
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useDeleteProducts } from '@/hooks/use-products'
@@ -39,6 +40,7 @@ const emptyForm = {
 }
 
 function BulkDeleteBar({ count, onClear, onDelete, isDeleting  }: any) {
+  const { t } = useTranslation()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
@@ -52,26 +54,26 @@ function BulkDeleteBar({ count, onClear, onDelete, isDeleting  }: any) {
       <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card border border-border shadow-xl backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <CheckSquare className="h-4 w-4 text-primary" />
-          <span className="text-sm font-semibold">{count} selected</span>
+          <span className="text-sm font-semibold">{t('admin.products.selected', { count })}</span>
         </div>
 
         <div className="h-5 w-px bg-border/60" />
 
         <Button variant="ghost" size="sm" onClick={onClear} className="text-xs gap-1.5 text-muted-foreground">
           <X className="h-3.5 w-3.5" />
-          Clear
+          {t('admin.products.clear')}
         </Button>
 
         {!confirmOpen ? (
           <Button variant="destructive" size="sm" onClick={() => setConfirmOpen(true)} className="text-xs gap-1.5">
             <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {t('admin.products.delete')}
           </Button>
         ) : (
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-destructive text-xs font-medium">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Confirm?
+              {t('admin.products.confirmShort')}
             </div>
             <Button
               variant="destructive"
@@ -80,10 +82,10 @@ function BulkDeleteBar({ count, onClear, onDelete, isDeleting  }: any) {
               disabled={isDeleting}
               className="text-xs"
             >
-              {isDeleting ? 'Deleting...' : 'Yes, delete'}
+              {isDeleting ? t('admin.products.deleting') : t('admin.products.yesDelete')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} className="text-xs">
-              Cancel
+              {t('admin.products.cancel')}
             </Button>
           </div>
         )}
@@ -93,6 +95,7 @@ function BulkDeleteBar({ count, onClear, onDelete, isDeleting  }: any) {
 }
 
 export function AdminProductsPage() {
+  const { t } = useTranslation()
   const { data: products = [], isLoading } = useProducts()
   const { data: categories = [] } = useCategories()
   const createProduct = useCreateProduct()
@@ -139,7 +142,7 @@ export function AdminProductsPage() {
   const openDuplicate = (product: any) => {
     setEditing(null)
     setForm({
-      name: `${product.name} (copy)`, description: product.description || '',
+      name: `${product.name} ${t('admin.products.copySuffix')}`, description: product.description || '',
       category_id: product.category_id, sub_type: product.sub_type || '',
       image_url: product.image_url || '', total_stock: 1,
       includes: (product.includes || []).flatMap((s: any) => s.split(/[;,]/).map((t: any) => t.trim()).filter(Boolean)),
@@ -167,7 +170,7 @@ export function AdminProductsPage() {
     try {
       if (editing) {
         await updateProduct.mutateAsync({ id: editing.id, ...form })
-        showToast('Product updated')
+        showToast(t('admin.products.updated'))
       } else {
         const created = await createProduct.mutateAsync(form)
         const stock = Math.max(0, parseInt(String(form.total_stock), 10) || 0)
@@ -179,7 +182,7 @@ export function AdminProductsPage() {
           }))
           await createQRCodes.mutateAsync(codes)
         }
-        showToast(stock > 0 ? `Product created with ${stock} QR code${stock > 1 ? 's' : ''}` : 'Product created')
+        showToast(stock > 0 ? t('admin.products.createdWithQr', { count: stock }) : t('admin.products.created'))
       }
       setShowForm(false)
     } catch (err: any) {
@@ -188,10 +191,10 @@ export function AdminProductsPage() {
   }
 
   const handleDelete = async (id: any) => {
-    if (!confirm('Delete this product?')) return
+    if (!confirm(t('admin.products.confirmDelete'))) return
     try {
       await deleteProduct.mutateAsync(id)
-      showToast('Product deleted')
+      showToast(t('admin.products.deleted'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -200,7 +203,7 @@ export function AdminProductsPage() {
   const handleBulkDelete = async () => {
     try {
       await bulkDelete.mutateAsync(Array.from(selectedIds))
-      showToast(`${selectedIds.size} product${selectedIds.size > 1 ? 's' : ''} deleted`)
+      showToast(t('admin.products.bulkDeleted', { count: selectedIds.size }))
       setSelectedIds(new Set())
     } catch (err: any) {
       showToast(err.message, 'error')
@@ -222,9 +225,9 @@ export function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Products" description={`${products.length} products in catalog`}>
+      <AdminPageHeader title={t('admin.products.title')} description={t('admin.products.subtitle', { count: products.length })}>
         <Button onClick={openCreate} className="gap-2">
-          <Plus className="h-4 w-4" /> Add Product
+          <Plus className="h-4 w-4" /> {t('admin.products.add')}
         </Button>
       </AdminPageHeader>
 
@@ -233,22 +236,22 @@ export function AdminProductsPage() {
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <Package className="h-3.5 w-3.5 text-primary" />
           <span className="font-semibold">{products.length}</span>
-          <span className="text-muted-foreground">products</span>
+          <span className="text-muted-foreground">{t('admin.products.statProducts')}</span>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <Box className="h-3.5 w-3.5 text-accent" />
           <span className="font-semibold">{products.reduce((sum: any, p: any) => sum + (p.total_stock || 0), 0)}</span>
-          <span className="text-muted-foreground">total stock</span>
+          <span className="text-muted-foreground">{t('admin.products.statTotalStock')}</span>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <AlertTriangle className="h-3.5 w-3.5 text-warning" />
           <span className="font-semibold">{products.filter((p: any) => p.total_stock <= 1).length}</span>
-          <span className="text-muted-foreground">low stock</span>
+          <span className="text-muted-foreground">{t('admin.products.statLowStock')}</span>
         </div>
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm">
           <Layers className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="font-semibold">{categories.length}</span>
-          <span className="text-muted-foreground">categories</span>
+          <span className="text-muted-foreground">{t('admin.products.statCategories')}</span>
         </div>
       </div>
 
@@ -258,14 +261,14 @@ export function AdminProductsPage() {
         <Input
           value={search}
           onChange={(e: any) => setSearch(e.target.value)}
-          placeholder="Search products..."
+          placeholder={t('admin.products.searchPlaceholder')}
           className="pl-10 rounded-full"
         />
       </div>
 
       {/* Product grid */}
       {filtered.length === 0 ? (
-        <EmptyState icon={Package} title="No products found" description={search ? 'Try a different search term' : 'Add your first product to get started'} />
+        <EmptyState icon={Package} title={t('admin.products.empty')} description={search ? t('admin.products.emptySearch') : t('admin.products.emptyAdd')} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {visibleProducts.map((p: any, i: any) => {
@@ -304,7 +307,7 @@ export function AdminProductsPage() {
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-background/80 backdrop-blur-sm hover:bg-background text-muted-foreground',
                         )}
-                        aria-label={isSelected ? `Deselect ${p.name}` : `Select ${p.name}`}
+                        aria-label={isSelected ? t('admin.products.deselectAria', { name: p.name }) : t('admin.products.selectAria', { name: p.name })}
                       >
                         {isSelected ? (
                           <CheckSquare className="h-4 w-4" />
@@ -320,7 +323,7 @@ export function AdminProductsPage() {
                           size="icon"
                           className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background shadow-md"
                           onClick={() => openDuplicate(p)}
-                          aria-label={`Duplicate ${p.name}`}
+                          aria-label={t('admin.products.duplicateAria', { name: p.name })}
                         >
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
@@ -329,7 +332,7 @@ export function AdminProductsPage() {
                           size="icon"
                           className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background shadow-md"
                           onClick={() => openEdit(p)}
-                          aria-label={`Edit ${p.name}`}
+                          aria-label={t('admin.products.editAria', { name: p.name })}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
@@ -338,7 +341,7 @@ export function AdminProductsPage() {
                           size="icon"
                           className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground shadow-md"
                           onClick={() => handleDelete(p.id)}
-                          aria-label={`Delete ${p.name}`}
+                          aria-label={t('admin.products.deleteAria', { name: p.name })}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -360,7 +363,7 @@ export function AdminProductsPage() {
                         )}>
                           {p.total_stock}
                         </span>
-                        <span className="text-muted-foreground text-xs">in stock</span>
+                        <span className="text-muted-foreground text-xs">{t('admin.products.inStock')}</span>
                       </div>
                       <div className="flex gap-1 sm:hidden">
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(p)}>
@@ -382,7 +385,7 @@ export function AdminProductsPage() {
       {hasMore && (
         <div className="flex items-center justify-center">
           <Button variant="outline" size="sm" onClick={loadMore} className="text-xs">
-            Load more ({total - visibleProducts.length} left)
+            {t('admin.products.loadMore', { count: total - visibleProducts.length })}
           </Button>
         </div>
       )}
@@ -403,34 +406,34 @@ export function AdminProductsPage() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent size="xl">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Product' : 'Add Product'}</DialogTitle>
+            <DialogTitle>{editing ? t('admin.products.dialogEdit') : t('admin.products.dialogAdd')}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-5 max-h-[75vh] overflow-y-auto px-1 py-1">
 
             {/* Row 1 — Name (full width) */}
             <div className="space-y-1">
-              <Label>Name *</Label>
-              <Input value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 5G Home Router" />
+              <Label>{t('admin.products.name')} *</Label>
+              <Input value={form.name} onChange={(e: any) => setForm({ ...form, name: e.target.value })} placeholder={t('admin.products.namePlaceholder')} />
             </div>
 
             {/* Row 2 — Category + Sub-type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>Category</Label>
+                <Label>{t('admin.products.category')}</Label>
                 <Select value={form.category_id} onChange={(e: any) => setForm({ ...form, category_id: e.target.value })}>
                   {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label>Sub-type</Label>
-                <Input value={form.sub_type} onChange={(e: any) => setForm({ ...form, sub_type: e.target.value })} placeholder="e.g. Plug-in" />
+                <Label>{t('admin.products.subType')}</Label>
+                <Input value={form.sub_type} onChange={(e: any) => setForm({ ...form, sub_type: e.target.value })} placeholder={t('admin.products.subTypePlaceholder')} />
               </div>
             </div>
 
             {/* Row 3 — Image (full width) */}
             <div className="space-y-1">
-              <Label>Product Image</Label>
+              <Label>{t('admin.products.image')}</Label>
               <ImageUpload
                 value={form.image_url}
                 onChange={(url: any) => setForm({ ...form, image_url: url })}
@@ -443,23 +446,23 @@ export function AdminProductsPage() {
             {/* Row 4 — Stock + Description side by side */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               <div className="space-y-1">
-                <Label>Stock *</Label>
+                <Label>{t('admin.products.stock')} *</Label>
                 <Input type="number" min="0" value={form.total_stock} onChange={(e: any) => setForm({ ...form, total_stock: parseInt(e.target.value) || 0 })} />
-                {editing && <p className="text-[10px] text-muted-foreground">Stock is also updated automatically via QR scan</p>}
+                {editing && <p className="text-[10px] text-muted-foreground">{t('admin.products.stockHint')}</p>}
               </div>
               <div className="space-y-1">
-                <Label>Description</Label>
-                <Textarea value={form.description} onChange={(e: any) => setForm({ ...form, description: e.target.value })} rows={3} placeholder="Optional description..." />
+                <Label>{t('admin.products.description')}</Label>
+                <Textarea value={form.description} onChange={(e: any) => setForm({ ...form, description: e.target.value })} rows={3} placeholder={t('admin.products.descriptionPlaceholder')} />
               </div>
             </div>
 
             {/* Row 5 — Included items (full width) */}
             <div className="space-y-1.5">
-              <Label>Included items</Label>
+              <Label>{t('admin.products.includedItems')}</Label>
               <TagInput
                 value={form.includes}
                 onChange={(tags: any) => setForm({ ...form, includes: tags })}
-                placeholder="Type item and press Enter..."
+                placeholder={t('admin.products.includedPlaceholder')}
               />
               {suggestions.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
@@ -480,14 +483,14 @@ export function AdminProductsPage() {
 
             {/* Row 6 — Product flags */}
             <div className="space-y-2">
-              <Label>Product flags</Label>
+              <Label>{t('admin.products.flags')}</Label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  ['is_visible', 'Visible in catalog'],
-                  ['has_subscription', 'Needs subscription plan'],
-                  ['has_apps', 'Pre-install apps'],
-                  ['wifi_only', 'WiFi only'],
-                  ['printer_info', 'Printer (B&W)'],
+                  ['is_visible', t('admin.products.flagVisible')],
+                  ['has_subscription', t('admin.products.flagSubscription')],
+                  ['has_apps', t('admin.products.flagApps')],
+                  ['wifi_only', t('admin.products.flagWifi')],
+                  ['printer_info', t('admin.products.flagPrinter')],
                 ].map(([key, label]) => (
                   <label key={key} className="flex items-center gap-2 text-sm cursor-pointer">
                     <Checkbox checked={form[key]} onCheckedChange={(v: any) => setForm({ ...form, [key]: v })} />
@@ -500,8 +503,8 @@ export function AdminProductsPage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button variant="outline" onClick={() => setShowForm(false)}>{t('admin.products.cancel')}</Button>
+            <Button onClick={handleSave}>{t('admin.products.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

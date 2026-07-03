@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/use-categories'
 import { Plus, Trash2, FolderTree } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { useUIStore } from '@/stores/ui-store'
 
 export function AdminCategoriesPage() {
+  const { t } = useTranslation()
   const { data: categories = [], isLoading } = useCategories()
   const createCategory = useCreateCategory()
   const deleteCategory = useDeleteCategory()
@@ -26,7 +28,7 @@ export function AdminCategoriesPage() {
     if (!name.trim()) return
     try {
       await createCategory.mutateAsync({ name: name.trim(), color })
-      showToast('Category created')
+      showToast(t('admin.categories.created'))
       setShowForm(false)
       setName('')
       setColor('#6b7280')
@@ -36,10 +38,10 @@ export function AdminCategoriesPage() {
   }
 
   const handleDelete = async (id: any) => {
-    if (!confirm('Delete this category? Products in this category will need to be reassigned.')) return
+    if (!confirm(t('admin.categories.confirmDelete'))) return
     try {
       await deleteCategory.mutateAsync(id)
-      showToast('Category deleted')
+      showToast(t('admin.categories.deleted'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -49,21 +51,21 @@ export function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Categories" description={`${categories.length} categories`}>
+      <AdminPageHeader title={t('admin.categories.title')} description={t('admin.categories.count', { count: categories.length })}>
         <Button onClick={() => setShowForm(true)} className="gap-2">
-          <Plus className="h-4 w-4" /> Add Category
+          <Plus className="h-4 w-4" /> {t('admin.categories.add')}
         </Button>
       </AdminPageHeader>
 
       {categories.length === 0 ? (
-        <EmptyState icon={FolderTree} title="No categories" description="Create your first category to organize products" />
+        <EmptyState icon={FolderTree} title={t('admin.categories.empty')} description={t('admin.categories.emptyDesc')} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((cat: any) => (
             <Card key={cat.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base">{cat.name}</CardTitle>
-                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(cat.id)} aria-label={`Delete ${cat.name}`}>
+                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(cat.id)} aria-label={t('admin.categories.deleteAria', { name: cat.name })}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </CardHeader>
@@ -78,24 +80,24 @@ export function AdminCategoriesPage() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Category</DialogTitle>
+            <DialogTitle>{t('admin.categories.add')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label>Name</Label>
-              <Input value={name} onChange={(e: any) => setName(e.target.value)} placeholder="e.g. Laptops" />
+              <Label>{t('admin.categories.name')}</Label>
+              <Input value={name} onChange={(e: any) => setName(e.target.value)} placeholder={t('admin.categories.namePlaceholder')} />
             </div>
             <div className="space-y-1">
-              <Label>Color</Label>
+              <Label>{t('admin.categories.color')}</Label>
               <div className="flex items-center gap-3">
                 <input type="color" value={color} onChange={(e: any) => setColor(e.target.value)} className="h-9 w-12 rounded border cursor-pointer" />
-                <Badge style={{ backgroundColor: color }}>Preview</Badge>
+                <Badge style={{ backgroundColor: color }}>{t('admin.categories.preview')}</Badge>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button onClick={handleCreate}>Create</Button>
+            <Button variant="outline" onClick={() => setShowForm(false)}>{t('admin.categories.cancel')}</Button>
+            <Button onClick={handleCreate}>{t('admin.categories.create')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
