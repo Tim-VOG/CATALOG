@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useItInventory, useCreateItInventoryItem, useUpdateItInventoryItem, useDeleteItInventoryItem,
 } from '@/hooks/use-it-inventory'
@@ -100,30 +101,31 @@ const COMPANIES = ['VO GROUP', 'VO EUR', 'VO EVENT', 'THE LITTLE VOICE', 'VO CON
 const DEVICE_TYPES = ['Mac', 'PC', 'Other']
 
 const COLUMNS = [
-  { key: 'name',           label: 'Name',             type: 'text',    width: '160px' },
-  { key: 'company',        label: 'Company',          type: 'select',  width: '140px', options: COMPANIES },
-  { key: 'device_type',    label: 'Device',           type: 'select',  width: '90px',  options: DEVICE_TYPES },
-  { key: 'model',          label: 'Model',            type: 'text',    width: '180px' },
-  { key: 'owner',          label: 'Propri.',          type: 'text',    width: '110px' },
-  { key: 'ram',            label: 'RAM',              type: 'text',    width: '70px' },
-  { key: 'serial_number',  label: 'Serial',           type: 'text',    width: '150px' },
-  { key: 'labo_care',      label: 'Labo Care',        type: 'text',    width: '110px' },
-  { key: 'leasing_start',  label: 'Début leasing',    type: 'date',    width: '130px' },
-  { key: 'leasing_end',    label: 'Fin leasing',      type: 'date',    width: '130px' },
-  { key: 'warranty_end',   label: 'Garantie',         type: 'date',    width: '130px' },
-  { key: 'access_notes',   label: 'Access',           type: 'text',    width: '140px' },
-  { key: 'purchase_price', label: "Prix d'achat",     type: 'number',  width: '110px', money: true, editable: true },
-  { key: 'residual_value', label: 'Valeur résiduelle', type: 'number', width: '120px', money: true, editable: true },
+  { key: 'name',           label: 'colName',          type: 'text',    width: '160px' },
+  { key: 'company',        label: 'colCompany',       type: 'select',  width: '140px', options: COMPANIES },
+  { key: 'device_type',    label: 'colDevice',        type: 'select',  width: '90px',  options: DEVICE_TYPES },
+  { key: 'model',          label: 'colModel',         type: 'text',    width: '180px' },
+  { key: 'owner',          label: 'colOwner',         type: 'text',    width: '110px' },
+  { key: 'ram',            label: 'colRam',           type: 'text',    width: '70px' },
+  { key: 'serial_number',  label: 'colSerial',        type: 'text',    width: '150px' },
+  { key: 'labo_care',      label: 'colLaboCare',      type: 'text',    width: '110px' },
+  { key: 'leasing_start',  label: 'colLeasingStart',  type: 'date',    width: '130px' },
+  { key: 'leasing_end',    label: 'colLeasingEnd',    type: 'date',    width: '130px' },
+  { key: 'warranty_end',   label: 'colWarranty',      type: 'date',    width: '130px' },
+  { key: 'access_notes',   label: 'colAccess',        type: 'text',    width: '140px' },
+  { key: 'purchase_price', label: 'colPurchasePrice', type: 'number',  width: '110px', money: true, editable: true },
+  { key: 'residual_value', label: 'colResidualValue', type: 'number',  width: '120px', money: true, editable: true },
   // Computed
-  { key: '_total_months',  label: 'Durée leasing',    width: '100px', computed: true },
-  { key: '_elapsed',       label: 'Mois écoulés',     width: '100px', computed: true },
-  { key: 'deductible_pct', label: '% franchise',      type: 'number',  width: '90px', editable: true, suffix: '%' },
-  { key: '_amortised',     label: 'Amorti cumulé',    width: '120px', computed: true, money: true },
-  { key: '_remaining',     label: 'Valeur restante',  width: '120px', computed: true, money: true },
-  { key: '_deductible',    label: 'Franchise',        width: '110px', computed: true, money: true },
+  { key: '_total_months',  label: 'colTotalMonths',   width: '100px', computed: true },
+  { key: '_elapsed',       label: 'colElapsed',       width: '100px', computed: true },
+  { key: 'deductible_pct', label: 'colDeductiblePct', type: 'number',  width: '90px', editable: true, suffix: '%' },
+  { key: '_amortised',     label: 'colAmortised',     width: '120px', computed: true, money: true },
+  { key: '_remaining',     label: 'colRemaining',     width: '120px', computed: true, money: true },
+  { key: '_deductible',    label: 'colDeductible',    width: '110px', computed: true, money: true },
 ]
 
 export function AdminItInventoryPage() {
+  const { t } = useTranslation()
   const { data: rows = [], isLoading } = useItInventory()
   const createItem = useCreateItInventoryItem()
   const updateItem = useUpdateItInventoryItem()

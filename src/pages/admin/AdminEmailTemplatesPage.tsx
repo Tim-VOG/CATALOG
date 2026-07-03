@@ -158,12 +158,13 @@ export function AdminEmailTemplatesPage() {
                     <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', cat.tint)}>
                       <Icon className="h-3.5 w-3.5" />
                     </div>
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{cat.label}</h2>
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t(`admin.emailTemplates.${cat.labelKey}`)}</h2>
                   </div>
 
                   {cat.templates.map((template: any) => {
                     const icon = (TEMPLATE_ICONS as Record<string, any>)[template.template_key] || '📧'
-                    const desc = template.description || (TEMPLATE_DESCRIPTIONS as Record<string, any>)[template.template_key] || ''
+                    const descKey = TEMPLATE_DESCRIPTION_KEYS[template.template_key]
+                    const desc = template.description || (descKey ? t(`admin.emailTemplates.${descKey}`) : '')
                     return (
                       <Card key={template.id} className="hover:shadow-md transition-shadow">
                         <CardContent className="p-5">
@@ -177,14 +178,14 @@ export function AdminEmailTemplatesPage() {
                                 <Badge variant="outline" className="text-[10px]">{template.template_key}</Badge>
                               </div>
                               <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5 truncate">Subject: {template.subject}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">{t('admin.emailTemplates.subjectLabel', { subject: template.subject })}</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => openPreview(template)}>
-                                <Eye className="h-3 w-3" /> Preview
+                                <Eye className="h-3 w-3" /> {t('admin.emailTemplates.preview')}
                               </Button>
                               <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openEdit(template)}>
-                                <Pencil className="h-3 w-3" /> Edit
+                                <Pencil className="h-3 w-3" /> {t('admin.emailTemplates.edit')}
                               </Button>
                             </div>
                           </div>
@@ -203,15 +204,15 @@ export function AdminEmailTemplatesPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-sm">Onboarding email blocks</h3>
-                                <Badge variant="outline" className="text-[10px]">advanced</Badge>
+                                <h3 className="font-semibold text-sm">{t('admin.emailTemplates.onboardingBlocksTitle')}</h3>
+                                <Badge variant="outline" className="text-[10px]">{t('admin.emailTemplates.advancedBadge')}</Badge>
                               </div>
                               <p className="text-xs text-muted-foreground mt-0.5">
-                                Block-based composer (MJML) used to send the full multi-section welcome email.
+                                {t('admin.emailTemplates.onboardingBlocksDescription')}
                               </p>
                             </div>
                             <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
-                              Open <ArrowRight className="h-3 w-3" />
+                              {t('admin.emailTemplates.openButton')} <ArrowRight className="h-3 w-3" />
                             </Button>
                           </div>
                         </CardContent>
@@ -233,22 +234,22 @@ export function AdminEmailTemplatesPage() {
       <Dialog open={!!editing} onOpenChange={() => setEditing(null)}>
         <DialogContent className="max-w-2xl p-6">
           <DialogHeader>
-            <DialogTitle>Edit: {editing?.name}</DialogTitle>
+            <DialogTitle>{t('admin.emailTemplates.editDialogTitle', { name: editing?.name })}</DialogTitle>
           </DialogHeader>
 
           <Tabs value={editTab} onValueChange={setEditTab}>
             <TabsList>
-              <TabsTrigger value="edit">Edit</TabsTrigger>
-              <TabsTrigger value="preview">Preview</TabsTrigger>
+              <TabsTrigger value="edit">{t('admin.emailTemplates.edit')}</TabsTrigger>
+              <TabsTrigger value="preview">{t('admin.emailTemplates.preview')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="edit" className="space-y-4 mt-4">
               <div className="space-y-1">
-                <Label>Subject</Label>
+                <Label>{t('admin.emailTemplates.subjectFieldLabel')}</Label>
                 <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label>Body (HTML)</Label>
+                <Label>{t('admin.emailTemplates.bodyFieldLabel')}</Label>
                 <Textarea value={body} onChange={(e: any) => setBody(e.target.value)} rows={12} className="font-mono text-xs" />
               </div>
             </TabsContent>
@@ -256,7 +257,7 @@ export function AdminEmailTemplatesPage() {
             <TabsContent value="preview" className="mt-4">
               <div className="border rounded-xl overflow-hidden bg-muted/30">
                 <iframe
-                  title="Email preview"
+                  title={t('admin.emailTemplates.emailPreviewTitle')}
                   srcDoc={previewHtml}
                   className="w-full h-[600px] bg-white"
                   sandbox=""
@@ -266,9 +267,9 @@ export function AdminEmailTemplatesPage() {
           </Tabs>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setEditing(null)}>{t('admin.emailTemplates.cancel')}</Button>
             <Button onClick={handleSave} className="gap-2">
-              <Save className="h-4 w-4" /> Save
+              <Save className="h-4 w-4" /> {t('admin.emailTemplates.save')}
             </Button>
           </DialogFooter>
         </DialogContent>

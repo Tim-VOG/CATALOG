@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { formatDistanceToNow, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEquipmentIssues, useResolveEquipmentIssue } from '@/hooks/use-equipment-issues'
@@ -11,17 +12,24 @@ import { AlertTriangle, Check, Wrench, Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function AdminIssuesPage() {
+  const { t } = useTranslation()
   const showToast = useUIStore((s: any) => s.showToast)
   const [statusFilter, setStatusFilter] = useState('open')
   const { data: issues = [], isLoading } = useEquipmentIssues(statusFilter)
   const resolve = useResolveEquipmentIssue()
 
+  const statusLabels: Record<string, string> = {
+    open: t('admin.issues.statusOpen'),
+    resolved: t('admin.issues.statusResolved'),
+    all: t('admin.issues.statusAll'),
+  }
+
   const handleResolve = async (id: string) => {
     try {
       await resolve.mutateAsync(id)
-      showToast('Marked resolved', 'success')
+      showToast(t('admin.issues.toastResolved'), 'success')
     } catch (err: any) {
-      showToast(err?.message || 'Could not resolve', 'error')
+      showToast(err?.message || t('admin.issues.toastResolveError'), 'error')
     }
   }
 
@@ -32,15 +40,15 @@ export function AdminIssuesPage() {
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Equipment issues"
-        section="SUPPORT"
-        description={statusFilter === 'open' ? `${openCount} open ticket${openCount !== 1 ? 's' : ''}` : 'Problems reported by users'}
+        title={t('admin.issues.title')}
+        section={t('admin.eyebrow.requests')}
+        description={statusFilter === 'open' ? t('admin.issues.openTicketCount', { count: openCount }) : t('admin.issues.descriptionAllIssues')}
       />
 
       <div className="flex flex-wrap gap-1">
         {['open', 'resolved', 'all'].map((s: any) => (
           <Button key={s} variant={statusFilter === s ? 'secondary' : 'ghost'} size="sm" className="text-xs h-8 capitalize" onClick={() => setStatusFilter(s)}>
-            {s}
+            {statusLabels[s]}
           </Button>
         ))}
       </div>
@@ -48,7 +56,11 @@ export function AdminIssuesPage() {
       {issues.length === 0 ? (
         <div className="border border-border/50 rounded-xl py-16 flex flex-col items-center justify-center text-muted-foreground bg-card">
           <Wrench className="h-8 w-8 mb-2 opacity-30" />
-          <p className="text-sm">No {statusFilter === 'all' ? '' : statusFilter} issues.</p>
+          <p className="text-sm">
+            {statusFilter === 'open' && t('admin.issues.emptyStateOpen')}
+            {statusFilter === 'resolved' && t('admin.issues.emptyStateResolved')}
+            {statusFilter === 'all' && t('admin.issues.emptyStateAll')}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -61,10 +73,10 @@ export function AdminIssuesPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium">{issue.product_name || issue.qr_code || 'Device'}</p>
+                    <p className="text-sm font-medium">{issue.product_name || issue.qr_code || t('admin.issues.device')}</p>
                     {issue.qr_code && <span className="text-[11px] font-mono text-muted-foreground">{issue.qr_code}</span>}
                     <Badge variant="outline" className={cn('text-[10px]', issue.status === 'open' ? 'bg-rose-500/10 text-rose-500 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30')}>
-                      {issue.status}
+                      {statusLabels[issue.status] ?? issue.status}
                     </Badge>
                   </div>
                   <p className="text-sm mt-1.5 whitespace-pre-line">{issue.description}</p>
@@ -74,20 +86,20 @@ export function AdminIssuesPage() {
                     </a>
                   )}
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                    <span>{issue.reporter_name || issue.reporter_email || 'Unknown'}</span>
+                    <span>{issue.reporter_name || issue.reporter_email || t('admin.issues.unknownReporter')}</span>
                     <span title={format(new Date(issue.created_at), 'd MMM yyyy HH:mm', { locale: fr })}>
                       {formatDistanceToNow(new Date(issue.created_at), { addSuffix: true, locale: fr })}
                     </span>
                     {issue.reporter_email && (
                       <a href={`mailto:${issue.reporter_email}?subject=${encodeURIComponent(`[VO Hub] Re: ${issue.product_name || issue.qr_code}`)}`} className="inline-flex items-center gap-1 hover:text-foreground">
-                        <Mail className="h-3 w-3" /> Reply
+                        <Mail className="h-3 w-3" /> {t('admin.issues.reply')}
                       </a>
                     )}
                   </div>
                 </div>
                 {issue.status === 'open' && (
                   <Button size="sm" variant="outline" className="gap-1.5 text-xs shrink-0" onClick={() => handleResolve(issue.id)} disabled={resolve.isPending}>
-                    <Check className="h-3 w-3" /> Resolve
+                    <Check className="h-3 w-3" /> {t('admin.issues.resolve')}
                   </Button>
                 )}
               </div>

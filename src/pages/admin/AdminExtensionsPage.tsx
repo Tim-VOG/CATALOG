@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CalendarClock, Check, X, Clock } from 'lucide-react'
 import {
   useExtensionRequests,
@@ -31,10 +32,17 @@ const STATUS_STYLE: Record<string, string> = {
 }
 
 export function AdminExtensionsPage() {
+  const { t } = useTranslation()
   const { data: extensions = [], isLoading } = useExtensionRequests()
   const review = useReviewExtensionRequest()
   const { user } = useAuth()
   const showToast = useUIStore((s) => s.showToast)
+
+  const STATUS_LABEL: Record<string, string> = {
+    pending: t('admin.extensions.statusPending'),
+    approved: t('admin.extensions.statusApproved'),
+    rejected: t('admin.extensions.statusRejected'),
+  }
 
   const [dialog, setDialog] = useState<{ ext: ExtensionRequest; decision: 'approved' | 'rejected' } | null>(null)
   const [grantedDays, setGrantedDays] = useState('')
@@ -87,11 +95,11 @@ export function AdminExtensionsPage() {
         reviewed_by: user.id,
         currentReturnDate: ext.return_date,
       })
-      showToast(decision === 'approved' ? 'Extension approved' : 'Extension rejected')
+      showToast(decision === 'approved' ? t('admin.extensions.toastApproved') : t('admin.extensions.toastRejected'))
       sendDecisionEmail(ext, decision, granted)
       setDialog(null)
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Action failed', 'error')
+      showToast(err instanceof Error ? err.message : t('admin.extensions.toastActionFailed'), 'error')
     }
   }
 
@@ -101,33 +109,33 @@ export function AdminExtensionsPage() {
   const reviewed = extensions.filter((e) => e.status !== 'pending')
 
   const renderCard = (ext: ExtensionRequest) => {
-    const name = [ext.user_first_name, ext.user_last_name].filter(Boolean).join(' ') || ext.user_email || 'User'
+    const name = [ext.user_first_name, ext.user_last_name].filter(Boolean).join(' ') || ext.user_email || t('admin.extensions.fallbackUser')
     return (
       <div key={ext.id} className="flex items-start gap-3 p-4 rounded-lg border">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-sm">{name}</span>
-            <Badge className={`text-[10px] ${STATUS_STYLE[ext.status] || ''}`}>{ext.status}</Badge>
+            <Badge className={`text-[10px] ${STATUS_STYLE[ext.status] || ''}`}>{STATUS_LABEL[ext.status] || ext.status}</Badge>
             <span className="text-xs text-muted-foreground">
-              wants <strong>+{ext.requested_days} days</strong>
+              {t('admin.extensions.wantsDays', { count: ext.requested_days })}
             </span>
           </div>
           <div className="text-xs text-muted-foreground mt-1">
-            {ext.project_name || 'Loan'} · current return {formatDate(ext.return_date)}
+            {ext.project_name || t('admin.extensions.fallbackLoan')} · {t('admin.extensions.currentReturn', { date: formatDate(ext.return_date) })}
           </div>
           {ext.reason && <div className="text-xs mt-1.5 text-foreground/80">“{ext.reason}”</div>}
           {ext.status === 'approved' && ext.granted_days != null && (
-            <div className="text-[11px] text-emerald-600 mt-1">Granted {ext.granted_days} days</div>
+            <div className="text-[11px] text-emerald-600 mt-1">{t('admin.extensions.grantedDays', { count: ext.granted_days })}</div>
           )}
-          {ext.admin_notes && <div className="text-[11px] text-muted-foreground mt-1">Note: {ext.admin_notes}</div>}
+          {ext.admin_notes && <div className="text-[11px] text-muted-foreground mt-1">{t('admin.extensions.noteLabel', { note: ext.admin_notes })}</div>}
         </div>
         {ext.status === 'pending' && (
           <div className="flex items-center gap-1.5 shrink-0">
             <Button size="sm" className="gap-1 text-xs bg-emerald-500 hover:bg-emerald-600" onClick={() => openDecision(ext, 'approved')}>
-              <Check className="h-3.5 w-3.5" /> Approve
+              <Check className="h-3.5 w-3.5" /> {t('admin.extensions.approve')}
             </Button>
             <Button size="sm" variant="outline" className="gap-1 text-xs text-destructive" onClick={() => openDecision(ext, 'rejected')}>
-              <X className="h-3.5 w-3.5" /> Reject
+              <X className="h-3.5 w-3.5" /> {t('admin.extensions.reject')}
             </Button>
           </div>
         )}
@@ -138,24 +146,24 @@ export function AdminExtensionsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Loan Extensions"
-        description="Review requests to keep borrowed equipment a bit longer."
+        title={t('admin.extensions.pageTitle')}
+        description={t('admin.extensions.pageDescription')}
       />
 
       <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-1.5 text-sm w-fit">
         <Clock className="h-3.5 w-3.5 text-amber-500" />
         <span className="font-semibold">{pending.length}</span>
-        <span className="text-muted-foreground">pending</span>
+        <span className="text-muted-foreground">{t('admin.extensions.pendingBadge')}</span>
       </div>
 
       {extensions.length === 0 ? (
-        <EmptyState icon={CalendarClock} title="No extension requests" description="Requests to extend a loan will show up here." />
+        <EmptyState icon={CalendarClock} title={t('admin.extensions.emptyTitle')} description={t('admin.extensions.emptyDescription')} />
       ) : (
         <div className="space-y-6">
           {pending.length > 0 && (
             <Card>
               <CardContent className="p-4 space-y-2">
-                <h3 className="text-xs font-semibold text-muted-foreground mb-1">Pending</h3>
+                <h3 className="text-xs font-semibold text-muted-foreground mb-1">{t('admin.extensions.pendingHeading')}</h3>
                 {pending.map(renderCard)}
               </CardContent>
             </Card>
@@ -163,7 +171,7 @@ export function AdminExtensionsPage() {
           {reviewed.length > 0 && (
             <Card>
               <CardContent className="p-4 space-y-2">
-                <h3 className="text-xs font-semibold text-muted-foreground mb-1">Reviewed</h3>
+                <h3 className="text-xs font-semibold text-muted-foreground mb-1">{t('admin.extensions.reviewedHeading')}</h3>
                 {reviewed.map(renderCard)}
               </CardContent>
             </Card>
@@ -174,27 +182,27 @@ export function AdminExtensionsPage() {
       <Dialog open={!!dialog} onOpenChange={(o: any) => !o && setDialog(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{dialog?.decision === 'approved' ? 'Approve extension' : 'Reject extension'}</DialogTitle>
+            <DialogTitle>{dialog?.decision === 'approved' ? t('admin.extensions.dialogTitleApprove') : t('admin.extensions.dialogTitleReject')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {dialog?.decision === 'approved' && (
               <div className="space-y-1">
-                <Label>Days granted</Label>
+                <Label>{t('admin.extensions.daysGrantedLabel')}</Label>
                 <Input type="number" value={grantedDays} onChange={(e) => setGrantedDays(e.target.value)} />
                 <p className="text-[10px] text-muted-foreground">
-                  The loan's return date will be pushed out by this many days.
+                  {t('admin.extensions.daysGrantedHelp')}
                 </p>
               </div>
             )}
             <div className="space-y-1">
-              <Label>Note to the user (optional)</Label>
-              <Textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} rows={2} placeholder="Optional message included in the email…" />
+              <Label>{t('admin.extensions.noteToUserLabel')}</Label>
+              <Textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} rows={2} placeholder={t('admin.extensions.notePlaceholder')} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialog(null)}>{t('admin.extensions.cancel')}</Button>
             <Button onClick={confirmDecision} disabled={review.isPending}>
-              {dialog?.decision === 'approved' ? 'Approve & extend' : 'Reject'}
+              {dialog?.decision === 'approved' ? t('admin.extensions.approveAndExtend') : t('admin.extensions.reject')}
             </Button>
           </DialogFooter>
         </DialogContent>

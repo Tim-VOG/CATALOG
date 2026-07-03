@@ -911,27 +911,27 @@ export function AdminDesignPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Type className="h-4 w-4" /> General
+              <Type className="h-4 w-4" /> {t('admin.design.generalTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
-              <Label>Application Name</Label>
+              <Label>{t('admin.design.appNameLabel')}</Label>
               <Input
                 value={appName}
                 onChange={(e: any) => setAppName(e.target.value)}
-                placeholder="VO Hub"
+                placeholder={t('admin.design.voHubPlaceholder')}
               />
-              <p className="text-xs text-muted-foreground">Displayed in the header and browser title</p>
+              <p className="text-xs text-muted-foreground">{t('admin.design.appNameHint')}</p>
             </div>
             <div className="space-y-1">
-              <Label>Header Tagline</Label>
+              <Label>{t('admin.design.headerTaglineLabel')}</Label>
               <Input
                 value={headerTagline}
                 onChange={(e: any) => setHeaderTagline(e.target.value)}
-                placeholder="Book. Borrow. Return."
+                placeholder={t('admin.design.taglinePlaceholder')}
               />
-              <p className="text-xs text-muted-foreground">Shown below the app name in the header</p>
+              <p className="text-xs text-muted-foreground">{t('admin.design.headerTaglineHint')}</p>
             </div>
           </CardContent>
         </Card>
@@ -940,22 +940,22 @@ export function AdminDesignPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Mail className="h-4 w-4" /> Email Branding
+              <Mail className="h-4 w-4" /> {t('admin.design.emailBrandingTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <Label>Email Tagline</Label>
+                <Label>{t('admin.design.emailTaglineLabel')}</Label>
                 <Input
                   value={emailTagline}
                   onChange={(e: any) => setEmailTagline(e.target.value)}
-                  placeholder="Equipment Lending Platform"
+                  placeholder={t('admin.design.emailTaglinePlaceholder')}
                 />
-                <p className="text-xs text-muted-foreground">Shown below the app name in the email header</p>
+                <p className="text-xs text-muted-foreground">{t('admin.design.emailTaglineHint')}</p>
               </div>
               <div className="space-y-1">
-                <Label>Email Logo Height (px)</Label>
+                <Label>{t('admin.design.emailLogoHeightLabel')}</Label>
                 <Input
                   type="number"
                   value={emailLogoHeight}
@@ -965,7 +965,7 @@ export function AdminDesignPage() {
                   max={120}
                   className="w-28"
                 />
-                <p className="text-xs text-muted-foreground">Height of the logo in emails (width scales automatically)</p>
+                <p className="text-xs text-muted-foreground">{t('admin.design.emailLogoHeightHint')}</p>
               </div>
             </div>
           </CardContent>
@@ -976,51 +976,51 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Home className="h-4 w-4" /> Hub Page Content
+            <Home className="h-4 w-4" /> {t('admin.design.hubContentTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <p className="text-xs text-muted-foreground">Customize the titles and descriptions displayed on the Hub landing page.</p>
+          <p className="text-xs text-muted-foreground">{t('admin.design.hubContentHint')}</p>
 
           {/* Main title + tagline */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label>Hub Title</Label>
+              <Label>{t('admin.design.hubTitleLabel')}</Label>
               <Input
                 value={hubMainTitle}
                 onChange={(e: any) => setHubMainTitle(e.target.value)}
-                placeholder="VO Hub"
+                placeholder={t('admin.design.voHubPlaceholder')}
               />
             </div>
             <div className="space-y-1">
-              <Label>Hub Tagline</Label>
+              <Label>{t('admin.design.hubTaglineLabel')}</Label>
               <Input
                 value={hubTagline}
                 onChange={(e: any) => setHubTagline(e.target.value)}
-                placeholder="Welcome — choose your destination"
+                placeholder={t('admin.design.hubTaglinePlaceholder')}
               />
             </div>
           </div>
 
           <div className="border-t pt-4">
             <p className="text-xs font-medium text-muted-foreground mb-4 flex items-center gap-1.5">
-              <PenLine className="h-3 w-3" /> Section Cards
+              <PenLine className="h-3 w-3" /> {t('admin.design.sectionCardsLabel')}
             </p>
 
             <div className="space-y-4">
               {/* Catalog */}
               <div className="rounded-lg border p-4 space-y-3">
                 <div className="text-sm font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-primary" /> Equipment Catalog
+                  <div className="h-2 w-2 rounded-full bg-primary" /> {t('admin.design.equipmentCatalogTitle')}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Title</Label>
-                    <Input value={hubCatalogTitle} onChange={(e: any) => setHubCatalogTitle(e.target.value)} placeholder="Equipment Catalog" />
+                    <Label className="text-xs">{t('admin.design.titleLabel')}</Label>
+                    <Input value={hubCatalogTitle} onChange={(e: any) => setHubCatalogTitle(e.target.value)} placeholder={t('admin.design.equipmentCatalogTitle')} />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Description</Label>
-                    <Input value={hubCatalogDescription} onChange={(e: any) => setHubCatalogDescription(e.target.value)} placeholder="Browse and reserve equipment..." />
+                    <Label className="text-xs">{t('admin.design.descriptionLabel')}</Label>
+                    <Input value={hubCatalogDescription} onChange={(e: any) => setHubCatalogDescription(e.target.value)} placeholder={t('admin.design.catalogDescPlaceholder')} />
                   </div>
                 </div>
               </div>
@@ -1028,16 +1028,16 @@ export function AdminDesignPage() {
               {/* Onboarding */}
               <div className="rounded-lg border p-4 space-y-3">
                 <div className="text-sm font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-cyan-500" /> Onboarding Hub
+                  <div className="h-2 w-2 rounded-full bg-cyan-500" /> {t('admin.design.onboardingHubTitle')}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Title</Label>
-                    <Input value={hubOnboardingTitle} onChange={(e: any) => setHubOnboardingTitle(e.target.value)} placeholder="Onboarding Hub" />
+                    <Label className="text-xs">{t('admin.design.titleLabel')}</Label>
+                    <Input value={hubOnboardingTitle} onChange={(e: any) => setHubOnboardingTitle(e.target.value)} placeholder={t('admin.design.onboardingHubTitle')} />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Description</Label>
-                    <Input value={hubOnboardingDescription} onChange={(e: any) => setHubOnboardingDescription(e.target.value)} placeholder="Compose and send welcome emails..." />
+                    <Label className="text-xs">{t('admin.design.descriptionLabel')}</Label>
+                    <Input value={hubOnboardingDescription} onChange={(e: any) => setHubOnboardingDescription(e.target.value)} placeholder={t('admin.design.onboardingDescPlaceholder')} />
                   </div>
                 </div>
               </div>
@@ -1045,16 +1045,16 @@ export function AdminDesignPage() {
               {/* Functional Mailbox */}
               <div className="rounded-lg border p-4 space-y-3">
                 <div className="text-sm font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-violet-500" /> Functional Mailbox
+                  <div className="h-2 w-2 rounded-full bg-violet-500" /> {t('admin.design.functionalMailboxTitle')}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Title</Label>
-                    <Input value={hubMailboxTitle} onChange={(e: any) => setHubMailboxTitle(e.target.value)} placeholder="Functional Mailbox" />
+                    <Label className="text-xs">{t('admin.design.titleLabel')}</Label>
+                    <Input value={hubMailboxTitle} onChange={(e: any) => setHubMailboxTitle(e.target.value)} placeholder={t('admin.design.functionalMailboxTitle')} />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Description</Label>
-                    <Input value={hubMailboxDescription} onChange={(e: any) => setHubMailboxDescription(e.target.value)} placeholder="Request a new functional mailbox..." />
+                    <Label className="text-xs">{t('admin.design.descriptionLabel')}</Label>
+                    <Input value={hubMailboxDescription} onChange={(e: any) => setHubMailboxDescription(e.target.value)} placeholder={t('admin.design.mailboxDescPlaceholder')} />
                   </div>
                 </div>
               </div>
@@ -1062,16 +1062,16 @@ export function AdminDesignPage() {
               {/* IT Request */}
               <div className="rounded-lg border p-4 space-y-3">
                 <div className="text-sm font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-amber-500" /> IT Onboarding Request
+                  <div className="h-2 w-2 rounded-full bg-amber-500" /> {t('admin.design.itRequestTitle')}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Title</Label>
-                    <Input value={hubItRequestTitle} onChange={(e: any) => setHubItRequestTitle(e.target.value)} placeholder="IT Onboarding Request" />
+                    <Label className="text-xs">{t('admin.design.titleLabel')}</Label>
+                    <Input value={hubItRequestTitle} onChange={(e: any) => setHubItRequestTitle(e.target.value)} placeholder={t('admin.design.itRequestTitle')} />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Description</Label>
-                    <Input value={hubItRequestDescription} onChange={(e: any) => setHubItRequestDescription(e.target.value)} placeholder="Submit an IT onboarding request..." />
+                    <Label className="text-xs">{t('admin.design.descriptionLabel')}</Label>
+                    <Input value={hubItRequestDescription} onChange={(e: any) => setHubItRequestDescription(e.target.value)} placeholder={t('admin.design.itRequestDescPlaceholder')} />
                   </div>
                 </div>
               </div>
@@ -1084,38 +1084,38 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <MapPin className="h-4 w-4" /> Pickup point
+            <MapPin className="h-4 w-4" /> {t('admin.design.pickupPointTitle')}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Where people pick up / return equipment. Shown on the tracking page and "My equipment".
+            {t('admin.design.pickupPointHint')}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-xs">Location name</Label>
-            <Input value={pickupName} onChange={(e: any) => setPickupName(e.target.value)} placeholder="IT Desk — 2nd floor" />
+            <Label className="text-xs">{t('admin.design.locationNameLabel')}</Label>
+            <Input value={pickupName} onChange={(e: any) => setPickupName(e.target.value)} placeholder={t('admin.design.locationNamePlaceholder')} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Directions</Label>
+            <Label className="text-xs">{t('admin.design.directionsLabel')}</Label>
             <Textarea
               value={pickupDirections}
               onChange={(e: any) => setPickupDirections(e.target.value)}
-              placeholder={"Take the lift to the 2nd floor, turn left.\nThe IT desk is at the end of the corridor."}
+              placeholder={t('admin.design.directionsPlaceholder')}
               rows={3}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs">Floor plan (optional)</Label>
+            <Label className="text-xs">{t('admin.design.floorPlanLabel')}</Label>
             {pickupMapUrl ? (
               <div className="space-y-2">
                 <div className="relative inline-block rounded-xl overflow-hidden border border-border/50 max-w-md">
                   <img
                     src={pickupMapUrl}
-                    alt="Floor plan"
+                    alt={t('admin.design.floorPlanAlt')}
                     className="w-full block cursor-crosshair"
                     onClick={handleMapClick}
-                    title="Click to place the pickup pin"
+                    title={t('admin.design.clickToPlacePin')}
                   />
                   {pickupPinX != null && pickupPinY != null && (
                     <span
@@ -1131,16 +1131,16 @@ export function AdminDesignPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground">Click on the image to place the pin.</p>
+                <p className="text-[11px] text-muted-foreground">{t('admin.design.clickImagePinHint')}</p>
                 <div className="flex gap-2">
                   <label className="cursor-pointer">
                     <input type="file" accept="image/*" className="hidden" onChange={(e: any) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
                     <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-input hover:bg-muted transition-colors">
-                      {uploadingMap ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} Replace
+                      {uploadingMap ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} {t('admin.design.replaceLabel')}
                     </span>
                   </label>
                   <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1.5" onClick={() => { setPickupMapUrl(''); setPickupPinX(null); setPickupPinY(null) }}>
-                    <X className="h-3.5 w-3.5" /> Remove
+                    <X className="h-3.5 w-3.5" /> {t('admin.design.removeLabel')}
                   </Button>
                 </div>
               </div>
@@ -1149,8 +1149,8 @@ export function AdminDesignPage() {
                 <input type="file" accept="image/*" className="hidden" onChange={(e: any) => e.target.files?.[0] && handleMapUpload(e.target.files[0])} />
                 <div className="border-2 border-dashed border-border/60 rounded-xl py-8 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
                   {uploadingMap ? <Loader2 className="h-6 w-6 animate-spin mb-2" /> : <Upload className="h-6 w-6 mb-2" />}
-                  <p className="text-sm">Upload a floor plan</p>
-                  <p className="text-[11px]">PNG / JPG — you can then click to drop a pin</p>
+                  <p className="text-sm">{t('admin.design.uploadFloorPlan')}</p>
+                  <p className="text-[11px]">{t('admin.design.floorPlanFileHint')}</p>
                 </div>
               </label>
             )}
@@ -1162,7 +1162,7 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Monitor className="h-4 w-4" /> Live Preview
+            <Monitor className="h-4 w-4" /> {t('admin.design.livePreviewTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1194,7 +1194,7 @@ export function AdminDesignPage() {
                     color: primaryColor || SHARED_DEFAULTS.primary_color,
                   }}
                 >
-                  Catalog
+                  {t('admin.design.catalogNavLabel')}
                 </div>
                 <div className="w-4 h-4 rounded-full" style={{ background: activePalette.muted || activeDefaults.muted }} />
               </div>
@@ -1208,14 +1208,18 @@ export function AdminDesignPage() {
                 color: activePalette.foreground || activeDefaults.foreground,
               }}
             >
-              <div className="text-base font-bold">Equipment Catalog</div>
+              <div className="text-base font-bold">{t('admin.design.equipmentCatalogTitle')}</div>
               <div className="text-xs" style={{ color: activePalette.muted_fg || activeDefaults.muted_fg }}>
-                Browse and reserve equipment for your projects
+                {t('admin.design.catalogPreviewDesc')}
               </div>
 
               {/* Cards row */}
               <div className="grid grid-cols-3 gap-2">
-                {['Laptop Pro', 'Camera Kit', 'Monitor 27"'].map((name: any, i: any) => (
+                {[
+                  { name: t('admin.design.laptopPro'), count: 3, category: t('admin.design.categoryIt'), unavailable: false },
+                  { name: t('admin.design.cameraKit'), count: 1, category: t('admin.design.categoryVideo'), unavailable: false },
+                  { name: t('admin.design.monitor27'), count: 0, category: t('admin.design.categoryDisplay'), unavailable: true },
+                ].map(({ name, count, category, unavailable }: any) => (
                   <div
                     key={name}
                     className="rounded-lg border p-2 space-y-1.5"
@@ -1230,22 +1234,22 @@ export function AdminDesignPage() {
                     />
                     <div className="text-xs font-semibold">{name}</div>
                     <div className="text-[10px]" style={{ color: activePalette.muted_fg || activeDefaults.muted_fg }}>
-                      {i === 0 ? '3 available' : i === 1 ? '1 available' : '0 available'}
+                      {t('admin.design.itemsAvailable', { count })}
                     </div>
                     <div className="flex gap-1">
                       <span className="text-[9px] px-1.5 py-0.5 rounded text-white"
                         style={{ background: accentColor || SHARED_DEFAULTS.accent_color }}>
-                        {i === 0 ? 'IT' : i === 1 ? 'Video' : 'Display'}
+                        {category}
                       </span>
                       <div className="ml-auto">
                         <div
                           className="text-[9px] px-1.5 py-0.5 rounded text-white font-medium"
-                          style={{ background: i === 2
+                          style={{ background: unavailable
                             ? (destructiveColor || SHARED_DEFAULTS.destructive_color)
                             : (primaryColor || SHARED_DEFAULTS.primary_color)
                           }}
                         >
-                          {i === 2 ? 'Unavailable' : 'Add'}
+                          {unavailable ? t('admin.design.unavailableLabel') : t('admin.design.addLabel')}
                         </div>
                       </div>
                     </div>
@@ -1257,19 +1261,19 @@ export function AdminDesignPage() {
               <div className="flex gap-2 pt-2">
                 <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
                   style={{ background: successColor || SHARED_DEFAULTS.success_color }}>
-                  Returned
+                  {t('admin.design.statusReturned')}
                 </span>
                 <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
                   style={{ background: warningColor || SHARED_DEFAULTS.warning_color }}>
-                  Pending
+                  {t('admin.design.statusPending')}
                 </span>
                 <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
                   style={{ background: destructiveColor || SHARED_DEFAULTS.destructive_color }}>
-                  Overdue
+                  {t('admin.design.statusOverdue')}
                 </span>
                 <span className="text-[9px] px-2 py-0.5 rounded-full text-white"
                   style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }}>
-                  Active
+                  {t('admin.design.statusActive')}
                 </span>
               </div>
             </div>
