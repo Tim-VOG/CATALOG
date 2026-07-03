@@ -39,3 +39,6 @@ supabase.rtf
 
 # Vitest
 /coverage/
+
+# Supabase CLI temp files (created by 'supabase link')
+supabase/.temp/
