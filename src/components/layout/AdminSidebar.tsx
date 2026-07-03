@@ -14,11 +14,13 @@ import { useItRequests } from '@/hooks/use-it-requests'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
 import { useAuth } from '@/lib/auth'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 export function AdminSidebar() {
   const location = useLocation()
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
 
   const { data: loanReqs = [] } = useLoanRequests()
   const { data: itReqs = [] } = useItRequests()
@@ -45,68 +47,68 @@ export function AdminSidebar() {
   // else is admin-only and hidden when isAdmin is false.
   const allSections = [
     {
-      label: 'Overview',
+      label: t('admin.sidebar.sections.overview'),
       defaultOpen: true,
       links: [
-        { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true, managerOk: true },
-        { to: '/admin/planning', label: 'Planning', icon: CalendarRange, managerOk: true },
-        { to: '/admin/stats', label: 'Statistics', icon: BarChart3 },
-        { to: '/admin/utilization', label: 'Utilization', icon: Activity },
+        { to: '/admin', label: t('admin.sidebar.links.dashboard'), icon: LayoutDashboard, exact: true, managerOk: true },
+        { to: '/admin/planning', label: t('admin.sidebar.links.planning'), icon: CalendarRange, managerOk: true },
+        { to: '/admin/stats', label: t('admin.sidebar.links.statistics'), icon: BarChart3 },
+        { to: '/admin/utilization', label: t('admin.sidebar.links.utilization'), icon: Activity },
       ],
     },
     {
       // All the "someone submitted a request" flows in one place.
-      label: 'Requests',
+      label: t('admin.sidebar.sections.requests'),
       defaultOpen: true,
       links: [
-        { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
-        { to: '/admin/extensions', label: 'Extensions', icon: CalendarClock },
-        { to: '/admin/overdue', label: 'Overdue', icon: AlarmClock },
-        { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
-        { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
-        { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
-        { to: '/admin/issues', label: 'Issues', icon: Wrench },
+        { to: '/admin/requests', label: t('admin.sidebar.links.equipment'), icon: Inbox, badge: pendingCounts.equipment },
+        { to: '/admin/extensions', label: t('admin.sidebar.links.extensions'), icon: CalendarClock },
+        { to: '/admin/overdue', label: t('admin.sidebar.links.overdue'), icon: AlarmClock },
+        { to: '/admin/onboarding/requests', label: t('admin.sidebar.links.onboarding'), icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
+        { to: '/admin/offboarding-requests', label: t('admin.sidebar.links.offboarding'), icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
+        { to: '/admin/mailbox-requests', label: t('admin.sidebar.links.mailbox'), icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
+        { to: '/admin/issues', label: t('admin.sidebar.links.issues'), icon: Wrench },
       ],
     },
     {
       // The physical stock / catalog side: what we own and lend.
-      label: 'Inventory',
+      label: t('admin.sidebar.sections.inventory'),
       defaultOpen: false,
       links: [
-        { to: '/admin/products', label: 'Products', icon: Package },
-        { to: '/admin/it-inventory', label: 'IT Inventory', icon: ScrollText },
-        { to: '/admin/local-it', label: 'Local IT', icon: Monitor },
-        { to: '/admin/shared-mailboxes', label: 'Shared Mailboxes', icon: Mail },
-        { to: '/admin/reservations', label: 'Reservations', icon: CalendarClock },
-        { to: '/admin/device-credentials', label: 'Device Credentials', icon: KeyRound },
+        { to: '/admin/products', label: t('admin.sidebar.links.products'), icon: Package },
+        { to: '/admin/it-inventory', label: t('admin.sidebar.links.itInventory'), icon: ScrollText },
+        { to: '/admin/local-it', label: t('admin.sidebar.links.localIt'), icon: Monitor },
+        { to: '/admin/shared-mailboxes', label: t('admin.sidebar.links.sharedMailboxes'), icon: Mail },
+        { to: '/admin/reservations', label: t('admin.sidebar.links.reservations'), icon: CalendarClock },
+        { to: '/admin/device-credentials', label: t('admin.sidebar.links.deviceCredentials'), icon: KeyRound },
       ],
     },
     {
       // Everything QR / scanning / tracking of gear in the field.
-      label: 'QR & Tracking',
+      label: t('admin.sidebar.sections.qrTracking'),
       defaultOpen: false,
       links: [
-        { to: '/admin/qr-codes', label: 'QR Codes', icon: QrCode },
-        { to: '/admin/scan-logs', label: 'Scan Logs', icon: ScrollText },
-        { to: '/admin/lost-items', label: 'Lost Items', icon: PackageSearch },
+        { to: '/admin/qr-codes', label: t('admin.sidebar.links.qrCodes'), icon: QrCode },
+        { to: '/admin/scan-logs', label: t('admin.sidebar.links.scanLogs'), icon: ScrollText },
+        { to: '/admin/lost-items', label: t('admin.sidebar.links.lostItems'), icon: PackageSearch },
       ],
     },
     {
-      label: 'Users',
+      label: t('admin.sidebar.sections.users'),
       defaultOpen: false,
       links: [
-        { to: '/admin/users', label: 'All Users', icon: Users },
+        { to: '/admin/users', label: t('admin.sidebar.links.allUsers'), icon: Users },
       ],
     },
     {
-      label: 'Settings',
+      label: t('admin.sidebar.sections.settings'),
       defaultOpen: false,
       links: [
-        { to: '/admin/subscription-plans', label: 'Subscription Plans', icon: CreditCard },
-        { to: '/admin/business-units', label: 'Business Units', icon: Building2 },
-        { to: '/admin/email-templates', label: 'Communications', icon: Mail },
-        { to: '/admin/design', label: 'Design & Branding', icon: Palette },
-        { to: '/admin/audit', label: 'Audit Log', icon: ShieldCheck },
+        { to: '/admin/subscription-plans', label: t('admin.sidebar.links.subscriptionPlans'), icon: CreditCard },
+        { to: '/admin/business-units', label: t('admin.sidebar.links.businessUnits'), icon: Building2 },
+        { to: '/admin/email-templates', label: t('admin.sidebar.links.communications'), icon: Mail },
+        { to: '/admin/design', label: t('admin.sidebar.links.designBranding'), icon: Palette },
+        { to: '/admin/audit', label: t('admin.sidebar.links.auditLog'), icon: ShieldCheck },
       ],
     },
   ]
@@ -130,7 +132,7 @@ export function AdminSidebar() {
         {/* Brand */}
         <div className="px-3 pb-5">
           <h2 className="font-display font-semibold text-base tracking-tight">VO Hub</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Admin</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('admin.admin')}</p>
         </div>
 
         <nav className="flex-1 overflow-y-auto space-y-5 pr-2">
@@ -145,7 +147,7 @@ export function AdminSidebar() {
             className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Back to Hub
+            {t('admin.backToHub')}
           </Link>
         </div>
       </div>
