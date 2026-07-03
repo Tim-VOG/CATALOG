@@ -1,5 +1,6 @@
-import { format, formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 import { useLostItems, useResolveLost } from '@/hooks/use-qr-reservations'
 import { useUIStore } from '@/stores/ui-store'
 import { PageLoading } from '@/components/common/LoadingSpinner'
@@ -9,17 +10,18 @@ import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, PackageSearch, Check } from 'lucide-react'
 
 export function AdminLostItemsPage() {
+  const { t } = useTranslation()
   const showToast = useUIStore((s: any) => s.showToast)
   const { data: lost = [], isLoading } = useLostItems()
   const resolveLost = useResolveLost()
 
   const handleResolve = async (scanLogId: string) => {
-    if (!confirm('Mark this item as found / resolved?')) return
+    if (!confirm(t('admin.lostItems.confirmResolve'))) return
     try {
       await resolveLost.mutateAsync(scanLogId)
-      showToast('Marked as resolved', 'success')
+      showToast(t('admin.lostItems.resolved'), 'success')
     } catch (err: any) {
-      showToast(err?.message || 'Could not resolve', 'error')
+      showToast(err?.message || t('admin.lostItems.resolveError'), 'error')
     }
   }
 
@@ -28,17 +30,17 @@ export function AdminLostItemsPage() {
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Lost items"
-        section="INVENTORY"
-        description={`${lost.length} item${lost.length !== 1 ? 's' : ''} reported lost or unaccounted for.`}
+        title={t('admin.lostItems.title')}
+        section={t('admin.eyebrow.inventory')}
+        description={t('admin.lostItems.description', { count: lost.length })}
       />
 
       <div className="border border-border/50 rounded-xl overflow-hidden bg-card">
         {lost.length === 0 ? (
           <div className="py-16 flex flex-col items-center justify-center text-muted-foreground">
             <PackageSearch className="h-8 w-8 mb-2 opacity-30 text-emerald-500" />
-            <p className="text-sm font-medium text-foreground">Nothing lost</p>
-            <p className="text-xs mt-1">Everything's accounted for.</p>
+            <p className="text-sm font-medium text-foreground">{t('admin.lostItems.empty')}</p>
+            <p className="text-xs mt-1">{t('admin.lostItems.emptyHint')}</p>
           </div>
         ) : (
           <div className="divide-y divide-border/40">
@@ -53,7 +55,7 @@ export function AdminLostItemsPage() {
                     <span className="text-[11px] text-muted-foreground/70 font-mono">{item.qr_code}</span>
                   </div>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">
-                    Last held by {item.user_name || item.user_email || 'unknown'}
+                    {t('admin.lostItems.lastHeldBy', { name: item.user_name || item.user_email || t('admin.lostItems.unknown') })}
                   </p>
                   {item.lost_notes && (
                     <p className="text-[11px] text-rose-500/90 mt-1 italic">{item.lost_notes}</p>
@@ -66,7 +68,7 @@ export function AdminLostItemsPage() {
                     </Badge>
                   )}
                   <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7" onClick={() => handleResolve(item.id)} disabled={resolveLost.isPending}>
-                    <Check className="h-3 w-3" /> Resolve
+                    <Check className="h-3 w-3" /> {t('admin.lostItems.resolve')}
                   </Button>
                 </div>
               </div>

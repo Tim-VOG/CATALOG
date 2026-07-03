@@ -151,6 +151,19 @@ export const adminEn = {
     actionTaken: 'Picked up',
     actionReturned: 'Returned',
   },
+  lostItems: {
+    title: 'Lost items',
+    description_one: '{{count}} item reported lost or unaccounted for.',
+    description_other: '{{count}} items reported lost or unaccounted for.',
+    empty: 'Nothing lost',
+    emptyHint: "Everything's accounted for.",
+    lastHeldBy: 'Last held by {{name}}',
+    resolve: 'Resolve',
+    confirmResolve: 'Mark this item as found / resolved?',
+    resolved: 'Marked as resolved',
+    resolveError: 'Could not resolve',
+    unknown: 'unknown',
+  },
 }
 
 export const adminFr: typeof adminEn = {
@@ -298,6 +311,19 @@ export const adminFr: typeof adminEn = {
     actionTaken: 'Pris',
     actionReturned: 'Rendu',
   },
+  lostItems: {
+    title: 'Objets perdus',
+    description_one: '{{count}} objet signalé perdu ou non retrouvé.',
+    description_other: '{{count}} objets signalés perdus ou non retrouvés.',
+    empty: 'Rien de perdu',
+    emptyHint: 'Tout est répertorié.',
+    lastHeldBy: 'Dernier détenteur : {{name}}',
+    resolve: 'Résoudre',
+    confirmResolve: 'Marquer cet objet comme retrouvé / résolu ?',
+    resolved: 'Marqué comme résolu',
+    resolveError: 'Impossible de résoudre',
+    unknown: 'inconnu',
+  },
 }
 
 export const adminNl: typeof adminEn = {
@@ -444,5 +470,18 @@ export const adminNl: typeof adminEn = {
     daysLeft: '{{count}}d',
     actionTaken: 'Opgehaald',
     actionReturned: 'Geretourneerd',
+  },
+  lostItems: {
+    title: 'Verloren voorwerpen',
+    description_one: '{{count}} voorwerp gemeld als verloren of onvindbaar.',
+    description_other: '{{count}} voorwerpen gemeld als verloren of onvindbaar.',
+    empty: 'Niets verloren',
+    emptyHint: 'Alles is verantwoord.',
+    lastHeldBy: 'Laatst in bezit van {{name}}',
+    resolve: 'Oplossen',
+    confirmResolve: 'Dit voorwerp als gevonden / opgelost markeren?',
+    resolved: 'Gemarkeerd als opgelost',
+    resolveError: 'Kon niet oplossen',
+    unknown: 'onbekend',
   },
 }
