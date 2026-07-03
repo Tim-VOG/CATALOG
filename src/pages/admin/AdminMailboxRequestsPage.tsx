@@ -416,7 +416,24 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
   }, [dbTemplate])
 
   const [showVars, setShowVars] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
   const [draftSaved, setDraftSaved] = useState(!!req.email_draft_body)
+
+  // Rendered HTML exactly as the recipient will receive it — same pipeline
+  // as handleSendEmail (1Password placeholder → fill vars → wrap branding).
+  const previewHtml = useMemo(() => {
+    let body = emailForm.body || ''
+    body = emailForm.onepassword_link
+      ? body.replace(/\{\{onepassword_section\}\}/g, `Your password has been securely shared via 1Password:\n${emailForm.onepassword_link}`)
+      : body.replace(/\{\{onepassword_section\}\}/g, '')
+    body = fillTemplate(body, req, appName)
+    return wrapEmailHtml(body, {
+      appName,
+      logoUrl: settings?.logo_url || '',
+      tagline: settings?.email_tagline || '',
+      logoHeight: settings?.email_logo_height || 0,
+    })
+  }, [emailForm.body, emailForm.onepassword_link, req, appName, settings])
 
   const handleChange = (key: any, value: any) => {
     setEmailForm((p: any) => ({ ...p, [key]: value }))
@@ -555,13 +572,43 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
               )}
             </AnimatePresence>
 
-            {/* Body textarea */}
-            <Textarea
-              value={emailForm.body}
-              onChange={(e: any) => handleChange('body', e.target.value)}
-              rows={14}
-              className="font-mono text-xs leading-relaxed bg-muted/30 resize-y"
-            />
+            {/* Body — edit / preview toggle */}
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-medium text-muted-foreground">Message</span>
+              <div className="inline-flex rounded-lg border border-border/50 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(false)}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${!showPreview ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${showPreview ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+            {showPreview ? (
+              <div className="rounded-lg border border-border/50 overflow-hidden bg-white">
+                <iframe
+                  title="Email preview"
+                  srcDoc={previewHtml}
+                  className="w-full h-[420px] border-0"
+                  sandbox=""
+                />
+              </div>
+            ) : (
+              <Textarea
+                value={emailForm.body}
+                onChange={(e: any) => handleChange('body', e.target.value)}
+                rows={14}
+                className="font-mono text-xs leading-relaxed bg-muted/30 resize-y"
+              />
+            )}
           </div>
         </div>
 
