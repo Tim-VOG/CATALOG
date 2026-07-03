@@ -285,27 +285,27 @@ export function AdminLocalITPage() {
           {detailQR && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-muted-foreground">Product</span><p className="font-medium">{detailQR.product_name}</p></div>
-                <div><span className="text-muted-foreground">Category</span><p className="font-medium">{detailQR.category_name || '—'}</p></div>
-                <div><span className="text-muted-foreground">Sub-type</span><p className="font-medium">{detailQR.product_sub_type || '—'}</p></div>
-                <div><span className="text-muted-foreground">Status</span>
+                <div><span className="text-muted-foreground">{t('admin.localIt.detailProduct')}</span><p className="font-medium">{detailQR.product_name}</p></div>
+                <div><span className="text-muted-foreground">{t('admin.localIt.detailCategory')}</span><p className="font-medium">{detailQR.category_name || '—'}</p></div>
+                <div><span className="text-muted-foreground">{t('admin.localIt.detailSubType')}</span><p className="font-medium">{detailQR.product_sub_type || '—'}</p></div>
+                <div><span className="text-muted-foreground">{t('admin.localIt.detailStatus')}</span>
                   <Badge variant="outline" className={cn('text-[10px] gap-1 mt-1', (STATUS_CONFIG as Record<string, any>)[detailQR.status || 'available']?.bg, (STATUS_CONFIG as Record<string, any>)[detailQR.status || 'available']?.color)}>
-                    {(STATUS_CONFIG as Record<string, any>)[detailQR.status || 'available']?.label}
+                    {statusLabel(detailQR.status || 'available')}
                   </Badge>
                 </div>
                 {detailQR.assigned_to_name && (
                   <>
-                    <div><span className="text-muted-foreground">Assigned to</span><p className="font-medium">{detailQR.assigned_to_name}</p></div>
-                    <div><span className="text-muted-foreground">Since</span><p className="font-medium">{detailQR.assigned_at ? format(new Date(detailQR.assigned_at), 'dd MMM yyyy HH:mm') : '—'}</p></div>
+                    <div><span className="text-muted-foreground">{t('admin.localIt.detailAssignedTo')}</span><p className="font-medium">{detailQR.assigned_to_name}</p></div>
+                    <div><span className="text-muted-foreground">{t('admin.localIt.detailSince')}</span><p className="font-medium">{detailQR.assigned_at ? format(new Date(detailQR.assigned_at), 'dd MMM yyyy HH:mm') : '—'}</p></div>
                   </>
                 )}
               </div>
 
               {/* History */}
               <div className="border-t pt-4">
-                <h4 className="font-semibold text-sm mb-3">Recent Activity</h4>
+                <h4 className="font-semibold text-sm mb-3">{t('admin.localIt.recentActivity')}</h4>
                 {qrHistory.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No scan history for this device</p>
+                  <p className="text-xs text-muted-foreground">{t('admin.localIt.noScanHistory')}</p>
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {qrHistory.map((log: any) => (
@@ -318,7 +318,7 @@ export function AdminLocalITPage() {
                         </div>
                         <div className="flex-1">
                           <span className="font-medium capitalize">{log.action}</span>
-                          {log.user_name && <span className="text-muted-foreground"> by {log.user_name}</span>}
+                          {log.user_name && <span className="text-muted-foreground"> {t('admin.localIt.byName', { name: log.user_name })}</span>}
                         </div>
                         <span className="text-muted-foreground">{format(new Date(log.created_at), 'dd MMM HH:mm')}</span>
                       </div>
@@ -329,7 +329,7 @@ export function AdminLocalITPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailQR(null)}>Close</Button>
+            <Button variant="outline" onClick={() => setDetailQR(null)}>{t('admin.localIt.close')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -338,7 +338,7 @@ export function AdminLocalITPage() {
       <Dialog open={!!statusChangeQR} onOpenChange={() => setStatusChangeQR(null)}>
         <DialogContent className="max-w-sm p-6">
           <DialogHeader>
-            <DialogTitle>Change Status — {statusChangeQR?.code}</DialogTitle>
+            <DialogTitle>{t('admin.localIt.changeStatusTitle', { code: statusChangeQR?.code })}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{statusChangeQR?.product_name}</p>
           <div className="space-y-2 mt-2">
@@ -352,15 +352,15 @@ export function AdminLocalITPage() {
                     newStatus === st ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'
                   )}>
                   <Icon className={cn('h-4 w-4', config.color)} />
-                  <span className="text-sm font-medium">{config.label}</span>
+                  <span className="text-sm font-medium">{statusLabel(st)}</span>
                   {newStatus === st && <CheckCircle className="h-4 w-4 text-primary ml-auto" />}
                 </button>
               )
             })}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setStatusChangeQR(null)}>Cancel</Button>
-            <Button onClick={handleStatusChange}>Update Status</Button>
+            <Button variant="outline" onClick={() => setStatusChangeQR(null)}>{t('admin.localIt.cancel')}</Button>
+            <Button onClick={handleStatusChange}>{t('admin.localIt.updateStatus')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

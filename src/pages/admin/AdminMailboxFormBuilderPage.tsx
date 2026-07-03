@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useMailboxFormFields,
   useCreateMailboxFormField,
@@ -31,31 +32,31 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
 const FIELD_TYPES = [
-  { value: 'text', label: 'Text' },
-  { value: 'textarea', label: 'Text Area' },
-  { value: 'select', label: 'Select (Single)' },
-  { value: 'multi_select', label: 'Multi Select' },
-  { value: 'date', label: 'Date' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'toggle', label: 'Toggle' },
-  { value: 'file', label: 'File Upload' },
-  { value: 'email_tags', label: 'Email Tags' },
+  { value: 'text', labelKey: 'fieldTypeText' },
+  { value: 'textarea', labelKey: 'fieldTypeTextarea' },
+  { value: 'select', labelKey: 'fieldTypeSelect' },
+  { value: 'multi_select', labelKey: 'fieldTypeMultiSelect' },
+  { value: 'date', labelKey: 'fieldTypeDate' },
+  { value: 'checkbox', labelKey: 'fieldTypeCheckbox' },
+  { value: 'toggle', labelKey: 'fieldTypeToggle' },
+  { value: 'file', labelKey: 'fieldTypeFile' },
+  { value: 'email_tags', labelKey: 'fieldTypeEmailTags' },
 ]
 
 const STEPS = [
-  { value: 'general', label: 'Functional Mailbox' },
-  { value: 'signature', label: 'Signature' },
-  { value: 'management', label: 'Email Management' },
-  { value: 'requester', label: 'Requested By' },
-  { value: 'additional', label: 'Additional' },
+  { value: 'general', labelKey: 'stepGeneral' },
+  { value: 'signature', labelKey: 'stepSignature' },
+  { value: 'management', labelKey: 'stepManagement' },
+  { value: 'requester', labelKey: 'stepRequester' },
+  { value: 'additional', labelKey: 'stepAdditional' },
 ]
 
 const OPERATORS = [
-  { value: 'equals', label: 'Equals' },
-  { value: 'not_equals', label: 'Not equals' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'is_true', label: 'Is true' },
-  { value: 'is_false', label: 'Is false' },
+  { value: 'equals', labelKey: 'operatorEquals' },
+  { value: 'not_equals', labelKey: 'operatorNotEquals' },
+  { value: 'contains', labelKey: 'operatorContains' },
+  { value: 'is_true', labelKey: 'operatorIsTrue' },
+  { value: 'is_false', labelKey: 'operatorIsFalse' },
 ]
 
 const TYPE_COLORS = {
@@ -103,6 +104,7 @@ const EMPTY_FIELD = {
 
 // ── Sortable row component ──
 function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) {
+  const { t } = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
 
   const style = {
@@ -140,14 +142,20 @@ function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  
                   <Lock className="h-3 w-3 text-muted-foreground/50" />
                 )}
                 <Badge variant="outline" className={cn('text-[10px]', (TYPE_COLORS as Record<string, any>)[field.field_type] || '')}>
-                  {field.field_type.replace('_', ' ')}
+                  {(() => {
+                    const ft = FIELD_TYPES.find((f: any) => f.value === field.field_type)
+                    return ft ? t(`admin.mailboxFormBuilder.${ft.labelKey}`) : field.field_type
+                  })()}
                 </Badge>
                 <Badge variant="outline" className={cn('text-[10px]', (STEP_COLORS as Record<string, any>)[field.step] || '')}>
-                  {STEPS.find((s: any) => s.value === field.step)?.label || field.step}
+                  {(() => {
+                    const st = STEPS.find((s: any) => s.value === field.step)
+                    return st ? t(`admin.mailboxFormBuilder.${st.labelKey}`) : field.step
+                  })()}
                 </Badge>
                 {field.is_required && (
                   <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30">
-                    Required
+                    {t('admin.mailboxFormBuilder.required')}
                   </Badge>
                 )}
                 {hasCondition && (
@@ -187,6 +195,7 @@ function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  
 }
 
 export function AdminMailboxFormBuilderPage() {
+  const { t } = useTranslation()
   const { data: fields = [], isLoading } = useMailboxFormFields()
   const createField = useCreateMailboxFormField()
   const updateField = useUpdateMailboxFormField()
@@ -226,7 +235,7 @@ export function AdminMailboxFormBuilderPage() {
         reordered.map((f: any, i: any) => ({ id: f.id, sort_order: (i + 1) * 10 }))
       )
     } catch (err: any) {
-      showToast(err.message || 'Reorder failed', 'error')
+      showToast(err.message || t('admin.mailboxFormBuilder.toastReorderFailed'), 'error')
     }
   }
 
@@ -286,7 +295,7 @@ export function AdminMailboxFormBuilderPage() {
     try {
       if (_isNew) {
         await createField.mutateAsync(payload)
-        showToast('Field created')
+        showToast(t('admin.mailboxFormBuilder.toastFieldCreated'))
       } else {
         const updates = editDialog.is_system
           ? {
@@ -301,11 +310,11 @@ export function AdminMailboxFormBuilderPage() {
             }
           : payload
         await updateField.mutateAsync({ id, updates })
-        showToast('Field updated')
+        showToast(t('admin.mailboxFormBuilder.toastFieldUpdated'))
       }
       setEditDialog(null)
     } catch (err: any) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || t('admin.mailboxFormBuilder.toastSaveFailed'), 'error')
     }
   }
 
@@ -314,7 +323,7 @@ export function AdminMailboxFormBuilderPage() {
     try {
       await updateField.mutateAsync({ id: field.id, updates: { is_active: !field.is_active } })
     } catch (err: any) {
-      showToast(err.message || 'Toggle failed', 'error')
+      showToast(err.message || t('admin.mailboxFormBuilder.toastToggleFailed'), 'error')
     }
   }
 
@@ -323,9 +332,9 @@ export function AdminMailboxFormBuilderPage() {
     if (!deleteConfirm) return
     try {
       await deleteField.mutateAsync(deleteConfirm.id)
-      showToast('Field deleted')
+      showToast(t('admin.mailboxFormBuilder.toastFieldDeleted'))
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.mailboxFormBuilder.toastDeleteFailed'), 'error')
     }
     setDeleteConfirm(null)
   }
@@ -335,10 +344,10 @@ export function AdminMailboxFormBuilderPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="Mailbox Form Builder" description={`${fields.length} field${fields.length !== 1 ? 's' : ''} · Drag to reorder · Add conditional logic`}>
+      <AdminPageHeader title={t('admin.mailboxFormBuilder.pageTitle')} description={t('admin.mailboxFormBuilder.pageDescription', { count: fields.length })}>
         <Button onClick={handleAdd} className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Field
+          {t('admin.mailboxFormBuilder.addField')}
         </Button>
       </AdminPageHeader>
 
@@ -360,7 +369,7 @@ export function AdminMailboxFormBuilderPage() {
               <div key={step.value} className="space-y-2">
                 <h3 className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest flex items-center gap-2">
                   <ChevronRight className="h-3 w-3" />
-                  {step.label}
+                  {t(`admin.mailboxFormBuilder.${step.labelKey}`)}
                   <span className="text-[10px] font-normal">({stepFields.length})</span>
                 </h3>
                 <div className="space-y-1.5">
@@ -384,10 +393,10 @@ export function AdminMailboxFormBuilderPage() {
       {fields.length === 0 && (
         <div className="text-center py-16">
           <Settings className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No form fields yet</p>
+          <p className="text-muted-foreground">{t('admin.mailboxFormBuilder.noFieldsYet')}</p>
           <Button variant="outline" className="mt-4 gap-2" onClick={handleAdd}>
             <Plus className="h-4 w-4" />
-            Add your first field
+            {t('admin.mailboxFormBuilder.addFirstField')}
           </Button>
         </div>
       )}
@@ -397,11 +406,11 @@ export function AdminMailboxFormBuilderPage() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editDialog?._isNew ? 'Add Field' : 'Edit Field'}
+              {editDialog?._isNew ? t('admin.mailboxFormBuilder.addField') : t('admin.mailboxFormBuilder.editField')}
               {editDialog?.is_system && (
                 <Badge variant="outline" className="ml-2 text-[10px]">
                   <Lock className="h-2.5 w-2.5 mr-1" />
-                  System
+                  {t('admin.mailboxFormBuilder.system')}
                 </Badge>
               )}
             </DialogTitle>
@@ -411,7 +420,7 @@ export function AdminMailboxFormBuilderPage() {
             <div className="space-y-4">
               {/* Label */}
               <div className="space-y-1.5">
-                <Label>Label *</Label>
+                <Label>{t('admin.mailboxFormBuilder.labelRequired')}</Label>
                 <Input
                   value={editDialog.label}
                   onChange={(e: any) => {
@@ -422,48 +431,48 @@ export function AdminMailboxFormBuilderPage() {
                       ...(prev._isNew ? { field_key: generateFieldKey(label) } : {}),
                     }))
                   }}
-                  placeholder="Field label"
+                  placeholder={t('admin.mailboxFormBuilder.fieldLabelPlaceholder')}
                 />
               </div>
 
               {/* Field key */}
               <div className="space-y-1.5">
-                <Label>Field Key</Label>
+                <Label>{t('admin.mailboxFormBuilder.fieldKey')}</Label>
                 <Input
                   value={editDialog.field_key}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_key: e.target.value }))}
-                  placeholder="field_key"
+                  placeholder={t('admin.mailboxFormBuilder.fieldKeyPlaceholder')}
                   disabled={editDialog.is_system || !editDialog._isNew}
                   className="font-mono text-sm"
                 />
                 {editDialog.is_system && (
-                  <p className="text-[10px] text-muted-foreground">System field keys cannot be changed</p>
+                  <p className="text-[10px] text-muted-foreground">{t('admin.mailboxFormBuilder.systemFieldKeyLocked')}</p>
                 )}
               </div>
 
               {/* Type + Step row */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Type</Label>
+                  <Label>{t('admin.mailboxFormBuilder.type')}</Label>
                   <Select
                     value={editDialog.field_type}
                     onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_type: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
-                    {FIELD_TYPES.map((t: any) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
+                    {FIELD_TYPES.map((ft: any) => (
+                      <option key={ft.value} value={ft.value}>{t(`admin.mailboxFormBuilder.${ft.labelKey}`)}</option>
                     ))}
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Step</Label>
+                  <Label>{t('admin.mailboxFormBuilder.step')}</Label>
                   <Select
                     value={editDialog.step}
                     onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, step: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {STEPS.map((s: any) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>{t(`admin.mailboxFormBuilder.${s.labelKey}`)}</option>
                     ))}
                   </Select>
                 </div>
@@ -471,44 +480,44 @@ export function AdminMailboxFormBuilderPage() {
 
               {/* Placeholder */}
               <div className="space-y-1.5">
-                <Label>Placeholder</Label>
+                <Label>{t('admin.mailboxFormBuilder.placeholder')}</Label>
                 <Input
                   value={editDialog.placeholder}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, placeholder: e.target.value }))}
-                  placeholder="Placeholder text"
+                  placeholder={t('admin.mailboxFormBuilder.placeholderTextHint')}
                 />
               </div>
 
               {/* Help text */}
               <div className="space-y-1.5">
-                <Label>Help Text</Label>
+                <Label>{t('admin.mailboxFormBuilder.helpText')}</Label>
                 <Input
                   value={editDialog.help_text}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, help_text: e.target.value }))}
-                  placeholder="Displayed below the field"
+                  placeholder={t('admin.mailboxFormBuilder.helpTextPlaceholder')}
                 />
               </div>
 
               {/* Options (for select/multi_select) */}
               {['select', 'multi_select'].includes(editDialog.field_type) && (
                 <div className="space-y-1.5">
-                  <Label>Options (one per line)</Label>
+                  <Label>{t('admin.mailboxFormBuilder.optionsOnePerLine')}</Label>
                   <Textarea
                     value={optionsText}
                     onChange={(e: any) => setOptionsText(e.target.value)}
-                    placeholder={'Option 1\nOption 2\nOption 3'}
+                    placeholder={t('admin.mailboxFormBuilder.optionsPlaceholder')}
                     rows={4}
                     disabled={editDialog.is_system}
                   />
                   {editDialog.is_system && (
-                    <p className="text-[10px] text-muted-foreground">System field options cannot be changed here</p>
+                    <p className="text-[10px] text-muted-foreground">{t('admin.mailboxFormBuilder.systemFieldOptionsLocked')}</p>
                   )}
                 </div>
               )}
 
               {/* Required toggle */}
               <div className="flex items-center justify-between">
-                <Label>Required</Label>
+                <Label>{t('admin.mailboxFormBuilder.required')}</Label>
                 <Switch
                   checked={editDialog.is_required}
                   onCheckedChange={(v: any) => setEditDialog((prev: any) => ({ ...prev, is_required: v }))}
@@ -519,15 +528,15 @@ export function AdminMailboxFormBuilderPage() {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-amber-500" />
-                  <Label className="text-sm font-semibold">Conditional Logic</Label>
+                  <Label className="text-sm font-semibold">{t('admin.mailboxFormBuilder.conditionalLogic')}</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Show this field only when another field meets a condition.
+                  {t('admin.mailboxFormBuilder.conditionalLogicDescription')}
                 </p>
 
                 {/* Condition field */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">If field</Label>
+                  <Label className="text-xs">{t('admin.mailboxFormBuilder.ifField')}</Label>
                   <Select
                     value={editDialog.condition_field || '_none'}
                     onChange={(e: any) => {
@@ -540,7 +549,7 @@ export function AdminMailboxFormBuilderPage() {
                       }))
                     }}
                   >
-                    <option value="_none">No condition (always show)</option>
+                    <option value="_none">{t('admin.mailboxFormBuilder.noCondition')}</option>
                     {fields
                       .filter((f: any) => f.id !== editDialog.id)
                       .map((f: any) => (
@@ -554,23 +563,23 @@ export function AdminMailboxFormBuilderPage() {
                 {editDialog.condition_field && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Operator</Label>
+                      <Label className="text-xs">{t('admin.mailboxFormBuilder.operator')}</Label>
                       <Select
                         value={editDialog.condition_operator || 'equals'}
                         onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_operator: e.target.value }))}
                       >
                         {OPERATORS.map((o: any) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
+                          <option key={o.value} value={o.value}>{t(`admin.mailboxFormBuilder.${o.labelKey}`)}</option>
                         ))}
                       </Select>
                     </div>
                     {!['is_true', 'is_false'].includes(editDialog.condition_operator) && (
                       <div className="space-y-1.5">
-                        <Label className="text-xs">Value</Label>
+                        <Label className="text-xs">{t('admin.mailboxFormBuilder.value')}</Label>
                         <Input
                           value={editDialog.condition_value}
                           onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_value: e.target.value }))}
-                          placeholder="Expected value"
+                          placeholder={t('admin.mailboxFormBuilder.expectedValuePlaceholder')}
                         />
                       </div>
                     )}
@@ -581,12 +590,12 @@ export function AdminMailboxFormBuilderPage() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setEditDialog(null)}>{t('admin.mailboxFormBuilder.cancel')}</Button>
             <Button
               onClick={handleSave}
               disabled={!editDialog?.label?.trim()}
             >
-              {editDialog?._isNew ? 'Create' : 'Save'}
+              {editDialog?._isNew ? t('admin.mailboxFormBuilder.create') : t('admin.mailboxFormBuilder.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -598,16 +607,16 @@ export function AdminMailboxFormBuilderPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-destructive" />
-              Delete Field?
+              {t('admin.mailboxFormBuilder.deleteFieldTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the field <strong>{deleteConfirm?.label}</strong>.
-            Existing data for this field won&apos;t be affected.
+            {t('admin.mailboxFormBuilder.deleteFieldWarningPre')} <strong>{deleteConfirm?.label}</strong>.{' '}
+            {t('admin.mailboxFormBuilder.deleteFieldWarningPost')}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.mailboxFormBuilder.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.mailboxFormBuilder.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMailboxRequests, useUpdateMailboxRequest, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
 import { useSharedMailboxes } from '@/hooks/use-shared-mailboxes'
 import { useAppSettings } from '@/hooks/use-settings'
@@ -56,13 +57,13 @@ The VO Hub Team`
 
 // ── Available template variables ──
 const TEMPLATE_VARS = [
-  { key: '{{requester_name}}', label: 'Requester Name', desc: 'Name of the person who requested the mailbox' },
-  { key: '{{mailbox_email}}', label: 'Mailbox Email', desc: 'The email address that was created' },
-  { key: '{{project_name}}', label: 'Project Name', desc: 'Name of the project' },
-  { key: '{{display_name}}', label: 'Display Name', desc: 'Display name for the mailbox' },
-  { key: '{{agency}}', label: 'Company', desc: 'Company / Business Unit' },
-  { key: '{{onepassword_section}}', label: '1Password Section', desc: 'Auto-inserted if link is provided' },
-  { key: '{{app_name}}', label: 'App Name', desc: 'Application name from settings' },
+  { key: '{{requester_name}}', labelKey: 'templateVarRequesterNameLabel', descKey: 'templateVarRequesterNameDesc' },
+  { key: '{{mailbox_email}}', labelKey: 'templateVarMailboxEmailLabel', descKey: 'templateVarMailboxEmailDesc' },
+  { key: '{{project_name}}', labelKey: 'templateVarProjectNameLabel', descKey: 'templateVarProjectNameDesc' },
+  { key: '{{display_name}}', labelKey: 'templateVarDisplayNameLabel', descKey: 'templateVarDisplayNameDesc' },
+  { key: '{{agency}}', labelKey: 'templateVarAgencyLabel', descKey: 'templateVarAgencyDesc' },
+  { key: '{{onepassword_section}}', labelKey: 'templateVarOnepasswordLabel', descKey: 'templateVarOnepasswordDesc' },
+  { key: '{{app_name}}', labelKey: 'templateVarAppNameLabel', descKey: 'templateVarAppNameDesc' },
 ]
 
 // ── Parse CC emails from text ──
@@ -88,6 +89,7 @@ const fmtDate = (d: any) => d ? new Date(d).toLocaleDateString('fr-FR') : null
 
 // ── Banner download (fetch blob → Save As dialog) ──
 function BannerDownloadButton({ url, projectName  }: any) {
+  const { t } = useTranslation()
   const [downloading, setDownloading] = useState(false)
 
   const handleDownload = async () => {
@@ -120,7 +122,7 @@ function BannerDownloadButton({ url, projectName  }: any) {
       className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors border border-primary/20 rounded-lg px-2.5 py-1.5 hover:bg-primary/5 disabled:opacity-50"
     >
       {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-      {downloading ? 'Downloading...' : 'Download'}
+      {downloading ? t('admin.mailboxRequests.downloading') : t('admin.mailboxRequests.download')}
     </button>
   )
 }
@@ -129,29 +131,30 @@ function BannerDownloadButton({ url, projectName  }: any) {
 //  Request Info Card
 // ══════════════════════════════════════════
 function RequestInfoCard({ req  }: any) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
 
   const mainFields = [
-    ['Project Name', req.project_name],
-    ['Project Leader', req.project_leader],
-    ['Company', req.agency],
-    ['Email to Create', req.email_to_create],
-    ['Who Needs Access', req.who_needs_access],
-    ['Creation Date', fmtDate(req.creation_date)],
+    [t('admin.mailboxRequests.fieldProjectName'), req.project_name],
+    [t('admin.mailboxRequests.fieldProjectLeader'), req.project_leader],
+    [t('admin.mailboxRequests.fieldCompany'), req.agency],
+    [t('admin.mailboxRequests.fieldEmailToCreate'), req.email_to_create],
+    [t('admin.mailboxRequests.fieldWhoNeedsAccess'), req.who_needs_access],
+    [t('admin.mailboxRequests.fieldCreationDate'), fmtDate(req.creation_date)],
   ]
 
   const extraFields = [
-    ['Display Name', req.display_name],
-    ['Signature Title', req.signature_title],
-    ['Links', req.links],
-    ['More Info', req.more_info],
-    ['Deleted/Archived', req.deleted_archived],
-    ['Archive Date', fmtDate(req.archive_date)],
-    ['Deletion Date', fmtDate(req.deletion_date)],
-    ['Requested By', req.requested_by_name],
-    ['Requester Email', req.requester_email],
-    ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
-    ['1Password Link', req.onepassword_link],
+    [t('admin.mailboxRequests.fieldDisplayName'), req.display_name],
+    [t('admin.mailboxRequests.fieldSignatureTitle'), req.signature_title],
+    [t('admin.mailboxRequests.fieldLinks'), req.links],
+    [t('admin.mailboxRequests.fieldMoreInfo'), req.more_info],
+    [t('admin.mailboxRequests.fieldDeletedArchived'), req.deleted_archived],
+    [t('admin.mailboxRequests.fieldArchiveDate'), fmtDate(req.archive_date)],
+    [t('admin.mailboxRequests.fieldDeletionDate'), fmtDate(req.deletion_date)],
+    [t('admin.mailboxRequests.fieldRequestedBy'), req.requested_by_name],
+    [t('admin.mailboxRequests.fieldRequesterEmail'), req.requester_email],
+    [t('admin.mailboxRequests.fieldSubmitted'), new Date(req.created_at).toLocaleString('fr-FR')],
+    [t('admin.mailboxRequests.fieldOnepasswordLink'), req.onepassword_link],
   ].filter(([, v]) => v)
 
   return (
@@ -175,7 +178,7 @@ function RequestInfoCard({ req  }: any) {
               </Badge>
               {req.confirmation_email_sent && (
                 <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
-                  <Mail className="h-3 w-3" /> Sent
+                  <Mail className="h-3 w-3" /> {t('admin.mailboxRequests.sentBadge')}
                 </Badge>
               )}
             </div>
@@ -196,9 +199,9 @@ function RequestInfoCard({ req  }: any) {
         {req.banner_url && (
           <div className="px-5 pb-3">
             <div className="flex items-start gap-3 text-sm">
-              <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">Banner</span>
+              <span className="font-medium text-muted-foreground w-36 shrink-0 text-xs uppercase tracking-wider pt-0.5">{t('admin.mailboxRequests.fieldBanner')}</span>
               <div className="flex items-center gap-3">
-                <img src={req.banner_url} alt="Banner" className="h-14 rounded-lg border object-contain" />
+                <img src={req.banner_url} alt={t('admin.mailboxRequests.fieldBanner')} className="h-14 rounded-lg border object-contain" />
                 <BannerDownloadButton url={req.banner_url} projectName={req.project_name} />
               </div>
             </div>
@@ -233,7 +236,7 @@ function RequestInfoCard({ req  }: any) {
               className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground border-t border-border/50 transition-colors"
             >
               {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-              {expanded ? 'Show less' : 'Show more details'}
+              {expanded ? t('admin.mailboxRequests.showLess') : t('admin.mailboxRequests.showMoreDetails')}
             </button>
           </>
         )}
@@ -246,6 +249,7 @@ function RequestInfoCard({ req  }: any) {
 //  Editable CC Emails (Who Needs Access)
 // ══════════════════════════════════════════
 function EditableCCEmails({ req, onSave  }: any) {
+  const { t } = useTranslation()
   const emails = extractEmails(req.who_needs_access)
   const [editing, setEditing] = useState(false)
   const [tags, setTags] = useState(emails)
@@ -264,8 +268,8 @@ function EditableCCEmails({ req, onSave  }: any) {
   const addTag = (raw: any) => {
     const email = raw.trim().toLowerCase()
     if (!email) return
-    if (!isValidEmail(email)) { setError('Invalid email'); return }
-    if (tags.includes(email)) { setError('Already added'); return }
+    if (!isValidEmail(email)) { setError(t('admin.mailboxRequests.invalidEmail')); return }
+    if (tags.includes(email)) { setError(t('admin.mailboxRequests.alreadyAdded')); return }
     setError('')
     setTags((prev: any) => [...prev, email])
     setInputValue('')
@@ -296,9 +300,9 @@ function EditableCCEmails({ req, onSave  }: any) {
       <Card variant="elevated">
         <CardContent className="p-4 flex items-center gap-3">
           <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
-          <span className="text-sm text-muted-foreground flex-1">No CC emails defined</span>
+          <span className="text-sm text-muted-foreground flex-1">{t('admin.mailboxRequests.noCcEmails')}</span>
           <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="gap-1.5 text-xs">
-            <Pencil className="h-3 w-3" /> Add
+            <Pencil className="h-3 w-3" /> {t('admin.mailboxRequests.addButton')}
           </Button>
         </CardContent>
       </Card>
@@ -311,11 +315,11 @@ function EditableCCEmails({ req, onSave  }: any) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 text-sm font-semibold">
             <Mail className="h-4 w-4 text-primary" />
-            CC Recipients
+            {t('admin.mailboxRequests.ccRecipients')}
           </div>
           {!editing && (
             <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="gap-1.5 text-xs">
-              <Pencil className="h-3 w-3" /> Edit
+              <Pencil className="h-3 w-3" /> {t('admin.mailboxRequests.editButton')}
             </Button>
           )}
         </div>
@@ -337,16 +341,16 @@ function EditableCCEmails({ req, onSave  }: any) {
                 onChange={(e: any) => { setInputValue(e.target.value); setError('') }}
                 onKeyDown={handleKeyDown}
                 onBlur={() => { if (inputValue.trim()) addTag(inputValue) }}
-                placeholder={tags.length === 0 ? 'name@company.com' : 'Add another...'}
+                placeholder={tags.length === 0 ? t('admin.mailboxRequests.placeholderFirstEmail') : t('admin.mailboxRequests.placeholderAddAnother')}
                 className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
               />
             </div>
             {error && <p className="text-[11px] text-destructive">{error}</p>}
             <div className="flex items-center gap-2 justify-end">
-              <Button variant="ghost" size="sm" onClick={() => { setEditing(false); setTags(emails); setError('') }} className="text-xs">Cancel</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setEditing(false); setTags(emails); setError('') }} className="text-xs">{t('admin.mailboxRequests.cancel')}</Button>
               <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
                 {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                Save
+                {t('admin.mailboxRequests.save')}
               </Button>
             </div>
           </div>
@@ -369,6 +373,7 @@ function EditableCCEmails({ req, onSave  }: any) {
 //  Inline Email Editor
 // ══════════════════════════════════════════
 function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: any) {
+  const { t } = useTranslation()
   const appName = settings?.app_name || 'VO Hub'
 
   const [dbTemplate, setDbTemplate] = useState<any>(null)
@@ -465,12 +470,12 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
               <Send className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-sm">Confirmation Email</h3>
-              <p className="text-[10px] text-muted-foreground">Compose and send the mailbox creation confirmation</p>
+              <h3 className="font-bold text-sm">{t('admin.mailboxRequests.confirmationEmailTitle')}</h3>
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxRequests.composeAndSendDesc')}</p>
             </div>
             {draftSaved && (
               <Badge variant="outline" className="ml-auto text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
-                <Save className="h-2.5 w-2.5" /> Draft saved
+                <Save className="h-2.5 w-2.5" /> {t('admin.mailboxRequests.draftSavedBadge')}
               </Badge>
             )}
           </div>
@@ -480,11 +485,11 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
         <div className="p-5 space-y-4">
           {/* To */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">To</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxRequests.toLabel')}</Label>
             <Input
               value={emailForm.to}
               onChange={(e: any) => handleChange('to', e.target.value)}
-              placeholder="recipient@example.com"
+              placeholder={t('admin.mailboxRequests.recipientPlaceholder')}
               className="bg-muted/30"
             />
           </div>
@@ -492,22 +497,22 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
           {/* CC */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              CC
+              {t('admin.mailboxRequests.ccLabel')}
               <span className="font-normal normal-case tracking-normal text-muted-foreground/70">
-                (auto-filled from &quot;Who Needs Access&quot;)
+                {t('admin.mailboxRequests.ccAutoFillNote')}
               </span>
             </Label>
             <Input
               value={emailForm.cc}
               onChange={(e: any) => handleChange('cc', e.target.value)}
-              placeholder="cc1@example.com, cc2@example.com"
+              placeholder={t('admin.mailboxRequests.ccPlaceholder')}
               className="bg-muted/30"
             />
           </div>
 
           {/* Subject */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subject</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxRequests.subjectLabel')}</Label>
             <Input
               value={emailForm.subject}
               onChange={(e: any) => handleChange('subject', e.target.value)}
@@ -519,29 +524,29 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <KeyRound className="h-3 w-3 text-primary" />
-              1Password Link
+              {t('admin.mailboxRequests.onepasswordLinkLabel')}
             </Label>
             <Input
               value={emailForm.onepassword_link}
               onChange={(e: any) => handleChange('onepassword_link', e.target.value)}
-              placeholder="https://start.1password.com/..."
+              placeholder={t('admin.mailboxRequests.onepasswordPlaceholder')}
               className="bg-muted/30"
             />
             <p className="text-[10px] text-muted-foreground">
-              Paste the 1Password share link — replaces <code className="bg-muted px-1 py-0.5 rounded text-[9px]">{'{{onepassword_section}}'}</code> in the body
+              {t('admin.mailboxRequests.onepasswordHelpTextBefore')} <code className="bg-muted px-1 py-0.5 rounded text-[9px]">{'{{onepassword_section}}'}</code> {t('admin.mailboxRequests.onepasswordHelpTextAfter')}
             </p>
           </div>
 
           {/* Divider */}
           <div className="border-t border-border/50 pt-4">
             <div className="flex items-center justify-between mb-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Body</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxRequests.emailBodyLabel')}</Label>
               <button
                 onClick={() => setShowVars(!showVars)}
                 className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 <Sparkles className="h-3 w-3" />
-                {showVars ? 'Hide' : 'Show'} variables
+                {showVars ? t('admin.mailboxRequests.hideVariables') : t('admin.mailboxRequests.showVariables')}
               </button>
             </div>
 
@@ -557,13 +562,13 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
                 >
                   <div className="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
                     <p className="text-[10px] text-muted-foreground mb-2 font-medium">
-                      Use these placeholders — they&apos;ll be replaced with request values:
+                      {t('admin.mailboxRequests.placeholdersHint')}
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
                       {TEMPLATE_VARS.map((v: any) => (
                         <div key={v.key} className="flex items-center gap-1.5 text-[10px]">
                           <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono shrink-0">{v.key}</code>
-                          <span className="text-muted-foreground truncate">{v.label}</span>
+                          <span className="text-muted-foreground truncate">{t(`admin.mailboxRequests.${v.labelKey}`)}</span>
                         </div>
                       ))}
                     </div>
@@ -574,28 +579,28 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
 
             {/* Body — edit / preview toggle */}
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-medium text-muted-foreground">Message</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('admin.mailboxRequests.messageLabel')}</span>
               <div className="inline-flex rounded-lg border border-border/50 overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setShowPreview(false)}
                   className={`px-3 py-1 text-xs font-medium transition-colors ${!showPreview ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}
                 >
-                  Edit
+                  {t('admin.mailboxRequests.editToggle')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowPreview(true)}
                   className={`px-3 py-1 text-xs font-medium transition-colors ${showPreview ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}
                 >
-                  Preview
+                  {t('admin.mailboxRequests.previewToggle')}
                 </button>
               </div>
             </div>
             {showPreview ? (
               <div className="rounded-lg border border-border/50 overflow-hidden bg-white">
                 <iframe
-                  title="Email preview"
+                  title={t('admin.mailboxRequests.emailPreviewTitle')}
                   srcDoc={previewHtml}
                   className="w-full h-[420px] border-0"
                   sandbox=""
@@ -621,7 +626,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             disabled={sending}
           >
             <Save className="h-3.5 w-3.5" />
-            Save Draft
+            {t('admin.mailboxRequests.saveDraftButton')}
           </Button>
           <div className="flex-1" />
           <Button
@@ -630,7 +635,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             className="text-xs"
             disabled={sending}
           >
-            Cancel
+            {t('admin.mailboxRequests.cancel')}
           </Button>
           <Button
             onClick={handleSend}
@@ -642,7 +647,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
             ) : (
               <Send className="h-3.5 w-3.5" />
             )}
-            {sending ? 'Sending...' : 'Send Email'}
+            {sending ? t('admin.mailboxRequests.sendingButton') : t('admin.mailboxRequests.sendEmailButton')}
           </Button>
         </div>
       </CardContent>
@@ -654,6 +659,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
 //  Email Sent Summary
 // ══════════════════════════════════════════
 function EmailSentBadge() {
+  const { t } = useTranslation()
   return (
     <Card variant="elevated" className="overflow-hidden">
       <CardContent className="p-5">
@@ -662,8 +668,8 @@ function EmailSentBadge() {
             <CheckCircle className="h-5 w-5 text-emerald-500" />
           </div>
           <div>
-            <p className="font-bold text-sm text-emerald-600">Confirmation email sent</p>
-            <p className="text-xs text-muted-foreground">The mailbox creation has been confirmed and the request is completed.</p>
+            <p className="font-bold text-sm text-emerald-600">{t('admin.mailboxRequests.confirmationEmailSentTitle')}</p>
+            <p className="text-xs text-muted-foreground">{t('admin.mailboxRequests.confirmationEmailSentDesc')}</p>
           </div>
         </div>
       </CardContent>
@@ -675,6 +681,7 @@ function EmailSentBadge() {
 //  Main Page
 // ══════════════════════════════════════════
 export function AdminMailboxRequestsPage() {
+  const { t } = useTranslation()
   const { data: requests = [], isLoading } = useMailboxRequests()
   const updateRequest = useUpdateMailboxRequest()
   const deleteRequest = useDeleteMailboxRequest()
@@ -713,9 +720,9 @@ export function AdminMailboxRequestsPage() {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
       sendStatusChangeEmail(newStatus, { request: req, requestType: 'mailbox' })
-      showToast(`Request ${newStatus}`)
+      showToast(t('admin.mailboxRequests.requestStatusToast', { status: newStatus }))
     } catch (err: any) {
-      showToast(err.message || 'Update failed', 'error')
+      showToast(err.message || t('admin.mailboxRequests.updateFailedError'), 'error')
     }
   }
 
@@ -724,9 +731,9 @@ export function AdminMailboxRequestsPage() {
     if (!selectedRequest) return
     try {
       await updateRequest.mutateAsync({ id: selectedRequest.id, updates: draftData })
-      showToast('Draft saved')
+      showToast(t('admin.mailboxRequests.draftSavedToast'))
     } catch (err: any) {
-      showToast(err.message || 'Failed to save draft', 'error')
+      showToast(err.message || t('admin.mailboxRequests.failedToSaveDraft'), 'error')
     }
   }
 
@@ -782,13 +789,13 @@ export function AdminMailboxRequestsPage() {
           },
         })
 
-        showToast('Confirmation email sent! Request completed.')
+        showToast(t('admin.mailboxRequests.confirmationSentToast'))
         setShowEmail(false)
       } else {
-        showToast(result.error || 'Failed to send email', 'error')
+        showToast(result.error || t('admin.mailboxRequests.failedToSendEmail'), 'error')
       }
     } catch (err: any) {
-      showToast(err.message || 'Failed to send email', 'error')
+      showToast(err.message || t('admin.mailboxRequests.failedToSendEmail'), 'error')
     } finally {
       setSending(false)
     }
@@ -799,7 +806,7 @@ export function AdminMailboxRequestsPage() {
     if (!deleteConfirm) return
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
-      showToast('Request deleted')
+      showToast(t('admin.mailboxRequests.requestDeletedToast'))
       if (selectedId === deleteConfirm.id) {
         setSelectedId(null)
       }
@@ -826,13 +833,13 @@ export function AdminMailboxRequestsPage() {
             className="gap-1.5 text-xs"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back
+            {t('admin.mailboxRequests.backButton')}
           </Button>
           <div className="flex-1">
             <h2 className="text-lg font-display font-bold">
               {selectedRequest.project_name}
             </h2>
-            <p className="text-xs text-muted-foreground">Mailbox Request Details</p>
+            <p className="text-xs text-muted-foreground">{t('admin.mailboxRequests.mailboxRequestDetails')}</p>
           </div>
           <Button
             variant="ghost"
@@ -841,7 +848,7 @@ export function AdminMailboxRequestsPage() {
             className="text-destructive hover:text-destructive text-xs gap-1.5"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {t('admin.mailboxRequests.deleteButton')}
           </Button>
         </div>
 
@@ -854,9 +861,9 @@ export function AdminMailboxRequestsPage() {
           onSave={async (newEmails: any) => {
             try {
               await updateRequest.mutateAsync({ id: selectedRequest.id, updates: { who_needs_access: newEmails } })
-              showToast('CC emails updated')
+              showToast(t('admin.mailboxRequests.ccEmailsUpdatedToast'))
             } catch (err: any) {
-              showToast(err.message || 'Update failed', 'error')
+              showToast(err.message || t('admin.mailboxRequests.updateFailedError'), 'error')
             }
           }}
         />
@@ -866,7 +873,7 @@ export function AdminMailboxRequestsPage() {
           <Card variant="elevated">
             <CardContent className="p-4 flex items-center gap-3">
               <Info className="h-4 w-4 text-amber-500 shrink-0" />
-              <span className="text-sm text-muted-foreground flex-1">This request is pending review.</span>
+              <span className="text-sm text-muted-foreground flex-1">{t('admin.mailboxRequests.pendingReviewNotice')}</span>
               <Button
                 variant="outline"
                 size="sm"
@@ -874,7 +881,7 @@ export function AdminMailboxRequestsPage() {
                 className="gap-1.5 text-xs"
               >
                 <Clock className="h-3.5 w-3.5" />
-                Start Processing
+                {t('admin.mailboxRequests.startProcessing')}
               </Button>
               <Button
                 size="sm"
@@ -882,7 +889,7 @@ export function AdminMailboxRequestsPage() {
                 className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600"
               >
                 <CheckCircle className="h-3.5 w-3.5" />
-                Mark Ready
+                {t('admin.mailboxRequests.markReady')}
               </Button>
             </CardContent>
           </Card>
@@ -905,9 +912,9 @@ export function AdminMailboxRequestsPage() {
                           <CheckCircle className="h-5 w-5 text-emerald-500" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm text-emerald-600">Already in Shared Mailboxes inventory</p>
+                          <p className="font-bold text-sm text-emerald-600">{t('admin.mailboxRequests.alreadyInInventoryTitle')}</p>
                           <p className="text-xs text-muted-foreground">
-                            {selectedRequest.email_to_create} is tracked in <strong>Admin → Shared Mailboxes</strong>.
+                            {t('admin.mailboxRequests.trackedInPrefix', { email: selectedRequest.email_to_create })} <strong>{t('admin.mailboxRequests.adminSharedMailboxesLabel')}</strong>.
                           </p>
                         </div>
                       </div>
@@ -918,10 +925,9 @@ export function AdminMailboxRequestsPage() {
                             <Mail className="h-5 w-5 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-bold text-sm">Log it in the FMB inventory</p>
+                            <p className="font-bold text-sm">{t('admin.mailboxRequests.logItTitle')}</p>
                             <p className="text-xs text-muted-foreground">
-                              Add this mailbox to <strong>Shared Mailboxes</strong> so it's tracked alongside the existing 130+ FMBs.
-                              You'll just fill the IT-side fields (category, licence, profile).
+                              {t('admin.mailboxRequests.addToInventoryDescBefore')} <strong>{t('admin.mailboxRequests.sharedMailboxesLabel')}</strong>{t('admin.mailboxRequests.addToInventoryDescAfter')}
                             </p>
                           </div>
                         </div>
@@ -929,7 +935,7 @@ export function AdminMailboxRequestsPage() {
                           onClick={() => setShowAddToInventory(true)}
                           className="w-full gap-2"
                         >
-                          <Mail className="h-4 w-4" /> Add to Shared Mailboxes
+                          <Mail className="h-4 w-4" /> {t('admin.mailboxRequests.addToSharedMailboxesButton')}
                         </Button>
                       </div>
                     )}
@@ -947,10 +953,10 @@ export function AdminMailboxRequestsPage() {
                 className="w-full gap-2 py-6 text-sm border-dashed hover:border-primary/40 hover:bg-primary/5 transition-all"
               >
                 <Send className="h-4 w-4 text-primary" />
-                Compose Confirmation Email
+                {t('admin.mailboxRequests.composeConfirmationEmailButton')}
                 {selectedRequest.email_draft_body && (
                   <Badge variant="outline" className="ml-2 text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
-                    <FileText className="h-2.5 w-2.5" /> Draft
+                    <FileText className="h-2.5 w-2.5" /> {t('admin.mailboxRequests.draftBadge')}
                   </Badge>
                 )}
               </Button>
@@ -973,25 +979,25 @@ export function AdminMailboxRequestsPage() {
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                Scheduled Actions
+                {t('admin.mailboxRequests.scheduledActionsTitle')}
               </div>
               {selectedRequest.archive_date && (
                 <div className="flex items-center gap-2 text-sm">
                   <Archive className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-muted-foreground">Archive:</span>
+                  <span className="text-muted-foreground">{t('admin.mailboxRequests.archiveLabel')}</span>
                   <span className="font-medium">{fmtDate(selectedRequest.archive_date)}</span>
                   {selectedRequest.archive_reminder_sent && (
-                    <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">Reminder sent</Badge>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">{t('admin.mailboxRequests.reminderSentBadge')}</Badge>
                   )}
                 </div>
               )}
               {selectedRequest.deletion_date && (
                 <div className="flex items-center gap-2 text-sm">
                   <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-muted-foreground">Deletion:</span>
+                  <span className="text-muted-foreground">{t('admin.mailboxRequests.deletionLabel')}</span>
                   <span className="font-medium">{fmtDate(selectedRequest.deletion_date)}</span>
                   {selectedRequest.deletion_reminder_sent && (
-                    <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">Reminder sent</Badge>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">{t('admin.mailboxRequests.reminderSentBadge')}</Badge>
                   )}
                 </div>
               )}
@@ -1003,15 +1009,15 @@ export function AdminMailboxRequestsPage() {
         <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Delete Mailbox Request?</DialogTitle>
+              <DialogTitle>{t('admin.mailboxRequests.deleteRequestTitle')}</DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground">
-              This will permanently delete the mailbox request for{' '}
+              {t('admin.mailboxRequests.deleteRequestDescBefore')}{' '}
               <strong>{deleteConfirm?.project_name}</strong>.
             </p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.mailboxRequests.cancel')}</Button>
+              <Button variant="destructive" onClick={handleDelete}>{t('admin.mailboxRequests.deleteButton')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1034,13 +1040,13 @@ export function AdminMailboxRequestsPage() {
   // ════════════════════════════════════
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Mailbox Requests" description={`${requests.length} submission${requests.length !== 1 ? 's' : ''}`} />
+      <AdminPageHeader title={t('admin.mailboxRequests.title')} description={t('admin.mailboxRequests.submissionsCount', { count: requests.length })} />
 
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by project, email, company..."
+          placeholder={t('admin.mailboxRequests.searchPlaceholder')}
           className="pl-9"
           value={search}
           onChange={(e: any) => setSearch(e.target.value)}
@@ -1051,7 +1057,7 @@ export function AdminMailboxRequestsPage() {
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <Mail className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No mailbox requests found</p>
+          <p className="text-muted-foreground">{t('admin.mailboxRequests.noRequestsFound')}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -1084,12 +1090,12 @@ export function AdminMailboxRequestsPage() {
                         </Badge>
                         {req.confirmation_email_sent && (
                           <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
-                            <Mail className="h-2.5 w-2.5" /> Sent
+                            <Mail className="h-2.5 w-2.5" /> {t('admin.mailboxRequests.sentBadge')}
                           </Badge>
                         )}
                         {req.email_draft_body && !req.confirmation_email_sent && (
                           <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
-                            <FileText className="h-2.5 w-2.5" /> Draft
+                            <FileText className="h-2.5 w-2.5" /> {t('admin.mailboxRequests.draftBadge')}
                           </Badge>
                         )}
                       </div>
@@ -1122,7 +1128,7 @@ export function AdminMailboxRequestsPage() {
                         className="gap-1.5 text-xs"
                       >
                         <Eye className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">View</span>
+                        <span className="hidden sm:inline">{t('admin.mailboxRequests.viewButton')}</span>
                       </Button>
                       <Button
                         variant="ghost"

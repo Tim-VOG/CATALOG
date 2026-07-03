@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useOffboardingFormFields,
   useCreateOffboardingField,
@@ -23,29 +24,30 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
+// Note: `label` below holds the i18n key suffix (admin.offboardingFormBuilder.<label>), not display text.
 const FIELD_TYPES = [
-  { value: 'text', label: 'Text' },
-  { value: 'textarea', label: 'Text Area' },
-  { value: 'select', label: 'Select (Single)' },
-  { value: 'multi_select', label: 'Multi Select' },
-  { value: 'date', label: 'Date' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'toggle', label: 'Toggle' },
+  { value: 'text', label: 'fieldTypeText' },
+  { value: 'textarea', label: 'fieldTypeTextarea' },
+  { value: 'select', label: 'fieldTypeSelect' },
+  { value: 'multi_select', label: 'fieldTypeMultiSelect' },
+  { value: 'date', label: 'fieldTypeDate' },
+  { value: 'checkbox', label: 'fieldTypeCheckbox' },
+  { value: 'toggle', label: 'fieldTypeToggle' },
 ]
 
 const STEPS = [
-  { value: 'general', label: 'General' },
-  { value: 'it-revocation', label: 'IT Revocation' },
-  { value: 'equipment', label: 'Equipment' },
-  { value: 'exit', label: 'Exit' },
+  { value: 'general', label: 'stepGeneral' },
+  { value: 'it-revocation', label: 'stepItRevocation' },
+  { value: 'equipment', label: 'stepEquipment' },
+  { value: 'exit', label: 'stepExit' },
 ]
 
 const OPERATORS = [
-  { value: 'equals', label: 'Equals' },
-  { value: 'not_equals', label: 'Not equals' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'is_true', label: 'Is true' },
-  { value: 'is_false', label: 'Is false' },
+  { value: 'equals', label: 'operatorEquals' },
+  { value: 'not_equals', label: 'operatorNotEquals' },
+  { value: 'contains', label: 'operatorContains' },
+  { value: 'is_true', label: 'operatorIsTrue' },
+  { value: 'is_false', label: 'operatorIsFalse' },
 ]
 
 const TYPE_COLORS = {
@@ -90,8 +92,19 @@ const EMPTY_FIELD = {
 
 // ── Field row component (no drag) ──
 function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) {
+  const { t } = useTranslation()
   const hasCondition = !!field.condition_field
   const conditionField = hasCondition ? allFields.find((f: any) => f.field_key === field.condition_field) : null
+
+  const fieldTypeInfo = FIELD_TYPES.find((x: any) => x.value === field.field_type)
+  const fieldTypeLabel = fieldTypeInfo
+    ? t(`admin.offboardingFormBuilder.${fieldTypeInfo.label}`, { defaultValue: field.field_type })
+    : field.field_type
+
+  const stepInfo = STEPS.find((s: any) => s.value === field.step)
+  const stepLabel = stepInfo
+    ? t(`admin.offboardingFormBuilder.${stepInfo.label}`, { defaultValue: field.step })
+    : field.step
 
   return (
     <Card variant="elevated" className={cn('transition-all', !field.is_active && 'opacity-50')}>
@@ -110,14 +123,14 @@ function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) 
                 <Lock className="h-3 w-3 text-muted-foreground/50" />
               )}
               <Badge variant="outline" className={cn('text-[10px]', (TYPE_COLORS as Record<string, any>)[field.field_type] || '')}>
-                {field.field_type.replace('_', ' ')}
+                {fieldTypeLabel}
               </Badge>
               <Badge variant="outline" className={cn('text-[10px]', (STEP_COLORS as Record<string, any>)[field.step] || '')}>
-                {STEPS.find((s: any) => s.value === field.step)?.label || field.step}
+                {stepLabel}
               </Badge>
               {field.is_required && (
                 <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30">
-                  Required
+                  {t('admin.offboardingFormBuilder.required')}
                 </Badge>
               )}
               {hasCondition && (
@@ -156,6 +169,7 @@ function FieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) 
 }
 
 export function AdminOffboardingFormBuilderPage() {
+  const { t } = useTranslation()
   const { data: fields = [], isLoading } = useOffboardingFormFields()
   const createField = useCreateOffboardingField()
   const updateField = useUpdateOffboardingField()
@@ -231,7 +245,7 @@ export function AdminOffboardingFormBuilderPage() {
     try {
       if (_isNew) {
         await createField.mutateAsync(payload)
-        showToast('Field created')
+        showToast(t('admin.offboardingFormBuilder.fieldCreated'))
       } else {
         // System fields: restrict what can be edited
         const updates = editDialog.is_system
@@ -247,11 +261,11 @@ export function AdminOffboardingFormBuilderPage() {
             }
           : payload
         await updateField.mutateAsync({ id, ...updates })
-        showToast('Field updated')
+        showToast(t('admin.offboardingFormBuilder.fieldUpdated'))
       }
       setEditDialog(null)
     } catch (err: any) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || t('admin.offboardingFormBuilder.saveFailed'), 'error')
     }
   }
 
@@ -260,7 +274,7 @@ export function AdminOffboardingFormBuilderPage() {
     try {
       await updateField.mutateAsync({ id: field.id, is_active: !field.is_active })
     } catch (err: any) {
-      showToast(err.message || 'Toggle failed', 'error')
+      showToast(err.message || t('admin.offboardingFormBuilder.toggleFailed'), 'error')
     }
   }
 
@@ -269,9 +283,9 @@ export function AdminOffboardingFormBuilderPage() {
     if (!deleteConfirm) return
     try {
       await deleteField.mutateAsync(deleteConfirm.id)
-      showToast('Field deleted')
+      showToast(t('admin.offboardingFormBuilder.fieldDeleted'))
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.offboardingFormBuilder.deleteFailed'), 'error')
     }
     setDeleteConfirm(null)
   }
@@ -282,12 +296,12 @@ export function AdminOffboardingFormBuilderPage() {
     <div className="space-y-6">
       {/* Header */}
       <AdminPageHeader
-        title="Offboarding Form Builder"
-        description={`${fields.length} field${fields.length !== 1 ? 's' : ''} configured`}
+        title={t('admin.offboardingFormBuilder.title')}
+        description={t('admin.offboardingFormBuilder.formBuilderSummary', { count: fields.length })}
       >
         <Button onClick={handleAdd} className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Field
+          {t('admin.offboardingFormBuilder.addField')}
         </Button>
       </AdminPageHeader>
 
@@ -299,7 +313,7 @@ export function AdminOffboardingFormBuilderPage() {
           <div key={step.value} className="space-y-2">
             <h3 className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest flex items-center gap-2">
               <ChevronRight className="h-3 w-3" />
-              {step.label}
+              {t(`admin.offboardingFormBuilder.${step.label}`, { defaultValue: step.value })}
               <span className="text-[10px] font-normal">({stepFields.length})</span>
             </h3>
             <div className="space-y-1.5">
@@ -321,10 +335,10 @@ export function AdminOffboardingFormBuilderPage() {
       {fields.length === 0 && (
         <div className="text-center py-16">
           <Settings className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No form fields yet</p>
+          <p className="text-muted-foreground">{t('admin.offboardingFormBuilder.noFieldsYet')}</p>
           <Button variant="outline" className="mt-4 gap-2" onClick={handleAdd}>
             <Plus className="h-4 w-4" />
-            Add your first field
+            {t('admin.offboardingFormBuilder.addFirstField')}
           </Button>
         </div>
       )}
@@ -334,11 +348,11 @@ export function AdminOffboardingFormBuilderPage() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editDialog?._isNew ? 'Add Field' : 'Edit Field'}
+              {editDialog?._isNew ? t('admin.offboardingFormBuilder.addField') : t('admin.offboardingFormBuilder.editField')}
               {editDialog?.is_system && (
                 <Badge variant="outline" className="ml-2 text-[10px]">
                   <Lock className="h-2.5 w-2.5 mr-1" />
-                  System
+                  {t('admin.offboardingFormBuilder.system')}
                 </Badge>
               )}
             </DialogTitle>
@@ -348,7 +362,7 @@ export function AdminOffboardingFormBuilderPage() {
             <div className="space-y-4">
               {/* Label */}
               <div className="space-y-1.5">
-                <Label>Label *</Label>
+                <Label>{t('admin.offboardingFormBuilder.fieldLabel')} *</Label>
                 <Input
                   value={editDialog.label}
                   onChange={(e: any) => {
@@ -359,48 +373,48 @@ export function AdminOffboardingFormBuilderPage() {
                       ...(prev._isNew ? { field_key: generateFieldKey(label) } : {}),
                     }))
                   }}
-                  placeholder="Field label"
+                  placeholder={t('admin.offboardingFormBuilder.fieldLabelPlaceholder')}
                 />
               </div>
 
               {/* Field key */}
               <div className="space-y-1.5">
-                <Label>Field Key</Label>
+                <Label>{t('admin.offboardingFormBuilder.fieldKey')}</Label>
                 <Input
                   value={editDialog.field_key}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_key: e.target.value }))}
-                  placeholder="field_key"
+                  placeholder={t('admin.offboardingFormBuilder.fieldKeyPlaceholder')}
                   disabled={editDialog.is_system || !editDialog._isNew}
                   className="font-mono text-sm"
                 />
                 {editDialog.is_system && (
-                  <p className="text-[10px] text-muted-foreground">System field keys cannot be changed</p>
+                  <p className="text-[10px] text-muted-foreground">{t('admin.offboardingFormBuilder.systemFieldKeyLocked')}</p>
                 )}
               </div>
 
               {/* Type + Step row */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Type</Label>
+                  <Label>{t('admin.offboardingFormBuilder.type')}</Label>
                   <Select
                     value={editDialog.field_type}
                     onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_type: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
-                    {FIELD_TYPES.map((t: any) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
+                    {FIELD_TYPES.map((ft: any) => (
+                      <option key={ft.value} value={ft.value}>{t(`admin.offboardingFormBuilder.${ft.label}`, { defaultValue: ft.value })}</option>
                     ))}
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Step</Label>
+                  <Label>{t('admin.offboardingFormBuilder.step')}</Label>
                   <Select
                     value={editDialog.step}
                     onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, step: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {STEPS.map((s: any) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>{t(`admin.offboardingFormBuilder.${s.label}`, { defaultValue: s.value })}</option>
                     ))}
                   </Select>
                 </div>
@@ -408,44 +422,44 @@ export function AdminOffboardingFormBuilderPage() {
 
               {/* Placeholder */}
               <div className="space-y-1.5">
-                <Label>Placeholder</Label>
+                <Label>{t('admin.offboardingFormBuilder.placeholderLabel')}</Label>
                 <Input
                   value={editDialog.placeholder}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, placeholder: e.target.value }))}
-                  placeholder="Placeholder text"
+                  placeholder={t('admin.offboardingFormBuilder.placeholderTextPlaceholder')}
                 />
               </div>
 
               {/* Help text */}
               <div className="space-y-1.5">
-                <Label>Help Text</Label>
+                <Label>{t('admin.offboardingFormBuilder.helpText')}</Label>
                 <Input
                   value={editDialog.help_text}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, help_text: e.target.value }))}
-                  placeholder="Displayed below the field"
+                  placeholder={t('admin.offboardingFormBuilder.helpTextPlaceholder')}
                 />
               </div>
 
               {/* Options (for select/multi_select) */}
               {['select', 'multi_select'].includes(editDialog.field_type) && (
                 <div className="space-y-1.5">
-                  <Label>Options (one per line)</Label>
+                  <Label>{t('admin.offboardingFormBuilder.optionsLabel')}</Label>
                   <Textarea
                     value={optionsText}
                     onChange={(e: any) => setOptionsText(e.target.value)}
-                    placeholder={'Option 1\nOption 2\nOption 3'}
+                    placeholder={t('admin.offboardingFormBuilder.optionsPlaceholder')}
                     rows={4}
                     disabled={editDialog.is_system}
                   />
                   {editDialog.is_system && (
-                    <p className="text-[10px] text-muted-foreground">System field options cannot be changed here</p>
+                    <p className="text-[10px] text-muted-foreground">{t('admin.offboardingFormBuilder.systemFieldOptionsLocked')}</p>
                   )}
                 </div>
               )}
 
               {/* Required toggle */}
               <div className="flex items-center justify-between">
-                <Label>Required</Label>
+                <Label>{t('admin.offboardingFormBuilder.required')}</Label>
                 <Switch
                   checked={editDialog.is_required}
                   onCheckedChange={(v: any) => setEditDialog((prev: any) => ({ ...prev, is_required: v }))}
@@ -456,15 +470,15 @@ export function AdminOffboardingFormBuilderPage() {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-amber-500" />
-                  <Label className="text-sm font-semibold">Conditional Logic</Label>
+                  <Label className="text-sm font-semibold">{t('admin.offboardingFormBuilder.conditionalLogic')}</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Show this field only when another field meets a condition.
+                  {t('admin.offboardingFormBuilder.conditionalLogicDescription')}
                 </p>
 
                 {/* Condition field */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">If field</Label>
+                  <Label className="text-xs">{t('admin.offboardingFormBuilder.ifField')}</Label>
                   <Select
                     value={editDialog.condition_field || '_none'}
                     onChange={(e: any) => {
@@ -477,7 +491,7 @@ export function AdminOffboardingFormBuilderPage() {
                       }))
                     }}
                   >
-                    <option value="_none">No condition (always show)</option>
+                    <option value="_none">{t('admin.offboardingFormBuilder.noCondition')}</option>
                     {fields
                       .filter((f: any) => f.id !== editDialog.id)
                       .map((f: any) => (
@@ -491,23 +505,23 @@ export function AdminOffboardingFormBuilderPage() {
                 {editDialog.condition_field && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Operator</Label>
+                      <Label className="text-xs">{t('admin.offboardingFormBuilder.operator')}</Label>
                       <Select
                         value={editDialog.condition_operator || 'equals'}
                         onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_operator: e.target.value }))}
                       >
                         {OPERATORS.map((o: any) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
+                          <option key={o.value} value={o.value}>{t(`admin.offboardingFormBuilder.${o.label}`, { defaultValue: o.value })}</option>
                         ))}
                       </Select>
                     </div>
                     {!['is_true', 'is_false'].includes(editDialog.condition_operator) && (
                       <div className="space-y-1.5">
-                        <Label className="text-xs">Value</Label>
+                        <Label className="text-xs">{t('admin.offboardingFormBuilder.value')}</Label>
                         <Input
                           value={editDialog.condition_value}
                           onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_value: e.target.value }))}
-                          placeholder="Expected value"
+                          placeholder={t('admin.offboardingFormBuilder.expectedValuePlaceholder')}
                         />
                       </div>
                     )}
@@ -518,12 +532,12 @@ export function AdminOffboardingFormBuilderPage() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setEditDialog(null)}>{t('admin.offboardingFormBuilder.cancel')}</Button>
             <Button
               onClick={handleSave}
               disabled={!editDialog?.label?.trim()}
             >
-              {editDialog?._isNew ? 'Create' : 'Save'}
+              {editDialog?._isNew ? t('admin.offboardingFormBuilder.create') : t('admin.offboardingFormBuilder.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -535,16 +549,15 @@ export function AdminOffboardingFormBuilderPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-destructive" />
-              Delete Field?
+              {t('admin.offboardingFormBuilder.deleteFieldTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the field <strong>{deleteConfirm?.label}</strong>.
-            Existing data for this field won&apos;t be affected.
+            {t('admin.offboardingFormBuilder.deleteFieldWarningPre')} <strong>{deleteConfirm?.label}</strong>{t('admin.offboardingFormBuilder.deleteFieldWarningPost')}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.offboardingFormBuilder.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.offboardingFormBuilder.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

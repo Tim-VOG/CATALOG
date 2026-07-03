@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
@@ -30,51 +31,57 @@ const STATUS_COLORS = {
 
 // ── Info card (all fields visible, mirrors Onboarding/Mailbox pattern) ──
 function OffboardingRequestInfoCard({ req  }: any) {
+  const { t } = useTranslation()
   const data = req.data || {}
-  const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
+  const fullName = data.employee_name || data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || t('admin.offboardingRequests.unknownEmployee')
   const corporateEmail = data.email || data.corporate_email || data.email_to_revoke || '—'
 
-  const fmtBool = (v: any) => (v === true ? 'Yes' : v === false ? 'No' : '—')
+  const fmtBool = (v: any) => (v === true ? t('admin.offboardingRequests.yes') : v === false ? t('admin.offboardingRequests.no') : '—')
+  const statusLabel = (s: any) =>
+    s === 'pending' ? t('admin.offboardingRequests.statusPending')
+      : s === 'in_progress' ? t('admin.offboardingRequests.statusInProgress')
+      : s === 'ready' ? t('admin.offboardingRequests.statusReady')
+      : s
   const ooo = data.ooo_enabled
     ? [
-        ['Out Of Office', 'Yes'],
-        ['OOO From', formatDate(data.ooo_start)],
-        ['OOO Until', formatDate(data.ooo_end)],
-        ['OOO Message', data.ooo_message],
+        [t('admin.offboardingRequests.fieldOutOfOffice'), t('admin.offboardingRequests.yes')],
+        [t('admin.offboardingRequests.fieldOooFrom'), formatDate(data.ooo_start)],
+        [t('admin.offboardingRequests.fieldOooUntil'), formatDate(data.ooo_end)],
+        [t('admin.offboardingRequests.fieldOooMessage'), data.ooo_message],
       ]
     : data.ooo_enabled === false
-      ? [['Out Of Office', 'No']]
+      ? [[t('admin.offboardingRequests.fieldOutOfOffice'), t('admin.offboardingRequests.no')]]
       : []
 
   // Show every field we have in data, in a consistent order. Booleans → Yes/No,
   // arrays → comma list, dates → formatted.
   const fields = [
-    ['Employee Name', fullName],
-    ['Corporate Email', corporateEmail],
-    ['Company', data.company],
-    ['Business Unit', data.business_unit],
-    ['Job Title', data.job_title],
-    ['Department', data.department],
-    ['Departure On', formatDate(data.departure_on || data.last_day || data.departure_date)],
-    ['Reason', data.reason],
-    ['Replacement', data.replacement_name],
-    ['Manager', data.manager_name],
-    ['Revoke Email Access', fmtBool(data.revoke_email_access)],
-    ['Revoke VPN / Tools', fmtBool(data.revoke_vpn_tools_access)],
-    ['Transfer Mailbox Data', fmtBool(data.transfer_mailbox_data)],
-    ['Transfer SharePoint Data', fmtBool(data.transfer_sharepoint_data)],
-    ['Transfer Details', data.transfer_details],
+    [t('admin.offboardingRequests.fieldEmployeeName'), fullName],
+    [t('admin.offboardingRequests.fieldCorporateEmail'), corporateEmail],
+    [t('admin.offboardingRequests.fieldCompany'), data.company],
+    [t('admin.offboardingRequests.fieldBusinessUnit'), data.business_unit],
+    [t('admin.offboardingRequests.fieldJobTitle'), data.job_title],
+    [t('admin.offboardingRequests.fieldDepartment'), data.department],
+    [t('admin.offboardingRequests.fieldDepartureOn'), formatDate(data.departure_on || data.last_day || data.departure_date)],
+    [t('admin.offboardingRequests.fieldReason'), data.reason],
+    [t('admin.offboardingRequests.fieldReplacement'), data.replacement_name],
+    [t('admin.offboardingRequests.fieldManager'), data.manager_name],
+    [t('admin.offboardingRequests.fieldRevokeEmailAccess'), fmtBool(data.revoke_email_access)],
+    [t('admin.offboardingRequests.fieldRevokeVpnTools'), fmtBool(data.revoke_vpn_tools_access)],
+    [t('admin.offboardingRequests.fieldTransferMailboxData'), fmtBool(data.transfer_mailbox_data)],
+    [t('admin.offboardingRequests.fieldTransferSharepointData'), fmtBool(data.transfer_sharepoint_data)],
+    [t('admin.offboardingRequests.fieldTransferDetails'), data.transfer_details],
     ...ooo,
-    ['Collect Laptop', fmtBool(data.collect_laptop)],
-    ['Collect Phone', fmtBool(data.collect_phone)],
-    ['Collect Badge/Keys', fmtBool(data.collect_badge_keys)],
-    ['Equipment Notes', data.equipment_notes],
-    ['Equipment to recover', Array.isArray(data.equipment_to_recover) ? data.equipment_to_recover.join(', ') : data.equipment_to_recover],
-    ['Access to revoke', Array.isArray(data.access_to_revoke) ? data.access_to_revoke.join(', ') : data.access_to_revoke],
-    ['Notes', data.notes],
-    ['Requested By', req.requester_name],
-    ['Requester Email', req.requester_email],
-    ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
+    [t('admin.offboardingRequests.fieldCollectLaptop'), fmtBool(data.collect_laptop)],
+    [t('admin.offboardingRequests.fieldCollectPhone'), fmtBool(data.collect_phone)],
+    [t('admin.offboardingRequests.fieldCollectBadgeKeys'), fmtBool(data.collect_badge_keys)],
+    [t('admin.offboardingRequests.fieldEquipmentNotes'), data.equipment_notes],
+    [t('admin.offboardingRequests.fieldEquipmentToRecover'), Array.isArray(data.equipment_to_recover) ? data.equipment_to_recover.join(', ') : data.equipment_to_recover],
+    [t('admin.offboardingRequests.fieldAccessToRevoke'), Array.isArray(data.access_to_revoke) ? data.access_to_revoke.join(', ') : data.access_to_revoke],
+    [t('admin.offboardingRequests.fieldNotes'), data.notes],
+    [t('admin.offboardingRequests.fieldRequestedBy'), req.requester_name],
+    [t('admin.offboardingRequests.fieldRequesterEmail'), req.requester_email],
+    [t('admin.offboardingRequests.fieldSubmitted'), new Date(req.created_at).toLocaleString('fr-FR')],
   ]
 
   // Catch any custom fields we don't know about, after the known ones
@@ -92,7 +99,7 @@ function OffboardingRequestInfoCard({ req  }: any) {
     .filter(([k, v]) => !knownKeys.has(k) && v !== '' && v !== null && v !== undefined)
     .map(([k, v]) => [
       k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-      Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v),
+      Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? t('admin.offboardingRequests.yes') : t('admin.offboardingRequests.no')) : String(v),
     ])
 
   const allFields = [...fields, ...extras]
