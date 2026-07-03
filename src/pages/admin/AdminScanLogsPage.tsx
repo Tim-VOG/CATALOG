@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'motion/react'
 import {
   ClipboardList, Search, ArrowUpFromLine, ArrowDownToLine,
@@ -17,6 +18,7 @@ import { useScanLogs } from '@/hooks/use-qr-codes'
 import { cn } from '@/lib/utils'
 
 export function AdminScanLogsPage() {
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [actionFilter, setActionFilter] = useState('')
 
@@ -35,21 +37,21 @@ export function AdminScanLogsPage() {
 
   return (
     <>
-      <AdminPageHeader title="Scan Logs" description="Track all QR code scan activity" />
+      <AdminPageHeader title={t('admin.scanLogs.title')} description={t('admin.scanLogs.description')} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <Card className="p-4 text-center">
           <div className="text-2xl font-bold">{logs?.length || 0}</div>
-          <div className="text-xs text-muted-foreground">Total Scans</div>
+          <div className="text-xs text-muted-foreground">{t('admin.scanLogs.totalScans')}</div>
         </Card>
         <Card className="p-4 text-center">
           <div className="text-2xl font-bold text-orange-500">{stats.takes}</div>
-          <div className="text-xs text-muted-foreground">Items Taken</div>
+          <div className="text-xs text-muted-foreground">{t('admin.scanLogs.itemsTaken')}</div>
         </Card>
         <Card className="p-4 text-center">
           <div className="text-2xl font-bold text-emerald-500">{stats.deposits}</div>
-          <div className="text-xs text-muted-foreground">Items Deposited</div>
+          <div className="text-xs text-muted-foreground">{t('admin.scanLogs.itemsDeposited')}</div>
         </Card>
       </div>
 
@@ -60,15 +62,15 @@ export function AdminScanLogsPage() {
           <Input
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
-            placeholder="Search by code, product, user..."
+            placeholder={t('admin.scanLogs.searchPlaceholder')}
             className="pl-10"
           />
         </div>
         <div className="flex gap-1 p-1 rounded-lg bg-muted/50">
           {[
-            { value: '', label: 'All' },
-            { value: 'take', label: 'Takes', icon: ArrowUpFromLine },
-            { value: 'deposit', label: 'Deposits', icon: ArrowDownToLine },
+            { value: '', label: t('admin.scanLogs.filterAll') },
+            { value: 'take', label: t('admin.scanLogs.filterTakes'), icon: ArrowUpFromLine },
+            { value: 'deposit', label: t('admin.scanLogs.filterDeposits'), icon: ArrowDownToLine },
           ].map(({ value, label, icon: Icon }: any) => (
             <button
               key={value}
@@ -91,8 +93,8 @@ export function AdminScanLogsPage() {
       {!logs?.length ? (
         <EmptyState
           icon={ClipboardList}
-          title="No scan activity yet"
-          description="Scan logs will appear here once users start scanning QR codes."
+          title={t('admin.scanLogs.empty')}
+          description={t('admin.scanLogs.emptyDesc')}
         />
       ) : (
         <div className="space-y-2">
@@ -133,7 +135,7 @@ export function AdminScanLogsPage() {
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <User className="h-3 w-3" />
-                          {log.user_name || log.user_email || 'Unknown'}
+                          {log.user_name || log.user_email || t('admin.scanLogs.unknown')}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
@@ -144,18 +146,18 @@ export function AdminScanLogsPage() {
                       {log.action === 'take' && log.pickup_date && (
                         <div className="flex items-center gap-2 mt-1 text-[11px]">
                           <span className="text-muted-foreground">
-                            Pickup: <strong className="text-foreground">{format(new Date(log.pickup_date + 'T12:00:00'), 'MMM d')}</strong>
+                            {t('admin.scanLogs.pickup')}: <strong className="text-foreground">{format(new Date(log.pickup_date + 'T12:00:00'), 'MMM d')}</strong>
                           </span>
                           {log.expected_return_date && (
                             <span className="text-muted-foreground">
-                              → Return: <strong className="text-foreground">{format(new Date(log.expected_return_date + 'T12:00:00'), 'MMM d')}</strong>
+                              → {t('admin.scanLogs.return')}: <strong className="text-foreground">{format(new Date(log.expected_return_date + 'T12:00:00'), 'MMM d')}</strong>
                             </span>
                           )}
                         </div>
                       )}
                       {log.action === 'deposit' && log.actual_return_date && (
                         <div className="text-[11px] text-muted-foreground mt-1">
-                          Returned: <strong className="text-foreground">{format(new Date(log.actual_return_date + 'T12:00:00'), 'MMM d, yyyy')}</strong>
+                          {t('admin.scanLogs.returned')}: <strong className="text-foreground">{format(new Date(log.actual_return_date + 'T12:00:00'), 'MMM d, yyyy')}</strong>
                         </div>
                       )}
                     </div>
