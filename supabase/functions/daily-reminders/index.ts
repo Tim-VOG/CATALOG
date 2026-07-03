@@ -162,7 +162,7 @@ serve(async (req) => {
     }).filter(Boolean)
   )
 
-  const summary = { onboarding_sent: 0, offboarding_sent: 0, skipped: 0 }
+  const summary = { onboarding_sent: 0, offboarding_sent: 0, return_reminders_sent: 0, skipped: 0 }
 
   for (const req of (onboardings || [])) {
     const data = req.data || {}
@@ -231,6 +231,55 @@ serve(async (req) => {
         }
       }
     }
+  }
+
+  // ── 3) Equipment return reminder — 3 days before the expected return ──
+  // Server-side replacement for the old client-side reminder (which only
+  // fired when an admin happened to open the dashboard). Matching the exact
+  // date, combined with the once-a-day cron, means each active loan gets
+  // exactly one reminder — no per-row "sent" flag needed.
+  const todayPlus3 = addDays(today, 3)
+  try {
+    const { data: dueSoon } = await supabase
+      .from('user_equipment')
+      .select('user_email, user_name, product_name, expected_return_date')
+      .eq('status', 'active')
+      .eq('expected_return_date', todayPlus3)
+
+    if (dueSoon?.length) {
+      // Respect admin edits to the template in /admin/communications.
+      let tmplSubject = 'Reminder: {{product_name}} due back on {{return_date}}'
+      let tmplBody = ''
+      try {
+        const { data: tmpl } = await supabase
+          .from('email_templates')
+          .select('subject, body')
+          .eq('template_key', 'request_return_reminder')
+          .maybeSingle()
+        if (tmpl?.subject) tmplSubject = tmpl.subject
+        if (tmpl?.body) tmplBody = tmpl.body
+      } catch (_e) { /* fall back to the inline default below */ }
+
+      for (const eq of dueSoon) {
+        if (!eq.user_email) continue
+        const vars: Record<string, string> = {
+          requester_name: eq.user_name || eq.user_email.split('@')[0],
+          product_name: eq.product_name || 'the equipment',
+          return_date: eq.expected_return_date || '',
+        }
+        const subst = (t: string) => (t || '').replace(/\{\{(\w+)\}\}/g, (_m: string, k: string) => vars[k] ?? `[${k}]`)
+        const subject = subst(tmplSubject)
+        const inner = tmplBody
+          ? subst(tmplBody)
+          : `<p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">Hi ${vars.requester_name},</p>
+             <p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">Friendly reminder that <strong style="color:#0a2540;">${vars.product_name}</strong> is due for return on <strong style="color:#0a2540;">${vars.return_date}</strong>. Please bring it to the IT desk.</p>`
+        const ok = await sendResend(eq.user_email, subject, wrapEmail(branding.appName, branding.logoUrl, inner))
+        if (ok) summary.return_reminders_sent++
+        else summary.skipped++
+      }
+    }
+  } catch (e) {
+    console.error('[daily-reminders] return reminder block failed', e)
   }
 
   // Log this successful run so the 23h rate-limit gate above blocks

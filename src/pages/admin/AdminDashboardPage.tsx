@@ -10,7 +10,6 @@ import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useProducts } from '@/hooks/use-products'
 import { useQRCodes, useOverdueScans, useActiveLoans, useScanLogs } from '@/hooks/use-qr-codes'
 import { PageLoading } from '@/components/common/LoadingSpinner'
-import { checkAndSendReturnReminders } from '@/services/return-reminder-service'
 import { runDailyMaintenance } from '@/services/daily-maintenance'
 import {
   ArrowRight, AlertTriangle, ScanLine, PackageCheck,
@@ -200,7 +199,9 @@ export function AdminDashboardPage() {
   const { data: sharedMailboxes = [] } = useSharedMailboxes()
   const { data: deviceCredentials = [] } = useDeviceCredentials()
 
-  useEffect(() => { checkAndSendReturnReminders(); runDailyMaintenance() }, [])
+  // Return reminders now run server-side (daily-reminders edge function /
+  // cron) so they fire reliably even if no admin opens the dashboard.
+  useEffect(() => { runDailyMaintenance() }, [])
 
   const handleExportExcel = () => {
     exportInventoryWorkbook({
@@ -211,7 +212,10 @@ export function AdminDashboardPage() {
       activeLoans,
       scanLogs: recentScans,
       sharedMailboxes,
-    }, `vo-hub-inventory-${new Date().toISOString().slice(0, 10)}.xlsx`)
+      equipmentRequests: loanReqs,
+      itRequests: itReqs,
+      mailboxRequests: mailboxReqs,
+    }, `vo-hub-export-${new Date().toISOString().slice(0, 10)}.xlsx`)
   }
 
   const stats = useMemo(() => {

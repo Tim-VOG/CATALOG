@@ -70,6 +70,7 @@ const AdminScanLogsPage = lazy(() => import('@/pages/admin/AdminScanLogsPage').t
 const AdminAuditLogPage = lazy(() => import('@/pages/admin/AdminAuditLogPage').then((m) => ({ default: m.AdminAuditLogPage })))
 const AdminReservationsPage = lazy(() => import('@/pages/admin/AdminReservationsPage').then((m) => ({ default: m.AdminReservationsPage })))
 const AdminLostItemsPage = lazy(() => import('@/pages/admin/AdminLostItemsPage').then((m) => ({ default: m.AdminLostItemsPage })))
+const AdminOverduePage = lazy(() => import('@/pages/admin/AdminOverduePage').then((m) => ({ default: m.AdminOverduePage })))
 const AdminUtilizationPage = lazy(() => import('@/pages/admin/AdminUtilizationPage').then((m) => ({ default: m.AdminUtilizationPage })))
 const AdminIssuesPage = lazy(() => import('@/pages/admin/AdminIssuesPage').then((m) => ({ default: m.AdminIssuesPage })))
 
@@ -143,6 +144,7 @@ export function AppRoutes() {
             <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
             <Route path="offboarding" element={<OffboardingPage />} />
             <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
+            <Route path="overdue" element={<AdminOnly><AdminOverduePage /></AdminOnly>} />
 
             {/* Admin only — wrapped so managers bounce back to /admin */}
             <Route path="stats" element={<AdminOnly><AdminStatsPage /></AdminOnly>} />

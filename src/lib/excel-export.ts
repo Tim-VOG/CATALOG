@@ -18,6 +18,55 @@ interface ExportPayload {
   activeLoans?: any[]
   scanLogs?: any[]
   sharedMailboxes?: any[]
+  // Request flows — combined into a single "Requests" tab.
+  equipmentRequests?: any[]
+  itRequests?: any[] // onboarding / offboarding / IT (type on each row)
+  mailboxRequests?: any[]
+}
+
+// Normalise the different request shapes into a single set of columns so
+// equipment, onboarding/offboarding/IT and mailbox requests read side by side.
+function normaliseRequests(payload: ExportPayload) {
+  const fmtDate = (d: any) => (d ? new Date(d).toLocaleDateString('fr-FR') : '')
+  const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '')
+  const rows: Record<string, string>[] = []
+
+  for (const r of payload.equipmentRequests || []) {
+    rows.push({
+      Type: 'Equipment',
+      Status: r.status || '',
+      Requester: r.user_name || r.user_email || '',
+      Subject: r.event_name || r.project_name || '',
+      Created: fmtDate(r.created_at),
+    })
+  }
+
+  for (const r of payload.itRequests || []) {
+    const d = r.data || {}
+    const subject = (`${d.first_name || ''} ${d.last_name || ''}`).trim()
+      || d.name || d.email_to_create || ''
+    rows.push({
+      Type: cap(r.type || 'IT'),
+      Status: r.status || '',
+      Requester: r.requester_name || r.requester_email || '',
+      Subject: subject,
+      Created: fmtDate(r.created_at),
+    })
+  }
+
+  for (const r of payload.mailboxRequests || []) {
+    rows.push({
+      Type: 'Mailbox',
+      Status: r.status || '',
+      Requester: r.requester_name || r.requester_email || r.created_by_name || '',
+      Subject: r.email_to_create || r.project_name || '',
+      Created: fmtDate(r.created_at),
+    })
+  }
+
+  // Newest first so the report opens on the most recent activity.
+  rows.sort((a, b) => (b.Created || '').localeCompare(a.Created || ''))
+  return rows
 }
 
 /**
@@ -26,6 +75,15 @@ interface ExportPayload {
  */
 export function exportInventoryWorkbook(payload: ExportPayload, filename = 'vo-hub-inventory.xlsx') {
   const wb = XLSX.utils.book_new()
+
+  const requestRows = normaliseRequests(payload)
+  if (requestRows.length) {
+    XLSX.utils.book_append_sheet(
+      wb,
+      sheetFromRows(requestRows, ['Type', 'Status', 'Requester', 'Subject', 'Created']),
+      'Requests',
+    )
+  }
 
   if (payload.products?.length) {
     const rows = payload.products.map((p: any) => ({
@@ -129,6 +187,7 @@ export function exportInventoryWorkbook(payload: ExportPayload, filename = 'vo-h
     ['Source', typeof window !== 'undefined' ? window.location.host : ''],
     [''],
     ['Sheet', 'Rows'],
+    ['Requests', requestRows.length],
     ['Products', payload.products?.length || 0],
     ['Categories', payload.categories?.length || 0],
     ['QR Codes', payload.qrCodes?.length || 0],

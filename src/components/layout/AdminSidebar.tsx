@@ -7,6 +7,7 @@ import {
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
   CalendarClock, PackageSearch, Activity, Wrench, Building2,
+  AlarmClock,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -60,6 +61,7 @@ export function AdminSidebar() {
       links: [
         { to: '/admin/requests', label: 'Equipment', icon: Inbox, badge: pendingCounts.equipment },
         { to: '/admin/extensions', label: 'Extensions', icon: CalendarClock },
+        { to: '/admin/overdue', label: 'Overdue', icon: AlarmClock },
         { to: '/admin/onboarding/requests', label: 'Onboarding', icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
         { to: '/admin/offboarding-requests', label: 'Offboarding', icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
         { to: '/admin/mailbox-requests', label: 'Mailbox', icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
