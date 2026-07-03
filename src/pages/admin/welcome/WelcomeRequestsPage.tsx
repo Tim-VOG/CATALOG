@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { useCreateRecipient, useUpdateRecipient, useOnboardingRecipients, useOnboardingEmails } from '@/hooks/use-onboarding'
 import { useUIStore } from '@/stores/ui-store'
@@ -37,6 +38,7 @@ function requestToRecipient(req: any, personalEmail: any) {
 }
 
 export function WelcomeRequestsPage() {
+  const { t } = useTranslation()
   const { data: allRequests = [], isLoading } = useItRequests()
   const { data: recipients = [] } = useOnboardingRecipients()
   const { data: emails = [] } = useOnboardingEmails()
@@ -93,7 +95,7 @@ export function WelcomeRequestsPage() {
     if (!selectedRequest) return
     const trimmed = personalEmail.trim().toLowerCase()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      showToast('Please enter a valid personal email', 'error')
+      showToast(t('admin.welcomeRequests.invalidEmailToast'), 'error')
       return
     }
     setPreparing(true)
@@ -133,7 +135,7 @@ export function WelcomeRequestsPage() {
   // ── Detail view ───────────────────────────────────────────────
   if (selectedRequest) {
     const data = selectedRequest.data || {}
-    const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
+    const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || t('admin.welcomeRequests.unknownName')
     const corporateEmail = data.email_local && data.email_domain
       ? `${data.email_local}@${data.email_domain}`
       : data.email_to_create || '—'
@@ -144,11 +146,11 @@ export function WelcomeRequestsPage() {
       <div className="space-y-5">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={handleBack} className="gap-1.5 text-xs">
-            <ArrowLeft className="h-3.5 w-3.5" /> Back
+            <ArrowLeft className="h-3.5 w-3.5" /> {t('admin.welcomeRequests.back')}
           </Button>
           <div className="flex-1">
             <h2 className="text-lg font-display font-bold">{fullName}</h2>
-            <p className="text-xs text-muted-foreground">Compose welcome email</p>
+            <p className="text-xs text-muted-foreground">{t('admin.welcomeRequests.composeWelcomeEmail')}</p>
           </div>
         </div>
 
@@ -165,10 +167,10 @@ export function WelcomeRequestsPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <Row icon={Briefcase} label="Profile" value={data.profile} />
-              <Row icon={Building2} label="Company" value={data.company} />
-              <Row icon={Briefcase} label="Job title" value={data.job_title} />
-              <Row icon={Calendar} label="First day" value={formatDate(data.first_day)} />
+              <Row icon={Briefcase} label={t('admin.welcomeRequests.profile')} value={data.profile} />
+              <Row icon={Building2} label={t('admin.welcomeRequests.company')} value={data.company} />
+              <Row icon={Briefcase} label={t('admin.welcomeRequests.jobTitle')} value={data.job_title} />
+              <Row icon={Calendar} label={t('admin.welcomeRequests.firstDay')} value={formatDate(data.first_day)} />
             </div>
           </CardContent>
         </Card>
@@ -178,7 +180,7 @@ export function WelcomeRequestsPage() {
             <CardContent className="p-4 flex items-center gap-3">
               <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
               <span className="text-sm text-muted-foreground flex-1">
-                Welcome email was sent on <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
+                {t('admin.welcomeRequests.sentOn')} <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
               </span>
             </CardContent>
           </Card>
@@ -197,15 +199,15 @@ export function WelcomeRequestsPage() {
                   <AtSign className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-sm">Personal email</h4>
+                  <h4 className="font-semibold text-sm">{t('admin.welcomeRequests.personalEmail')}</h4>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Enter the personal email collected from HR (PERSONAL INFORMATION form). The welcome will go there.
+                    {t('admin.welcomeRequests.personalEmailHint')}
                   </p>
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="personal-email" className="text-xs">
-                  Personal email <span className="text-red-500">*</span>
+                  {t('admin.welcomeRequests.personalEmail')} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="personal-email"
@@ -222,7 +224,7 @@ export function WelcomeRequestsPage() {
                 className="w-full gap-2"
               >
                 <Send className="h-4 w-4" />
-                {preparing ? 'Preparing...' : 'Open composer'}
+                {preparing ? t('admin.welcomeRequests.preparing') : t('admin.welcomeRequests.openComposer')}
               </Button>
             </CardContent>
           </Card>
@@ -235,13 +237,13 @@ export function WelcomeRequestsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Welcome"
-        description={`${todoCount} pending · ${sentCount} sent`}
+        title={t('admin.welcomeRequests.pageTitle')}
+        description={t('admin.welcomeRequests.pageDescription', { todoCount, sentCount })}
       />
 
       <div className="flex flex-wrap items-center gap-2">
         <Button variant={filter === 'todo' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('todo')}>
-          To welcome
+          {t('admin.welcomeRequests.toWelcome')}
           {todoCount > 0 && (
             <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
               {todoCount}
@@ -249,28 +251,28 @@ export function WelcomeRequestsPage() {
           )}
         </Button>
         <Button variant={filter === 'sent' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('sent')}>
-          Sent
+          {t('admin.welcomeRequests.sent')}
         </Button>
         <div className="flex-1" />
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search..." className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
+          <Input placeholder={t('admin.welcomeRequests.searchPlaceholder')} className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={Mail}
-          title={filter === 'todo' ? 'Nobody to welcome right now' : 'No welcome emails sent yet'}
+          title={filter === 'todo' ? t('admin.welcomeRequests.emptyTodoTitle') : t('admin.welcomeRequests.emptySentTitle')}
           description={filter === 'todo'
-            ? 'New onboarding requests will appear here once submitted.'
-            : 'Sent welcome emails will appear here.'}
+            ? t('admin.welcomeRequests.emptyTodoDescription')
+            : t('admin.welcomeRequests.emptySentDescription')}
         />
       ) : (
         <div className="space-y-3">
           {filtered.map((req: any) => {
             const data = req.data || {}
-            const name = data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown'
+            const name = data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || t('admin.welcomeRequests.unknownName')
             const company = data.company || data.business_unit || ''
             const firstDay = data.first_day || ''
             const sentEmail = sentByRequestId[req.id]
@@ -292,16 +294,16 @@ export function WelcomeRequestsPage() {
                         {company && <Badge variant="secondary" className="text-[10px]">{company}</Badge>}
                         {sentEmail && (
                           <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
-                            <CheckCircle className="h-2.5 w-2.5" /> Sent {formatDate(sentEmail.sent_at)}
+                            <CheckCircle className="h-2.5 w-2.5" /> {t('admin.welcomeRequests.sentBadge', { date: formatDate(sentEmail.sent_at) })}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                        {firstDay && <span>Starts {formatDate(firstDay)}</span>}
+                        {firstDay && <span>{t('admin.welcomeRequests.starts', { date: formatDate(firstDay) })}</span>}
                       </div>
                     </div>
                     <Button size="sm" variant={sentEmail ? 'ghost' : 'default'} className="gap-1.5 text-xs h-8" onClick={(e: any) => { e.stopPropagation(); setSelectedId(req.id) }}>
-                      {sentEmail ? 'View' : 'Compose'}
+                      {sentEmail ? t('admin.welcomeRequests.view') : t('admin.welcomeRequests.compose')}
                     </Button>
                   </div>
                 </CardContent>

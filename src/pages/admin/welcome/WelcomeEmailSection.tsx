@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AtSign, CheckCircle, Send, Loader2 } from 'lucide-react'
 import { useOnboardingRecipients, useCreateRecipient, useUpdateRecipient } from '@/hooks/use-onboarding'
 import { useUIStore } from '@/stores/ui-store'
@@ -41,6 +42,7 @@ const formatDate = (d: any) =>
  * upsert, then renders the composer.
  */
 export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
+  const { t } = useTranslation()
   const { data: recipients = [] } = useOnboardingRecipients()
   const createRecipient = useCreateRecipient()
   const updateRecipient = useUpdateRecipient()
@@ -58,7 +60,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
         <CardContent className="p-4 flex items-center gap-3">
           <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
           <span className="text-sm text-muted-foreground flex-1">
-            Welcome email was sent on <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
+            {t('admin.welcomeEmailSection.sentOnPrefix')} <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
           </span>
         </CardContent>
       </Card>
@@ -71,7 +73,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
         <Card variant="elevated">
           <CardContent className="p-6 flex items-center gap-3 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Loading composer…</span>
+            <span className="text-sm">{t('admin.welcomeEmailSection.loadingComposer')}</span>
           </CardContent>
         </Card>
       }>
@@ -88,7 +90,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   const handleStartCompose = async () => {
     const trimmed = personalEmail.trim().toLowerCase()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      showToast('Please enter a valid personal email', 'error')
+      showToast(t('admin.welcomeEmailSection.invalidEmailToast'), 'error')
       return
     }
     setPreparing(true)
@@ -125,15 +127,15 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
             <AtSign className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-sm">Send the welcome email</h4>
+            <h4 className="font-semibold text-sm">{t('admin.welcomeEmailSection.title')}</h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Enter the personal email collected from HR (PERSONAL INFORMATION form). The welcome will go there.
+              {t('admin.welcomeEmailSection.description')}
             </p>
           </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor={`personal-email-${req.id}`} className="text-xs">
-            Personal email <span className="text-red-500">*</span>
+            {t('admin.welcomeEmailSection.personalEmailLabel')} <span className="text-red-500">*</span>
           </Label>
           <Input
             id={`personal-email-${req.id}`}
@@ -150,7 +152,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
           className="w-full gap-2"
         >
           <Send className="h-4 w-4" />
-          {preparing ? 'Preparing...' : 'Open composer'}
+          {preparing ? t('admin.welcomeEmailSection.preparing') : t('admin.welcomeEmailSection.openComposer')}
         </Button>
       </CardContent>
     </Card>

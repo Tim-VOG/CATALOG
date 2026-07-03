@@ -36,30 +36,42 @@ const STATUS_COLORS = {
 const displayStatus = (status: any, sentEmail: any) =>
   status === 'ready' && !sentEmail ? 'welcome' : status
 
+// Maps a raw status value to the camelCase suffix used for admin.onboardingRequests.status.* keys
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  pending: 'pending',
+  in_progress: 'inProgress',
+  ready: 'ready',
+  welcome: 'welcome',
+}
+
 // ── Info card (full request details, no expand) ──
 function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
+  const { t } = useTranslation()
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const corporateEmail = data.email_local && data.email_domain
     ? `${data.email_local}@${data.email_domain}`
     : data.email_to_create || '—'
 
+  const status = displayStatus(req.status, sentEmail)
+  const statusLabel = t(`admin.onboardingRequests.status.${STATUS_LABEL_KEYS[status] || status}`, { defaultValue: status })
+
   const fields = [
-    ['First Name', data.first_name],
-    ['Last Name', data.last_name],
-    ['Corporate Email', corporateEmail],
-    ['Profile', data.profile],
-    ['Company', data.company],
-    ['Job Title', data.job_title],
-    ['First Day', formatDate(data.first_day)],
-    ['Business Unit', data.business_unit],
-    ['Signing Off As', data.signing_off_as],
-    ['Phone', data.phone],
-    ['Country Based', data.country_based],
-    ['Language', data.language],
-    ['Requested By', req.requester_name],
-    ['Requester Email', req.requester_email],
-    ['Submitted', new Date(req.created_at).toLocaleString('fr-FR')],
+    [t('admin.onboardingRequests.fieldFirstName'), data.first_name],
+    [t('admin.onboardingRequests.fieldLastName'), data.last_name],
+    [t('admin.onboardingRequests.fieldCorporateEmail'), corporateEmail],
+    [t('admin.onboardingRequests.fieldProfile'), data.profile],
+    [t('admin.onboardingRequests.fieldCompany'), data.company],
+    [t('admin.onboardingRequests.fieldJobTitle'), data.job_title],
+    [t('admin.onboardingRequests.fieldFirstDay'), formatDate(data.first_day)],
+    [t('admin.onboardingRequests.fieldBusinessUnit'), data.business_unit],
+    [t('admin.onboardingRequests.fieldSigningOffAs'), data.signing_off_as],
+    [t('admin.onboardingRequests.fieldPhone'), data.phone],
+    [t('admin.onboardingRequests.fieldCountryBased'), data.country_based],
+    [t('admin.onboardingRequests.fieldLanguage'), data.language],
+    [t('admin.onboardingRequests.fieldRequestedBy'), req.requester_name],
+    [t('admin.onboardingRequests.fieldRequesterEmail'), req.requester_email],
+    [t('admin.onboardingRequests.fieldSubmitted'), new Date(req.created_at).toLocaleString('fr-FR')],
   ]
 
   return (
@@ -77,12 +89,12 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={cn('text-xs', (STATUS_COLORS as Record<string, any>)[displayStatus(req.status, sentEmail)])}>
-                {displayStatus(req.status, sentEmail)}
+              <Badge variant="outline" className={cn('text-xs', (STATUS_COLORS as Record<string, any>)[status])}>
+                {statusLabel}
               </Badge>
               {sentEmail && (
                 <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
-                  <Mail className="h-3 w-3" /> Welcome sent
+                  <Mail className="h-3 w-3" /> {t('admin.onboardingRequests.welcomeSent')}
                 </Badge>
               )}
             </div>
@@ -103,6 +115,7 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
 
 // ── Inline detail view ──
 function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: any) {
+  const { t } = useTranslation()
   const { user, isAdmin } = useAuth()
   const isOwnRequest = !!user && (req.requester_id === user!.id || req.requested_by === user!.id)
   const canDelete = isAdmin || isOwnRequest
@@ -117,12 +130,12 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
     try {
       const out = await reserveOnboardingKit(req)
       const productNames = out.reserved.map((r: any) => r.product_name).join(', ')
-      showToast(`Kit reserved: ${productNames}`, 'success')
+      showToast(t('admin.onboardingRequests.kitReserved', { products: productNames }), 'success')
       if (out.missing.length) {
-        showToast(`Missing in catalog: ${out.missing.map((m: any) => m.tag).join(', ')}`, 'info')
+        showToast(t('admin.onboardingRequests.missingInCatalog', { items: out.missing.map((m: any) => m.tag).join(', ') }), 'info')
       }
     } catch (err: any) {
-      showToast(err?.message || 'Could not reserve the kit', 'error')
+      showToast(err?.message || t('admin.onboardingRequests.reserveKitError'), 'error')
     } finally {
       setReserving(false)
     }
@@ -132,15 +145,15 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
     <div className="space-y-5">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5 text-xs">
-          <ArrowLeft className="h-3.5 w-3.5" /> Back
+          <ArrowLeft className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.back')}
         </Button>
         <div className="flex-1">
           <h2 className="text-lg font-display font-bold">{fullName}</h2>
-          <p className="text-xs text-muted-foreground">Onboarding Request Details</p>
+          <p className="text-xs text-muted-foreground">{t('admin.onboardingRequests.requestDetailsLabel')}</p>
         </div>
         {canDelete && (
           <Button variant="ghost" size="sm" onClick={() => onDelete(req)} className="text-destructive hover:text-destructive text-xs gap-1.5">
-            <Trash2 className="h-3.5 w-3.5" /> {isAdmin ? 'Delete' : 'Cancel'}
+            <Trash2 className="h-3.5 w-3.5" /> {isAdmin ? t('admin.onboardingRequests.deleteButton') : t('admin.onboardingRequests.cancelButton')}
           </Button>
         )}
       </div>
@@ -152,10 +165,10 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
           <CardContent className="p-4 flex items-center gap-3">
             <Package className="h-4 w-4 text-primary shrink-0" />
             <span className="text-sm text-muted-foreground flex-1">
-              Reserve the starter kit (laptop + charger). Phone stays manual.
+              {t('admin.onboardingRequests.reserveKitDescription')}
             </span>
             <Button variant="outline" size="sm" onClick={handleReserveKit} disabled={reserving} className="gap-1.5 text-xs">
-              <Package className="h-3.5 w-3.5" /> {reserving ? 'Reserving…' : 'Reserve kit'}
+              <Package className="h-3.5 w-3.5" /> {reserving ? t('admin.onboardingRequests.reserving') : t('admin.onboardingRequests.reserveKit')}
             </Button>
           </CardContent>
         </Card>
@@ -165,14 +178,14 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
         <Card variant="elevated">
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-amber-500 shrink-0" />
-            <span className="text-sm text-muted-foreground flex-1">This request is pending review.</span>
+            <span className="text-sm text-muted-foreground flex-1">{t('admin.onboardingRequests.pendingReviewNotice')}</span>
             {canChangeStatus && (
               <>
                 <Button variant="outline" size="sm" onClick={() => onStatusChange(req, 'in_progress')} className="gap-1.5 text-xs">
-                  <Clock className="h-3.5 w-3.5" /> Start Processing
+                  <Clock className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.startProcessing')}
                 </Button>
                 <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
-                  <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+                  <CheckCircle className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.markReady')}
                 </Button>
               </>
             )}
@@ -185,10 +198,10 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
           <CardContent className="p-4 flex items-center gap-3">
             <Info className="h-4 w-4 text-blue-500 shrink-0" />
             <span className="text-sm text-muted-foreground flex-1">
-              Once everything is set up, mark the request as ready. You'll then be able to send the welcome email below.
+              {t('admin.onboardingRequests.inProgressNotice')}
             </span>
             <Button size="sm" onClick={() => onStatusChange(req, 'ready')} className="gap-1.5 text-xs bg-emerald-500 hover:bg-emerald-600">
-              <CheckCircle className="h-3.5 w-3.5" /> Mark Ready
+              <CheckCircle className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.markReady')}
             </Button>
           </CardContent>
         </Card>
@@ -202,6 +215,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
 }
 
 export function OnboardingRequestsPage() {
+  const { t } = useTranslation()
   const { data: allRequests = [], isLoading } = useItRequests()
   const { data: emails = [] } = useOnboardingEmails()
   const updateRequest = useUpdateItRequest()
@@ -256,8 +270,9 @@ export function OnboardingRequestsPage() {
   const handleStatusChange = async (req: any, newStatus: any) => {
     try {
       await updateRequest.mutateAsync({ id: req.id, updates: { status: newStatus } })
-      const label = newStatus === 'ready' ? 'welcome' : newStatus.replace('_', ' ')
-      showToast(`Request marked as ${label}`)
+      const labelKey = newStatus === 'ready' ? 'welcome' : (STATUS_LABEL_KEYS[newStatus] || newStatus)
+      const label = t(`admin.onboardingRequests.status.${labelKey}`, { defaultValue: labelKey })
+      showToast(t('admin.onboardingRequests.requestMarkedAs', { status: label }))
       // For onboarding, the 'ready' step doesn't auto-notify the requester:
       // the welcome email composed afterwards IS the user-facing notification.
       // Only the in_progress transition triggers an auto status email.
@@ -273,7 +288,7 @@ export function OnboardingRequestsPage() {
     if (!deleteConfirm) return
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
-      showToast('Request deleted')
+      showToast(t('admin.onboardingRequests.requestDeleted'))
       if (selectedId === deleteConfirm.id) setSelectedId(null)
     } catch (err: any) {
       showToast(err.message, 'error')
@@ -286,7 +301,7 @@ export function OnboardingRequestsPage() {
   if (selectedRequest) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader title="Onboarding" description="Onboarding request details" />
+        <AdminPageHeader title={t('admin.onboardingRequests.pageTitle')} description={t('admin.onboardingRequests.detailDescription')} />
         <RequestDetail
           req={selectedRequest}
           sentEmail={sentByRequestId[selectedRequest.id]}
@@ -296,11 +311,11 @@ export function OnboardingRequestsPage() {
         />
         <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
           <DialogContent className="p-6">
-            <DialogHeader><DialogTitle>Delete Request?</DialogTitle></DialogHeader>
-            <p className="text-sm text-muted-foreground">This will permanently delete this onboarding request.</p>
+            <DialogHeader><DialogTitle>{t('admin.onboardingRequests.deleteDialogTitle')}</DialogTitle></DialogHeader>
+            <p className="text-sm text-muted-foreground">{t('admin.onboardingRequests.deleteDialogBody')}</p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.onboardingRequests.cancelButton')}</Button>
+              <Button variant="destructive" onClick={handleDelete}>{t('admin.onboardingRequests.deleteButton')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -311,17 +326,17 @@ export function OnboardingRequestsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Onboarding"
-        description={`${requests.length} request${requests.length !== 1 ? 's' : ''}`}
+        title={t('admin.onboardingRequests.pageTitle')}
+        description={t('admin.onboardingRequests.requestCount', { count: requests.length })}
       />
 
       <div className="flex flex-wrap items-center gap-2">
         {[
-          { value: 'all', label: 'All' },
-          { value: 'pending', label: 'Pending', count: pendingCount },
-          { value: 'in_progress', label: 'In Progress' },
-          { value: 'ready', label: 'Ready' },
-          { value: 'welcome', label: 'Welcome', count: welcomeCount, accent: true },
+          { value: 'all', label: t('admin.onboardingRequests.filterAll') },
+          { value: 'pending', label: t('admin.onboardingRequests.status.pending'), count: pendingCount },
+          { value: 'in_progress', label: t('admin.onboardingRequests.status.inProgress') },
+          { value: 'ready', label: t('admin.onboardingRequests.status.ready') },
+          { value: 'welcome', label: t('admin.onboardingRequests.status.welcome'), count: welcomeCount, accent: true },
         ].map((s: any) => (
           <Button
             key={s.value}
@@ -350,17 +365,17 @@ export function OnboardingRequestsPage() {
         <div className="flex-1" />
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search..." className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
+          <Input placeholder={t('admin.onboardingRequests.searchPlaceholder')} className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={statusFilter === 'welcome' ? Mail : UserPlus}
-          title={statusFilter === 'welcome' ? 'No welcome emails to send' : 'No onboarding requests'}
+          title={statusFilter === 'welcome' ? t('admin.onboardingRequests.emptyWelcomeTitle') : t('admin.onboardingRequests.emptyRequestsTitle')}
           description={statusFilter === 'welcome'
-            ? 'Onboarding requests marked as ready will appear here once their welcome email is pending.'
-            : 'No requests match the current filter'}
+            ? t('admin.onboardingRequests.emptyWelcomeDescription')
+            : t('admin.onboardingRequests.emptyFilterDescription')}
         />
       ) : (
         <div className="space-y-3">
@@ -390,25 +405,25 @@ export function OnboardingRequestsPage() {
                         {company && <Badge variant="secondary" className="text-[10px]">{company}</Badge>}
                         {sentEmail && (
                           <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 gap-1">
-                            <Check className="h-2.5 w-2.5" /> Welcome sent
+                            <Check className="h-2.5 w-2.5" /> {t('admin.onboardingRequests.welcomeSent')}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                        {submitter && <span>By {submitter}</span>}
-                        {firstDay && <span>Starts {formatDate(firstDay)}</span>}
+                        {submitter && <span>{t('admin.onboardingRequests.byLabel', { name: submitter })}</span>}
+                        {firstDay && <span>{t('admin.onboardingRequests.startsLabel', { date: formatDate(firstDay) })}</span>}
                         <span>{formatDate(req.created_at)}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0" onClick={(e: any) => e.stopPropagation()}>
                       {req.status === 'pending' && (
                         <Button size="sm" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'in_progress')}>
-                          <Package className="h-3 w-3" /> Start
+                          <Package className="h-3 w-3" /> {t('admin.onboardingRequests.startButton')}
                         </Button>
                       )}
                       {req.status === 'in_progress' && (
                         <Button size="sm" variant="success" className="gap-1.5 text-xs h-8" onClick={() => handleStatusChange(req, 'ready')}>
-                          <Check className="h-3 w-3" /> Ready
+                          <Check className="h-3 w-3" /> {t('admin.onboardingRequests.readyButton')}
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" onClick={() => setSelectedId(req.id)} className="gap-1 text-xs">
@@ -428,11 +443,11 @@ export function OnboardingRequestsPage() {
 
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="p-6">
-          <DialogHeader><DialogTitle>Delete Request?</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">This will permanently delete this onboarding request.</p>
+          <DialogHeader><DialogTitle>{t('admin.onboardingRequests.deleteDialogTitle')}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">{t('admin.onboardingRequests.deleteDialogBody')}</p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.onboardingRequests.cancelButton')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.onboardingRequests.deleteButton')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

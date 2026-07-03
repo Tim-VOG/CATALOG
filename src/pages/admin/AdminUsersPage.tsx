@@ -556,10 +556,8 @@ export function AdminUsersPage() {
             <Trans
               i18nKey="admin.users.confirmRoleChangeBody"
               values={{ name: confirmDialog?.userName, role: getRoleLabel(confirmDialog?.newRole || '') }}
-            >
-              Change <strong>{{ name: confirmDialog?.userName }}</strong>&apos;s role to
-              <strong className="capitalize">{{ role: getRoleLabel(confirmDialog?.newRole || '') }}</strong>?
-            </Trans>
+              components={{ name: <strong />, role: <strong className="capitalize" /> }}
+            />
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDialog(null)}>{t('admin.users.cancel')}</Button>
@@ -578,10 +576,11 @@ export function AdminUsersPage() {
             <DialogTitle>{t('admin.users.deleteUserTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            <Trans i18nKey="admin.users.deleteUserBody" values={{ name: deleteDialog?.userName }}>
-              Are you sure you want to delete <strong>{{ name: deleteDialog?.userName } as any}</strong>?
-              This action cannot be undone.
-            </Trans>
+            <Trans
+              i18nKey="admin.users.deleteUserBody"
+              values={{ name: deleteDialog?.userName }}
+              components={{ name: <strong /> }}
+            />
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialog(null)}>{t('admin.users.cancel')}</Button>

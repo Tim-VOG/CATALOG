@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useOnboardingBlockTemplates, useOnboardingEmailsByRequest, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
 import { useUpdateItRequest } from '@/hooks/use-it-requests'
 import { sendEmail } from '@/lib/api/send-email'
@@ -27,6 +28,7 @@ import { useAppSettings } from '@/hooks/use-settings'
  *   onClose    — callback fired when the user clicks the close (X) button
  */
 export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any) {
+  const { t } = useTranslation()
   const { user, profile } = useAuth()
   const { data: settings } = useAppSettings()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -136,7 +138,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
   const handleSave = async () => {
     if (!recipient?.id) {
-      showToast('Recipient missing', 'error')
+      showToast(t('admin.welcomeComposer.recipientMissing'), 'error')
       return null
     }
     setSaving(true)
@@ -155,12 +157,12 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       }
       if (emailDbId) {
         await updateEmail.mutateAsync({ id: emailDbId, ...payload })
-        showToast('Draft saved')
+        showToast(t('admin.welcomeComposer.draftSaved'))
         return emailDbId
       } else {
         const created = await createEmail.mutateAsync(payload)
         setEmailDbId(created.id)
-        showToast('Draft saved')
+        showToast(t('admin.welcomeComposer.draftSaved'))
         return created.id
       }
     } catch (err: any) {
@@ -189,13 +191,13 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
       if (result?.error) {
         if (savedId) await updateEmail.mutateAsync({ id: savedId, status: 'failed', error_message: result.error, rendered_html: html })
-        showToast(`Send failed: ${result.error}`, 'error')
+        showToast(t('admin.welcomeComposer.sendFailed', { error: result.error }), 'error')
       } else {
         if (savedId) await updateEmail.mutateAsync({ id: savedId, status: 'sent', sent_at: new Date().toISOString(), rendered_html: html })
         if (requestId) {
           try { await updateItRequest.mutateAsync({ id: requestId, updates: { status: 'ready' } }) } catch {}
         }
-        showToast('Email sent successfully!')
+        showToast(t('admin.welcomeComposer.emailSentSuccess'))
         if (onSent) onSent()
       }
     } catch (err: any) {
@@ -210,7 +212,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
     return (
       <Card variant="elevated">
         <CardContent className="p-6 text-sm text-muted-foreground">
-          A recipient is required to compose the welcome email.
+          {t('admin.welcomeComposer.recipientRequired')}
         </CardContent>
       </Card>
     )
@@ -224,11 +226,11 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
           <div className="flex items-center gap-3">
             <Send className="h-4 w-4 text-primary" />
             <div>
-              <h3 className="font-semibold text-sm">Compose Welcome Email</h3>
+              <h3 className="font-semibold text-sm">{t('admin.welcomeComposer.composeTitle')}</h3>
               <p className="text-[11px] text-muted-foreground">
-                To {recipient.first_name} {recipient.last_name} &mdash; {deliveryEmail}
-                {usingPersonal && <span className="ml-1 text-emerald-600">(personal)</span>}
-                {!usingPersonal && <span className="ml-1 text-amber-600">(corporate — add a personal email!)</span>}
+                {t('admin.welcomeComposer.toLabel')} {recipient.first_name} {recipient.last_name} &mdash; {deliveryEmail}
+                {usingPersonal && <span className="ml-1 text-emerald-600">{t('admin.welcomeComposer.personalTag')}</span>}
+                {!usingPersonal && <span className="ml-1 text-amber-600">{t('admin.welcomeComposer.corporateWarning')}</span>}
               </p>
             </div>
           </div>
@@ -241,14 +243,14 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
         {blocksError && (
           <div className="mx-5 mt-3 text-xs text-amber-600 bg-amber-500/5 border border-amber-500/20 rounded-lg px-4 py-2">
-            Block templates loaded from defaults — run the migration &amp; reload schema cache for full DB support.
+            {t('admin.welcomeComposer.blockTemplatesDefaultNotice')}
           </div>
         )}
 
         {/* Language + subject */}
         <div className="p-5 flex flex-wrap items-end gap-4 border-b border-border/50">
           <div className="space-y-1">
-            <Label className="text-xs">Language</Label>
+            <Label className="text-xs">{t('admin.welcomeComposer.languageLabel')}</Label>
             <div className="flex gap-1 bg-muted/40 rounded-full p-1 border">
               <Button
                 variant={language === 'fr' ? 'default' : 'ghost'}
@@ -269,7 +271,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
             </div>
           </div>
           <div className="space-y-1 flex-1 min-w-[260px]">
-            <Label className="text-xs">Subject</Label>
+            <Label className="text-xs">{t('admin.welcomeComposer.subjectLabel')}</Label>
             <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} />
           </div>
         </div>
@@ -278,9 +280,9 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Email Blocks</h4>
+              <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">{t('admin.welcomeComposer.emailBlocksTitle')}</h4>
               <Badge variant="outline" className="text-[10px]">
-                {blocksConfig.filter((b: any) => b.enabled).length}/{blocksConfig.length} enabled
+                {t('admin.welcomeComposer.enabledCount', { enabled: blocksConfig.filter((b: any) => b.enabled).length, total: blocksConfig.length })}
               </Badge>
             </div>
             <BlockEditor
@@ -292,17 +294,17 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Preview</h4>
+              <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">{t('admin.welcomeComposer.previewTitle')}</h4>
               <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => setShowPreview(true)}>
-                <Eye className="h-3 w-3" /> Full screen
+                <Eye className="h-3 w-3" /> {t('admin.welcomeComposer.fullScreen')}
               </Button>
             </div>
             <div className="border rounded-xl overflow-hidden bg-card">
               <iframe
-                srcDoc={previewHtml || '<div style="padding:40px;text-align:center;color:#666;font-family:sans-serif;">Preview will appear here</div>'}
+                srcDoc={previewHtml || `<div style="padding:40px;text-align:center;color:#666;font-family:sans-serif;">${t('admin.welcomeComposer.previewPlaceholder')}</div>`}
                 className="w-full border-0"
                 style={{ minHeight: '500px', height: '60vh' }}
-                title="Email preview"
+                title={t('admin.welcomeComposer.previewIframeTitle')}
                 sandbox=""
               />
             </div>
@@ -313,11 +315,11 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
         <div className="p-4 flex items-center justify-end gap-3 border-t border-border/50 bg-muted/20">
           <Button variant="outline" className="gap-2" onClick={handleSave} disabled={saving}>
             <Save className="h-4 w-4" />
-            {saving ? 'Saving...' : 'Save Draft'}
+            {saving ? t('admin.welcomeComposer.saving') : t('admin.welcomeComposer.saveDraft')}
           </Button>
           <Button className="gap-2" onClick={() => setShowSendDialog(true)} disabled={sending}>
             <Send className="h-4 w-4" />
-            Send Email
+            {t('admin.welcomeComposer.sendEmail')}
           </Button>
         </div>
       </CardContent>
@@ -326,22 +328,22 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       <Dialog open={showSendDialog} onOpenChange={setShowSendDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Send Onboarding Email</DialogTitle>
+            <DialogTitle>{t('admin.welcomeComposer.sendDialogTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Are you sure you want to send this email?</p>
+            <p className="text-sm text-muted-foreground">{t('admin.welcomeComposer.sendConfirmQuestion')}</p>
             <div className="p-3 rounded-lg bg-muted/30 space-y-1 text-sm">
-              <p><strong>To:</strong> {recipient.first_name} {recipient.last_name}</p>
-              <p><strong>Email:</strong> {deliveryEmail} {usingPersonal ? <span className="text-emerald-600 text-xs">(personal)</span> : <span className="text-amber-600 text-xs">(corporate — fallback)</span>}</p>
-              <p><strong>Subject:</strong> {subject}</p>
-              <p><strong>Language:</strong> <Badge variant="secondary" className="text-[10px] uppercase">{language}</Badge></p>
+              <p><strong>{t('admin.welcomeComposer.toFieldLabel')}</strong> {recipient.first_name} {recipient.last_name}</p>
+              <p><strong>{t('admin.welcomeComposer.emailFieldLabel')}</strong> {deliveryEmail} {usingPersonal ? <span className="text-emerald-600 text-xs">{t('admin.welcomeComposer.personalTag')}</span> : <span className="text-amber-600 text-xs">{t('admin.welcomeComposer.corporateFallback')}</span>}</p>
+              <p><strong>{t('admin.welcomeComposer.subjectFieldLabel')}</strong> {subject}</p>
+              <p><strong>{t('admin.welcomeComposer.languageFieldLabel')}</strong> <Badge variant="secondary" className="text-[10px] uppercase">{language}</Badge></p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSendDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowSendDialog(false)}>{t('admin.welcomeComposer.cancel')}</Button>
             <Button onClick={handleSend} disabled={sending} className="gap-2">
               <Send className="h-4 w-4" />
-              {sending ? 'Sending...' : 'Confirm & Send'}
+              {sending ? t('admin.welcomeComposer.sending') : t('admin.welcomeComposer.confirmAndSend')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -350,12 +352,12 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       {/* Full preview */}
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader><DialogTitle>Email Preview</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('admin.welcomeComposer.fullPreviewTitle')}</DialogTitle></DialogHeader>
           <iframe
             srcDoc={previewHtml}
             className="w-full border rounded-lg"
             style={{ height: '70vh' }}
-            title="Full email preview"
+            title={t('admin.welcomeComposer.fullPreviewIframeTitle')}
             sandbox=""
           />
         </DialogContent>
