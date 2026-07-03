@@ -133,14 +133,6 @@ export function AppRoutes() {
             <Route path="all-requests" element={<AdminAllRequestsPage />} />
             <Route path="onboarding" element={<Navigate to="/admin/onboarding/requests" replace />} />
             <Route path="onboarding/requests" element={<OnboardingRequestsPage />} />
-            <Route path="onboarding/compose" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="onboarding/compose/:emailId" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="onboarding/history" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="onboarding/recipients" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="onboarding/variables" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="it-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="onboarding-requests" element={<Navigate to="/admin/onboarding/requests" replace />} />
-            <Route path="welcome" element={<Navigate to="/admin/onboarding/requests" replace />} />
             <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
             <Route path="offboarding" element={<OffboardingPage />} />
             <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
@@ -151,20 +143,16 @@ export function AppRoutes() {
             <Route path="products" element={<AdminOnly><AdminProductsPage /></AdminOnly>} />
             <Route path="subscription-plans" element={<AdminOnly><AdminSubscriptionPlansPage /></AdminOnly>} />
             <Route path="business-units" element={<AdminOnly><AdminBusinessUnitsPage /></AdminOnly>} />
-            <Route path="product-options" element={<Navigate to="/admin/products" replace />} />
             <Route path="categories" element={<AdminOnly><AdminCategoriesPage /></AdminOnly>} />
             <Route path="requests" element={<AdminOnly><AdminRequestsPage /></AdminOnly>} />
             <Route path="extensions" element={<AdminOnly><AdminExtensionsPage /></AdminOnly>} />
             <Route path="requests/:requestId" element={<AdminOnly><AdminRequestDetailPage /></AdminOnly>} />
-            <Route path="new-request" element={<Navigate to="/admin/requests" replace />} />
-            <Route path="returns" element={<Navigate to="/admin/requests" replace />} />
             <Route path="users" element={<AdminOnly><AdminUsersPage /></AdminOnly>} />
             <Route path="users/:userId" element={<AdminOnly><AdminUserDetailPage /></AdminOnly>} />
             <Route path="design" element={<AdminOnly><AdminDesignPage /></AdminOnly>} />
             <Route path="email-templates" element={<AdminOnly><AdminEmailTemplatesPage /></AdminOnly>} />
             <Route path="shared-mailboxes" element={<AdminOnly><AdminSharedMailboxesPage /></AdminOnly>} />
             <Route path="device-credentials" element={<AdminOnly><AdminDeviceCredentialsPage /></AdminOnly>} />
-            <Route path="forms" element={<Navigate to="/admin" replace />} />
             <Route path="it-form-builder" element={<AdminOnly><AdminItFormBuilderPage /></AdminOnly>} />
             <Route path="offboarding-form-builder" element={<AdminOnly><AdminOffboardingFormBuilderPage /></AdminOnly>} />
             <Route path="mailbox-form-builder" element={<AdminOnly><AdminMailboxFormBuilderPage /></AdminOnly>} />
@@ -177,7 +165,6 @@ export function AppRoutes() {
             <Route path="lost-items" element={<AdminOnly><AdminLostItemsPage /></AdminOnly>} />
             <Route path="utilization" element={<AdminOnly><AdminUtilizationPage /></AdminOnly>} />
             <Route path="issues" element={<AdminOnly><AdminIssuesPage /></AdminOnly>} />
-            <Route path="module-access" element={<Navigate to="/admin/users" replace />} />
           </Route>
         </Route>
 

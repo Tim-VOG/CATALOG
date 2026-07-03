@@ -48,7 +48,7 @@ function normalizeAdminEvents(loanRequests: any, itRequests: any, mailboxRequest
       isMultiDay: false,
       original: req,
       linkTo: null,
-      adminLinkTo: '/admin/it-requests',
+      adminLinkTo: '/admin/onboarding/requests',
       subtitle: req.business_unit || req.generated_email || '',
       // Admin user info
       userId: req.requested_by,
