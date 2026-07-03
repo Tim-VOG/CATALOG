@@ -557,7 +557,7 @@ export function AdminUsersPage() {
               i18nKey="admin.users.confirmRoleChangeBody"
               values={{ name: confirmDialog?.userName, role: getRoleLabel(confirmDialog?.newRole || '') }}
             >
-              Change <strong>{{ name: confirmDialog?.userName }}</strong>&apos;s role to{' '}
+              Change <strong>{{ name: confirmDialog?.userName }}</strong>&apos;s role to
               <strong className="capitalize">{{ role: getRoleLabel(confirmDialog?.newRole || '') }}</strong>?
             </Trans>
           </p>

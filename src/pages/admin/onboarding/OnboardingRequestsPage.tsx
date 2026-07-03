@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
 import { sendStatusChangeEmail } from '@/services/request-status-service'
