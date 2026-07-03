@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQRCodes, useUpdateQRCode } from '@/hooks/use-qr-codes'
 import { useProducts } from '@/hooks/use-products'
 import { useScanLogs } from '@/hooks/use-qr-codes'
@@ -32,6 +33,15 @@ const STATUS_CONFIG = {
 
 const ALL_STATUSES = ['available', 'assigned', 'reserved', 'in_repair', 'lost']
 
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  available: 'statusAvailable',
+  assigned: 'statusAssigned',
+  reserved: 'statusReserved',
+  in_repair: 'statusInRepair',
+  lost: 'statusLost',
+  maintenance: 'statusMaintenance',
+}
+
 function StatCard({ label, value, icon: Icon, color, active, onClick  }: any) {
   return (
     <button onClick={onClick} className={cn(
@@ -50,6 +60,7 @@ function StatCard({ label, value, icon: Icon, color, active, onClick  }: any) {
 }
 
 export function AdminLocalITPage() {
+  const { t } = useTranslation()
   const { data: allQR = [], isLoading } = useQRCodes({})
   const { data: products = [] } = useProducts()
   const { data: recentLogs = [] } = useScanLogs({ limit: 50 })
@@ -106,6 +117,12 @@ export function AdminLocalITPage() {
     return recentLogs.filter((l: any) => l.qr_code === detailQR.code).slice(0, 10)
   }, [detailQR, recentLogs])
 
+  const statusLabel = (st: string) => {
+    const config = (STATUS_CONFIG as Record<string, any>)[st] || STATUS_CONFIG.available
+    const suffix = STATUS_LABEL_KEYS[st] || STATUS_LABEL_KEYS.available
+    return t(`admin.localIt.${suffix}`, { defaultValue: config.label })
+  }
+
   const handleStatusChange = async () => {
     if (!statusChangeQR || !newStatus) return
     try {
@@ -117,7 +134,7 @@ export function AdminLocalITPage() {
         updates.assigned_at = null
       }
       await updateQR.mutateAsync({ id: statusChangeQR.id, ...updates })
-      showToast(`Status updated to ${newStatus.replace('_', ' ')}`)
+      showToast(t('admin.localIt.statusUpdatedToast', { status: statusLabel(newStatus) }))
       setStatusChangeQR(null)
     } catch (err: any) {
       showToast(err.message, 'error')
@@ -128,29 +145,29 @@ export function AdminLocalITPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Local IT" description={`${stats.total} devices tracked`}>
+      <AdminPageHeader title={t('admin.localIt.title')} description={t('admin.localIt.devicesTracked', { count: stats.total })}>
         <Button variant="outline" size="sm" className="gap-2" onClick={() => exportToCSV(filtered.map((qr: any) => ({
           Code: qr.code, Product: qr.product_name, Category: qr.category_name, Status: qr.status || 'available',
           'Assigned To': qr.assigned_to_name || '', 'Assigned Email': qr.assigned_to_email || '',
           'Since': qr.assigned_at ? format(new Date(qr.assigned_at), 'dd/MM/yyyy') : '',
         })), 'local-it-inventory')}>
-          <Download className="h-3.5 w-3.5" /> Export
+          <Download className="h-3.5 w-3.5" /> {t('admin.localIt.export')}
         </Button>
       </AdminPageHeader>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatCard label="Total" value={stats.total} icon={Monitor} color="bg-muted text-foreground"
+        <StatCard label={t('admin.localIt.statTotal')} value={stats.total} icon={Monitor} color="bg-muted text-foreground"
           active={statusFilter === 'all'} onClick={() => setStatusFilter('all')} />
-        <StatCard label="Available" value={stats.available} icon={CheckCircle} color="bg-emerald-500/10 text-emerald-500"
+        <StatCard label={t('admin.localIt.statAvailable')} value={stats.available} icon={CheckCircle} color="bg-emerald-500/10 text-emerald-500"
           active={statusFilter === 'available'} onClick={() => setStatusFilter('available')} />
-        <StatCard label="Assigned" value={stats.assigned} icon={User} color="bg-blue-500/10 text-blue-500"
+        <StatCard label={t('admin.localIt.statAssigned')} value={stats.assigned} icon={User} color="bg-blue-500/10 text-blue-500"
           active={statusFilter === 'assigned'} onClick={() => setStatusFilter('assigned')} />
-        <StatCard label="Reserved" value={stats.reserved} icon={Clock} color="bg-amber-500/10 text-amber-500"
+        <StatCard label={t('admin.localIt.statReserved')} value={stats.reserved} icon={Clock} color="bg-amber-500/10 text-amber-500"
           active={statusFilter === 'reserved'} onClick={() => setStatusFilter('reserved')} />
-        <StatCard label="In Repair" value={stats.in_repair} icon={Wrench} color="bg-orange-500/10 text-orange-500"
+        <StatCard label={t('admin.localIt.statInRepair')} value={stats.in_repair} icon={Wrench} color="bg-orange-500/10 text-orange-500"
           active={statusFilter === 'in_repair'} onClick={() => setStatusFilter('in_repair')} />
-        <StatCard label="Lost" value={stats.lost} icon={AlertTriangle} color="bg-rose-500/10 text-rose-500"
+        <StatCard label={t('admin.localIt.statLost')} value={stats.lost} icon={AlertTriangle} color="bg-rose-500/10 text-rose-500"
           active={statusFilter === 'lost'} onClick={() => setStatusFilter('lost')} />
       </div>
 
@@ -158,25 +175,25 @@ export function AdminLocalITPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by code, product, or person..." className="pl-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
+          <Input placeholder={t('admin.localIt.searchPlaceholder')} className="pl-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
         <div className="flex items-center gap-2">
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
           <Select value={categoryFilter} onChange={(e: any) => setCategoryFilter(e.target.value)} className="w-40 text-sm">
-            <option value="all">All categories</option>
+            <option value="all">{t('admin.localIt.allCategories')}</option>
             {categories.map(([cat, count]) => (
               <option key={cat} value={cat}>{cat} ({count})</option>
             ))}
           </Select>
         </div>
-        <span className="text-xs text-muted-foreground">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
+        <span className="text-xs text-muted-foreground">{t('admin.localIt.resultsCount', { count: filtered.length })}</span>
       </div>
 
       {/* Equipment table */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <QrCode className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-muted-foreground">No devices match your search</p>
+          <p className="text-muted-foreground">{t('admin.localIt.noDevicesMatch')}</p>
         </div>
       ) : (
         <Card>
@@ -184,13 +201,13 @@ export function AdminLocalITPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border/50 text-left">
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Device</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Code</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Category</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Status</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Assigned To</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground">Since</th>
-                  <th className="px-4 py-3 font-semibold text-muted-foreground w-20">Actions</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground">{t('admin.localIt.colDevice')}</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground">{t('admin.localIt.colCode')}</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground">{t('admin.localIt.colCategory')}</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground">{t('admin.localIt.colStatus')}</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground">{t('admin.localIt.colAssignedTo')}</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground">{t('admin.localIt.colSince')}</th>
+                  <th className="px-4 py-3 font-semibold text-muted-foreground w-20">{t('admin.localIt.colActions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +227,7 @@ export function AdminLocalITPage() {
                             </div>
                           )}
                           <div>
-                            <p className="font-medium text-sm">{qr.product_name || qr.label || 'Unknown'}</p>
+                            <p className="font-medium text-sm">{qr.product_name || qr.label || t('admin.localIt.unknownDevice')}</p>
                             {qr.product_sub_type && <p className="text-[10px] text-muted-foreground">{qr.product_sub_type}</p>}
                           </div>
                         </div>
@@ -225,7 +242,7 @@ export function AdminLocalITPage() {
                         <button onClick={() => { setStatusChangeQR(qr); setNewStatus(st) }}
                           className="cursor-pointer">
                           <Badge variant="outline" className={cn('text-[10px] gap-1', config.bg, config.color)}>
-                            <StatusIcon className="h-3 w-3" /> {config.label}
+                            <StatusIcon className="h-3 w-3" /> {statusLabel(st)}
                           </Badge>
                         </button>
                       </td>

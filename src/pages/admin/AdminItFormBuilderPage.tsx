@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useItFormFields,
   useCreateItFormField,
@@ -30,29 +31,30 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
+// Note: `label` below holds the i18n key suffix (admin.itFormBuilder.<label>), not display text.
 const FIELD_TYPES = [
-  { value: 'text', label: 'Text' },
-  { value: 'textarea', label: 'Text Area' },
-  { value: 'select', label: 'Select (Single)' },
-  { value: 'multi_select', label: 'Multi Select' },
-  { value: 'date', label: 'Date' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'toggle', label: 'Toggle' },
+  { value: 'text', label: 'fieldTypeText' },
+  { value: 'textarea', label: 'fieldTypeTextarea' },
+  { value: 'select', label: 'fieldTypeSelect' },
+  { value: 'multi_select', label: 'fieldTypeMultiSelect' },
+  { value: 'date', label: 'fieldTypeDate' },
+  { value: 'checkbox', label: 'fieldTypeCheckbox' },
+  { value: 'toggle', label: 'fieldTypeToggle' },
 ]
 
 const STEPS = [
-  { value: 'identity', label: 'Identity' },
-  { value: 'dates', label: 'Dates' },
-  { value: 'it-needs', label: 'IT Needs' },
-  { value: 'additional', label: 'Additional' },
+  { value: 'identity', label: 'stepIdentity' },
+  { value: 'dates', label: 'stepDates' },
+  { value: 'it-needs', label: 'stepItNeeds' },
+  { value: 'additional', label: 'stepAdditional' },
 ]
 
 const OPERATORS = [
-  { value: 'equals', label: 'Equals' },
-  { value: 'not_equals', label: 'Not equals' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'is_true', label: 'Is true' },
-  { value: 'is_false', label: 'Is false' },
+  { value: 'equals', label: 'operatorEquals' },
+  { value: 'not_equals', label: 'operatorNotEquals' },
+  { value: 'contains', label: 'operatorContains' },
+  { value: 'is_true', label: 'operatorIsTrue' },
+  { value: 'is_false', label: 'operatorIsFalse' },
 ]
 
 const TYPE_COLORS = {
@@ -97,6 +99,7 @@ const EMPTY_FIELD = {
 
 // ── Sortable row component ──
 function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  }: any) {
+  const { t } = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
 
   const style = {
@@ -107,6 +110,16 @@ function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  
 
   const hasCondition = !!field.condition_field
   const conditionField = hasCondition ? allFields.find((f: any) => f.field_key === field.condition_field) : null
+
+  const fieldTypeInfo = FIELD_TYPES.find((x: any) => x.value === field.field_type)
+  const fieldTypeLabel = fieldTypeInfo
+    ? t(`admin.itFormBuilder.${fieldTypeInfo.label}`, { defaultValue: field.field_type })
+    : field.field_type
+
+  const stepInfo = STEPS.find((s: any) => s.value === field.step)
+  const stepLabel = stepInfo
+    ? t(`admin.itFormBuilder.${stepInfo.label}`, { defaultValue: field.step })
+    : field.step
 
   return (
     <div ref={setNodeRef} style={style} className={cn('group', isDragging && 'opacity-50')}>
@@ -134,14 +147,14 @@ function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  
                   <Lock className="h-3 w-3 text-muted-foreground/50" />
                 )}
                 <Badge variant="outline" className={cn('text-[10px]', (TYPE_COLORS as Record<string, any>)[field.field_type] || '')}>
-                  {field.field_type.replace('_', ' ')}
+                  {fieldTypeLabel}
                 </Badge>
                 <Badge variant="outline" className={cn('text-[10px]', (STEP_COLORS as Record<string, any>)[field.step] || '')}>
-                  {STEPS.find((s: any) => s.value === field.step)?.label || field.step}
+                  {stepLabel}
                 </Badge>
                 {field.is_required && (
                   <Badge variant="outline" className="text-[10px] bg-destructive/15 text-destructive border-destructive/30">
-                    Required
+                    {t('admin.itFormBuilder.required')}
                   </Badge>
                 )}
                 {hasCondition && (
@@ -181,6 +194,7 @@ function SortableFieldRow({ field, allFields, onEdit, onDelete, onToggleActive  
 }
 
 export function AdminItFormBuilderPage() {
+  const { t } = useTranslation()
   const { data: fields = [], isLoading } = useItFormFields()
   const createField = useCreateItFormField()
   const updateField = useUpdateItFormField()
@@ -220,7 +234,7 @@ export function AdminItFormBuilderPage() {
         reordered.map((f: any, i: any) => ({ id: f.id, sort_order: (i + 1) * 10 }))
       )
     } catch (err: any) {
-      showToast(err.message || 'Reorder failed', 'error')
+      showToast(err.message || t('admin.itFormBuilder.reorderFailed'), 'error')
     }
   }
 
@@ -280,7 +294,7 @@ export function AdminItFormBuilderPage() {
     try {
       if (_isNew) {
         await createField.mutateAsync(payload)
-        showToast('Field created')
+        showToast(t('admin.itFormBuilder.fieldCreated'))
       } else {
         // System fields: restrict what can be edited
         const updates = editDialog.is_system
@@ -296,11 +310,11 @@ export function AdminItFormBuilderPage() {
             }
           : payload
         await updateField.mutateAsync({ id, updates })
-        showToast('Field updated')
+        showToast(t('admin.itFormBuilder.fieldUpdated'))
       }
       setEditDialog(null)
     } catch (err: any) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || t('admin.itFormBuilder.saveFailed'), 'error')
     }
   }
 
@@ -309,7 +323,7 @@ export function AdminItFormBuilderPage() {
     try {
       await updateField.mutateAsync({ id: field.id, updates: { is_active: !field.is_active } })
     } catch (err: any) {
-      showToast(err.message || 'Toggle failed', 'error')
+      showToast(err.message || t('admin.itFormBuilder.toggleFailed'), 'error')
     }
   }
 
@@ -318,9 +332,9 @@ export function AdminItFormBuilderPage() {
     if (!deleteConfirm) return
     try {
       await deleteField.mutateAsync(deleteConfirm.id)
-      showToast('Field deleted')
+      showToast(t('admin.itFormBuilder.fieldDeleted'))
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.itFormBuilder.deleteFailed'), 'error')
     }
     setDeleteConfirm(null)
   }
@@ -330,10 +344,13 @@ export function AdminItFormBuilderPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="IT Form Builder" description={`${fields.length} field${fields.length !== 1 ? 's' : ''} · Drag to reorder · Add conditional logic`}>
+      <AdminPageHeader
+        title={t('admin.itFormBuilder.title')}
+        description={t('admin.itFormBuilder.formBuilderSummary', { count: fields.length })}
+      >
         <Button onClick={handleAdd} className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Field
+          {t('admin.itFormBuilder.addField')}
         </Button>
       </AdminPageHeader>
 
@@ -355,7 +372,7 @@ export function AdminItFormBuilderPage() {
               <div key={step.value} className="space-y-2">
                 <h3 className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest flex items-center gap-2">
                   <ChevronRight className="h-3 w-3" />
-                  {step.label}
+                  {t(`admin.itFormBuilder.${step.label}`, { defaultValue: step.value })}
                   <span className="text-[10px] font-normal">({stepFields.length})</span>
                 </h3>
                 <div className="space-y-1.5">
@@ -379,10 +396,10 @@ export function AdminItFormBuilderPage() {
       {fields.length === 0 && (
         <div className="text-center py-16">
           <Settings className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No form fields yet</p>
+          <p className="text-muted-foreground">{t('admin.itFormBuilder.noFieldsYet')}</p>
           <Button variant="outline" className="mt-4 gap-2" onClick={handleAdd}>
             <Plus className="h-4 w-4" />
-            Add your first field
+            {t('admin.itFormBuilder.addFirstField')}
           </Button>
         </div>
       )}
@@ -392,11 +409,11 @@ export function AdminItFormBuilderPage() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editDialog?._isNew ? 'Add Field' : 'Edit Field'}
+              {editDialog?._isNew ? t('admin.itFormBuilder.addField') : t('admin.itFormBuilder.editField')}
               {editDialog?.is_system && (
                 <Badge variant="outline" className="ml-2 text-[10px]">
                   <Lock className="h-2.5 w-2.5 mr-1" />
-                  System
+                  {t('admin.itFormBuilder.system')}
                 </Badge>
               )}
             </DialogTitle>
@@ -406,7 +423,7 @@ export function AdminItFormBuilderPage() {
             <div className="space-y-4">
               {/* Label */}
               <div className="space-y-1.5">
-                <Label>Label *</Label>
+                <Label>{t('admin.itFormBuilder.fieldLabel')} *</Label>
                 <Input
                   value={editDialog.label}
                   onChange={(e: any) => {
@@ -417,48 +434,48 @@ export function AdminItFormBuilderPage() {
                       ...(prev._isNew ? { field_key: generateFieldKey(label) } : {}),
                     }))
                   }}
-                  placeholder="Field label"
+                  placeholder={t('admin.itFormBuilder.fieldLabelPlaceholder')}
                 />
               </div>
 
               {/* Field key */}
               <div className="space-y-1.5">
-                <Label>Field Key</Label>
+                <Label>{t('admin.itFormBuilder.fieldKey')}</Label>
                 <Input
                   value={editDialog.field_key}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_key: e.target.value }))}
-                  placeholder="field_key"
+                  placeholder={t('admin.itFormBuilder.fieldKeyPlaceholder')}
                   disabled={editDialog.is_system || !editDialog._isNew}
                   className="font-mono text-sm"
                 />
                 {editDialog.is_system && (
-                  <p className="text-[10px] text-muted-foreground">System field keys cannot be changed</p>
+                  <p className="text-[10px] text-muted-foreground">{t('admin.itFormBuilder.systemFieldKeyLocked')}</p>
                 )}
               </div>
 
               {/* Type + Step row */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Type</Label>
+                  <Label>{t('admin.itFormBuilder.type')}</Label>
                   <Select
                     value={editDialog.field_type}
                     onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, field_type: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
-                    {FIELD_TYPES.map((t: any) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
+                    {FIELD_TYPES.map((ft: any) => (
+                      <option key={ft.value} value={ft.value}>{t(`admin.itFormBuilder.${ft.label}`, { defaultValue: ft.value })}</option>
                     ))}
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Step</Label>
+                  <Label>{t('admin.itFormBuilder.step')}</Label>
                   <Select
                     value={editDialog.step}
                     onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, step: e.target.value }))}
                     disabled={editDialog.is_system}
                   >
                     {STEPS.map((s: any) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
+                      <option key={s.value} value={s.value}>{t(`admin.itFormBuilder.${s.label}`, { defaultValue: s.value })}</option>
                     ))}
                   </Select>
                 </div>
@@ -466,44 +483,44 @@ export function AdminItFormBuilderPage() {
 
               {/* Placeholder */}
               <div className="space-y-1.5">
-                <Label>Placeholder</Label>
+                <Label>{t('admin.itFormBuilder.placeholderLabel')}</Label>
                 <Input
                   value={editDialog.placeholder}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, placeholder: e.target.value }))}
-                  placeholder="Placeholder text"
+                  placeholder={t('admin.itFormBuilder.placeholderTextPlaceholder')}
                 />
               </div>
 
               {/* Help text */}
               <div className="space-y-1.5">
-                <Label>Help Text</Label>
+                <Label>{t('admin.itFormBuilder.helpText')}</Label>
                 <Input
                   value={editDialog.help_text}
                   onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, help_text: e.target.value }))}
-                  placeholder="Displayed below the field"
+                  placeholder={t('admin.itFormBuilder.helpTextPlaceholder')}
                 />
               </div>
 
               {/* Options (for select/multi_select) */}
               {['select', 'multi_select'].includes(editDialog.field_type) && (
                 <div className="space-y-1.5">
-                  <Label>Options (one per line)</Label>
+                  <Label>{t('admin.itFormBuilder.optionsLabel')}</Label>
                   <Textarea
                     value={optionsText}
                     onChange={(e: any) => setOptionsText(e.target.value)}
-                    placeholder={'Option 1\nOption 2\nOption 3'}
+                    placeholder={t('admin.itFormBuilder.optionsPlaceholder')}
                     rows={4}
                     disabled={editDialog.is_system}
                   />
                   {editDialog.is_system && (
-                    <p className="text-[10px] text-muted-foreground">System field options cannot be changed here</p>
+                    <p className="text-[10px] text-muted-foreground">{t('admin.itFormBuilder.systemFieldOptionsLocked')}</p>
                   )}
                 </div>
               )}
 
               {/* Required toggle */}
               <div className="flex items-center justify-between">
-                <Label>Required</Label>
+                <Label>{t('admin.itFormBuilder.required')}</Label>
                 <Switch
                   checked={editDialog.is_required}
                   onCheckedChange={(v: any) => setEditDialog((prev: any) => ({ ...prev, is_required: v }))}
@@ -514,15 +531,15 @@ export function AdminItFormBuilderPage() {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-amber-500" />
-                  <Label className="text-sm font-semibold">Conditional Logic</Label>
+                  <Label className="text-sm font-semibold">{t('admin.itFormBuilder.conditionalLogic')}</Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Show this field only when another field meets a condition.
+                  {t('admin.itFormBuilder.conditionalLogicDescription')}
                 </p>
 
                 {/* Condition field */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">If field</Label>
+                  <Label className="text-xs">{t('admin.itFormBuilder.ifField')}</Label>
                   <Select
                     value={editDialog.condition_field || '_none'}
                     onChange={(e: any) => {
@@ -535,7 +552,7 @@ export function AdminItFormBuilderPage() {
                       }))
                     }}
                   >
-                    <option value="_none">No condition (always show)</option>
+                    <option value="_none">{t('admin.itFormBuilder.noCondition')}</option>
                     {fields
                       .filter((f: any) => f.id !== editDialog.id)
                       .map((f: any) => (
@@ -549,23 +566,23 @@ export function AdminItFormBuilderPage() {
                 {editDialog.condition_field && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Operator</Label>
+                      <Label className="text-xs">{t('admin.itFormBuilder.operator')}</Label>
                       <Select
                         value={editDialog.condition_operator || 'equals'}
                         onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_operator: e.target.value }))}
                       >
                         {OPERATORS.map((o: any) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
+                          <option key={o.value} value={o.value}>{t(`admin.itFormBuilder.${o.label}`, { defaultValue: o.value })}</option>
                         ))}
                       </Select>
                     </div>
                     {!['is_true', 'is_false'].includes(editDialog.condition_operator) && (
                       <div className="space-y-1.5">
-                        <Label className="text-xs">Value</Label>
+                        <Label className="text-xs">{t('admin.itFormBuilder.value')}</Label>
                         <Input
                           value={editDialog.condition_value}
                           onChange={(e: any) => setEditDialog((prev: any) => ({ ...prev, condition_value: e.target.value }))}
-                          placeholder="Expected value"
+                          placeholder={t('admin.itFormBuilder.expectedValuePlaceholder')}
                         />
                       </div>
                     )}
@@ -576,12 +593,12 @@ export function AdminItFormBuilderPage() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setEditDialog(null)}>{t('admin.itFormBuilder.cancel')}</Button>
             <Button
               onClick={handleSave}
               disabled={!editDialog?.label?.trim()}
             >
-              {editDialog?._isNew ? 'Create' : 'Save'}
+              {editDialog?._isNew ? t('admin.itFormBuilder.create') : t('admin.itFormBuilder.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -593,16 +610,15 @@ export function AdminItFormBuilderPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-destructive" />
-              Delete Field?
+              {t('admin.itFormBuilder.deleteFieldTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the field <strong>{deleteConfirm?.label}</strong>.
-            Existing data for this field won&apos;t be affected.
+            {t('admin.itFormBuilder.deleteFieldWarningPre')} <strong>{deleteConfirm?.label}</strong>{t('admin.itFormBuilder.deleteFieldWarningPost')}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.itFormBuilder.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.itFormBuilder.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

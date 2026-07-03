@@ -162,31 +162,31 @@ export function AdminItInventoryPage() {
 
   const handleAdd = useCallback(async () => {
     try {
-      await createItem.mutateAsync({ name: 'New asset' })
+      await createItem.mutateAsync({ name: t('admin.itInventory.defaultAssetName') })
     } catch (err: any) {
-      showToast(err.message || 'Failed to add row', 'error')
+      showToast(err.message || t('admin.itInventory.toastAddFailed'), 'error')
     }
-  }, [createItem, showToast])
+  }, [createItem, showToast, t])
 
   const handleUpdate = useCallback(async (id: any, field: any, value: any) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
     } catch (err: any) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || t('admin.itInventory.toastSaveFailed'), 'error')
     }
-  }, [updateItem, showToast])
+  }, [updateItem, showToast, t])
 
   const handleDelete = useCallback(async (id: any) => {
-    if (!confirm('Delete this asset row?')) return
+    if (!confirm(t('admin.itInventory.confirmDeleteRow'))) return
     try {
       await deleteItem.mutateAsync(id)
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.itInventory.toastDeleteFailed'), 'error')
     }
-  }, [deleteItem, showToast])
+  }, [deleteItem, showToast, t])
 
   const handleExportCsv = useCallback(() => {
-    const headers = COLUMNS.map((c: any) => c.label).join(',')
+    const headers = COLUMNS.map((c: any) => t(`admin.itInventory.${c.label}`, { defaultValue: c.label })).join(',')
     const lines = filtered.map((r: any) => {
       const c = compute(r)
       return COLUMNS.map((col: any) => {
@@ -208,17 +208,20 @@ export function AdminItInventoryPage() {
     a.download = `it-inventory-${new Date().toISOString().slice(0,10)}.csv`
     a.click()
     URL.revokeObjectURL(a.href)
-  }, [filtered])
+  }, [filtered, t])
 
   if (isLoading) return <PageLoading />
 
   return (
     <div className="space-y-5">
-      <AdminPageHeader title="IT Inventory" description={`${totals.count} asset${totals.count !== 1 ? 's' : ''} · ${fmtMoney(totals.price)} total · ${fmtMoney(totals.remaining)} remaining`} />
+      <AdminPageHeader
+        title={t('admin.itInventory.title')}
+        description={t('admin.itInventory.summary', { count: totals.count, price: fmtMoney(totals.price), remaining: fmtMoney(totals.remaining) })}
+      />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
-        <Button variant={companyFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setCompanyFilter('all')}>All companies</Button>
+        <Button variant={companyFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setCompanyFilter('all')}>{t('admin.itInventory.allCompaniesButton')}</Button>
         {COMPANIES.map((c: any) => (
           <Button key={c} variant={companyFilter === c ? 'default' : 'outline'} size="sm" className="text-xs h-8" onClick={() => setCompanyFilter(c)}>
             {c}
@@ -227,12 +230,12 @@ export function AdminItInventoryPage() {
         <div className="flex-1" />
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search name / serial / owner..." className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
+          <Input placeholder={t('admin.itInventory.searchPlaceholder')} className="pl-9 h-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
-        <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5"><Download className="h-3.5 w-3.5" /> CSV</Button>
+        <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5"><Download className="h-3.5 w-3.5" /> {t('admin.itInventory.csvButton')}</Button>
         <Button size="sm" onClick={handleAdd} disabled={createItem.isPending} className="gap-1.5">
           {createItem.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-          New row
+          {t('admin.itInventory.newRowButton')}
         </Button>
       </div>
 
@@ -243,8 +246,8 @@ export function AdminItInventoryPage() {
             <tr>
               {COLUMNS.map((col: any) => (
                 <th key={col.key} className="text-left font-semibold text-[10px] uppercase tracking-wider text-muted-foreground px-3 py-2 border-b border-border/50" style={{ minWidth: col.width }}>
-                  {col.label}
-                  {col.computed && <Badge variant="outline" className="ml-1.5 text-[8px] px-1 py-0">auto</Badge>}
+                  {t(`admin.itInventory.${col.label}`, { defaultValue: col.label })}
+                  {col.computed && <Badge variant="outline" className="ml-1.5 text-[8px] px-1 py-0">{t('admin.itInventory.autoBadge')}</Badge>}
                 </th>
               ))}
               <th className="px-2 border-b border-border/50" style={{ width: 40 }} />
@@ -254,14 +257,14 @@ export function AdminItInventoryPage() {
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={COLUMNS.length + 1} className="text-center py-12 text-muted-foreground">
-                  No assets. <button onClick={handleAdd} className="text-primary underline">Add the first one</button>.
+                  {t('admin.itInventory.noAssetsText')} <button onClick={handleAdd} className="text-primary underline">{t('admin.itInventory.addFirstButton')}</button>.
                 </td>
               </tr>
             ) : filtered.map((row: any) => {
               const c = compute(row)
               const computedValues = {
-                _total_months: c.totalMonths != null ? `${c.totalMonths} mo` : '',
-                _elapsed:      c.elapsed != null ? `${c.elapsed} mo` : '',
+                _total_months: c.totalMonths != null ? t('admin.itInventory.monthsSuffix', { count: c.totalMonths }) : '',
+                _elapsed:      c.elapsed != null ? t('admin.itInventory.monthsSuffix', { count: c.elapsed }) : '',
                 _amortised:    c.amortised,
                 _remaining:    c.remaining,
                 _deductible:   c.deductible,
@@ -309,7 +312,7 @@ export function AdminItInventoryPage() {
       </div>
 
       <p className="text-[10px] text-muted-foreground">
-        Computed columns (auto) update from leasing dates, purchase price and deductible %. Edit any cell — changes save on blur.
+        {t('admin.itInventory.footerNote')}
       </p>
     </div>
   )

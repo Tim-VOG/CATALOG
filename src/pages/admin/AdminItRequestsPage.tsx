@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { useItRequests, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { createOnboardingRecipient } from '@/lib/api/onboarding'
@@ -15,7 +16,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  onboarding: 'typeOnboarding',
+  offboarding: 'typeOffboarding',
+  equipment: 'typeEquipment',
+  it_request: 'typeItRequest',
+}
+
 export function AdminItRequestsPage() {
+  const { t } = useTranslation()
   const { data: requests = [], isLoading } = useItRequests()
   const deleteRequest = useDeleteItRequest()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -24,6 +33,8 @@ export function AdminItRequestsPage() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [detailRequest, setDetailRequest] = useState<any>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
+
+  const typeLabel = (type: string) => t(`admin.itRequests.${TYPE_LABEL_KEYS[type] || 'typeItRequest'}`)
 
   const filtered = useMemo(() => {
     let result = requests
@@ -47,8 +58,8 @@ export function AdminItRequestsPage() {
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = { all: requests.length }
     for (const r of requests) {
-      const t = r.type || 'it_request'
-      counts[t] = (counts[t] || 0) + 1
+      const rt = r.type || 'it_request'
+      counts[rt] = (counts[rt] || 0) + 1
     }
     return counts
   }, [requests])
@@ -65,10 +76,10 @@ export function AdminItRequestsPage() {
         language: 'fr',
         personal_email: req.personal_email || '',
       })
-      showToast('Onboarding recipient created!')
+      showToast(t('admin.itRequests.onboardingCreatedToast'))
       navigate(`/admin/onboarding/requests`)
     } catch (err: any) {
-      showToast(err.message || 'Failed to create recipient', 'error')
+      showToast(err.message || t('admin.itRequests.createRecipientErrorToast'), 'error')
     }
   }
 
@@ -76,7 +87,7 @@ export function AdminItRequestsPage() {
     if (!deleteConfirm) return
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
-      showToast('Request deleted')
+      showToast(t('admin.itRequests.requestDeletedToast'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -88,17 +99,17 @@ export function AdminItRequestsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="All Requests" description={`${requests.length} submission${requests.length !== 1 ? 's' : ''}`} />
+      <AdminPageHeader title={t('admin.itRequests.title')} description={t('admin.itRequests.submissionCount', { count: requests.length })} />
 
       {/* Type filters */}
       <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-muted/50 w-fit mb-4">
         {[
-          { key: 'all', label: 'All' },
-          { key: 'onboarding', label: 'Onboarding' },
-          { key: 'offboarding', label: 'Offboarding' },
-          { key: 'equipment', label: 'Equipment' },
-          { key: 'it_request', label: 'IT Request' },
-        ].filter((t: any) => t.key === 'all' || (typeCounts as Record<string, any>)[t.key]).map(({ key, label }: any) => (
+          { key: 'all', label: t('admin.itRequests.typeAll') },
+          { key: 'onboarding', label: t('admin.itRequests.typeOnboarding') },
+          { key: 'offboarding', label: t('admin.itRequests.typeOffboarding') },
+          { key: 'equipment', label: t('admin.itRequests.typeEquipment') },
+          { key: 'it_request', label: t('admin.itRequests.typeItRequest') },
+        ].filter((f: any) => f.key === 'all' || (typeCounts as Record<string, any>)[f.key]).map(({ key, label }: any) => (
           <button
             key={key}
             onClick={() => setTypeFilter(key)}
@@ -118,7 +129,7 @@ export function AdminItRequestsPage() {
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name, type, unit..."
+          placeholder={t('admin.itRequests.searchPlaceholder')}
           className="pl-9"
           value={search}
           onChange={(e: any) => setSearch(e.target.value)}
@@ -129,7 +140,7 @@ export function AdminItRequestsPage() {
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <ClipboardList className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No IT requests found</p>
+          <p className="text-muted-foreground">{t('admin.itRequests.noRequestsFound')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -165,14 +176,14 @@ export function AdminItRequestsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm">{displayName}</span>
-                        <Badge variant="outline" className="text-[10px] capitalize">{reqType.replace('_', ' ')}</Badge>
+                        <Badge variant="outline" className="text-[10px]">{typeLabel(reqType)}</Badge>
                         {status && status !== 'pending' && (
                           <Badge variant="secondary" className="text-[10px]">{status}</Badge>
                         )}
                         {bu && <Badge variant="secondary" className="text-[10px]">{bu}</Badge>}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                        {submitter && <span>By {submitter}</span>}
+                        {submitter && <span>{t('admin.itRequests.byLine', { name: submitter })}</span>}
                         <span>{new Date(req.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                       </div>
                     </div>
@@ -180,7 +191,7 @@ export function AdminItRequestsPage() {
                     <div className="flex items-center gap-1 shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => setDetailRequest(req)} className="gap-1.5 text-xs">
                         <Eye className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">View</span>
+                        <span className="hidden sm:inline">{t('admin.itRequests.view')}</span>
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(req)} className="text-destructive hover:text-destructive">
                         <Trash2 className="h-3.5 w-3.5" />
@@ -198,8 +209,8 @@ export function AdminItRequestsPage() {
       <Dialog open={!!detailRequest} onOpenChange={() => setDetailRequest(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="capitalize">
-              {(detailRequest?.type || 'IT Request').replace('_', ' ')} Details
+            <DialogTitle>
+              {t('admin.itRequests.detailsTitle', { type: typeLabel(detailRequest?.type || 'it_request') })}
             </DialogTitle>
           </DialogHeader>
           {detailRequest && (
@@ -214,7 +225,7 @@ export function AdminItRequestsPage() {
                         {key.replace(/_/g, ' ')}
                       </span>
                       <span className="break-all">
-                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No')
+                        {typeof value === 'boolean' ? (value ? t('admin.itRequests.yes') : t('admin.itRequests.no'))
                           : Array.isArray(value) ? value.map((v: any, i: any) => <div key={i}>{typeof v === 'object' ? `${v.product_name} x${v.quantity}` : v}</div>)
                           : String(value)}
                       </span>
@@ -223,12 +234,12 @@ export function AdminItRequestsPage() {
               ) : (
                 // Old-format fields
                 [
-                  ['Status', detailRequest.status],
-                  ['Business Unit', detailRequest.business_unit],
-                  ['Name', `${detailRequest.first_name || ''} ${detailRequest.last_name || ''}`.trim()],
-                  ['Start Date', detailRequest.start_date ? new Date(detailRequest.start_date).toLocaleDateString('en-GB') : null],
-                  ['Computer', detailRequest.needs_computer ? 'Yes' : 'No'],
-                  ['Access Needed', detailRequest.access_needs?.join(', ')],
+                  [t('admin.itRequests.fieldStatus'), detailRequest.status],
+                  [t('admin.itRequests.fieldBusinessUnit'), detailRequest.business_unit],
+                  [t('admin.itRequests.fieldName'), `${detailRequest.first_name || ''} ${detailRequest.last_name || ''}`.trim()],
+                  [t('admin.itRequests.fieldStartDate'), detailRequest.start_date ? new Date(detailRequest.start_date).toLocaleDateString('en-GB') : null],
+                  [t('admin.itRequests.fieldComputer'), detailRequest.needs_computer ? t('admin.itRequests.yes') : t('admin.itRequests.no')],
+                  [t('admin.itRequests.fieldAccessNeeded'), detailRequest.access_needs?.join(', ')],
                 ].filter(([, v]) => v).map(([label, value]) => (
                   <div key={label} className="flex items-start gap-3 text-sm">
                     <span className="font-semibold text-muted-foreground w-36 shrink-0">{label}</span>
@@ -240,19 +251,19 @@ export function AdminItRequestsPage() {
               <div className="border-t border-border/30 pt-3 space-y-2">
                 {detailRequest.requester_name && (
                   <div className="flex items-start gap-3 text-sm">
-                    <span className="font-semibold text-muted-foreground w-36 shrink-0">Submitted by</span>
+                    <span className="font-semibold text-muted-foreground w-36 shrink-0">{t('admin.itRequests.fieldSubmittedBy')}</span>
                     <span>{detailRequest.requester_name} ({detailRequest.requester_email})</span>
                   </div>
                 )}
                 <div className="flex items-start gap-3 text-sm">
-                  <span className="font-semibold text-muted-foreground w-36 shrink-0">Date</span>
+                  <span className="font-semibold text-muted-foreground w-36 shrink-0">{t('admin.itRequests.fieldDate')}</span>
                   <span>{new Date(detailRequest.created_at).toLocaleString('en-GB')}</span>
                 </div>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailRequest(null)}>Close</Button>
+            <Button variant="outline" onClick={() => setDetailRequest(null)}>{t('admin.itRequests.close')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -261,15 +272,15 @@ export function AdminItRequestsPage() {
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete IT Request?</DialogTitle>
+            <DialogTitle>{t('admin.itRequests.deleteConfirmTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete this {deleteConfirm?.type || 'IT'} request
-            {deleteConfirm?.requester_name ? ` from ${deleteConfirm.requester_name}` : ''}.
+            {t('admin.itRequests.deleteConfirmBody', { type: deleteConfirm?.type ? typeLabel(deleteConfirm.type) : 'IT' })}
+            {deleteConfirm?.requester_name ? t('admin.itRequests.deleteConfirmFrom', { name: deleteConfirm.requester_name }) : ''}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.itRequests.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.itRequests.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
