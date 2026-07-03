@@ -283,7 +283,14 @@ export function Header({ onOpenTour  }: any) {
 
           <Link to="/" className="flex items-center gap-2.5 text-primary">
             {logoUrl ? (
-              <img src={logoUrl} alt={appName} className="h-7 w-auto object-contain" />
+              // In dark mode, force the (monochrome) logo to pure white so it's
+              // always legible on the dark header — brightness-0 → black, then
+              // invert → white, regardless of the uploaded file's colour.
+              <img
+                src={logoUrl}
+                alt={appName}
+                className={cn('h-7 w-auto object-contain', themeMode === 'dark' && 'brightness-0 invert')}
+              />
             ) : (
               <Package className="h-6 w-6" />
             )}

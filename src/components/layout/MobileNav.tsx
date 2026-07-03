@@ -109,7 +109,7 @@ export function MobileNav() {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border/30">
               <div className="flex items-center gap-2 text-primary">
-                {logoUrl ? <img src={logoUrl} alt={appName} className="h-6 w-auto object-contain" /> : <Package className="h-5 w-5" />}
+                {logoUrl ? <img src={logoUrl} alt={appName} className={cn('h-6 w-auto object-contain', themeMode === 'dark' && 'brightness-0 invert')} /> : <Package className="h-5 w-5" />}
                 <div className="flex flex-col leading-tight">
                   <span className="font-display font-bold text-lg">{appName}</span>
                   <span className="text-[10px] text-muted-foreground font-normal tracking-wide">{tagline}</span>

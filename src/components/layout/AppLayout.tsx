@@ -21,14 +21,20 @@ export function AppLayout() {
   useSyncThemeFromProfile()
   useRealtimeSync()
 
-  // Adopt the user's saved language on login (localStorage already
-  // covers the same device; this carries it across devices).
+  // Adopt the user's saved language ONCE on login (localStorage already
+  // covers the same device; this carries it across devices). Guarded by a
+  // ref so it never fights a manual switch from the language picker — before,
+  // this effect re-ran on every profile/i18n change and reverted the click,
+  // and it also silently ignored 'nl'.
   const { profile } = useAuth()
   const { i18n } = useTranslation()
+  const langAdopted = useRef(false)
   useEffect(() => {
+    if (langAdopted.current) return
     const lang = (profile as any)?.language
-    if (lang && (lang === 'fr' || lang === 'en') && i18n.language !== lang) {
-      i18n.changeLanguage(lang)
+    if (lang && ['fr', 'en', 'nl'].includes(lang)) {
+      langAdopted.current = true
+      if (i18n.language !== lang) i18n.changeLanguage(lang)
     }
   }, [profile, i18n])
   const location = useLocation()
