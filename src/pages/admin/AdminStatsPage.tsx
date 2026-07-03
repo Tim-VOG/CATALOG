@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
@@ -28,6 +29,7 @@ function StatCard({ label, value, sub, icon: Icon, color  }: any) {
 }
 
 export function AdminStatsPage() {
+  const { t } = useTranslation()
   const { data: loanReqs = [], isLoading: l1 } = useLoanRequests()
   const { data: itReqs = [], isLoading: l2 } = useItRequests()
   const { data: mailboxReqs = [], isLoading: l3 } = useMailboxRequests()
@@ -80,27 +82,27 @@ export function AdminStatsPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Statistics" description="Overview of VO Hub activity" />
+      <AdminPageHeader title={t('admin.stats.title')} description={t('admin.stats.description')} />
 
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Requests" value={stats.total} sub={`${stats.thisMonth} this month`} icon={Inbox} color="bg-primary/10 text-primary" />
-        <StatCard label="Pending" value={stats.pending} icon={Clock} color="bg-amber-500/10 text-amber-500" />
-        <StatCard label="In Progress" value={stats.inProgress} icon={TrendingUp} color="bg-blue-500/10 text-blue-500" />
-        <StatCard label="Completed" value={stats.ready} icon={CheckCircle} color="bg-emerald-500/10 text-emerald-500" />
+        <StatCard label={t('admin.stats.totalRequests')} value={stats.total} sub={t('admin.stats.thisMonthSub', { count: stats.thisMonth })} icon={Inbox} color="bg-primary/10 text-primary" />
+        <StatCard label={t('admin.stats.pending')} value={stats.pending} icon={Clock} color="bg-amber-500/10 text-amber-500" />
+        <StatCard label={t('admin.stats.inProgress')} value={stats.inProgress} icon={TrendingUp} color="bg-blue-500/10 text-blue-500" />
+        <StatCard label={t('admin.stats.completed')} value={stats.ready} icon={CheckCircle} color="bg-emerald-500/10 text-emerald-500" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Inventory */}
         <Card>
           <CardContent className="p-5">
-            <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><Package className="h-4 w-4" /> Inventory</h3>
+            <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><Package className="h-4 w-4" /> {t('admin.stats.inventory')}</h3>
             <div className="space-y-3">
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Products</span><span className="font-bold">{stats.totalProducts}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">QR Codes</span><span className="font-bold">{stats.totalQR}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Devices assigned</span><span className="font-bold text-blue-500">{stats.assigned}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Devices available</span><span className="font-bold text-emerald-500">{stats.available}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Low stock products</span><span className={cn('font-bold', stats.lowStock > 0 ? 'text-rose-500' : 'text-emerald-500')}>{stats.lowStock}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t('admin.stats.products')}</span><span className="font-bold">{stats.totalProducts}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t('admin.stats.qrCodes')}</span><span className="font-bold">{stats.totalQR}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t('admin.stats.devicesAssigned')}</span><span className="font-bold text-blue-500">{stats.assigned}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t('admin.stats.devicesAvailable')}</span><span className="font-bold text-emerald-500">{stats.available}</span></div>
+              <div className="flex justify-between text-sm"><span className="text-muted-foreground">{t('admin.stats.lowStock')}</span><span className={cn('font-bold', stats.lowStock > 0 ? 'text-rose-500' : 'text-emerald-500')}>{stats.lowStock}</span></div>
             </div>
           </CardContent>
         </Card>
@@ -108,13 +110,13 @@ export function AdminStatsPage() {
         {/* Requests by type */}
         <Card>
           <CardContent className="p-5">
-            <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Requests by Type</h3>
+            <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> {t('admin.stats.requestsByType')}</h3>
             <div className="space-y-3">
               {Object.entries(stats.byType as Record<string, any>).map(([type, count]) => (
                 <div key={type} className="flex items-center gap-3">
                   <div className="flex-1">
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="capitalize text-muted-foreground">{type}</span>
+                      <span className="text-muted-foreground">{t(`admin.requestTypes.${type}`, type)}</span>
                       <span className="font-bold">{count}</span>
                     </div>
                     <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -131,22 +133,22 @@ export function AdminStatsPage() {
       {/* Month comparison */}
       <Card>
         <CardContent className="p-5">
-          <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Monthly Comparison</h3>
+          <h3 className="font-semibold text-sm mb-4 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t('admin.stats.monthlyComparison')}</h3>
           <div className="flex items-end gap-8">
             <div className="text-center">
               <p className="text-3xl font-bold">{stats.thisMonth}</p>
-              <p className="text-xs text-muted-foreground">This month</p>
+              <p className="text-xs text-muted-foreground">{t('admin.stats.thisMonth')}</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold text-muted-foreground">{stats.lastMonth}</p>
-              <p className="text-xs text-muted-foreground">Last month</p>
+              <p className="text-xs text-muted-foreground">{t('admin.stats.lastMonth')}</p>
             </div>
             {stats.lastMonth > 0 && (
               <div className="text-center">
                 <p className={cn('text-lg font-bold', stats.thisMonth >= stats.lastMonth ? 'text-emerald-500' : 'text-rose-500')}>
                   {stats.thisMonth >= stats.lastMonth ? '+' : ''}{Math.round(((stats.thisMonth - stats.lastMonth) / stats.lastMonth) * 100)}%
                 </p>
-                <p className="text-xs text-muted-foreground">Change</p>
+                <p className="text-xs text-muted-foreground">{t('admin.stats.change')}</p>
               </div>
             )}
           </div>

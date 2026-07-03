@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { format, formatDistanceToNow, differenceInDays, differenceInHours } from 'date-fns'
@@ -29,12 +30,12 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.35, delay, ease: [0.22, 0.61, 0.36, 1] as any },
 })
 
-function useGreeting() {
+function greetingKey() {
   const h = new Date().getHours()
-  if (h < 5)  return 'Belle nuit'
-  if (h < 12) return 'Bonjour'
-  if (h < 18) return 'Bon après-midi'
-  return 'Bonsoir'
+  if (h < 5)  return 'hub.greetingNight'
+  if (h < 12) return 'hub.greetingMorning'
+  if (h < 18) return 'hub.greetingAfternoon'
+  return 'hub.greetingEvening'
 }
 
 // ── Card primitive (clean, simple) ────────────────────────────
@@ -100,6 +101,7 @@ function AttentionRow({ icon: Icon, label, count, to  }: any) {
 
 // ── Material in use row ───────────────────────────────────────
 function MaterialRow({ loan, now  }: any) {
+  const { t } = useTranslation()
   const pickup = loan.pickup_date ? new Date(loan.pickup_date) : new Date(loan.created_at)
   const expected = loan.expected_return_date ? new Date(loan.expected_return_date + 'T18:00:00') : null
   const isOverdue = expected && expected < now
@@ -121,12 +123,12 @@ function MaterialRow({ loan, now  }: any) {
   }[status]
   const dueText = !expected ? '—'
     : isOverdue
-      ? `${Math.abs(daysLeft!)}j de retard`
+      ? t('admin.dashboard.daysLate', { count: Math.abs(daysLeft!) })
       : daysLeft === 0
-        ? `${hoursLeft}h`
+        ? t('admin.dashboard.hoursLeft', { count: hoursLeft })
         : daysLeft === 1
-          ? 'demain'
-          : `${daysLeft}j`
+          ? t('admin.dashboard.tomorrow')
+          : t('admin.dashboard.daysLeft', { count: daysLeft })
   const dueColor = {
     overdue: 'text-rose-500',
     soon:    'text-amber-500',
@@ -157,6 +159,7 @@ function MaterialRow({ loan, now  }: any) {
 
 // ── Activity feed row ─────────────────────────────────────────
 function ActivityRow({ log  }: any) {
+  const { t } = useTranslation()
   const isTake = log.action === 'take'
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-border/30 last:border-0">
@@ -172,7 +175,7 @@ function ActivityRow({ log  }: any) {
           {log.user_name && <span className="text-muted-foreground"> · {log.user_name}</span>}
         </p>
         <p className="text-xs text-muted-foreground/80 mt-0.5">
-          {isTake ? 'Pris' : 'Rendu'} · {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: fr })}
+          {isTake ? t('admin.dashboard.actionTaken') : t('admin.dashboard.actionReturned')} · {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: fr })}
         </p>
       </div>
     </div>
@@ -183,8 +186,9 @@ function ActivityRow({ log  }: any) {
 //                          PAGE
 // ─────────────────────────────────────────────────────────────
 export function AdminDashboardPage() {
+  const { t } = useTranslation()
   const { profile } = useAuth()
-  const greeting = useGreeting()
+  const greeting = t(greetingKey())
   const now = new Date()
 
   const { data: loanReqs = [], isLoading: loadingRequests } = useLoanRequests()
@@ -274,22 +278,22 @@ export function AdminDashboardPage() {
           </h1>
           <p className="text-sm text-muted-foreground mt-2 max-w-xl">
             {totalAttention === 0
-              ? `Tout est sous contrôle. ${stats.available} unités disponibles sur ${stats.total}, aucun retard.`
-              : `${totalAttention} action${totalAttention > 1 ? 's' : ''} demandent ton attention.`}
+              ? t('admin.dashboard.allGood', { available: stats.available, total: stats.total })
+              : t('admin.dashboard.attention', { count: totalAttention })}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleExportExcel} className="gap-2 shrink-0">
           <FileSpreadsheet className="h-3.5 w-3.5" />
-          Export Excel
+          {t('admin.dashboard.exportExcel')}
         </Button>
       </motion.div>
 
       {/* ── Stat row ── */}
       <motion.div {...fadeUp(0.05)} className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        <Stat label="Disponibles" value={stats.available} trend={`sur ${stats.total} unités`} to="/admin/qr-codes" />
-        <Stat label="En cours" value={stats.onLoan} trend={`${sortedLoans.length} prêt${sortedLoans.length > 1 ? 's' : ''} actif${sortedLoans.length > 1 ? 's' : ''}`} to="/admin/qr-codes" />
-        <Stat label="Demandes en attente" value={counts.pendingEquipment + counts.pendingOnboarding + counts.pendingMailbox} trend={counts.pendingEquipment > 0 ? `${counts.pendingEquipment} équipement${counts.pendingEquipment > 1 ? 's' : ''}` : 'à jour'} to="/admin/requests" accent={counts.pendingEquipment + counts.pendingOnboarding + counts.pendingMailbox > 0 ? 'amber' : undefined} />
-        <Stat label="En retard" value={counts.overdue} trend={counts.overdue > 0 ? 'à relancer' : 'tout est rentré'} to="/admin/scan-logs" accent={counts.overdue > 0 ? 'rose' : 'emerald'} />
+        <Stat label={t('admin.dashboard.statAvailable')} value={stats.available} trend={t('admin.dashboard.statAvailableTrend', { total: stats.total })} to="/admin/qr-codes" />
+        <Stat label={t('admin.dashboard.statOnLoan')} value={stats.onLoan} trend={t('admin.dashboard.statOnLoanTrend', { count: sortedLoans.length })} to="/admin/qr-codes" />
+        <Stat label={t('admin.dashboard.statPending')} value={counts.pendingEquipment + counts.pendingOnboarding + counts.pendingMailbox} trend={counts.pendingEquipment > 0 ? t('admin.dashboard.statPendingTrend', { count: counts.pendingEquipment }) : t('admin.dashboard.statPendingUpToDate')} to="/admin/requests" accent={counts.pendingEquipment + counts.pendingOnboarding + counts.pendingMailbox > 0 ? 'amber' : undefined} />
+        <Stat label={t('admin.dashboard.statOverdue')} value={counts.overdue} trend={counts.overdue > 0 ? t('admin.dashboard.statOverdueTrend') : t('admin.dashboard.statOverdueNone')} to="/admin/scan-logs" accent={counts.overdue > 0 ? 'rose' : 'emerald'} />
       </motion.div>
 
       {/* ── Main grid ── */}
@@ -299,10 +303,10 @@ export function AdminDashboardPage() {
         <motion.div {...fadeUp(0.1)} className="lg:col-span-2">
           <Card>
             <CardHeader
-              title="Matériel en circulation"
+              title={t('admin.dashboard.materialsInUse')}
               action={
                 <Link to="/admin/qr-codes" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-                  Tous les QR <ArrowRight className="h-3 w-3" />
+                  {t('admin.dashboard.allQr')} <ArrowRight className="h-3 w-3" />
                 </Link>
               }
             />
@@ -310,7 +314,7 @@ export function AdminDashboardPage() {
               {sortedLoans.length === 0 ? (
                 <div className="py-12 flex flex-col items-center justify-center text-muted-foreground">
                   <PackageCheck className="h-7 w-7 mb-2 opacity-30" />
-                  <p className="text-sm">Aucun matériel en circulation</p>
+                  <p className="text-sm">{t('admin.dashboard.noMaterials')}</p>
                 </div>
               ) : (
                 sortedLoans.slice(0, 10).map((loan: any) => (
@@ -324,21 +328,21 @@ export function AdminDashboardPage() {
         {/* Attention */}
         <motion.div {...fadeUp(0.15)}>
           <Card>
-            <CardHeader title="À traiter" />
+            <CardHeader title={t('admin.dashboard.toHandle')} />
             <div className="px-4 pb-4 space-y-0.5">
               {totalAttention === 0 ? (
                 <div className="py-12 flex flex-col items-center justify-center text-muted-foreground">
                   <PackageCheck className="h-7 w-7 mb-2 opacity-30 text-emerald-500" />
-                  <p className="text-sm font-medium text-foreground">Inbox zero</p>
-                  <p className="text-xs mt-0.5">Rien ne te demande.</p>
+                  <p className="text-sm font-medium text-foreground">{t('admin.dashboard.inboxZero')}</p>
+                  <p className="text-xs mt-0.5">{t('admin.dashboard.nothingToDo')}</p>
                 </div>
               ) : (
                 <>
-                  <AttentionRow icon={Inbox}         label="Demandes d'équipement"  count={counts.pendingEquipment}  to="/admin/requests" />
-                  <AttentionRow icon={UserPlus}      label="Onboarding"             count={counts.pendingOnboarding} to="/admin/onboarding/requests" />
-                  <AttentionRow icon={Mail}          label="Mailbox"                count={counts.pendingMailbox}    to="/admin/mailbox-requests" />
-                  <AttentionRow icon={AlertTriangle} label="Retours en retard"      count={counts.overdue}           to="/admin/scan-logs" />
-                  <AttentionRow icon={TrendingDown}  label="Produits en stock bas"  count={counts.lowStock}          to="/admin/products" />
+                  <AttentionRow icon={Inbox}         label={t('admin.dashboard.attnEquipment')}  count={counts.pendingEquipment}  to="/admin/requests" />
+                  <AttentionRow icon={UserPlus}      label={t('admin.dashboard.attnOnboarding')} count={counts.pendingOnboarding} to="/admin/onboarding/requests" />
+                  <AttentionRow icon={Mail}          label={t('admin.dashboard.attnMailbox')}    count={counts.pendingMailbox}    to="/admin/mailbox-requests" />
+                  <AttentionRow icon={AlertTriangle} label={t('admin.dashboard.attnOverdue')}     count={counts.overdue}           to="/admin/scan-logs" />
+                  <AttentionRow icon={TrendingDown}  label={t('admin.dashboard.attnLowStock')}    count={counts.lowStock}          to="/admin/products" />
                 </>
               )}
             </div>
@@ -349,10 +353,10 @@ export function AdminDashboardPage() {
         <motion.div {...fadeUp(0.2)} className="lg:col-span-2">
           <Card>
             <CardHeader
-              title="Activité récente"
+              title={t('admin.dashboard.recentActivity')}
               action={
                 <Link to="/admin/scan-logs" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-                  Tout l'historique <ArrowRight className="h-3 w-3" />
+                  {t('admin.dashboard.fullHistory')} <ArrowRight className="h-3 w-3" />
                 </Link>
               }
             />
@@ -360,7 +364,7 @@ export function AdminDashboardPage() {
               {recentScans.length === 0 ? (
                 <div className="py-12 flex flex-col items-center justify-center text-muted-foreground">
                   <Clock className="h-7 w-7 mb-2 opacity-30" />
-                  <p className="text-sm">Aucune activité récente</p>
+                  <p className="text-sm">{t('admin.dashboard.noActivity')}</p>
                 </div>
               ) : (
                 recentScans.slice(0, 8).map((log: any) => <ActivityRow key={log.id} log={log} />)
@@ -372,12 +376,12 @@ export function AdminDashboardPage() {
         {/* Fleet breakdown */}
         <motion.div {...fadeUp(0.25)}>
           <Card>
-            <CardHeader title="Par catégorie" />
+            <CardHeader title={t('admin.dashboard.byCategory')} />
             <div className="px-5 pb-5 space-y-3">
               {categoryBreakdown.length === 0 ? (
                 <div className="py-8 flex flex-col items-center justify-center text-muted-foreground">
                   <Box className="h-7 w-7 mb-2 opacity-30" />
-                  <p className="text-sm">Aucune catégorie</p>
+                  <p className="text-sm">{t('admin.dashboard.noCategory')}</p>
                 </div>
               ) : (
                 categoryBreakdown.slice(0, 6).map((c: any) => {
