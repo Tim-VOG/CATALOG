@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useUIStore } from '@/stores/ui-store'
 import { UserMinus, Search, Trash2, Calendar, Building2, CheckCircle2, Clock, AlertTriangle, Eye, XCircle, ChevronDown, ChevronUp } from 'lucide-react'
@@ -12,9 +13,9 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { cn } from '@/lib/utils'
 
 const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending', color: 'bg-amber-500/15 text-amber-600 border-amber-500/30', icon: Clock },
-  { value: 'in_progress', label: 'In Progress', color: 'bg-blue-500/15 text-blue-600 border-blue-500/30', icon: AlertTriangle },
-  { value: 'ready', label: 'Ready', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2 },
+  { value: 'pending', labelKey: 'statusPending', color: 'bg-amber-500/15 text-amber-600 border-amber-500/30', icon: Clock },
+  { value: 'in_progress', labelKey: 'statusInProgress', color: 'bg-blue-500/15 text-blue-600 border-blue-500/30', icon: AlertTriangle },
+  { value: 'ready', labelKey: 'statusReady', color: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30', icon: CheckCircle2 },
 ]
 
 const STATUS_FILTERS = ['all', 'pending', 'in_progress', 'ready']
@@ -31,6 +32,7 @@ function getInitials(name: any) {
 }
 
 export function OffboardingPage() {
+  const { t } = useTranslation()
   const { data: allRequests = [], isLoading } = useItRequests()
   const updateRequest = useUpdateItRequest()
   const deleteRequest = useDeleteItRequest()
@@ -75,12 +77,19 @@ export function OffboardingPage() {
     completed: offboardingRequests.filter((r: any) => r.status === 'ready').length,
   }), [offboardingRequests])
 
+  const STATUS_FILTER_LABELS: Record<string, string> = {
+    all: t('admin.offboardingWorkspace.filterAll'),
+    pending: t('admin.offboardingWorkspace.filterPending'),
+    in_progress: t('admin.offboardingWorkspace.filterInProgress'),
+    ready: t('admin.offboardingWorkspace.filterReady'),
+  }
+
   const handleStatusChange = async (request: any, newStatus: any) => {
     try {
       await updateRequest.mutateAsync({ id: request.id, updates: { status: newStatus } })
-      showToast(`Status updated to ${newStatus.replace('_', ' ')}`)
+      showToast(t('admin.offboardingWorkspace.statusUpdated', { status: STATUS_FILTER_LABELS[newStatus] || newStatus }))
     } catch (err: any) {
-      showToast(err.message || 'Update failed', 'error')
+      showToast(err.message || t('admin.offboardingWorkspace.updateFailed'), 'error')
     }
   }
 
@@ -88,9 +97,9 @@ export function OffboardingPage() {
     if (!deleteConfirm) return
     try {
       await deleteRequest.mutateAsync(deleteConfirm.id)
-      showToast('Offboarding request deleted')
+      showToast(t('admin.offboardingWorkspace.deleteSuccess'))
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.offboardingWorkspace.deleteFailed'), 'error')
     }
     setDeleteConfirm(null)
   }
@@ -100,7 +109,7 @@ export function OffboardingPage() {
     return (
       <Badge variant="outline" className={cn('gap-1 text-[11px]', opt.color)}>
         <opt.icon className="h-3 w-3" />
-        {opt.label}
+        {t(`admin.offboardingWorkspace.${opt.labelKey}`)}
       </Badge>
     )
   }
@@ -108,7 +117,7 @@ export function OffboardingPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader title="Offboarding" description="Manage employee departure processes" />
+        <AdminPageHeader title={t('admin.offboardingWorkspace.pageTitle')} description={t('admin.offboardingWorkspace.pageDescription')} />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map((i: any) => (
             <Card key={i} variant="elevated"><CardContent className="p-4 h-16 animate-pulse bg-muted/30 rounded" /></Card>
@@ -121,15 +130,15 @@ export function OffboardingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="Offboarding" description="Manage employee departure processes" />
+      <AdminPageHeader title={t('admin.offboardingWorkspace.pageTitle')} description={t('admin.offboardingWorkspace.pageDescription')} />
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total', value: stats.total, icon: UserMinus, color: 'text-foreground' },
-          { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-500' },
-          { label: 'In Progress', value: stats.in_progress, icon: AlertTriangle, color: 'text-blue-500' },
-          { label: 'Completed', value: stats.completed, icon: CheckCircle2, color: 'text-emerald-500' },
+          { label: t('admin.offboardingWorkspace.statsTotal'), value: stats.total, icon: UserMinus, color: 'text-foreground' },
+          { label: t('admin.offboardingWorkspace.statsPending'), value: stats.pending, icon: Clock, color: 'text-amber-500' },
+          { label: t('admin.offboardingWorkspace.statsInProgress'), value: stats.in_progress, icon: AlertTriangle, color: 'text-blue-500' },
+          { label: t('admin.offboardingWorkspace.statsCompleted'), value: stats.completed, icon: CheckCircle2, color: 'text-emerald-500' },
         ].map((s: any) => (
           <Card key={s.label} variant="elevated">
             <CardContent className="p-4 flex items-center gap-3">
@@ -148,7 +157,7 @@ export function OffboardingPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, email, or business unit..."
+            placeholder={t('admin.offboardingWorkspace.searchPlaceholder')}
             className="pl-9"
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
@@ -163,7 +172,7 @@ export function OffboardingPage() {
               onClick={() => setStatusFilter(f)}
               className="capitalize text-xs"
             >
-              {f.replace('_', ' ')}
+              {STATUS_FILTER_LABELS[f] || f}
             </Button>
           ))}
         </div>
@@ -173,8 +182,8 @@ export function OffboardingPage() {
       {filtered.length === 0 ? (
         <EmptyState
           icon={UserMinus}
-          title="No offboarding processes"
-          description={search || statusFilter !== 'all' ? 'Try adjusting your search or filter' : 'Offboarding processes will appear here when employees submit offboarding requests'}
+          title={t('admin.offboardingWorkspace.emptyTitle')}
+          description={search || statusFilter !== 'all' ? t('admin.offboardingWorkspace.emptyFilteredDescription') : t('admin.offboardingWorkspace.emptyDescription')}
         />
       ) : (
         <div className="space-y-2">
@@ -194,7 +203,7 @@ export function OffboardingPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm">
-                          {data.employee_name || 'Unknown'}
+                          {data.employee_name || t('admin.offboardingWorkspace.unknownEmployee')}
                         </span>
                         {getStatusBadge(request.status)}
                       </div>
@@ -253,7 +262,7 @@ export function OffboardingPage() {
                               {key.replace(/_/g, ' ')}
                             </span>
                             <span className="text-sm">
-                              {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : (value || '—')}
+                              {typeof value === 'boolean' ? (value ? t('admin.offboardingWorkspace.yesLabel') : t('admin.offboardingWorkspace.noLabel')) : (value || '—')}
                             </span>
                           </div>
                         ))}
@@ -261,8 +270,8 @@ export function OffboardingPage() {
 
                       {/* Requester info */}
                       <div className="text-xs text-muted-foreground">
-                        Submitted by <strong>{request.requester_name || request.requester_email}</strong>
-                        {data.submitted_at && ` on ${formatDate(data.submitted_at)}`}
+                        {t('admin.offboardingWorkspace.submittedBy')} <strong>{request.requester_name || request.requester_email}</strong>
+                        {data.submitted_at && ` ${t('admin.offboardingWorkspace.submittedOn', { date: formatDate(data.submitted_at) })}`}
                       </div>
 
                       {/* Status actions */}
@@ -270,13 +279,13 @@ export function OffboardingPage() {
                         {request.status === 'pending' && (
                           <Button size="sm" onClick={() => handleStatusChange(request, 'in_progress')} className="gap-1.5 text-xs">
                             <AlertTriangle className="h-3.5 w-3.5" />
-                            Start Processing
+                            {t('admin.offboardingWorkspace.startProcessing')}
                           </Button>
                         )}
                         {request.status === 'in_progress' && (
                           <Button size="sm" onClick={() => handleStatusChange(request, 'ready')} className="gap-1.5 text-xs">
                             <CheckCircle2 className="h-3.5 w-3.5" />
-                            Mark Completed
+                            {t('admin.offboardingWorkspace.markCompleted')}
                           </Button>
                         )}
                         {request.status !== 'pending' && (
@@ -286,7 +295,7 @@ export function OffboardingPage() {
                             onClick={() => handleStatusChange(request, 'pending')}
                             className="text-xs"
                           >
-                            Reset to Pending
+                            {t('admin.offboardingWorkspace.resetToPending')}
                           </Button>
                         )}
                       </div>
@@ -305,17 +314,17 @@ export function OffboardingPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Offboarding Request?
+              {t('admin.offboardingWorkspace.deleteDialogTitle')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the offboarding request for{' '}
+            {t('admin.offboardingWorkspace.deleteDialogTextBefore')}{' '}
             <strong>{deleteConfirm?.data?.employee_name}</strong>.
-            This action cannot be undone.
+            {t('admin.offboardingWorkspace.deleteDialogTextAfter')}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.offboardingWorkspace.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.offboardingWorkspace.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { usePaginated } from '@/hooks/use-paginated'
 import { useProfiles, useUpdateProfile, useUpdateProfileRole, useToggleProfileActive, useDeleteProfile } from '@/hooks/use-profiles'
 import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-access'
@@ -26,9 +27,9 @@ import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
 const ROLE_OPTIONS = [
-  { value: 'user', label: 'User', color: 'bg-blue-500/20 text-blue-400' },
-  { value: 'manager', label: 'Manager (HR)', color: 'bg-amber-500/20 text-amber-400' },
-  { value: 'admin', label: 'Admin', color: 'bg-red-500/20 text-red-400' },
+  { value: 'user', label: 'User', labelKey: 'admin.users.roleUser', color: 'bg-blue-500/20 text-blue-400' },
+  { value: 'manager', label: 'Manager (HR)', labelKey: 'admin.users.roleManager', color: 'bg-amber-500/20 text-amber-400' },
+  { value: 'admin', label: 'Admin', labelKey: 'admin.users.roleAdmin', color: 'bg-red-500/20 text-red-400' },
 ]
 
 const ROLE_FILTERS = ['all', 'admin', 'manager', 'user']
@@ -45,14 +46,16 @@ const MODULES = [
 /*  ModuleToggle – small 7x7 icon button per module                   */
 /* ------------------------------------------------------------------ */
 function ModuleToggle({ userId, mod, granted, isAdmin, onToggle, isUpdating  }: any) {
+  const { t } = useTranslation()
   const Icon = mod.icon
+  const moduleLabel = t(`admin.users.module.${mod.key}`, { defaultValue: mod.label })
 
   // Catalog is always on for everyone
   if (mod.alwaysOn) {
     return (
       <div
         className={cn('h-7 w-7 rounded-lg flex items-center justify-center', mod.bg)}
-        title={`${mod.label} — always on`}
+        title={t('admin.users.moduleAlwaysOnTooltip', { module: moduleLabel })}
       >
         <Icon className={cn('h-3.5 w-3.5', mod.color)} />
       </div>
@@ -64,7 +67,7 @@ function ModuleToggle({ userId, mod, granted, isAdmin, onToggle, isUpdating  }: 
     return (
       <div
         className="h-7 w-7 rounded-lg flex items-center justify-center bg-primary/10"
-        title={`${mod.label} — admin (full access)`}
+        title={t('admin.users.moduleAdminAccessTooltip', { module: moduleLabel })}
       >
         <ShieldCheck className="h-3.5 w-3.5 text-primary" />
       </div>
@@ -81,7 +84,9 @@ function ModuleToggle({ userId, mod, granted, isAdmin, onToggle, isUpdating  }: 
         'disabled:opacity-50 disabled:cursor-not-allowed',
         granted ? mod.bg : 'bg-muted-foreground/10',
       )}
-      title={granted ? `${mod.label} — granted (click to revoke)` : `${mod.label} — no access (click to grant)`}
+      title={granted
+        ? t('admin.users.moduleGrantedTooltip', { module: moduleLabel })
+        : t('admin.users.moduleNoAccessTooltip', { module: moduleLabel })}
     >
       {isUpdating ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
@@ -96,6 +101,7 @@ function ModuleToggle({ userId, mod, granted, isAdmin, onToggle, isUpdating  }: 
 /*  AdminUsersPage                                                     */
 /* ------------------------------------------------------------------ */
 export function AdminUsersPage() {
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [buFilter, setBuFilter] = useState('all')
@@ -160,6 +166,9 @@ export function AdminUsersPage() {
 
   /* ---------- handlers ---------- */
 
+  const getRoleLabel = (value: string) =>
+    t(`admin.users.role${value.charAt(0).toUpperCase()}${value.slice(1)}`, { defaultValue: value })
+
   const handleRoleChange = (userId: any, newRole: any, userName: any) => {
     setConfirmDialog({ userId, newRole, userName })
   }
@@ -168,7 +177,7 @@ export function AdminUsersPage() {
     if (!confirmDialog) return
     try {
       await updateRole.mutateAsync({ userId: confirmDialog.userId, role: confirmDialog.newRole })
-      showToast(`Role updated to ${confirmDialog.newRole}`)
+      showToast(t('admin.users.roleUpdatedToast', { role: getRoleLabel(confirmDialog.newRole) }))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -178,7 +187,7 @@ export function AdminUsersPage() {
   const handleToggleActive = async (userId: any, currentActive: any) => {
     try {
       await toggleActive.mutateAsync({ userId, isActive: !currentActive })
-      showToast(currentActive ? 'User deactivated' : 'User activated')
+      showToast(currentActive ? t('admin.users.userDeactivatedToast') : t('admin.users.userActivatedToast'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -187,7 +196,7 @@ export function AdminUsersPage() {
   const handleBuChange = async (userId: any, value: any) => {
     try {
       await updateProfile.mutateAsync({ userId, business_unit: value || null })
-      showToast('Business unit updated')
+      showToast(t('admin.users.businessUnitUpdatedToast'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -198,9 +207,9 @@ export function AdminUsersPage() {
     setUpdatingKey(key)
     try {
       await upsertAccess.mutateAsync({ userId, moduleKey, granted })
-      showToast(granted ? 'Access granted' : 'Access revoked')
+      showToast(granted ? t('admin.users.accessGrantedToast') : t('admin.users.accessRevokedToast'))
     } catch (err: any) {
-      showToast(err.message || 'Failed to update access', 'error')
+      showToast(err.message || t('admin.users.accessUpdateFailedToast'), 'error')
     } finally {
       setUpdatingKey(null)
     }
@@ -214,7 +223,7 @@ export function AdminUsersPage() {
     if (!deleteDialog) return
     try {
       await deleteProfile.mutateAsync(deleteDialog.userId)
-      showToast('User deleted')
+      showToast(t('admin.users.userDeletedToast'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -226,9 +235,9 @@ export function AdminUsersPage() {
   const handleCancelInvitation = async (inv: any) => {
     try {
       await cancelInvitation.mutateAsync(inv.id)
-      showToast('Invitation cancelled')
+      showToast(t('admin.users.invitationCancelledToast'))
     } catch (err: any) {
-      showToast(err.message || 'Failed to cancel invitation', 'error')
+      showToast(err.message || t('admin.users.invitationCancelFailedToast'), 'error')
     }
   }
 
@@ -238,12 +247,12 @@ export function AdminUsersPage() {
     <div className="space-y-6">
       {/* Header */}
       <AdminPageHeader
-        title="Users"
-        description={`${filtered.length} user${filtered.length !== 1 ? 's' : ''}`}
+        title={t('admin.users.title')}
+        description={t('admin.users.userCount', { count: filtered.length })}
       >
         <Button onClick={() => setInviteOpen(true)} size="sm">
           <Send className="h-4 w-4 mr-2" />
-          Invite User
+          {t('admin.users.inviteUser')}
         </Button>
       </AdminPageHeader>
 
@@ -256,7 +265,7 @@ export function AdminUsersPage() {
               <div className={cn('h-5 w-5 rounded-md flex items-center justify-center', mod.bg)}>
                 <Icon className={cn('h-3 w-3', mod.color)} />
               </div>
-              <span>{mod.label}</span>
+              <span>{t(`admin.users.module.${mod.key}`, { defaultValue: mod.label })}</span>
             </div>
           )
         })}
@@ -264,7 +273,7 @@ export function AdminUsersPage() {
           <div className="h-5 w-5 rounded-md flex items-center justify-center bg-primary/10">
             <ShieldCheck className="h-3 w-3 text-primary" />
           </div>
-          <span>Admin (full access)</span>
+          <span>{t('admin.users.adminFullAccess')}</span>
         </div>
       </div>
 
@@ -274,7 +283,7 @@ export function AdminUsersPage() {
           <div className="flex items-center gap-2 mb-3">
             <Clock className="h-4 w-4 text-amber-500" />
             <span className="text-sm font-medium text-amber-400">
-              Pending Invitations ({invitations.length})
+              {t('admin.users.pendingInvitations', { count: invitations.length })}
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -294,9 +303,9 @@ export function AdminUsersPage() {
                     <span className="text-muted-foreground text-xs">{inv.email}</span>
                   )}
                   {isSent ? (
-                    <Badge className="bg-green-500/20 text-green-400 text-[10px]">Sent</Badge>
+                    <Badge className="bg-green-500/20 text-green-400 text-[10px]">{t('admin.users.sent')}</Badge>
                   ) : (
-                    <Badge className="bg-muted text-muted-foreground text-[10px]">Draft</Badge>
+                    <Badge className="bg-muted text-muted-foreground text-[10px]">{t('admin.users.draft')}</Badge>
                   )}
                   {!isSent && (
                     <button
@@ -305,7 +314,7 @@ export function AdminUsersPage() {
                         setInviteOpen(true)
                       }}
                       className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                      title="Edit draft"
+                      title={t('admin.users.editDraft')}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
@@ -313,7 +322,7 @@ export function AdminUsersPage() {
                   <button
                     onClick={() => handleCancelInvitation(inv)}
                     className="text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
-                    title="Cancel invitation"
+                    title={t('admin.users.cancelInvitation')}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -329,7 +338,7 @@ export function AdminUsersPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or email..."
+            placeholder={t('admin.users.searchPlaceholder')}
             className="pl-9"
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
@@ -346,7 +355,7 @@ export function AdminUsersPage() {
               onClick={() => setRoleFilter(role)}
               className="capitalize"
             >
-              {role === 'all' ? 'All' : role}
+              {role === 'all' ? t('admin.users.allRoles') : getRoleLabel(role)}
             </Button>
           ))}
         </div>
@@ -357,7 +366,7 @@ export function AdminUsersPage() {
           onChange={(e: any) => setBuFilter(e.target.value)}
           className="w-44 h-8 text-xs"
         >
-          <option value="all">All Business Units</option>
+          <option value="all">{t('admin.users.allBusinessUnits')}</option>
           {businessUnits.map((bu: any) => (
             <option key={bu.id} value={bu.value}>{bu.value}</option>
           ))}
@@ -370,12 +379,12 @@ export function AdminUsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[180px] sm:w-[260px]">User</TableHead>
-              <TableHead className="w-[140px] sm:w-[180px]">Business Unit</TableHead>
-              <TableHead className="w-[90px] sm:w-[110px]">Role</TableHead>
-              <TableHead className="w-[80px] sm:w-[100px]">Status</TableHead>
-              <TableHead className="w-[60px] sm:w-[80px] text-center">Loans</TableHead>
-              <TableHead>Permissions</TableHead>
+              <TableHead className="w-[180px] sm:w-[260px]">{t('admin.users.colUser')}</TableHead>
+              <TableHead className="w-[140px] sm:w-[180px]">{t('admin.users.colBusinessUnit')}</TableHead>
+              <TableHead className="w-[90px] sm:w-[110px]">{t('admin.users.colRole')}</TableHead>
+              <TableHead className="w-[80px] sm:w-[100px]">{t('admin.users.colStatus')}</TableHead>
+              <TableHead className="w-[60px] sm:w-[80px] text-center">{t('admin.users.colLoans')}</TableHead>
+              <TableHead>{t('admin.users.colPermissions')}</TableHead>
               <TableHead className="w-[60px]" />
             </TableRow>
           </TableHeader>
@@ -399,9 +408,9 @@ export function AdminUsersPage() {
                       />
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate hover:underline">
-                          {p.full_name || 'Unnamed'}
+                          {p.full_name || t('admin.users.unnamed')}
                           {isSelf && (
-                            <span className="text-[10px] text-muted-foreground ml-1">(you)</span>
+                            <span className="text-[10px] text-muted-foreground ml-1">{t('admin.users.youIndicator')}</span>
                           )}
                         </div>
                         <div className="text-[10px] text-muted-foreground truncate">{p.email}</div>
@@ -419,7 +428,7 @@ export function AdminUsersPage() {
                         onChange={(e: any) => handleBuChange(p.id, e.target.value)}
                         className="w-40 h-8 text-xs"
                       >
-                        <option value="">— None —</option>
+                        <option value="">{t('admin.users.noneOption')}</option>
                         {businessUnits.map((bu: any) => (
                           <option key={bu.id} value={bu.value}>{bu.value}</option>
                         ))}
@@ -432,7 +441,7 @@ export function AdminUsersPage() {
                     {isSelf ? (
                       (() => {
                         const opt = ROLE_OPTIONS.find((r: any) => r.value === p.role) || (ROLE_OPTIONS as Record<string, any>)[0]
-                        return <Badge className={opt.color}>{opt.label}</Badge>
+                        return <Badge className={opt.color}>{t(opt.labelKey, { defaultValue: opt.label })}</Badge>
                       })()
                     ) : (
                       <Select
@@ -441,7 +450,7 @@ export function AdminUsersPage() {
                         className="w-24 h-8 text-xs"
                       >
                         {ROLE_OPTIONS.map((r: any) => (
-                          <option key={r.value} value={r.value}>{r.label}</option>
+                          <option key={r.value} value={r.value}>{t(r.labelKey, { defaultValue: r.label })}</option>
                         ))}
                       </Select>
                     )}
@@ -450,7 +459,7 @@ export function AdminUsersPage() {
                   {/* Status */}
                   <TableCell>
                     {isSelf ? (
-                      <Badge className="bg-green-500/20 text-green-400">Active</Badge>
+                      <Badge className="bg-green-500/20 text-green-400">{t('admin.users.active')}</Badge>
                     ) : (
                       <Button
                         variant="ghost"
@@ -459,9 +468,9 @@ export function AdminUsersPage() {
                         onClick={() => handleToggleActive(p.id, p.is_active !== false)}
                       >
                         {p.is_active !== false ? (
-                          <Badge className="bg-green-500/20 text-green-400 cursor-pointer">Active</Badge>
+                          <Badge className="bg-green-500/20 text-green-400 cursor-pointer">{t('admin.users.active')}</Badge>
                         ) : (
-                          <Badge className="bg-red-500/20 text-red-400 cursor-pointer">Disabled</Badge>
+                          <Badge className="bg-red-500/20 text-red-400 cursor-pointer">{t('admin.users.disabled')}</Badge>
                         )}
                       </Button>
                     )}
@@ -521,7 +530,7 @@ export function AdminUsersPage() {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  No users found
+                  {t('admin.users.noUsersFound')}
                 </TableCell>
               </TableRow>
             )}
@@ -530,7 +539,7 @@ export function AdminUsersPage() {
         {hasMore && (
           <div className="flex items-center justify-center py-4 border-t border-border/30">
             <Button variant="outline" size="sm" onClick={loadMore} className="text-xs">
-              Load more ({total - visibleRows.length} left)
+              {t('admin.users.loadMore', { count: total - visibleRows.length })}
             </Button>
           </div>
         )}
@@ -541,17 +550,22 @@ export function AdminUsersPage() {
       <Dialog open={!!confirmDialog} onOpenChange={() => setConfirmDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Role Change</DialogTitle>
+            <DialogTitle>{t('admin.users.confirmRoleChangeTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Change <strong>{confirmDialog?.userName}</strong>&apos;s role to{' '}
-            <strong className="capitalize">{confirmDialog?.newRole}</strong>?
+            <Trans
+              i18nKey="admin.users.confirmRoleChangeBody"
+              values={{ name: confirmDialog?.userName, role: getRoleLabel(confirmDialog?.newRole || '') }}
+            >
+              Change <strong>{{ name: confirmDialog?.userName } as any}</strong>&apos;s role to{' '}
+              <strong className="capitalize">{{ role: getRoleLabel(confirmDialog?.newRole || '') } as any}</strong>?
+            </Trans>
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setConfirmDialog(null)}>{t('admin.users.cancel')}</Button>
             <Button onClick={confirmRoleChange} disabled={updateRole.isPending}>
               {updateRole.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Confirm
+              {t('admin.users.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -561,17 +575,19 @@ export function AdminUsersPage() {
       <Dialog open={!!deleteDialog} onOpenChange={() => setDeleteDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>{t('admin.users.deleteUserTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete <strong>{deleteDialog?.userName}</strong>?
-            This action cannot be undone.
+            <Trans i18nKey="admin.users.deleteUserBody" values={{ name: deleteDialog?.userName }}>
+              Are you sure you want to delete <strong>{{ name: deleteDialog?.userName } as any}</strong>?
+              This action cannot be undone.
+            </Trans>
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteDialog(null)}>{t('admin.users.cancel')}</Button>
             <Button variant="destructive" onClick={confirmDelete} disabled={deleteProfile.isPending}>
               {deleteProfile.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Delete
+              {t('admin.users.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

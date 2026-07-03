@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useSharedMailboxes, useCreateSharedMailbox, useUpdateSharedMailbox, useDeleteSharedMailbox,
 } from '@/hooks/use-shared-mailboxes'
@@ -82,30 +83,35 @@ const CAT_COLORS = {
   LOURD: 'bg-rose-500/15 text-rose-600 border-rose-500/30',
 }
 
-const COLUMNS = [
-  { key: 'name',           label: 'Name',           type: 'text',   width: '200px' },
-  { key: 'mail',           label: 'Mail',           type: 'text',   width: '220px' },
-  { key: 'company',        label: 'Company',        type: 'select', width: '130px', options: COMPANIES },
-  { key: 'category',       label: 'Cat.',           type: 'select', width: '90px',  options: CATEGORIES, render: 'badge' },
-  { key: 'licence',        label: 'Licence',        type: 'select', width: '140px', options: LICENCES },
-  { key: 'licence_checked',label: '✓',              type: 'checkbox', width: '40px' },
-  { key: 'profile',        label: 'Profile',        type: 'select', width: '130px', options: PROFILES },
-  { key: 'project_leader', label: 'Project Leader', type: 'text',   width: '160px' },
-  { key: 'display_name',   label: 'Display Name',   type: 'text',   width: '200px' },
-  { key: 'have_access',    label: 'Access',         type: 'text',   width: '200px' },
-  { key: 'job_title',      label: 'Job Title',      type: 'text',   width: '180px' },
-  { key: 'archive_from',   label: 'Archive From',   type: 'date',   width: '130px' },
-  { key: 'archive_to',     label: 'Archive To',     type: 'date',   width: '130px' },
-  { key: 'delete_on',      label: 'Delete On',      type: 'date',   width: '130px' },
-  { key: 'created_in',     label: 'Created In',     type: 'text',   width: '90px' },
-]
+function buildColumns(t: (key: string) => string) {
+  return [
+    { key: 'name',           label: t('admin.sharedMailboxes.columnName'),          type: 'text',   width: '200px' },
+    { key: 'mail',           label: t('admin.sharedMailboxes.columnMail'),          type: 'text',   width: '220px' },
+    { key: 'company',        label: t('admin.sharedMailboxes.columnCompany'),       type: 'select', width: '130px', options: COMPANIES },
+    { key: 'category',       label: t('admin.sharedMailboxes.columnCategory'),      type: 'select', width: '90px',  options: CATEGORIES, render: 'badge' },
+    { key: 'licence',        label: t('admin.sharedMailboxes.columnLicence'),       type: 'select', width: '140px', options: LICENCES },
+    { key: 'licence_checked',label: '✓',                                            type: 'checkbox', width: '40px' },
+    { key: 'profile',        label: t('admin.sharedMailboxes.columnProfile'),       type: 'select', width: '130px', options: PROFILES },
+    { key: 'project_leader', label: t('admin.sharedMailboxes.columnProjectLeader'), type: 'text',   width: '160px' },
+    { key: 'display_name',   label: t('admin.sharedMailboxes.columnDisplayName'),   type: 'text',   width: '200px' },
+    { key: 'have_access',    label: t('admin.sharedMailboxes.columnAccess'),        type: 'text',   width: '200px' },
+    { key: 'job_title',      label: t('admin.sharedMailboxes.columnJobTitle'),      type: 'text',   width: '180px' },
+    { key: 'archive_from',   label: t('admin.sharedMailboxes.columnArchiveFrom'),   type: 'date',   width: '130px' },
+    { key: 'archive_to',     label: t('admin.sharedMailboxes.columnArchiveTo'),     type: 'date',   width: '130px' },
+    { key: 'delete_on',      label: t('admin.sharedMailboxes.columnDeleteOn'),      type: 'date',   width: '130px' },
+    { key: 'created_in',     label: t('admin.sharedMailboxes.columnCreatedIn'),     type: 'text',   width: '90px' },
+  ]
+}
 
 export function AdminSharedMailboxesPage() {
+  const { t } = useTranslation()
   const { data: rows = [], isLoading } = useSharedMailboxes()
   const createItem = useCreateSharedMailbox()
   const updateItem = useUpdateSharedMailbox()
   const deleteItem = useDeleteSharedMailbox()
   const showToast = useUIStore((s: any) => s.showToast)
+
+  const COLUMNS = useMemo(() => buildColumns(t), [t])
 
   const [search, setSearch] = useState('')
   const [companyFilter, setCompanyFilter] = useState('all')
@@ -142,28 +148,28 @@ export function AdminSharedMailboxesPage() {
 
   const handleAdd = useCallback(async () => {
     try {
-      await createItem.mutateAsync({ name: 'New mailbox', category: 'LEGER' })
+      await createItem.mutateAsync({ name: t('admin.sharedMailboxes.newMailboxName'), category: 'LEGER' })
     } catch (err: any) {
-      showToast(err.message || 'Failed to add row', 'error')
+      showToast(err.message || t('admin.sharedMailboxes.errorAddFailed'), 'error')
     }
-  }, [createItem, showToast])
+  }, [createItem, showToast, t])
 
   const handleUpdate = useCallback(async (id: any, field: any, value: any) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
     } catch (err: any) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || t('admin.sharedMailboxes.errorSaveFailed'), 'error')
     }
-  }, [updateItem, showToast])
+  }, [updateItem, showToast, t])
 
   const handleDelete = useCallback(async (id: any) => {
-    if (!confirm('Delete this shared mailbox row?')) return
+    if (!confirm(t('admin.sharedMailboxes.confirmDelete'))) return
     try {
       await deleteItem.mutateAsync(id)
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.sharedMailboxes.errorDeleteFailed'), 'error')
     }
-  }, [deleteItem, showToast])
+  }, [deleteItem, showToast, t])
 
   const handleExportCsv = useCallback(() => {
     const headers = COLUMNS.map((c: any) => c.label).join(',')
@@ -171,7 +177,7 @@ export function AdminSharedMailboxesPage() {
       COLUMNS.map((col: any) => {
         const v = r[col.key]
         if (v == null || v === false) return ''
-        if (v === true) return 'Yes'
+        if (v === true) return t('admin.sharedMailboxes.exportYes')
         return /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)
       }).join(',')
     )
@@ -181,15 +187,20 @@ export function AdminSharedMailboxesPage() {
     a.href = URL.createObjectURL(blob)
     a.download = `shared-mailboxes-${new Date().toISOString().slice(0,10)}.csv`
     a.click()
-  }, [filtered])
+  }, [filtered, COLUMNS, t])
 
   if (isLoading) return <PageLoading />
 
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Shared Mailboxes"
-        description={`${counts.total} mailbox${counts.total !== 1 ? 'es' : ''} · ${counts.leger} léger · ${counts.moyen} moyen · ${counts.lourd} lourd`}
+        title={t('admin.sharedMailboxes.pageTitle')}
+        description={t('admin.sharedMailboxes.pageDescription', {
+          count: counts.total,
+          leger: counts.leger,
+          moyen: counts.moyen,
+          lourd: counts.lourd,
+        })}
       />
 
       {/* Filters + actions */}
@@ -197,7 +208,7 @@ export function AdminSharedMailboxesPage() {
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search name, mail, project leader…"
+            placeholder={t('admin.sharedMailboxes.searchPlaceholder')}
             className="pl-9 h-9"
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
@@ -208,7 +219,7 @@ export function AdminSharedMailboxesPage() {
           onChange={(e: any) => setCompanyFilter(e.target.value)}
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
-          <option value="all">All companies</option>
+          <option value="all">{t('admin.sharedMailboxes.allCompanies')}</option>
           {companiesPresent.map((c: any) => <option key={c} value={c}>{c}</option>)}
         </select>
         <select
@@ -216,15 +227,15 @@ export function AdminSharedMailboxesPage() {
           onChange={(e: any) => setCatFilter(e.target.value)}
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
-          <option value="all">All categories</option>
+          <option value="all">{t('admin.sharedMailboxes.allCategories')}</option>
           {CATEGORIES.map((c: any) => <option key={c} value={c}>{c}</option>)}
         </select>
         <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5">
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {t('admin.sharedMailboxes.exportCsv')}
         </Button>
         <Button size="sm" onClick={handleAdd} disabled={createItem.isPending} className="gap-1.5">
           {createItem.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-          Add mailbox
+          {t('admin.sharedMailboxes.addMailbox')}
         </Button>
       </div>
 
@@ -246,7 +257,7 @@ export function AdminSharedMailboxesPage() {
               <tr>
                 <td colSpan={COLUMNS.length + 1} className="py-12 text-center text-muted-foreground">
                   <Mail className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  No shared mailboxes match the current filter.
+                  {t('admin.sharedMailboxes.emptyState')}
                 </td>
               </tr>
             ) : (
@@ -270,7 +281,7 @@ export function AdminSharedMailboxesPage() {
                     </td>
                   ))}
                   <td className="px-1 py-0.5 align-middle">
-                    <button onClick={() => handleDelete(r.id)} className="p-1.5 text-muted-foreground hover:text-destructive rounded" title="Delete">
+                    <button onClick={() => handleDelete(r.id)} className="p-1.5 text-muted-foreground hover:text-destructive rounded" title={t('admin.sharedMailboxes.deleteTitle')}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </td>

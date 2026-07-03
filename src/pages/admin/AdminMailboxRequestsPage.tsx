@@ -1151,15 +1151,15 @@ export function AdminMailboxRequestsPage() {
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Mailbox Request?</DialogTitle>
+            <DialogTitle>{t('admin.mailboxRequests.deleteRequestTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete the mailbox request for{' '}
+            {t('admin.mailboxRequests.deleteRequestDescBefore')}{' '}
             <strong>{deleteConfirm?.project_name}</strong>.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t('admin.mailboxRequests.cancel')}</Button>
+            <Button variant="destructive" onClick={handleDelete}>{t('admin.mailboxRequests.deleteButton')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   QrCode, Plus, Pencil, Trash2, Search, Download,
   Package, Copy, Check, Printer, User, UserPlus, UserMinus,
@@ -46,14 +47,15 @@ function QRPreview({ code, size = 56  }: any) {
 }
 
 const STATUS_STYLE = {
-  available: { label: 'Available', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  assigned: { label: 'Assigned', color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
-  maintenance: { label: 'Maintenance', color: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20' },
+  available: { labelKey: 'statusAvailable', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  assigned: { labelKey: 'statusAssigned', color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
+  maintenance: { labelKey: 'statusMaintenance', color: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20' },
 }
 
 const emptyForm = { code: '', product_id: '', label: '', serial_number: '', is_active: true }
 
 export function AdminQRCodesPage() {
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [showDialog, setShowDialog] = useState(false)
   const [showBulkDialog, setShowBulkDialog] = useState(false)
@@ -84,7 +86,7 @@ export function AdminQRCodesPage() {
   const releaseQR = useReleaseQRCode()
 
   const handleAssign = async () => {
-    if (!assignTarget || !assignUserId) { toast.error('Pick a person'); return }
+    if (!assignTarget || !assignUserId) { toast.error(t('admin.qrCodes.pickPerson')); return }
     const u: any = profiles.find((p: any) => p.id === assignUserId)
     try {
       await claimQR.mutateAsync({
@@ -95,20 +97,20 @@ export function AdminQRCodesPage() {
         assigned_at: new Date().toISOString(),
         expected_return_date: assignReturn || null,
       })
-      toast.success('Assigned')
+      toast.success(t('admin.qrCodes.assignedToast'))
       setAssignTarget(null); setAssignUserId(''); setAssignReturn('')
     } catch (err: any) {
-      toast.error(err?.message || 'Could not assign')
+      toast.error(err?.message || t('admin.qrCodes.couldNotAssign'))
     }
   }
 
   const handleRelease = async (qr: any) => {
-    if (!confirm(`Release ${qr.code} from ${qr.assigned_to_name || 'this person'}?`)) return
+    if (!confirm(t('admin.qrCodes.confirmRelease', { code: qr.code, person: qr.assigned_to_name || t('admin.qrCodes.thisPerson') }))) return
     try {
       await releaseQR.mutateAsync({ id: qr.id })
-      toast.success('Released — back to available')
+      toast.success(t('admin.qrCodes.releasedToast'))
     } catch (err: any) {
-      toast.error(err?.message || 'Could not release')
+      toast.error(err?.message || t('admin.qrCodes.couldNotRelease'))
     }
   }
 
@@ -126,11 +128,11 @@ export function AdminQRCodesPage() {
       if (editing) {
         await updateQR.mutateAsync({ id: editing.id, ...form })
         await saveQrAccessories(editing.id, editing.kit_id || null, form.code, accessories)
-        toast.success('QR code updated')
+        toast.success(t('admin.qrCodes.updatedToast'))
       } else {
         const created = await createQR.mutateAsync(form)
         await saveQrAccessories(created.id, null, form.code, accessories)
-        toast.success('QR code created')
+        toast.success(t('admin.qrCodes.createdToast'))
       }
       setShowDialog(false)
     } catch (err: any) { toast.error(err.message) }
@@ -142,17 +144,17 @@ export function AdminQRCodesPage() {
   const removeAccessory = (i: number) => setAccessories((a) => a.filter((_, idx) => idx !== i))
 
   const handleDelete = async (id: any) => {
-    if (!confirm('Delete this QR code?')) return
-    try { await deleteQR.mutateAsync(id); toast.success('QR code deleted') }
+    if (!confirm(t('admin.qrCodes.confirmDelete'))) return
+    try { await deleteQR.mutateAsync(id); toast.success(t('admin.qrCodes.deletedToast')) }
     catch (err: any) { toast.error(err.message) }
   }
 
   const handleBulkGenerate = async () => {
-    if (!bulkProductId) return toast.error('Select a product')
+    if (!bulkProductId) return toast.error(t('admin.qrCodes.selectProduct'))
     try {
       const codes = Array.from({ length: bulkCount }, () => ({ code: generateCode(bulkPrefix), product_id: bulkProductId, is_active: true }))
       await createQRs.mutateAsync(codes)
-      toast.success(`${bulkCount} QR codes generated`)
+      toast.success(t('admin.qrCodes.bulkGeneratedToast', { count: bulkCount }))
       setShowBulkDialog(false)
     } catch (err: any) { toast.error(err.message) }
   }
@@ -166,7 +168,7 @@ export function AdminQRCodesPage() {
 
   const handlePrintAll = async () => {
     const items = qrCodes.filter((qr: any) => qr.is_active).map((qr: any) => ({ code: qr.code, label: qr.product_name || qr.label || qr.code }))
-    if (!items.length) return toast.error('No active QR codes')
+    if (!items.length) return toast.error(t('admin.qrCodes.noActiveCodes'))
     await printBrandedQRCodes(items)
   }
 
@@ -179,13 +181,13 @@ export function AdminQRCodesPage() {
       code: qr.code,
       label: qr.product_name || qr.label || qr.code,
     }))
-    if (!items.length) return toast.error('No active QR codes to export')
-    toast.info(`Generating PDF for ${items.length} sticker${items.length > 1 ? 's' : ''}…`)
+    if (!items.length) return toast.error(t('admin.qrCodes.noActiveCodesExport'))
+    toast.info(t('admin.qrCodes.generatingPdf', { count: items.length }))
     try {
       const blob = await generateBulkQrPdf(items)
       downloadBlob(blob, `vo-hub-qr-stickers-${new Date().toISOString().slice(0, 10)}.pdf`)
     } catch (err: any) {
-      toast.error(err?.message || 'PDF export failed')
+      toast.error(err?.message || t('admin.qrCodes.pdfExportFailed'))
     }
   }
 
@@ -203,26 +205,30 @@ export function AdminQRCodesPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="QR Codes" description={`${qrCodes.length} codes — ${availableCount} available, ${assignedCount} assigned`}>
-        <Button variant="outline" size="sm" onClick={handlePrintAll} className="gap-2"><Printer className="h-3.5 w-3.5" /> Print All</Button>
-        <Button variant="outline" size="sm" onClick={handleExportPdf} className="gap-2"><Download className="h-3.5 w-3.5" /> Export PDF</Button>
-        <Button variant="outline" size="sm" onClick={() => setShowBulkDialog(true)} className="gap-2"><Plus className="h-3.5 w-3.5" /> Bulk Generate</Button>
-        <Button size="sm" onClick={openNew} className="gap-2"><Plus className="h-3.5 w-3.5" /> Add QR Code</Button>
+      <AdminPageHeader
+        title={t('admin.qrCodes.pageTitle')}
+        description={t('admin.qrCodes.pageDescription', { total: qrCodes.length, available: availableCount, assigned: assignedCount })}
+        section={t('admin.eyebrow.qrTracking')}
+      >
+        <Button variant="outline" size="sm" onClick={handlePrintAll} className="gap-2"><Printer className="h-3.5 w-3.5" /> {t('admin.qrCodes.printAll')}</Button>
+        <Button variant="outline" size="sm" onClick={handleExportPdf} className="gap-2"><Download className="h-3.5 w-3.5" /> {t('admin.qrCodes.exportPdf')}</Button>
+        <Button variant="outline" size="sm" onClick={() => setShowBulkDialog(true)} className="gap-2"><Plus className="h-3.5 w-3.5" /> {t('admin.qrCodes.bulkGenerate')}</Button>
+        <Button size="sm" onClick={openNew} className="gap-2"><Plus className="h-3.5 w-3.5" /> {t('admin.qrCodes.addQrCode')}</Button>
       </AdminPageHeader>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by code or product..." className="pl-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
+          <Input placeholder={t('admin.qrCodes.searchPlaceholder')} className="pl-9" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         </div>
 
         {/* Status filter */}
         <div className="flex gap-1.5">
           {[
-            { key: 'all', label: `All (${qrCodes.length})` },
-            { key: 'available', label: `Available (${availableCount})` },
-            { key: 'assigned', label: `Assigned (${assignedCount})` },
+            { key: 'all', label: t('admin.qrCodes.filterAll', { count: qrCodes.length }) },
+            { key: 'available', label: t('admin.qrCodes.filterAvailable', { count: availableCount }) },
+            { key: 'assigned', label: t('admin.qrCodes.filterAssigned', { count: assignedCount }) },
           ].map((f: any) => (
             <Button key={f.key} variant={statusFilter === f.key ? 'default' : 'outline'} size="sm" className="text-xs" onClick={() => setStatusFilter(f.key)}>
               {f.label}
@@ -233,7 +239,7 @@ export function AdminQRCodesPage() {
         {/* Category filter */}
         {categories.length > 1 && (
           <div className="flex gap-1.5">
-            <Button variant={categoryFilter === 'all' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => setCategoryFilter('all')}>All types</Button>
+            <Button variant={categoryFilter === 'all' ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => setCategoryFilter('all')}>{t('admin.qrCodes.allTypes')}</Button>
             {categories.map((cat: any) => (
               <Button key={cat} variant={categoryFilter === cat ? 'secondary' : 'ghost'} size="sm" className="text-xs" onClick={() => setCategoryFilter(cat)}>
                 {cat}
@@ -245,7 +251,7 @@ export function AdminQRCodesPage() {
 
       {/* QR code list */}
       {filtered.length === 0 ? (
-        <EmptyState icon={QrCode} title="No QR codes" description={search ? 'No codes match your search' : 'Add your first QR code'} />
+        <EmptyState icon={QrCode} title={t('admin.qrCodes.emptyTitle')} description={search ? t('admin.qrCodes.emptySearch') : t('admin.qrCodes.emptyAdd')} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((qr: any, i: any) => {
@@ -258,7 +264,7 @@ export function AdminQRCodesPage() {
                     <div className="flex items-start gap-3">
                       <QRPreview code={qr.code} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{qr.product_name || qr.label || 'Unlinked'}</p>
+                        <p className="font-semibold text-sm truncate">{qr.product_name || qr.label || t('admin.qrCodes.unlinked')}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <code className="text-[11px] text-muted-foreground font-mono">{qr.code}</code>
                           <button onClick={() => copyCode(qr.code)} className="text-muted-foreground hover:text-foreground">
@@ -268,7 +274,7 @@ export function AdminQRCodesPage() {
                         <div className="flex items-center gap-1.5 mt-1.5">
                           {qr.category_name && <CategoryBadge name={qr.category_name} color={qr.category_color} />}
                           <Badge variant="outline" className={cn('text-[10px] gap-1', style.bg, style.color)}>
-                            {style.label}
+                            {t(`admin.qrCodes.${style.labelKey}`, { defaultValue: style.labelKey })}
                           </Badge>
                         </div>
                         {/* Show who it's assigned to */}
@@ -281,16 +287,16 @@ export function AdminQRCodesPage() {
                       </div>
                       <div className="flex flex-col gap-1 shrink-0">
                         {qrStatus === 'available' && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-500" title="Assign to a person" onClick={() => { setAssignTarget(qr); setAssignUserId(''); setAssignReturn('') }}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-500" title={t('admin.qrCodes.assignTooltip')} onClick={() => { setAssignTarget(qr); setAssignUserId(''); setAssignReturn('') }}>
                             <UserPlus className="h-3.5 w-3.5" />
                           </Button>
                         )}
                         {qrStatus === 'assigned' && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600" title="Release (mark returned)" onClick={() => handleRelease(qr)}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600" title={t('admin.qrCodes.releaseTooltip')} onClick={() => handleRelease(qr)}>
                             <UserMinus className="h-3.5 w-3.5" />
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon" className="h-7 w-7" title="History" onClick={() => setHistoryTarget(qr)}>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('admin.qrCodes.historyTooltip')} onClick={() => setHistoryTarget(qr)}>
                           <History className="h-3.5 w-3.5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => downloadQR(qr.code, qr.product_name)}>
@@ -316,7 +322,7 @@ export function AdminQRCodesPage() {
       <Dialog open={!!historyTarget} onOpenChange={(v: boolean) => !v && setHistoryTarget(null)}>
         <DialogContent className="max-w-md p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" /> {historyTarget?.code} history</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" /> {t('admin.qrCodes.historyTitle', { code: historyTarget?.code })}</DialogTitle>
           </DialogHeader>
           {historyTarget && <QrHistory qrCodeId={historyTarget.id} />}
         </DialogContent>
@@ -326,14 +332,14 @@ export function AdminQRCodesPage() {
       <Dialog open={!!assignTarget} onOpenChange={(v: boolean) => !v && setAssignTarget(null)}>
         <DialogContent className="max-w-md p-6">
           <DialogHeader>
-            <DialogTitle>Assign {assignTarget?.code}</DialogTitle>
+            <DialogTitle>{t('admin.qrCodes.assignDialogTitle', { code: assignTarget?.code })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">{assignTarget?.product_name || assignTarget?.label}</p>
             <div className="space-y-1">
-              <Label>Assign to *</Label>
+              <Label>{t('admin.qrCodes.assignToLabel')}</Label>
               <Select value={assignUserId} onChange={(e: any) => setAssignUserId(e.target.value)}>
-                <option value="">Select a person…</option>
+                <option value="">{t('admin.qrCodes.selectPersonOption')}</option>
                 {profiles.map((p: any) => (
                   <option key={p.id} value={p.id}>
                     {[p.first_name, p.last_name].filter(Boolean).join(' ') || p.email}
@@ -342,13 +348,13 @@ export function AdminQRCodesPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Expected return (optional)</Label>
+              <Label>{t('admin.qrCodes.expectedReturnLabel')}</Label>
               <Input type="date" value={assignReturn} onChange={(e: any) => setAssignReturn(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setAssignTarget(null)}>Cancel</Button>
-            <Button onClick={handleAssign} disabled={claimQR.isPending}>Assign</Button>
+            <Button variant="ghost" onClick={() => setAssignTarget(null)}>{t('admin.qrCodes.cancel')}</Button>
+            <Button onClick={handleAssign} disabled={claimQR.isPending}>{t('admin.qrCodes.assign')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -356,47 +362,47 @@ export function AdminQRCodesPage() {
       {/* Create/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-md p-6">
-          <DialogHeader><DialogTitle>{editing ? 'Edit QR Code' : 'Add QR Code'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('admin.qrCodes.editDialogTitle') : t('admin.qrCodes.addDialogTitle')}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label>Code *</Label>
+              <Label>{t('admin.qrCodes.codeLabel')}</Label>
               <Input value={form.code} onChange={(e: any) => setForm({ ...form, code: e.target.value })} placeholder="VO-XXXXXX" />
             </div>
             <div className="space-y-1">
-              <Label>Product *</Label>
+              <Label>{t('admin.qrCodes.productLabel')}</Label>
               <Select value={form.product_id} onChange={(e: any) => setForm({ ...form, product_id: e.target.value })}>
-                <option value="">Select product...</option>
+                <option value="">{t('admin.qrCodes.selectProductOption')}</option>
                 {products.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({p.category_name})</option>)}
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Label</Label>
-              <Input value={form.label} onChange={(e: any) => setForm({ ...form, label: e.target.value })} placeholder="Optional label" />
+              <Label>{t('admin.qrCodes.labelLabel')}</Label>
+              <Input value={form.label} onChange={(e: any) => setForm({ ...form, label: e.target.value })} placeholder={t('admin.qrCodes.optionalLabelPlaceholder')} />
             </div>
             <div className="space-y-1">
-              <Label>Serial number</Label>
+              <Label>{t('admin.qrCodes.serialNumberLabel')}</Label>
               <Input
                 value={form.serial_number}
                 onChange={(e: any) => setForm({ ...form, serial_number: e.target.value })}
                 placeholder="e.g. C02XL1ABCDEF"
                 className="font-mono text-xs"
               />
-              <p className="text-[10px] text-muted-foreground">The physical asset's serial — shown when the QR is scanned.</p>
+              <p className="text-[10px] text-muted-foreground">{t('admin.qrCodes.serialNumberHint')}</p>
             </div>
 
             {/* Bundled accessories: scanning this device also moves these items. */}
             <div className="space-y-2 border-t pt-3">
               <div className="flex items-center justify-between">
-                <Label>Included accessories</Label>
+                <Label>{t('admin.qrCodes.includedAccessoriesLabel')}</Label>
                 <Button type="button" variant="ghost" size="sm" className="text-xs gap-1" onClick={addAccessory}>
-                  <Plus className="h-3.5 w-3.5" /> Add
+                  <Plus className="h-3.5 w-3.5" /> {t('admin.qrCodes.add')}
                 </Button>
               </div>
               <p className="text-[10px] text-muted-foreground -mt-1">
-                Scanning this device (take/return) also moves these accessories' stock.
+                {t('admin.qrCodes.accessoriesHint')}
               </p>
               {accessories.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground italic">No accessories bundled.</p>
+                <p className="text-[11px] text-muted-foreground italic">{t('admin.qrCodes.noAccessoriesBundled')}</p>
               ) : (
                 accessories.map((row, i) => (
                   <div key={i} className="flex items-center gap-2">
@@ -405,7 +411,7 @@ export function AdminQRCodesPage() {
                       onChange={(e: any) => updateAccessory(i, { product_id: e.target.value })}
                       className="flex-1 text-xs"
                     >
-                      <option value="">Select accessory…</option>
+                      <option value="">{t('admin.qrCodes.selectAccessoryOption')}</option>
                       {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </Select>
                     <Input
@@ -424,8 +430,8 @@ export function AdminQRCodesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save</Button>
+            <Button variant="outline" onClick={() => setShowDialog(false)}>{t('admin.qrCodes.cancel')}</Button>
+            <Button onClick={handleSave}>{t('admin.qrCodes.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -433,23 +439,23 @@ export function AdminQRCodesPage() {
       {/* Bulk Generate Dialog */}
       <Dialog open={showBulkDialog} onOpenChange={setShowBulkDialog}>
         <DialogContent className="max-w-md p-6">
-          <DialogHeader><DialogTitle>Bulk Generate QR Codes</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('admin.qrCodes.bulkDialogTitle')}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label>Product *</Label>
+              <Label>{t('admin.qrCodes.productLabel')}</Label>
               <Select value={bulkProductId} onChange={(e: any) => setBulkProductId(e.target.value)}>
-                <option value="">Select product...</option>
+                <option value="">{t('admin.qrCodes.selectProductOption')}</option>
                 {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1"><Label>Prefix</Label><Input value={bulkPrefix} onChange={(e: any) => setBulkPrefix(e.target.value)} /></div>
-              <div className="space-y-1"><Label>Count</Label><Input type="number" min={1} max={50} value={bulkCount} onChange={(e: any) => setBulkCount(parseInt(e.target.value) || 1)} /></div>
+              <div className="space-y-1"><Label>{t('admin.qrCodes.prefixLabel')}</Label><Input value={bulkPrefix} onChange={(e: any) => setBulkPrefix(e.target.value)} /></div>
+              <div className="space-y-1"><Label>{t('admin.qrCodes.countLabel')}</Label><Input type="number" min={1} max={50} value={bulkCount} onChange={(e: any) => setBulkCount(parseInt(e.target.value) || 1)} /></div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBulkDialog(false)}>Cancel</Button>
-            <Button onClick={handleBulkGenerate}>Generate {bulkCount} codes</Button>
+            <Button variant="outline" onClick={() => setShowBulkDialog(false)}>{t('admin.qrCodes.cancel')}</Button>
+            <Button onClick={handleBulkGenerate}>{t('admin.qrCodes.generateCodesButton', { count: bulkCount })}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -459,9 +465,10 @@ export function AdminQRCodesPage() {
 
 // ── Per-device lifecycle (take/deposit history for one QR) ──
 function QrHistory({ qrCodeId }: { qrCodeId: string }) {
+  const { t } = useTranslation()
   const { data: logs = [], isLoading } = useScanLogsForQrCode(qrCodeId)
-  if (isLoading) return <p className="text-sm text-muted-foreground py-6 text-center">Loading…</p>
-  if (!logs.length) return <p className="text-sm text-muted-foreground py-6 text-center">No scan history for this unit yet.</p>
+  if (isLoading) return <p className="text-sm text-muted-foreground py-6 text-center">{t('admin.qrCodes.loading')}</p>
+  if (!logs.length) return <p className="text-sm text-muted-foreground py-6 text-center">{t('admin.qrCodes.noScanHistory')}</p>
   return (
     <div className="max-h-80 overflow-auto -mx-1">
       <div className="relative pl-2">
@@ -478,7 +485,7 @@ function QrHistory({ qrCodeId }: { qrCodeId: string }) {
                 </div>
                 <div className="flex-1 min-w-0 pt-0.5">
                   <p className="text-sm truncate">
-                    {isTake ? 'Picked up' : 'Returned'}
+                    {isTake ? t('admin.qrCodes.pickedUp') : t('admin.qrCodes.returned')}
                     {log.user_name ? ` · ${log.user_name}` : log.user_email ? ` · ${log.user_email}` : ''}
                   </p>
                   <p className="text-[11px] text-muted-foreground">

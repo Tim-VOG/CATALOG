@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAdminCalendarRequests } from '@/hooks/use-admin-calendar-requests'
 import { RequestsCalendar } from '@/components/calendar/RequestsCalendar'
 import { PageLoading } from '@/components/common/LoadingSpinner'
@@ -11,6 +12,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
  * and assignments at a glance.
  */
 export function AdminPlanningPage() {
+  const { t } = useTranslation()
   const { events, isLoading, counts, users } = useAdminCalendarRequests()
   const [selectedIds] = useState(new Set())
 
@@ -19,8 +21,8 @@ export function AdminPlanningPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Planning"
-        description="When IT equipment is in use — across loans, onboarding, IT requests and mailbox provisioning."
+        title={t('admin.planning.title')}
+        description={t('admin.planning.description')}
       />
 
       <RequestsCalendar

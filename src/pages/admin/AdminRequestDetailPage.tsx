@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useLoanRequest, useLoanRequestItems, useUpdateRequestStatus } from '@/hooks/use-loan-requests'
 import { useAssignEquipmentBatch } from '@/hooks/use-user-equipment'
 import { useQRCodes, useUpdateQRCode, useClaimQRCode, useReleaseQRCode } from '@/hooks/use-qr-codes'
@@ -25,6 +26,7 @@ import { AnimatedTimeline } from '@/components/common/AnimatedTimeline'
 import { cn } from '@/lib/utils'
 
 function AdminNotes({ requestId, initialNotes  }: any) {
+  const { t } = useTranslation()
   const [notes, setNotes] = useState(initialNotes)
   const [saving, setSaving] = useState(false)
   const showToast = useUIStore((s: any) => s.showToast)
@@ -34,17 +36,17 @@ function AdminNotes({ requestId, initialNotes  }: any) {
     setSaving(true)
     try {
       await supabase.from('loan_requests').update({ admin_notes: notes }).eq('id', requestId)
-      showToast('Notes saved')
+      showToast(t('admin.requestDetail.notesSaved'))
     } catch (err: any) { showToast(err.message, 'error') }
     setSaving(false)
   }
 
   return (
     <div className="space-y-2">
-      <Textarea value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Internal notes (not visible to the user)..." rows={3} className="text-sm" />
+      <Textarea value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder={t('admin.requestDetail.notesPlaceholder')} rows={3} className="text-sm" />
       {changed && (
         <Button size="sm" onClick={handleSave} disabled={saving} className="gap-2">
-          <Save className="h-3.5 w-3.5" /> {saving ? 'Saving...' : 'Save Notes'}
+          <Save className="h-3.5 w-3.5" /> {saving ? t('admin.requestDetail.saving') : t('admin.requestDetail.saveNotes')}
         </Button>
       )}
     </div>
@@ -52,6 +54,7 @@ function AdminNotes({ requestId, initialNotes  }: any) {
 }
 
 export function AdminRequestDetailPage() {
+  const { t } = useTranslation()
   const { requestId } = useParams()
   const { data: request, isLoading, isFetching } = useLoanRequest(requestId)
   const { data: items = [] } = useLoanRequestItems(requestId)
@@ -85,17 +88,17 @@ export function AdminRequestDetailPage() {
       (q) => q.code === scannedCode && q.product_id === assigningItem.product_id
     )
     if (!qr) {
-      setScanError(`"${scannedCode}" is not a valid QR code for ${assigningItem.product_name}`)
+      setScanError(t('admin.requestDetail.scanInvalidCode', { code: scannedCode, productName: assigningItem.product_name }))
       return
     }
     if ((qr.status || 'available') !== 'available') {
-      setScanError(`"${scannedCode}" is already assigned to ${qr.assigned_to_name || 'someone'}`)
+      setScanError(t('admin.requestDetail.scanAlreadyAssigned', { code: scannedCode, name: qr.assigned_to_name || t('admin.requestDetail.someone') }))
       return
     }
     // Guard against double-assigning the same QR inside the same request
     const alreadyHere = Object.values(assignedQRs).flat().some((q: any) => q?.id === qr.id)
     if (alreadyHere) {
-      setScanError(`"${scannedCode}" is already used in this request`)
+      setScanError(t('admin.requestDetail.scanAlreadyUsed', { code: scannedCode }))
       return
     }
     try {
@@ -125,11 +128,11 @@ export function AdminRequestDetailPage() {
       // keep it open so the admin can scan the next unit immediately.
       const nextCount = ((assignedQRs[assigningItem.id] || []).length) + 1
       if (nextCount >= assigningItem.quantity) setAssigningItem(null)
-      showToast(`${qr.code} assigned`)
+      showToast(t('admin.requestDetail.qrAssigned', { code: qr.code }))
     } catch (err: any) {
-      showToast(err.message || 'Failed to assign QR code', 'error')
+      showToast(err.message || t('admin.requestDetail.failedAssignQr'), 'error')
     }
-  }, [assigningItem, allQRCodes, assignedQRs, request, updateQR, showToast])
+  }, [assigningItem, allQRCodes, assignedQRs, request, updateQR, showToast, t])
 
   const filteredAssignQRs = useMemo(() => {
     if (!assigningItem) return []
@@ -161,14 +164,14 @@ export function AdminRequestDetailPage() {
   }, [allQRCodes, request?.id])
 
   if (isLoading || isFetching) return <PageLoading />
-  if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
+  if (!request) return <div className="text-center py-16 text-muted-foreground">{t('admin.requestDetail.requestNotFound')}</div>
 
   const requesterName = `${request.user_first_name || ''} ${request.user_last_name || ''}`.trim()
 
   const handleStatusUpdate = async (status: any) => {
     try {
       await updateStatus.mutateAsync({ id: request.id, status })
-      showToast(`Request marked as ${status.replace('_', ' ')}`)
+      showToast(t('admin.requestDetail.requestMarkedAs', { status: status.replace('_', ' ') }))
 
       if (status === 'ready' && items.length > 0) {
         // One user_equipment row per physical unit handed out — so an item
@@ -212,7 +215,7 @@ export function AdminRequestDetailPage() {
     // Guard against double-assigning the same QR inside the same request
     const alreadyHere = Object.values(assignedQRs).flat().some((q: any) => q?.id === qrCode.id)
     if (alreadyHere) {
-      showToast(`${qrCode.code} is already used in this request`, 'error')
+      showToast(t('admin.requestDetail.qrCodeAlreadyUsed', { code: qrCode.code }), 'error')
       return
     }
     try {
@@ -239,9 +242,9 @@ export function AdminRequestDetailPage() {
       })
       const nextCount = ((assignedQRs[assigningItem.id] || []).length) + 1
       if (nextCount >= assigningItem.quantity) setAssigningItem(null)
-      showToast(`${qrCode.code} assigned to ${requesterName}`)
+      showToast(t('admin.requestDetail.qrAssignedTo', { code: qrCode.code, name: requesterName }))
     } catch (err: any) {
-      showToast(err.message || 'Failed to assign QR code', 'error')
+      showToast(err.message || t('admin.requestDetail.failedAssignQr'), 'error')
     }
   }
 
@@ -259,9 +262,9 @@ export function AdminRequestDetailPage() {
         const list = (prev[item.id] || []).filter((q: any) => q.id !== qrCode.id)
         return { ...prev, [item.id]: list }
       })
-      showToast(`${qrCode.code} unassigned`)
+      showToast(t('admin.requestDetail.qrUnassigned', { code: qrCode.code }))
     } catch (err: any) {
-      showToast(err.message || 'Failed to unassign QR code', 'error')
+      showToast(err.message || t('admin.requestDetail.failedUnassignQr'), 'error')
     }
   }
 
@@ -287,7 +290,7 @@ export function AdminRequestDetailPage() {
     <div className="space-y-6">
       <Link to="/admin/requests">
         <Button variant="ghost" size="sm" className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Back to Requests
+          <ArrowLeft className="h-4 w-4" /> {t('admin.requestDetail.backToRequests')}
         </Button>
       </Link>
 
@@ -298,21 +301,21 @@ export function AdminRequestDetailPage() {
             <StatusBadge status={request.status} />
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Request #{request.request_number} by {requesterName}
+            {t('admin.requestDetail.requestByLine', { number: request.request_number, name: requesterName })}
           </p>
         </div>
 
         <div className="flex gap-2 shrink-0">
           {request.status === 'pending' && (
             <Button className="gap-2" onClick={() => handleStatusUpdate('in_progress')}>
-              <Package className="h-4 w-4" /> Start Processing
+              <Package className="h-4 w-4" /> {t('admin.requestDetail.startProcessing')}
             </Button>
           )}
           {request.status === 'in_progress' && (
             <div className="flex items-center gap-2">
               {!allItemsAssigned && (
                 <span className="text-xs text-amber-600">
-                  Assign a QR code to every item first
+                  {t('admin.requestDetail.assignQrFirst')}
                 </span>
               )}
               <Button
@@ -321,23 +324,23 @@ export function AdminRequestDetailPage() {
                 onClick={() => handleStatusUpdate('ready')}
                 disabled={!allItemsAssigned}
               >
-                <Check className="h-4 w-4" /> Mark Ready
+                <Check className="h-4 w-4" /> {t('admin.requestDetail.markReady')}
               </Button>
             </div>
           )}
           {request.status === 'ready' && (
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-2 text-sm text-emerald-500 font-medium">
-                <Check className="h-4 w-4" /> Ready for pickup
+                <Check className="h-4 w-4" /> {t('admin.requestDetail.readyForPickup')}
               </span>
               <Button variant="outline" className="gap-2" onClick={() => handleStatusUpdate('returned')}>
-                <Check className="h-4 w-4" /> Mark returned
+                <Check className="h-4 w-4" /> {t('admin.requestDetail.markReturned')}
               </Button>
             </div>
           )}
           {request.status === 'returned' && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
-              <Check className="h-4 w-4" /> Returned
+              <Check className="h-4 w-4" /> {t('admin.requestDetail.returned')}
             </div>
           )}
         </div>
@@ -345,7 +348,7 @@ export function AdminRequestDetailPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
-          <CardHeader><CardTitle className="text-base">Project Details</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t('admin.requestDetail.projectDetails')}</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
               <UserAvatar
@@ -365,10 +368,10 @@ export function AdminRequestDetailPage() {
             {(request.pickup_contact || request.return_contact) && (
               <div className="text-sm text-muted-foreground space-y-0.5">
                 {request.pickup_contact && (
-                  <div>Pickup by <strong className="text-foreground">{request.pickup_contact}</strong></div>
+                  <div>{t('admin.requestDetail.pickupBy')} <strong className="text-foreground">{request.pickup_contact}</strong></div>
                 )}
                 {request.return_contact && (
-                  <div>Return by <strong className="text-foreground">{request.return_contact}</strong></div>
+                  <div>{t('admin.requestDetail.returnBy')} <strong className="text-foreground">{request.return_contact}</strong></div>
                 )}
               </div>
             )}
@@ -378,7 +381,7 @@ export function AdminRequestDetailPage() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-base">Timeline</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t('admin.requestDetail.timeline')}</CardTitle></CardHeader>
           <CardContent>
             <AnimatedTimeline events={timeline} />
           </CardContent>
@@ -388,7 +391,7 @@ export function AdminRequestDetailPage() {
       {/* Items with QR assignment */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Items ({items.length})</CardTitle>
+          <CardTitle className="text-base">{t('admin.requestDetail.itemsCount', { count: items.length })}</CardTitle>
         </CardHeader>
         <CardContent className="divide-y">
           {items.map((item: any) => {
@@ -418,7 +421,7 @@ export function AdminRequestDetailPage() {
                   <div className="text-right shrink-0">
                     <span className="text-sm font-medium block">&times; {item.quantity}</span>
                     {request.status === 'in_progress' && item.quantity > 1 && (
-                      <span className="text-[10px] text-muted-foreground">{assignedList.length} / {item.quantity} assigned</span>
+                      <span className="text-[10px] text-muted-foreground">{t('admin.requestDetail.assignedProgress', { assigned: assignedList.length, total: item.quantity })}</span>
                     )}
                   </div>
                 </div>
@@ -431,11 +434,11 @@ export function AdminRequestDetailPage() {
                       <div key={qr.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                         <QrCode className="h-4 w-4 text-emerald-500" />
                         <code className="text-xs font-mono font-semibold text-emerald-600">{qr.code}</code>
-                        <span className="text-xs text-emerald-600">assigned to {requesterName}</span>
+                        <span className="text-xs text-emerald-600">{t('admin.requestDetail.assignedToName', { name: requesterName })}</span>
                         <button
                           onClick={() => handleUnassignQR(item, qr)}
                           className="ml-auto text-emerald-600/60 hover:text-destructive transition-colors"
-                          title="Unassign"
+                          title={t('admin.requestDetail.unassign')}
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
@@ -449,12 +452,12 @@ export function AdminRequestDetailPage() {
                         onClick={() => { setAssigningItem(item); setQrSearch('') }}
                       >
                         <QrCode className="h-3.5 w-3.5" />
-                        Assign QR Code
+                        {t('admin.requestDetail.assignQrCode')}
                         {item.quantity > 1 && (
-                          <span className="text-[10px] text-muted-foreground">({slotsLeft} left)</span>
+                          <span className="text-[10px] text-muted-foreground">{t('admin.requestDetail.slotsLeft', { count: slotsLeft })}</span>
                         )}
                         {availableCount > 0 && (
-                          <Badge variant="secondary" className="text-[10px] ml-1">{availableCount} available</Badge>
+                          <Badge variant="secondary" className="text-[10px] ml-1">{t('admin.requestDetail.countAvailable', { count: availableCount })}</Badge>
                         )}
                       </Button>
                     )}
@@ -469,7 +472,7 @@ export function AdminRequestDetailPage() {
 
       {/* Admin notes */}
       <Card>
-        <CardHeader><CardTitle className="text-base flex items-center gap-2"><MessageSquare className="h-4 w-4" /> Admin Notes</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><MessageSquare className="h-4 w-4" /> {t('admin.requestDetail.adminNotes')}</CardTitle></CardHeader>
         <CardContent>
           <AdminNotes requestId={request.id} initialNotes={request.admin_notes || ''} />
         </CardContent>
@@ -479,7 +482,7 @@ export function AdminRequestDetailPage() {
       <Dialog open={!!assigningItem} onOpenChange={() => { setAssigningItem(null); setAssignMode('scan') }}>
         <DialogContent className="max-w-md p-0 overflow-hidden" size="md">
           <div className="px-6 pt-6 pb-4 border-b bg-muted/30">
-            <h3 className="font-display font-bold text-base">Assign QR Code</h3>
+            <h3 className="font-display font-bold text-base">{t('admin.requestDetail.assignQrCode')}</h3>
             <p className="text-sm text-muted-foreground mt-1">
               {assigningItem?.product_name} → <strong>{requesterName}</strong>
             </p>
@@ -493,7 +496,7 @@ export function AdminRequestDetailPage() {
               className="flex-1 gap-2 text-xs"
               onClick={() => setAssignMode('scan')}
             >
-              <Camera className="h-3.5 w-3.5" /> Scan QR
+              <Camera className="h-3.5 w-3.5" /> {t('admin.requestDetail.scanQr')}
             </Button>
             <Button
               variant={assignMode === 'list' ? 'default' : 'outline'}
@@ -501,7 +504,7 @@ export function AdminRequestDetailPage() {
               className="flex-1 gap-2 text-xs"
               onClick={() => setAssignMode('list')}
             >
-              <List className="h-3.5 w-3.5" /> Pick from list
+              <List className="h-3.5 w-3.5" /> {t('admin.requestDetail.pickFromList')}
             </Button>
           </div>
 
@@ -517,11 +520,11 @@ export function AdminRequestDetailPage() {
               <div className="space-y-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search QR code..." className="pl-9" value={qrSearch} onChange={(e: any) => setQrSearch(e.target.value)} />
+                  <Input placeholder={t('admin.requestDetail.searchQrCodePlaceholder')} className="pl-9" value={qrSearch} onChange={(e: any) => setQrSearch(e.target.value)} />
                 </div>
                 <div className="space-y-2 max-h-56 overflow-y-auto">
                   {filteredAssignQRs.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-6">No available QR codes for this product</p>
+                    <p className="text-sm text-muted-foreground text-center py-6">{t('admin.requestDetail.noAvailableQrCodes')}</p>
                   ) : (
                     filteredAssignQRs.map((qr: any) => (
                       <button
@@ -535,7 +538,7 @@ export function AdminRequestDetailPage() {
                           <code className="text-sm font-mono font-semibold">{qr.code}</code>
                           {qr.label && <p className="text-xs text-muted-foreground">{qr.label}</p>}
                         </div>
-                        <Badge variant="outline" className="text-[10px] text-emerald-500 bg-emerald-500/10 border-emerald-500/20">Available</Badge>
+                        <Badge variant="outline" className="text-[10px] text-emerald-500 bg-emerald-500/10 border-emerald-500/20">{t('admin.requestDetail.available')}</Badge>
                       </button>
                     ))
                   )}
@@ -545,7 +548,7 @@ export function AdminRequestDetailPage() {
           </div>
 
           <div className="px-6 py-4 border-t bg-muted/20">
-            <Button variant="outline" className="w-full" onClick={() => { setAssigningItem(null); setAssignMode('scan') }}>Cancel</Button>
+            <Button variant="outline" className="w-full" onClick={() => { setAssigningItem(null); setAssignMode('scan') }}>{t('admin.requestDetail.cancel')}</Button>
           </div>
         </DialogContent>
       </Dialog>
