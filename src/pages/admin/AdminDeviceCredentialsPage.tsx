@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useDeviceCredentials, useCreateDeviceCredential,
   useUpdateDeviceCredential, useDeleteDeviceCredential,
@@ -54,21 +55,22 @@ const STATUS_COLORS = {
 }
 
 const COLUMNS = [
-  { key: 'imei',            label: 'IMEI',           width: '150px' },
-  { key: 'serial_number',   label: 'Serial',         width: '130px' },
-  { key: 'phone_number',    label: 'Phone',          width: '130px' },
-  { key: 'sim_iccid',       label: 'SIM ICCID',      width: '180px' },
-  { key: 'sim_pin',         label: 'SIM PIN',        width: '80px',  masked: true },
-  { key: 'carrier',         label: 'Carrier',        width: '110px' },
-  { key: 'mac_address',     label: 'MAC',            width: '140px' },
-  { key: 'wifi_ssid',       label: 'WiFi SSID',      width: '150px' },
-  { key: 'wifi_password',   label: 'WiFi pwd',       width: '110px', masked: true },
-  { key: 'router_password', label: 'Router pwd',     width: '110px', masked: true },
-  { key: 'os_version',      label: 'OS',             width: '90px' },
-  { key: 'notes',           label: 'Notes',          width: '200px' },
+  { key: 'imei',            labelKey: 'columnImei',           width: '150px' },
+  { key: 'serial_number',   labelKey: 'columnSerial',         width: '130px' },
+  { key: 'phone_number',    labelKey: 'columnPhone',          width: '130px' },
+  { key: 'sim_iccid',       labelKey: 'columnSimIccid',       width: '180px' },
+  { key: 'sim_pin',         labelKey: 'columnSimPin',         width: '80px',  masked: true },
+  { key: 'carrier',         labelKey: 'columnCarrier',        width: '110px' },
+  { key: 'mac_address',     labelKey: 'columnMac',            width: '140px' },
+  { key: 'wifi_ssid',       labelKey: 'columnWifiSsid',       width: '150px' },
+  { key: 'wifi_password',   labelKey: 'columnWifiPassword',   width: '110px', masked: true },
+  { key: 'router_password', labelKey: 'columnRouterPassword', width: '110px', masked: true },
+  { key: 'os_version',      labelKey: 'columnOs',             width: '90px' },
+  { key: 'notes',           labelKey: 'columnNotes',          width: '200px' },
 ]
 
 export function AdminDeviceCredentialsPage() {
+  const { t } = useTranslation()
   const { data: rows = [], isLoading } = useDeviceCredentials()
   const { data: qrCodes = [] } = useQRCodes()
   const createItem = useCreateDeviceCredential()
@@ -116,39 +118,46 @@ export function AdminDeviceCredentialsPage() {
 
   const handleAdd = useCallback(async () => {
     if (availableQrs.length === 0) {
-      showToast('All QR codes already have credentials attached', 'info')
+      showToast(t('admin.deviceCredentials.allQrCodesAttached'), 'info')
       return
     }
     const choices = availableQrs.slice(0, 50).map((q: any, i: any) => `${i + 1}. ${q.code}`).join('\n')
-    const pick = prompt(`Pick a QR code (number):\n\n${choices}`)
+    const pick = prompt(t('admin.deviceCredentials.pickQrCodePrompt', { choices }))
     const idx = parseInt(pick!, 10) - 1
     if (Number.isNaN(idx) || idx < 0 || idx >= availableQrs.length) return
     try {
       await createItem.mutateAsync({ qr_code_id: availableQrs[idx].id })
     } catch (err: any) {
-      showToast(err.message || 'Failed to add', 'error')
+      showToast(err.message || t('admin.deviceCredentials.failedToAdd'), 'error')
     }
-  }, [availableQrs, createItem, showToast])
+  }, [availableQrs, createItem, showToast, t])
 
   const handleUpdate = useCallback(async (id: any, field: any, value: any) => {
     try {
       await updateItem.mutateAsync({ id, [field]: value })
     } catch (err: any) {
-      showToast(err.message || 'Save failed', 'error')
+      showToast(err.message || t('admin.deviceCredentials.saveFailed'), 'error')
     }
-  }, [updateItem, showToast])
+  }, [updateItem, showToast, t])
 
   const handleDelete = useCallback(async (id: any) => {
-    if (!confirm('Delete these credentials? The QR code itself stays.')) return
+    if (!confirm(t('admin.deviceCredentials.deleteConfirm'))) return
     try {
       await deleteItem.mutateAsync(id)
     } catch (err: any) {
-      showToast(err.message || 'Delete failed', 'error')
+      showToast(err.message || t('admin.deviceCredentials.deleteFailed'), 'error')
     }
-  }, [deleteItem, showToast])
+  }, [deleteItem, showToast, t])
 
   const handleExportCsv = useCallback(() => {
-    const headers = ['QR Code', 'Product', 'Category', 'Status', 'Assigned To', ...COLUMNS.map((c: any) => c.label)]
+    const headers = [
+      t('admin.deviceCredentials.columnQrCode'),
+      t('admin.deviceCredentials.columnProduct'),
+      t('admin.deviceCredentials.csvHeaderCategory'),
+      t('admin.deviceCredentials.columnStatus'),
+      t('admin.deviceCredentials.csvHeaderAssignedTo'),
+      ...COLUMNS.map((c: any) => t(`admin.deviceCredentials.${c.labelKey}`)),
+    ]
     const lines = filtered.map((r: any) => {
       const row = [
         r.qr_code?.code || '',
@@ -166,22 +175,21 @@ export function AdminDeviceCredentialsPage() {
     a.href = URL.createObjectURL(blob)
     a.download = `device-credentials-${new Date().toISOString().slice(0,10)}.csv`
     a.click()
-  }, [filtered])
+  }, [filtered, t])
 
   if (isLoading) return <PageLoading />
 
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Device Credentials"
-        description={`${rows.length} device${rows.length !== 1 ? 's' : ''} with sensitive IT data (admin-only)`}
+        title={t('admin.deviceCredentials.pageTitle')}
+        description={t('admin.deviceCredentials.deviceCount', { count: rows.length })}
       />
 
       <div className="flex items-start gap-2 px-3 py-2 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs">
         <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
         <div>
-          IMEI, SIM PIN, WiFi passwords and router credentials are visible on this page.
-          Don't share screenshots. Edits are logged.
+          {t('admin.deviceCredentials.securityWarning')}
         </div>
       </div>
 
@@ -189,7 +197,7 @@ export function AdminDeviceCredentialsPage() {
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search code, product, IMEI, serial, phone…"
+            placeholder={t('admin.deviceCredentials.searchPlaceholder')}
             className="pl-9 h-9"
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
@@ -200,7 +208,7 @@ export function AdminDeviceCredentialsPage() {
           onChange={(e: any) => setCategoryFilter(e.target.value)}
           className="h-9 px-3 text-sm rounded-md border border-input bg-background"
         >
-          <option value="all">All categories</option>
+          <option value="all">{t('admin.deviceCredentials.allCategories')}</option>
           {categories.map((c: any) => <option key={c} value={c}>{c}</option>)}
         </select>
         <Button
@@ -210,14 +218,14 @@ export function AdminDeviceCredentialsPage() {
           className="gap-1.5"
         >
           {revealSecrets ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-          {revealSecrets ? 'Hide secrets' : 'Reveal secrets'}
+          {revealSecrets ? t('admin.deviceCredentials.hideSecrets') : t('admin.deviceCredentials.revealSecrets')}
         </Button>
         <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5">
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {t('admin.deviceCredentials.exportCsv')}
         </Button>
         <Button size="sm" onClick={handleAdd} disabled={createItem.isPending} className="gap-1.5">
           {createItem.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-          Add credentials
+          {t('admin.deviceCredentials.addCredentials')}
         </Button>
       </div>
 
@@ -226,13 +234,13 @@ export function AdminDeviceCredentialsPage() {
           <thead className="bg-muted/40 border-b border-border sticky top-0">
             <tr>
               <th className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap" style={{ width: '160px' }}>
-                QR Code
+                {t('admin.deviceCredentials.columnQrCode')}
               </th>
               <th className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap" style={{ width: '180px' }}>
-                Product
+                {t('admin.deviceCredentials.columnProduct')}
               </th>
               <th className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap" style={{ width: '100px' }}>
-                Status
+                {t('admin.deviceCredentials.columnStatus')}
               </th>
               {COLUMNS.map((col: any) => (
                 <th
@@ -240,7 +248,7 @@ export function AdminDeviceCredentialsPage() {
                   className="px-2 py-2 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap"
                   style={{ width: col.width, minWidth: col.width }}
                 >
-                  {col.label}
+                  {t(`admin.deviceCredentials.${col.labelKey}`)}
                 </th>
               ))}
               <th className="px-2 py-2 w-10" />
@@ -251,7 +259,7 @@ export function AdminDeviceCredentialsPage() {
               <tr>
                 <td colSpan={COLUMNS.length + 4} className="py-12 text-center text-muted-foreground">
                   <ShieldAlert className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  No credentials match the current filter.
+                  {t('admin.deviceCredentials.noCredentialsMatch')}
                 </td>
               </tr>
             ) : (
@@ -291,7 +299,7 @@ export function AdminDeviceCredentialsPage() {
                     <button
                       onClick={() => handleDelete(r.id)}
                       className="p-1.5 text-muted-foreground hover:text-destructive rounded"
-                      title="Delete credentials"
+                      title={t('admin.deviceCredentials.deleteCredentialsTitle')}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

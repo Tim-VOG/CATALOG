@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 import { useAuditLogs } from '@/hooks/use-audit-logs'
 import type { AuditLogRow } from '@/lib/api/audit-logs'
 import { PageLoading } from '@/components/common/LoadingSpinner'
@@ -13,28 +14,33 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const ENTITY_LABELS: Record<string, string> = {
-  loan_requests: 'Equipment request',
-  it_requests: 'Onboarding / Offboarding',
-  qr_codes: 'QR code',
-  products: 'Product',
-  profiles: 'User',
-  it_device_credentials: 'Device credential',
+const ENTITY_TYPES = ['loan_requests', 'it_requests', 'qr_codes', 'products', 'profiles', 'it_device_credentials']
+
+const ENTITY_FILTERS = ['all', ...ENTITY_TYPES]
+
+function entityLabel(t: (key: string) => string, type: string): string {
+  switch (type) {
+    case 'loan_requests': return t('admin.auditLog.entityLoanRequests')
+    case 'it_requests': return t('admin.auditLog.entityItRequests')
+    case 'qr_codes': return t('admin.auditLog.entityQrCodes')
+    case 'products': return t('admin.auditLog.entityProducts')
+    case 'profiles': return t('admin.auditLog.entityProfiles')
+    case 'it_device_credentials': return t('admin.auditLog.entityItDeviceCredentials')
+    default: return type
+  }
 }
 
-const ENTITY_FILTERS = ['all', ...Object.keys(ENTITY_LABELS)]
-
-function actionMeta(action: string): { label: string; icon: typeof Plus; classes: string } {
-  if (action === 'create') return { label: 'Created', icon: Plus, classes: 'bg-emerald-500/12 text-emerald-600 border-emerald-500/30' }
-  if (action === 'delete') return { label: 'Deleted', icon: Trash2, classes: 'bg-rose-500/12 text-rose-500 border-rose-500/30' }
-  if (action.startsWith('status:')) return { label: `→ ${action.slice(7)}`, icon: ArrowRight, classes: 'bg-blue-500/12 text-blue-600 border-blue-500/30' }
-  if (action.startsWith('role:')) return { label: `Role → ${action.slice(5)}`, icon: ShieldCheck, classes: 'bg-amber-500/12 text-amber-600 border-amber-500/30' }
-  return { label: 'Updated', icon: Pencil, classes: 'bg-muted text-muted-foreground border-border' }
+function actionMeta(t: (key: string, opts?: any) => string, action: string): { label: string; icon: typeof Plus; classes: string } {
+  if (action === 'create') return { label: t('admin.auditLog.actionCreated'), icon: Plus, classes: 'bg-emerald-500/12 text-emerald-600 border-emerald-500/30' }
+  if (action === 'delete') return { label: t('admin.auditLog.actionDeleted'), icon: Trash2, classes: 'bg-rose-500/12 text-rose-500 border-rose-500/30' }
+  if (action.startsWith('status:')) return { label: t('admin.auditLog.actionStatusTo', { status: action.slice(7) }), icon: ArrowRight, classes: 'bg-blue-500/12 text-blue-600 border-blue-500/30' }
+  if (action.startsWith('role:')) return { label: t('admin.auditLog.actionRoleTo', { role: action.slice(5) }), icon: ShieldCheck, classes: 'bg-amber-500/12 text-amber-600 border-amber-500/30' }
+  return { label: t('admin.auditLog.actionUpdated'), icon: Pencil, classes: 'bg-muted text-muted-foreground border-border' }
 }
 
-function actorName(log: AuditLogRow): string {
+function actorName(t: (key: string) => string, log: AuditLogRow): string {
   const name = [log.actor_first_name, log.actor_last_name].filter(Boolean).join(' ')
-  return name || log.actor_email || 'System / unknown'
+  return name || log.actor_email || t('admin.auditLog.systemUnknown')
 }
 
 function changedKeys(log: AuditLogRow): string {
@@ -45,6 +51,7 @@ function changedKeys(log: AuditLogRow): string {
 }
 
 export function AdminAuditLogPage() {
+  const { t } = useTranslation()
   const [entityType, setEntityType] = useState('all')
   const [search, setSearch] = useState('')
   const { data: logs = [], isLoading } = useAuditLogs({ entityType })
@@ -53,20 +60,27 @@ export function AdminAuditLogPage() {
     if (!search.trim()) return logs
     const q = search.toLowerCase()
     return logs.filter((l: any) =>
-      actorName(l).toLowerCase().includes(q) ||
+      actorName(t, l).toLowerCase().includes(q) ||
       l.action.toLowerCase().includes(q) ||
-      ((ENTITY_LABELS as Record<string, any>)[l.entity_type] || l.entity_type).toLowerCase().includes(q) ||
+      entityLabel(t, l.entity_type).toLowerCase().includes(q) ||
       changedKeys(l).toLowerCase().includes(q),
     )
-  }, [logs, search])
+  }, [logs, search, t])
 
   const handleExportCsv = () => {
-    const headers = ['Time', 'Actor', 'Action', 'Entity', 'Entity ID', 'Changed fields']
+    const headers = [
+      t('admin.auditLog.csvHeaderTime'),
+      t('admin.auditLog.csvHeaderActor'),
+      t('admin.auditLog.csvHeaderAction'),
+      t('admin.auditLog.csvHeaderEntity'),
+      t('admin.auditLog.csvHeaderEntityId'),
+      t('admin.auditLog.csvHeaderChangedFields'),
+    ]
     const lines = filtered.map((l: any) => [
       new Date(l.created_at).toISOString(),
-      actorName(l),
+      actorName(t, l),
       l.action,
-      (ENTITY_LABELS as Record<string, any>)[l.entity_type] || l.entity_type,
+      entityLabel(t, l.entity_type),
       l.entity_id || '',
       changedKeys(l),
     ].map((v: any) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(','))
@@ -83,12 +97,12 @@ export function AdminAuditLogPage() {
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Audit log"
+        title={t('admin.auditLog.title')}
         section="SECURITY"
-        description={`${logs.length} recorded action${logs.length !== 1 ? 's' : ''} · who changed what, when`}
+        description={t('admin.auditLog.description', { count: logs.length })}
       >
         <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-2">
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {t('admin.auditLog.exportCsv')}
         </Button>
       </AdminPageHeader>
 
@@ -96,7 +110,7 @@ export function AdminAuditLogPage() {
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search actor, action, field…"
+            placeholder={t('admin.auditLog.searchPlaceholder')}
             className="pl-9 h-9"
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
@@ -111,7 +125,7 @@ export function AdminAuditLogPage() {
               className="text-xs h-8"
               onClick={() => setEntityType(e)}
             >
-              {e === 'all' ? 'All' : (ENTITY_LABELS as Record<string, any>)[e]}
+              {e === 'all' ? t('admin.auditLog.allEntities') : entityLabel(t, e)}
             </Button>
           ))}
         </div>
@@ -121,13 +135,13 @@ export function AdminAuditLogPage() {
         {filtered.length === 0 ? (
           <div className="py-16 flex flex-col items-center justify-center text-muted-foreground">
             <ShieldCheck className="h-8 w-8 mb-2 opacity-30" />
-            <p className="text-sm">No audit entries yet.</p>
-            <p className="text-xs mt-1">Actions get logged once migration 100 is applied.</p>
+            <p className="text-sm">{t('admin.auditLog.emptyTitle')}</p>
+            <p className="text-xs mt-1">{t('admin.auditLog.emptyDescription')}</p>
           </div>
         ) : (
           <div className="divide-y divide-border/40">
             {filtered.map((log: any) => {
-              const meta = actionMeta(log.action)
+              const meta = actionMeta(t, log.action)
               const Icon = meta.icon
               const fields = changedKeys(log)
               return (
@@ -137,10 +151,10 @@ export function AdminAuditLogPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm truncate">
-                      <span className="font-medium">{actorName(log)}</span>
+                      <span className="font-medium">{actorName(t, log)}</span>
                       <span className="text-muted-foreground"> · </span>
                       <Badge variant="outline" className={cn('text-[10px] align-middle', meta.classes)}>{meta.label}</Badge>
-                      <span className="text-muted-foreground"> · {(ENTITY_LABELS as Record<string, any>)[log.entity_type] || log.entity_type}</span>
+                      <span className="text-muted-foreground"> · {entityLabel(t, log.entity_type)}</span>
                     </p>
                     {fields && (
                       <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5 font-mono">{fields}</p>

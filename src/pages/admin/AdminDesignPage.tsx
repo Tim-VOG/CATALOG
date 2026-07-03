@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAppSettings, useUpdateAppSettings } from '@/hooks/use-settings'
 import { uploadLogo } from '@/lib/api/settings'
 import {
@@ -49,27 +50,28 @@ const SHARED_DEFAULTS = {
 }
 
 const PALETTE_LABELS = {
-  background: { label: 'Background', desc: 'Main page background' },
-  foreground: { label: 'Text', desc: 'Primary text color' },
-  card: { label: 'Card / Surface', desc: 'Cards, panels, header' },
-  popover: { label: 'Popover', desc: 'Dropdowns, tooltips, modals' },
-  secondary: { label: 'Secondary', desc: 'Secondary backgrounds' },
-  muted: { label: 'Muted', desc: 'Subtle backgrounds (tags, disabled)' },
-  muted_fg: { label: 'Muted Text', desc: 'Secondary text, descriptions' },
-  border: { label: 'Border', desc: 'Borders, dividers, inputs' },
+  background: { labelKey: 'admin.design.paletteBackgroundLabel', descKey: 'admin.design.paletteBackgroundDesc', label: 'Background', desc: 'Main page background' },
+  foreground: { labelKey: 'admin.design.paletteForegroundLabel', descKey: 'admin.design.paletteForegroundDesc', label: 'Text', desc: 'Primary text color' },
+  card: { labelKey: 'admin.design.paletteCardLabel', descKey: 'admin.design.paletteCardDesc', label: 'Card / Surface', desc: 'Cards, panels, header' },
+  popover: { labelKey: 'admin.design.palettePopoverLabel', descKey: 'admin.design.palettePopoverDesc', label: 'Popover', desc: 'Dropdowns, tooltips, modals' },
+  secondary: { labelKey: 'admin.design.paletteSecondaryLabel', descKey: 'admin.design.paletteSecondaryDesc', label: 'Secondary', desc: 'Secondary backgrounds' },
+  muted: { labelKey: 'admin.design.paletteMutedLabel', descKey: 'admin.design.paletteMutedDesc', label: 'Muted', desc: 'Subtle backgrounds (tags, disabled)' },
+  muted_fg: { labelKey: 'admin.design.paletteMutedFgLabel', descKey: 'admin.design.paletteMutedFgDesc', label: 'Muted Text', desc: 'Secondary text, descriptions' },
+  border: { labelKey: 'admin.design.paletteBorderLabel', descKey: 'admin.design.paletteBorderDesc', label: 'Border', desc: 'Borders, dividers, inputs' },
 }
 
 const RADIUS_OPTIONS = [
-  { value: 'sm', label: 'Small', preview: '4px' },
-  { value: 'md', label: 'Medium', preview: '10px' },
-  { value: 'lg', label: 'Large', preview: '14px' },
-  { value: 'xl', label: 'X-Large', preview: '18px' },
-  { value: 'full', label: 'Full', preview: '9999px' },
+  { value: 'sm', labelKey: 'admin.design.radiusSmall', label: 'Small', preview: '4px' },
+  { value: 'md', labelKey: 'admin.design.radiusMedium', label: 'Medium', preview: '10px' },
+  { value: 'lg', labelKey: 'admin.design.radiusLarge', label: 'Large', preview: '14px' },
+  { value: 'xl', labelKey: 'admin.design.radiusXlarge', label: 'X-Large', preview: '18px' },
+  { value: 'full', labelKey: 'admin.design.radiusFull', label: 'Full', preview: '9999px' },
 ]
 
 // ── Color picker row ──────────────────────────────────────
 
 function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
+  const { t } = useTranslation()
   const isDefault = !value || value === defaultValue
   return (
     <div className="flex items-center gap-3">
@@ -83,7 +85,7 @@ function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{label}</span>
           {isDefault && (
-            <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">default</span>
+            <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{t('admin.design.defaultBadge')}</span>
           )}
         </div>
         <p className="text-xs text-muted-foreground truncate">{desc}</p>
@@ -100,7 +102,7 @@ function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
           size="icon"
           className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
           onClick={() => onChange('')}
-          title="Reset to default"
+          title={t('admin.design.resetToDefault')}
         >
           <RotateCcw className="h-3.5 w-3.5" />
         </Button>
@@ -112,6 +114,7 @@ function ColorRow({ label, desc, value, onChange, defaultValue  }: any) {
 // ── Main Component ────────────────────────────────────────
 
 export function AdminDesignPage() {
+  const { t } = useTranslation()
   const { data: settings, isLoading } = useAppSettings()
   const updateSettings = useUpdateAppSettings()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -296,11 +299,11 @@ export function AdminDesignPage() {
   const handleLogoUpload = async (file: any, variant = '') => {
     if (!file) return
     if (!['image/png', 'image/svg+xml', 'image/jpeg', 'image/webp'].includes(file.type)) {
-      showToast('Please upload a PNG, SVG, JPEG or WebP image', 'error')
+      showToast(t('admin.design.toastInvalidImageType'), 'error')
       return
     }
     if (file.size > 2 * 1024 * 1024) {
-      showToast('Image must be under 2MB', 'error')
+      showToast(t('admin.design.toastImageTooLarge'), 'error')
       return
     }
     const setLoading = variant === 'dark' ? setUploadingDark : variant === 'light' ? setUploadingLight : setUploading
@@ -310,7 +313,7 @@ export function AdminDesignPage() {
       if (variant === 'dark') setLogoUrlDark(url)
       else if (variant === 'light') setLogoUrlLight(url)
       else setLogoUrl(url)
-      showToast(`${variant ? variant.charAt(0).toUpperCase() + variant.slice(1) + ' mode l' : 'L'}ogo uploaded`)
+      showToast(variant ? t('admin.design.toastLogoUploadedMode', { mode: t(variant === 'dark' ? 'admin.design.modeDark' : 'admin.design.modeLight') }) : t('admin.design.toastLogoUploaded'))
     } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
@@ -386,7 +389,7 @@ export function AdminDesignPage() {
         pickup_pin_x: pickupPinX,
         pickup_pin_y: pickupPinY,
       })
-      showToast('Design settings saved')
+      showToast(t('admin.design.toastSettingsSaved'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -454,7 +457,7 @@ export function AdminDesignPage() {
       const url = await uploadLogo(file, 'pickup-map')
       setPickupMapUrl(url)
     } catch (err: any) {
-      showToast(err?.message || 'Upload failed', 'error')
+      showToast(err?.message || t('admin.design.toastUploadFailed'), 'error')
     } finally {
       setUploadingMap(false)
     }
@@ -477,10 +480,10 @@ export function AdminDesignPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <AdminPageHeader title="Design & Branding" description="Customize the look and feel of your platform">
+      <AdminPageHeader title={t('admin.design.pageTitle')} description={t('admin.design.pageDescription')}>
         <Button onClick={handleSave} disabled={!hasChanges || updateSettings.isPending} className="gap-2">
           <Save className="h-4 w-4" />
-          {updateSettings.isPending ? 'Saving...' : 'Save Changes'}
+          {updateSettings.isPending ? t('admin.design.saving') : t('admin.design.saveChanges')}
         </Button>
       </AdminPageHeader>
 
@@ -488,7 +491,7 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Monitor className="h-4 w-4" /> Theme Mode
+            <Monitor className="h-4 w-4" /> {t('admin.design.themeModeTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -511,7 +514,7 @@ export function AdminDesignPage() {
                 <Moon className="h-6 w-6" />
               </div>
               <span className={cn('text-sm font-semibold', themeMode === 'dark' ? 'text-primary' : 'text-muted-foreground')}>
-                Dark
+                {t('admin.design.modeDark')}
               </span>
               <div className="w-full rounded-lg overflow-hidden border border-border/50">
                 <div className="h-3" style={{ background: darkPalette.background || DARK_DEFAULTS.background }} />
@@ -544,7 +547,7 @@ export function AdminDesignPage() {
                 <Sun className="h-6 w-6" />
               </div>
               <span className={cn('text-sm font-semibold', themeMode === 'light' ? 'text-primary' : 'text-muted-foreground')}>
-                Light
+                {t('admin.design.modeLight')}
               </span>
               <div className="w-full rounded-lg overflow-hidden border border-border/50">
                 <div className="h-3" style={{ background: lightPalette.background || LIGHT_DEFAULTS.background }} />
@@ -560,7 +563,7 @@ export function AdminDesignPage() {
             </button>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Sets the default theme for all users. Users can override via the toggle in the header.
+            {t('admin.design.themeModeHint')}
           </p>
         </CardContent>
       </Card>
@@ -570,7 +573,7 @@ export function AdminDesignPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
-              <Palette className="h-4 w-4" /> Mode Palettes
+              <Palette className="h-4 w-4" /> {t('admin.design.modePalettesTitle')}
             </CardTitle>
             <Button
               variant="ghost"
@@ -579,7 +582,7 @@ export function AdminDesignPage() {
               onClick={activePaletteTab === 'dark' ? resetDarkPalette : resetLightPalette}
             >
               <RotateCcw className="h-3 w-3" />
-              Reset {activePaletteTab} to defaults
+              {t('admin.design.resetPaletteToDefaults', { mode: t(activePaletteTab === 'dark' ? 'admin.design.modeDark' : 'admin.design.modeLight') })}
             </Button>
           </div>
         </CardHeader>
@@ -596,7 +599,7 @@ export function AdminDesignPage() {
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Moon className="h-3.5 w-3.5" /> Dark Palette
+              <Moon className="h-3.5 w-3.5" /> {t('admin.design.darkPaletteTab')}
             </button>
             <button
               type="button"
@@ -608,17 +611,17 @@ export function AdminDesignPage() {
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Sun className="h-3.5 w-3.5" /> Light Palette
+              <Sun className="h-3.5 w-3.5" /> {t('admin.design.lightPaletteTab')}
             </button>
           </div>
 
           {/* Palette color rows */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
-            {Object.entries(PALETTE_LABELS as Record<string, any>).map(([key, { label, desc }]) => (
+            {Object.entries(PALETTE_LABELS as Record<string, any>).map(([key, { labelKey, descKey, label, desc }]) => (
               <ColorRow
                 key={`${activePaletteTab}-${key}`}
-                label={label}
-                desc={desc}
+                label={t(labelKey, { defaultValue: label })}
+                desc={t(descKey, { defaultValue: desc })}
                 value={activePalette[key]}
                 defaultValue={(activeDefaults as Record<string, any>)[key]}
                 onChange={(v: any) => updateActivePalette(key, v)}
@@ -629,7 +632,7 @@ export function AdminDesignPage() {
           {/* Palette mini preview */}
           <div className="mt-5 rounded-lg border overflow-hidden">
             <div className="p-3 text-xs font-medium text-muted-foreground border-b">
-              {activePaletteTab === 'dark' ? 'Dark' : 'Light'} Mode Preview
+              {t('admin.design.modePreview', { mode: t(activePaletteTab === 'dark' ? 'admin.design.modeDark' : 'admin.design.modeLight') })}
             </div>
             <div
               className="p-4 space-y-3"
@@ -645,9 +648,9 @@ export function AdminDesignPage() {
                   borderColor: (activePalette.border || activeDefaults.border),
                 }}
               >
-                <div className="font-semibold text-sm mb-1">Card Title</div>
+                <div className="font-semibold text-sm mb-1">{t('admin.design.cardTitlePreview')}</div>
                 <div className="text-xs" style={{ color: (activePalette.muted_fg || activeDefaults.muted_fg) }}>
-                  This is how muted text appears in cards.
+                  {t('admin.design.mutedTextPreview')}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -655,7 +658,7 @@ export function AdminDesignPage() {
                   className="rounded px-3 py-1.5 text-xs font-medium text-white"
                   style={{ background: primaryColor || SHARED_DEFAULTS.primary_color }}
                 >
-                  Primary Button
+                  {t('admin.design.primaryButtonPreview')}
                 </div>
                 <div
                   className="rounded px-3 py-1.5 text-xs font-medium"
@@ -664,7 +667,7 @@ export function AdminDesignPage() {
                     color: (activePalette.foreground || activeDefaults.foreground),
                   }}
                 >
-                  Secondary
+                  {t('admin.design.secondaryPreview')}
                 </div>
                 <div
                   className="rounded px-3 py-1.5 text-xs font-medium"
@@ -673,7 +676,7 @@ export function AdminDesignPage() {
                     color: (activePalette.muted_fg || activeDefaults.muted_fg),
                   }}
                 >
-                  Muted
+                  {t('admin.design.mutedPreview')}
                 </div>
               </div>
             </div>
@@ -685,43 +688,43 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Palette className="h-4 w-4" /> Shared Colors
+            <Palette className="h-4 w-4" /> {t('admin.design.sharedColorsTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-xs text-muted-foreground mb-4">These colors apply in both dark and light mode.</p>
+          <p className="text-xs text-muted-foreground mb-4">{t('admin.design.sharedColorsHint')}</p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
             <ColorRow
-              label="Primary"
-              desc="Buttons, links, and main accents"
+              label={t('admin.design.primaryLabel')}
+              desc={t('admin.design.primaryDesc')}
               value={primaryColor}
               defaultValue={SHARED_DEFAULTS.primary_color}
               onChange={setPrimaryColor}
             />
             <ColorRow
-              label="Accent"
-              desc="Secondary highlights and badges"
+              label={t('admin.design.accentLabel')}
+              desc={t('admin.design.accentDesc')}
               value={accentColor}
               defaultValue={SHARED_DEFAULTS.accent_color}
               onChange={setAccentColor}
             />
             <ColorRow
-              label="Success"
-              desc="Success states, confirmations"
+              label={t('admin.design.successLabel')}
+              desc={t('admin.design.successDesc')}
               value={successColor}
               defaultValue={SHARED_DEFAULTS.success_color}
               onChange={setSuccessColor}
             />
             <ColorRow
-              label="Warning"
-              desc="Warnings and cautions"
+              label={t('admin.design.warningLabel')}
+              desc={t('admin.design.warningDesc')}
               value={warningColor}
               defaultValue={SHARED_DEFAULTS.warning_color}
               onChange={setWarningColor}
             />
             <ColorRow
-              label="Destructive"
-              desc="Errors, deletions, danger"
+              label={t('admin.design.destructiveLabel')}
+              desc={t('admin.design.destructiveDesc')}
               value={destructiveColor}
               defaultValue={SHARED_DEFAULTS.destructive_color}
               onChange={setDestructiveColor}
@@ -731,11 +734,11 @@ export function AdminDesignPage() {
           {/* Color preview strip */}
           <div className="mt-5 flex gap-2">
             {[
-              { label: 'Primary', color: primaryColor || SHARED_DEFAULTS.primary_color },
-              { label: 'Accent', color: accentColor || SHARED_DEFAULTS.accent_color },
-              { label: 'Success', color: successColor || SHARED_DEFAULTS.success_color },
-              { label: 'Warning', color: warningColor || SHARED_DEFAULTS.warning_color },
-              { label: 'Destructive', color: destructiveColor || SHARED_DEFAULTS.destructive_color },
+              { label: t('admin.design.primaryLabel'), color: primaryColor || SHARED_DEFAULTS.primary_color },
+              { label: t('admin.design.accentLabel'), color: accentColor || SHARED_DEFAULTS.accent_color },
+              { label: t('admin.design.successLabel'), color: successColor || SHARED_DEFAULTS.success_color },
+              { label: t('admin.design.warningLabel'), color: warningColor || SHARED_DEFAULTS.warning_color },
+              { label: t('admin.design.destructiveLabel'), color: destructiveColor || SHARED_DEFAULTS.destructive_color },
             ].map(({ label, color }: any) => (
               <div key={label} className="flex-1 text-center">
                 <div className="h-8 rounded-md mb-1" style={{ background: color }} />
@@ -750,12 +753,12 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Radius className="h-4 w-4" /> Border Radius
+            <Radius className="h-4 w-4" /> {t('admin.design.borderRadiusTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3 flex-wrap">
-            {RADIUS_OPTIONS.map(({ value, label, preview }: any) => (
+            {RADIUS_OPTIONS.map(({ value, labelKey, label, preview }: any) => (
               <button
                 key={value}
                 type="button"
@@ -783,13 +786,13 @@ export function AdminDesignPage() {
                   'text-xs font-medium',
                   borderRadius === value ? 'text-primary' : 'text-muted-foreground'
                 )}>
-                  {label}
+                  {t(labelKey, { defaultValue: label })}
                 </span>
               </button>
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Controls the roundness of buttons, cards, inputs, and other elements.
+            {t('admin.design.borderRadiusHint')}
           </p>
         </CardContent>
       </Card>
@@ -798,24 +801,24 @@ export function AdminDesignPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Image className="h-4 w-4" /> Logos
+            <Image className="h-4 w-4" /> {t('admin.design.logosTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground mb-4">
-            Upload a specific logo for each theme mode. If only one is set, it will be used for both modes.
+            {t('admin.design.logosHint')}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Dark mode logo */}
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Moon className="h-4 w-4 text-muted-foreground" />
-                Dark Mode Logo
+                {t('admin.design.darkModeLogo')}
               </div>
               {logoUrlDark ? (
                 <div className="relative inline-block">
                   <div className="h-20 w-auto max-w-[200px] bg-[#0f1419] rounded-lg p-3 flex items-center justify-center">
-                    <img src={logoUrlDark} alt="Dark logo" className="max-h-full max-w-full object-contain" />
+                    <img src={logoUrlDark} alt={t('admin.design.darkLogoAlt')} className="max-h-full max-w-full object-contain" />
                   </div>
                   <Button
                     variant="ghost"
@@ -839,7 +842,7 @@ export function AdminDesignPage() {
                 >
                   <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
-                    {uploadingDark ? 'Uploading...' : 'Drop or click to upload'}
+                    {uploadingDark ? t('admin.design.uploadingEllipsis') : t('admin.design.dropOrClickUpload')}
                   </p>
                 </div>
               )}
@@ -856,12 +859,12 @@ export function AdminDesignPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Sun className="h-4 w-4 text-muted-foreground" />
-                Light Mode Logo
+                {t('admin.design.lightModeLogo')}
               </div>
               {logoUrlLight ? (
                 <div className="relative inline-block">
                   <div className="h-20 w-auto max-w-[200px] bg-[#f8fafc] rounded-lg p-3 flex items-center justify-center">
-                    <img src={logoUrlLight} alt="Light logo" className="max-h-full max-w-full object-contain" />
+                    <img src={logoUrlLight} alt={t('admin.design.lightLogoAlt')} className="max-h-full max-w-full object-contain" />
                   </div>
                   <Button
                     variant="ghost"
@@ -885,7 +888,7 @@ export function AdminDesignPage() {
                 >
                   <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">
-                    {uploadingLight ? 'Uploading...' : 'Drop or click to upload'}
+                    {uploadingLight ? t('admin.design.uploadingEllipsis') : t('admin.design.dropOrClickUpload')}
                   </p>
                 </div>
               )}
@@ -898,7 +901,7 @@ export function AdminDesignPage() {
               />
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-4">PNG, SVG, JPEG or WebP, max 2MB per file</p>
+          <p className="text-xs text-muted-foreground mt-4">{t('admin.design.logoFileHint')}</p>
         </CardContent>
       </Card>
 

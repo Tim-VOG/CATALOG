@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useEmailTemplates, useUpdateEmailTemplate } from '@/hooks/use-email-templates'
 import { wrapEmailHtml } from '@/lib/email-html'
@@ -28,26 +29,27 @@ const TEMPLATE_ICONS = {
   onboarding_confirmation: '👋',
 }
 
-const TEMPLATE_DESCRIPTIONS = {
-  request_confirmed: 'Sent when a request is submitted',
-  request_in_progress: 'Sent when admin starts processing',
-  request_ready: 'Sent when the request is completed',
-  request_return_reminder: 'Sent 3 days before the expected return date',
-  user_invitation: 'Sent when inviting a new user',
-  mailbox_confirmation: 'Sent when a functional mailbox has been created',
-  onboarding_confirmation: 'Sent to the requester when an onboarding request is submitted (with HR reminder)',
+const TEMPLATE_DESCRIPTION_KEYS: Record<string, string> = {
+  request_confirmed: 'descRequestConfirmed',
+  request_in_progress: 'descRequestInProgress',
+  request_ready: 'descRequestReady',
+  request_return_reminder: 'descRequestReturnReminder',
+  user_invitation: 'descUserInvitation',
+  mailbox_confirmation: 'descMailboxConfirmation',
+  onboarding_confirmation: 'descOnboardingConfirmation',
 }
 
 const CATEGORIES = [
-  { key: 'invitations', label: 'Invitations',  icon: UserPlus,      tint: 'bg-violet-500/10 text-violet-600' },
-  { key: 'requests',    label: 'Request status', icon: ClipboardList, tint: 'bg-blue-500/10 text-blue-600' },
-  { key: 'mailbox',     label: 'Mailbox',       icon: Inbox,          tint: 'bg-emerald-500/10 text-emerald-600' },
-  { key: 'onboarding',  label: 'Onboarding',    icon: UserPlus,       tint: 'bg-amber-500/10 text-amber-600' },
-  { key: 'reminders',   label: 'Reminders',     icon: Bell,           tint: 'bg-rose-500/10 text-rose-600' },
-  { key: 'other',       label: 'Other',         icon: Mail,           tint: 'bg-muted text-muted-foreground' },
+  { key: 'invitations', labelKey: 'categoryInvitations',  icon: UserPlus,      tint: 'bg-violet-500/10 text-violet-600' },
+  { key: 'requests',    labelKey: 'categoryRequests', icon: ClipboardList, tint: 'bg-blue-500/10 text-blue-600' },
+  { key: 'mailbox',     labelKey: 'categoryMailbox',       icon: Inbox,          tint: 'bg-emerald-500/10 text-emerald-600' },
+  { key: 'onboarding',  labelKey: 'categoryOnboarding',    icon: UserPlus,       tint: 'bg-amber-500/10 text-amber-600' },
+  { key: 'reminders',   labelKey: 'categoryReminders',     icon: Bell,           tint: 'bg-rose-500/10 text-rose-600' },
+  { key: 'other',       labelKey: 'categoryOther',         icon: Mail,           tint: 'bg-muted text-muted-foreground' },
 ]
 
 export function AdminEmailTemplatesPage() {
+  const { t } = useTranslation()
   const { data: templates = [], isLoading, isError, error, refetch } = useEmailTemplates()
   const { data: settings } = useAppSettings()
   const updateTemplate = useUpdateEmailTemplate()
@@ -98,7 +100,7 @@ export function AdminEmailTemplatesPage() {
     if (!editing) return
     try {
       await updateTemplate.mutateAsync({ id: editing.id, subject, body })
-      showToast('Template updated')
+      showToast(t('admin.emailTemplates.toastUpdated'))
       setEditing(null)
     } catch (err: any) {
       showToast(err.message, 'error')
@@ -110,14 +112,14 @@ export function AdminEmailTemplatesPage() {
   if (isError) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader title="Communications" description="Email templates and notification settings" />
+        <AdminPageHeader title={t('admin.emailTemplates.pageTitle')} description={t('admin.emailTemplates.pageDescription')} />
         <Card variant="elevated" className="border-destructive/30">
           <CardContent className="p-6 space-y-3">
-            <h3 className="font-semibold text-sm text-destructive">Couldn&apos;t load templates</h3>
+            <h3 className="font-semibold text-sm text-destructive">{t('admin.emailTemplates.loadErrorTitle')}</h3>
             <p className="text-xs text-muted-foreground">
-              {error?.message || 'Unknown error.'}
+              {error?.message || t('admin.emailTemplates.unknownError')}
             </p>
-            <Button size="sm" variant="outline" onClick={() => refetch()}>Retry</Button>
+            <Button size="sm" variant="outline" onClick={() => refetch()}>{t('admin.emailTemplates.retry')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -132,21 +134,21 @@ export function AdminEmailTemplatesPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Communications" description="Email templates and notification settings" />
+      <AdminPageHeader title={t('admin.emailTemplates.pageTitle')} description={t('admin.emailTemplates.pageDescription')} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="templates" className="gap-2">
-            <Mail className="h-3.5 w-3.5" /> Email Templates
+            <Mail className="h-3.5 w-3.5" /> {t('admin.emailTemplates.tabTemplates')}
           </TabsTrigger>
           <TabsTrigger value="recipients" className="gap-2">
-            <Mail className="h-3.5 w-3.5" /> Notification Recipients
+            <Mail className="h-3.5 w-3.5" /> {t('admin.emailTemplates.tabRecipients')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="mt-6 space-y-8">
           {activeTemplates.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No active email templates</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t('admin.emailTemplates.noActiveTemplates')}</p>
           ) : (
             byCategory.map((cat: any) => {
               const Icon = cat.icon

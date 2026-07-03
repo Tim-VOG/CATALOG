@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'motion/react'
 import { CalendarRange, Package, Trash2, X, CheckSquare, AlertTriangle } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -51,6 +52,7 @@ function LoadingSkeleton() {
 }
 
 function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: any) {
+  const { t } = useTranslation()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const counts = useMemo(() => {
@@ -75,7 +77,7 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
       <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card border border-border shadow-xl backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <CheckSquare className="h-4 w-4 text-primary" />
-          <span className="text-sm font-semibold">{total} selected</span>
+          <span className="text-sm font-semibold">{t('admin.allRequests.selectedCount', { count: total })}</span>
           {counts.catalog > 0 && (
             <Badge variant="outline" className="text-[10px] gap-1 bg-primary/10 text-primary border-primary/30">
               <Package className="h-2.5 w-2.5" />
@@ -84,12 +86,12 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
           )}
           {counts.it > 0 && (
             <Badge variant="outline" className="text-[10px] gap-1 bg-amber-500/10 text-amber-500 border-amber-500/30">
-              {counts.it} IT
+              {t('admin.allRequests.itBadge', { count: counts.it })}
             </Badge>
           )}
           {counts.mailbox > 0 && (
             <Badge variant="outline" className="text-[10px] gap-1 bg-violet-500/10 text-violet-500 border-violet-500/30">
-              {counts.mailbox} Mail
+              {t('admin.allRequests.mailBadge', { count: counts.mailbox })}
             </Badge>
           )}
         </div>
@@ -98,19 +100,19 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
 
         <Button variant="ghost" size="sm" onClick={onClear} className="text-xs gap-1.5 text-muted-foreground">
           <X className="h-3.5 w-3.5" />
-          Clear
+          {t('admin.allRequests.clear')}
         </Button>
 
         {!confirmOpen ? (
           <Button variant="destructive" size="sm" onClick={() => setConfirmOpen(true)} className="text-xs gap-1.5">
             <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {t('admin.allRequests.delete')}
           </Button>
         ) : (
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-destructive text-xs font-medium">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Confirm?
+              {t('admin.allRequests.confirmQuestion')}
             </div>
             <Button
               variant="destructive"
@@ -119,10 +121,10 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
               disabled={isDeleting}
               className="text-xs"
             >
-              {isDeleting ? 'Deleting...' : 'Yes, delete'}
+              {isDeleting ? t('admin.allRequests.deleting') : t('admin.allRequests.yesDelete')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} className="text-xs">
-              Cancel
+              {t('admin.allRequests.cancel')}
             </Button>
           </div>
         )}
@@ -132,6 +134,7 @@ function BulkDeleteBar({ selectedIds, events, onClear, onDelete, isDeleting  }: 
 }
 
 export function AdminAllRequestsPage() {
+  const { t } = useTranslation()
   const { events, isLoading, counts, users } = useAdminCalendarRequests()
   const [tab, setTab] = useState('calendar')
   const [selectedIds, setSelectedIds] = useState(new Set())
@@ -196,15 +199,15 @@ export function AdminAllRequestsPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-gradient-primary">
-              All Requests
+              {t('admin.allRequests.title')}
             </h1>
             <p className="text-muted-foreground text-sm mt-0.5">
-              {totalCount} request{totalCount !== 1 ? 's' : ''} across all users
+              {t('admin.allRequests.subtitle', { count: totalCount })}
             </p>
           </div>
           <Badge variant="outline" className="ml-auto text-xs gap-1.5 hidden sm:flex">
             <CalendarRange className="h-3 w-3" />
-            Overview
+            {t('admin.eyebrow.overview')}
           </Badge>
         </div>
         <motion.div
@@ -221,11 +224,11 @@ export function AdminAllRequestsPage() {
         <TabsList className="bg-muted/30 border border-border/30">
           <TabsTrigger value="calendar" className="gap-1.5 text-xs">
             <CalendarRange className="h-3.5 w-3.5" />
-            Calendar
+            {t('admin.allRequests.tabCalendar')}
           </TabsTrigger>
           <TabsTrigger value="loans" className="gap-1.5 text-xs">
             <Package className="h-3.5 w-3.5" />
-            Catalog Loans
+            {t('admin.allRequests.tabCatalogLoans')}
           </TabsTrigger>
         </TabsList>
 
