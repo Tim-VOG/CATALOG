@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQRCodes, useTakeCounts } from '@/hooks/use-qr-codes'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
@@ -22,6 +23,7 @@ function utilStyle(u: number) {
 }
 
 export function AdminUtilizationPage() {
+  const { t } = useTranslation()
   const { data: qrCodes = [], isLoading } = useQRCodes()
   const { data: takeCounts = {} } = useTakeCounts(90)
 
@@ -60,9 +62,9 @@ export function AdminUtilizationPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Utilization"
-        section="ANALYTICS"
-        description={`Fleet at ${overall}% utilization right now · take counts over the last 90 days`}
+        title={t('admin.utilization.title')}
+        section={t('admin.eyebrow.analytics')}
+        description={t('admin.utilization.description', { pct: overall })}
       />
 
       {/* Buy/cut hints */}
@@ -70,44 +72,45 @@ export function AdminUtilizationPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {overUtilized.length > 0 && (
             <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4">
-              <p className="text-sm font-medium flex items-center gap-2 text-rose-600"><TrendingUp className="h-4 w-4" /> Often unavailable — consider buying more</p>
+              <p className="text-sm font-medium flex items-center gap-2 text-rose-600"><TrendingUp className="h-4 w-4" /> {t('admin.utilization.overHint')}</p>
               <p className="text-xs text-muted-foreground mt-1">{overUtilized.map((p: any) => p.name).slice(0, 5).join(', ')}</p>
             </div>
           )}
           {underUtilized.length > 0 && (
             <div className="rounded-xl border border-border bg-muted/20 p-4">
-              <p className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><TrendingDown className="h-4 w-4" /> Barely used — maybe too many</p>
+              <p className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><TrendingDown className="h-4 w-4" /> {t('admin.utilization.underHint')}</p>
               <p className="text-xs text-muted-foreground mt-1">{underUtilized.map((p: any) => p.name).slice(0, 5).join(', ')}</p>
             </div>
           )}
         </div>
       )}
 
-      <UtilSection title="By category" rows={byCategory} showTakes={false} />
-      <UtilSection title="By product (90-day takes)" rows={byProduct} showTakes />
+      <UtilSection title={t('admin.utilization.byCategory')} rows={byCategory} showTakes={false} />
+      <UtilSection title={t('admin.utilization.byProduct')} rows={byProduct} showTakes />
     </div>
   )
 }
 
 function UtilSection({ title, rows, showTakes }: { title: string; rows: Row[]; showTakes: boolean }) {
+  const { t } = useTranslation()
   return (
     <div>
       <h2 className="text-sm font-medium mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> {title}</h2>
       <div className="rounded-xl border border-border/50 bg-card divide-y divide-border/40">
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center">No data.</p>
+          <p className="text-sm text-muted-foreground py-8 text-center">{t('admin.utilization.noData')}</p>
         ) : rows.map((r: any) => (
           <div key={r.key} className="flex items-center gap-3 px-4 py-3">
             <div className="w-40 shrink-0 min-w-0">
               <p className="text-sm truncate">{r.name}</p>
-              <p className="text-[11px] text-muted-foreground">{r.inUse}/{r.total} in use</p>
+              <p className="text-[11px] text-muted-foreground">{t('admin.utilization.inUse', { inUse: r.inUse, total: r.total })}</p>
             </div>
             <div className="flex-1 h-2 rounded-full bg-muted/40 overflow-hidden">
               <div className={cn('h-full rounded-full transition-all', utilStyle(r.utilization))} style={{ width: `${r.utilization}%` }} />
             </div>
             <span className="w-10 text-right text-sm tabular-nums font-medium">{r.utilization}%</span>
             {showTakes && (
-              <Badge variant="outline" className="text-[10px] w-20 justify-center shrink-0">{r.takes} take{r.takes !== 1 ? 's' : ''}</Badge>
+              <Badge variant="outline" className="text-[10px] w-20 justify-center shrink-0">{t('admin.utilization.takes', { count: r.takes })}</Badge>
             )}
           </div>
         ))}

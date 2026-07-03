@@ -8,9 +8,11 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AlarmClock, CheckCircle2, Mail } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { sendOverdueReminder } from '@/services/return-reminder-service'
 
 export function AdminOverduePage() {
+  const { t } = useTranslation()
   const showToast = useUIStore((s: any) => s.showToast)
   const { data: overdue = [], isLoading } = useOverdueScans()
   // Track which rows we've just relaunched so the button reflects it.
@@ -19,7 +21,7 @@ export function AdminOverduePage() {
 
   const handleRemind = async (item: any) => {
     if (!item.user_email) {
-      showToast('No email on file for this holder', 'error')
+      showToast(t('admin.overdue.noEmail'), 'error')
       return
     }
     setSending(item.id)
@@ -31,9 +33,9 @@ export function AdminOverduePage() {
         expected_return_date: item.expected_return_date,
       })
       setReminded((prev) => ({ ...prev, [item.id]: true }))
-      showToast(`Reminder sent to ${item.user_name || item.user_email}`, 'success')
+      showToast(t('admin.overdue.sentTo', { name: item.user_name || item.user_email }), 'success')
     } catch (err: any) {
-      showToast(err?.message || 'Could not send reminder', 'error')
+      showToast(err?.message || t('admin.overdue.sendError'), 'error')
     } finally {
       setSending(null)
     }
@@ -46,17 +48,17 @@ export function AdminOverduePage() {
   return (
     <div className="space-y-5">
       <AdminPageHeader
-        title="Overdue equipment"
-        section="REQUESTS"
-        description={`${overdue.length} item${overdue.length !== 1 ? 's' : ''} past the expected return date.`}
+        title={t('admin.overdue.title')}
+        section={t('admin.eyebrow.requests')}
+        description={t('admin.overdue.description', { count: overdue.length })}
       />
 
       <div className="border border-border/50 rounded-xl overflow-hidden bg-card">
         {overdue.length === 0 ? (
           <div className="py-16 flex flex-col items-center justify-center text-muted-foreground">
             <CheckCircle2 className="h-8 w-8 mb-2 opacity-40 text-emerald-500" />
-            <p className="text-sm font-medium text-foreground">Nothing overdue</p>
-            <p className="text-xs mt-1">Every loan is within its return date.</p>
+            <p className="text-sm font-medium text-foreground">{t('admin.overdue.empty')}</p>
+            <p className="text-xs mt-1">{t('admin.overdue.emptyHint')}</p>
           </div>
         ) : (
           <div className="divide-y divide-border/40">
@@ -75,20 +77,20 @@ export function AdminOverduePage() {
                       {item.qr_code && <span className="text-[11px] text-muted-foreground/70 font-mono">{item.qr_code}</span>}
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">
-                      Held by {item.user_name || item.user_email || 'unknown'}
+                      {t('admin.overdue.heldBy', { name: item.user_name || item.user_email || '—' })}
                       {item.user_email && item.user_name && (
                         <span className="text-muted-foreground/60"> · {item.user_email}</span>
                       )}
                     </p>
                     {due && (
                       <p className="text-[11px] text-muted-foreground mt-1">
-                        Due {format(due, 'd MMM yyyy', { locale: fr })}
+                        {t('admin.overdue.due', { date: format(due, 'd MMM yyyy', { locale: fr }) })}
                       </p>
                     )}
                   </div>
                   <div className="text-right shrink-0 flex flex-col items-end gap-1.5">
                     <Badge variant="outline" className="text-[10px] bg-rose-500/10 text-rose-500 border-rose-500/30">
-                      {daysLate} day{daysLate !== 1 ? 's' : ''} late
+                      {t('admin.overdue.daysLate', { count: daysLate })}
                     </Badge>
                     <Button
                       size="sm"
@@ -98,7 +100,7 @@ export function AdminOverduePage() {
                       disabled={sending === item.id || !item.user_email}
                     >
                       {wasReminded ? <CheckCircle2 className="h-3 w-3 text-emerald-500" /> : <Mail className="h-3 w-3" />}
-                      {wasReminded ? 'Reminded' : sending === item.id ? 'Sending…' : 'Remind'}
+                      {wasReminded ? t('admin.overdue.reminded') : sending === item.id ? t('admin.overdue.sending') : t('admin.overdue.remind')}
                     </Button>
                   </div>
                 </div>
