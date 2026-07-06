@@ -53,6 +53,7 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
     violet: { iconBg: 'bg-gradient-to-br from-violet-500/30 to-violet-500/5', iconColor: 'text-violet-500', hoverBorder: 'hover:border-violet-500/40', btnClass: 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10' },
     amber: { iconBg: 'bg-gradient-to-br from-amber-500/30 to-amber-500/5', iconColor: 'text-amber-500', hoverBorder: 'hover:border-amber-500/40', btnClass: 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10' },
     rose: { iconBg: 'bg-gradient-to-br from-rose-500/30 to-rose-500/5', iconColor: 'text-rose-500', hoverBorder: 'hover:border-rose-500/40', btnClass: 'border-rose-500/30 text-rose-500 hover:bg-rose-500/10' },
+    emerald: { iconBg: 'bg-gradient-to-br from-emerald-500/30 to-emerald-500/5', iconColor: 'text-emerald-500', hoverBorder: 'hover:border-emerald-500/40', btnClass: 'border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10' },
   }
   const c = (colorMap as Record<string, any>)[color] || colorMap.primary
 
