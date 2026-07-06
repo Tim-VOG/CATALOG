@@ -75,7 +75,19 @@ export function AdminStatsPage() {
       if (byType[t] !== undefined) byType[t]++
     }
 
-    return { total: allReqs.length, thisMonth: thisMonth.length, lastMonth: lastMonth.length, pending, inProgress, ready, assigned, available, lowStock, topRequested, byType, totalProducts: products.length, totalQR: qrCodes.length }
+    // 6-month request trend
+    const now2 = new Date()
+    const monthly: { label: string; count: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now2.getFullYear(), now2.getMonth() - i, 1)
+      const count = allReqs.filter((r: any) => {
+        const rd = new Date(r.created_at)
+        return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear()
+      }).length
+      monthly.push({ label: d.toLocaleDateString('en-GB', { month: 'short' }), count })
+    }
+
+    return { total: allReqs.length, thisMonth: thisMonth.length, lastMonth: lastMonth.length, pending, inProgress, ready, assigned, available, lowStock, topRequested, byType, monthly, totalProducts: products.length, totalQR: qrCodes.length }
   }, [loanReqs, itReqs, mailboxReqs, products, qrCodes])
 
   if (isLoading) return <PageLoading />
@@ -152,6 +164,32 @@ export function AdminStatsPage() {
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* 6-month trend chart */}
+      <Card>
+        <CardContent className="p-5">
+          <h3 className="font-semibold text-sm mb-5 flex items-center gap-2"><BarChart3 className="h-4 w-4" /> {t('admin.stats.trend6m')}</h3>
+          {(() => {
+            const max = Math.max(1, ...stats.monthly.map((m: any) => m.count))
+            return (
+              <div className="flex items-end justify-between gap-2 sm:gap-4 h-40">
+                {stats.monthly.map((m: any, i: number) => (
+                  <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                    <span className="text-xs font-semibold tabular-nums text-foreground">{m.count}</span>
+                    <div className="flex w-full items-end justify-center" style={{ height: '110px' }}>
+                      <div
+                        className="w-full max-w-[46px] rounded-t-lg bg-gradient-to-t from-primary/70 to-primary transition-all"
+                        style={{ height: `${(m.count / max) * 100}%`, minHeight: m.count > 0 ? '6px' : '2px' }}
+                      />
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">{m.label}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </CardContent>
       </Card>
     </div>
