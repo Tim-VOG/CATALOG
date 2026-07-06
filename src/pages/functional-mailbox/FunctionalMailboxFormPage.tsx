@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateMailboxRequest } from '@/hooks/use-mailbox-requests'
@@ -27,10 +28,10 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 
 // ── Step definitions ──
 const STEP_DEFS = [
-  { id: 'general', label: 'Mailbox', icon: Mail },
-  { id: 'signature', label: 'Signature', icon: FileSignature },
-  { id: 'requester', label: 'Requester', icon: User },
-  { id: 'review', label: 'Review', icon: CheckCircle },
+  { id: 'general', labelKey: 'stepMailbox', icon: Mail },
+  { id: 'signature', labelKey: 'stepSignature', icon: FileSignature },
+  { id: 'requester', labelKey: 'stepRequester', icon: User },
+  { id: 'review', labelKey: 'stepReview', icon: CheckCircle },
 ]
 
 // System field keys that map directly to mailbox_requests columns
@@ -76,6 +77,7 @@ function evaluateCondition(field: any, formValues: any) {
 
 // ── Email tags field ──
 function EmailTagsField({ value, onChange, placeholder  }: any) {
+  const { t } = useTranslation()
   const [inputValue, setInputValue] = useState('')
   const [error, setError] = useState('')
 
@@ -88,11 +90,11 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
     const email = raw.trim().toLowerCase()
     if (!email) return
     if (!isValidEmail(email)) {
-      setError('Please enter a valid email address')
+      setError(t('user.mailboxForm.errorInvalidEmail'))
       return
     }
     if (tags.includes(email)) {
-      setError('Email already added')
+      setError(t('user.mailboxForm.errorEmailDuplicate'))
       return
     }
     setError('')
@@ -161,7 +163,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           onBlur={() => { if (inputValue.trim()) addTag(inputValue) }}
-          placeholder={tags.length === 0 ? (placeholder || 'name@company.com') : 'Add another...'}
+          placeholder={tags.length === 0 ? (placeholder || t('user.mailboxForm.placeholderEmail')) : t('user.mailboxForm.placeholderAddAnother')}
           className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
         />
       </div>
@@ -169,7 +171,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
         <p className="text-[11px] text-destructive">{error}</p>
       )}
       <p className="text-[10px] text-muted-foreground">
-        Press <kbd className="bg-muted px-1 py-0.5 rounded text-[9px] font-mono">Enter</kbd> or <kbd className="bg-muted px-1 py-0.5 rounded text-[9px] font-mono">,</kbd> to add. You can also paste multiple emails.
+        {t('user.mailboxForm.emailTagsHintPress')} <kbd className="bg-muted px-1 py-0.5 rounded text-[9px] font-mono">Enter</kbd> {t('user.mailboxForm.emailTagsHintOr')} <kbd className="bg-muted px-1 py-0.5 rounded text-[9px] font-mono">,</kbd> {t('user.mailboxForm.emailTagsHintToAdd')}
       </p>
     </div>
   )
@@ -177,6 +179,7 @@ function EmailTagsField({ value, onChange, placeholder  }: any) {
 
 // ── File upload field ──
 function FileUploadField({ value, onChange, helpText  }: any) {
+  const { t } = useTranslation()
   const fileInputRef = useRef<any>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -216,7 +219,7 @@ function FileUploadField({ value, onChange, helpText  }: any) {
       />
       {value ? (
         <div className="relative inline-block">
-          <img src={value} alt="Banner" className="h-20 rounded-lg border object-contain" />
+          <img src={value} alt={t('user.mailboxForm.altBanner')} className="h-20 rounded-lg border object-contain" />
           <button
             type="button"
             onClick={() => onChange('')}
@@ -234,7 +237,7 @@ function FileUploadField({ value, onChange, helpText  }: any) {
           className="gap-2"
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          {uploading ? 'Uploading...' : 'Choose file'}
+          {uploading ? t('user.mailboxForm.uploading') : t('user.mailboxForm.chooseFile')}
         </Button>
       )}
       {helpText && <p className="text-[11px] text-muted-foreground">{helpText}</p>}
@@ -244,6 +247,7 @@ function FileUploadField({ value, onChange, helpText  }: any) {
 
 // ── Render a single dynamic field ──
 function DynamicField({ field, value, onChange, emailDomain  }: any) {
+  const { t } = useTranslation()
   const options = Array.isArray(field.options) ? field.options : []
 
   // Mailbox address: the part before @ is editable, the domain after @ is
@@ -255,7 +259,7 @@ function DynamicField({ field, value, onChange, emailDomain  }: any) {
         <input
           value={local}
           onChange={(e: any) => onChange(`${e.target.value.replace(/\s/g, '')}@${emailDomain}`)}
-          placeholder="name"
+          placeholder={t('user.mailboxForm.placeholderName')}
           maxLength={20}
           className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm outline-none"
         />
@@ -288,7 +292,7 @@ function DynamicField({ field, value, onChange, emailDomain  }: any) {
     case 'select':
       return (
         <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
-          <option value="">Select...</option>
+          <option value="">{t('user.mailboxForm.selectPlaceholder')}</option>
           {options.map((opt: any) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
@@ -346,7 +350,7 @@ function DynamicField({ field, value, onChange, emailDomain  }: any) {
       return (
         <div className="flex items-center gap-3">
           <Switch checked={!!value} onCheckedChange={onChange} />
-          <span className="text-sm text-muted-foreground">{value ? 'Yes' : 'No'}</span>
+          <span className="text-sm text-muted-foreground">{value ? t('user.mailboxForm.yes') : t('user.mailboxForm.no')}</span>
         </div>
       )
 
@@ -429,6 +433,7 @@ function DynamicFormStep({ fields, form, setField, emailDomain  }: any) {
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step: any, idx: any) => {
@@ -454,7 +459,7 @@ function StepProgress({ currentStep, steps  }: any) {
                   isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'
                 }`}
               >
-                {step.label}
+                {t(`user.mailboxForm.${step.labelKey}`)}
               </span>
             </div>
             {idx < steps.length - 1 && (
@@ -473,6 +478,7 @@ function StepProgress({ currentStep, steps  }: any) {
 
 // ── Review step ──
 function StepReview({ form, profile, allFields  }: any) {
+  const { t } = useTranslation()
   const rows = allFields
     .filter((f: any) => f.is_active && evaluateCondition(f, form))
     .map((f: any) => {
@@ -481,11 +487,11 @@ function StepReview({ form, profile, allFields  }: any) {
       let display = ''
 
       if (f.field_type === 'file' && raw) {
-        display = '(file uploaded)'
+        display = t('user.mailboxForm.fileUploadedLabel')
       } else if (Array.isArray(raw)) {
         display = raw.join(', ') || '—'
       } else if (typeof raw === 'boolean') {
-        display = raw ? 'Yes' : 'No'
+        display = raw ? t('user.mailboxForm.yes') : t('user.mailboxForm.no')
       } else {
         display = raw || '—'
       }
@@ -496,7 +502,7 @@ function StepReview({ form, profile, allFields  }: any) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Please review the information below before submitting.
+        {t('user.mailboxForm.reviewIntro')}
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
         {rows.map(({ label, value, fieldKey, url }: any, idx: any) => (
@@ -525,6 +531,7 @@ function StepReview({ form, profile, allFields  }: any) {
 
 // ── Main page ──
 export function FunctionalMailboxFormPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const createRequest = useCreateMailboxRequest()
@@ -648,14 +655,14 @@ export function FunctionalMailboxFormPage() {
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
         to: (user?.email || ""),
-        subject: 'Your mailbox request has been received',
+        subject: t('user.mailboxForm.emailSubjectConfirmation'),
         body: await buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name }),
         isHtml: true,
       })
 
       navigate('/request-sent')
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit request', 'error')
+      showToast(err.message || t('user.mailboxForm.errorSubmitFailed'), 'error')
     }
   }
 
@@ -673,13 +680,13 @@ export function FunctionalMailboxFormPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <Badge variant="outline" className="mb-3 text-xs">
-          Functional Mailbox
+          {t('user.mailboxForm.badgeFunctionalMailbox')}
         </Badge>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
-          New Mailbox Request
+          {t('user.mailboxForm.pageTitle')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Request a new functional mailbox for your team or project
+          {t('user.mailboxForm.pageSubtitle')}
         </p>
       </motion.div>
 
@@ -695,10 +702,10 @@ export function FunctionalMailboxFormPage() {
               return <StepIcon className="h-5 w-5 text-primary" />
             })()}
             <h2 className="text-lg font-display font-bold">
-              {currentStepDef.label}
+              {t(`user.mailboxForm.${currentStepDef.labelKey}`)}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {activeSteps.length}
+              {t('user.mailboxForm.stepIndicator', { current: currentStep + 1, total: activeSteps.length })}
             </span>
           </div>
 
@@ -733,7 +740,7 @@ export function FunctionalMailboxFormPage() {
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          {currentStep === 0 ? 'Cancel' : 'Back'}
+          {currentStep === 0 ? t('user.mailboxForm.cancel') : t('user.mailboxForm.back')}
         </Button>
 
         {currentStep < activeSteps.length - 1 ? (
@@ -742,7 +749,7 @@ export function FunctionalMailboxFormPage() {
             disabled={!canGoNext()}
             className="gap-2"
           >
-            Next
+            {t('user.mailboxForm.next')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
@@ -756,7 +763,7 @@ export function FunctionalMailboxFormPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            Submit Request
+            {t('user.mailboxForm.submitRequest')}
           </Button>
         )}
       </div>

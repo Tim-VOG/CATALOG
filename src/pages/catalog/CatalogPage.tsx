@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'motion/react'
 import { useProducts } from '@/hooks/use-products'
 import { useCategories } from '@/hooks/use-categories'
@@ -18,10 +19,10 @@ import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
 const SORT_OPTIONS = [
-  { value: 'name-asc', label: 'Name A-Z' },
-  { value: 'name-desc', label: 'Name Z-A' },
-  { value: 'stock-desc', label: 'Most stock' },
-  { value: 'stock-asc', label: 'Least stock' },
+  { value: 'name-asc', key: 'sortNameAsc' },
+  { value: 'name-desc', key: 'sortNameDesc' },
+  { value: 'stock-desc', key: 'sortStockDesc' },
+  { value: 'stock-asc', key: 'sortStockAsc' },
 ]
 
 function sortProducts(products: any, sortBy: any) {
@@ -36,6 +37,7 @@ function sortProducts(products: any, sortBy: any) {
 }
 
 export function CatalogPage() {
+  const { t } = useTranslation()
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [favoritesOnly, setFavoritesOnly] = useState(false)
@@ -133,10 +135,10 @@ export function CatalogPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            Equipment Catalog
+            {t('user.catalogPage.pageTitle')}
           </motion.h1>
           <p className="text-background/60 mt-2 text-sm">
-            {products.length} products · {totalInStock} in stock
+            {t('user.catalogPage.productsInStock', { count: products.length, inStock: totalInStock })}
           </p>
 
           {/* Search bar */}
@@ -146,7 +148,7 @@ export function CatalogPage() {
               <Input
                 value={searchQuery}
                 onChange={(e: any) => setSearchQuery(e.target.value)}
-                placeholder="Search equipment..."
+                placeholder={t('user.catalogPage.searchPlaceholder')}
                 className="pl-11 h-11 rounded-xl bg-background text-foreground border-0 shadow-lg"
               />
             </div>
@@ -155,7 +157,7 @@ export function CatalogPage() {
                 <Button size="lg" className="h-11 rounded-xl gap-2 bg-primary hover:bg-primary/90 shadow-lg whitespace-nowrap">
                   <ShoppingCart className="h-4 w-4" />
                   <span className="font-bold">{cartCount}</span>
-                  <span className="hidden sm:inline">Go to cart</span>
+                  <span className="hidden sm:inline">{t('user.catalogPage.goToCart')}</span>
                 </Button>
               </Link>
             )}
@@ -192,7 +194,7 @@ export function CatalogPage() {
                     : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
-                {c.name} <span className={cn('ml-1', isActive ? 'text-background/60' : 'text-muted-foreground/60')}>{count}</span>
+                {c.id === 'all' ? t('user.catalogPage.allCategories') : c.name} <span className={cn('ml-1', isActive ? 'text-background/60' : 'text-muted-foreground/60')}>{count}</span>
               </button>
             )
           })}
@@ -212,10 +214,10 @@ export function CatalogPage() {
               : 'bg-muted/50 text-muted-foreground hover:bg-muted',
             !favoritesOnly && favCount === 0 && 'opacity-50 cursor-not-allowed hover:bg-muted/50'
           )}
-          title={favCount === 0 ? 'Heart an item to add it to your favorites' : ''}
+          title={favCount === 0 ? t('user.catalogPage.favoritesHint') : ''}
         >
           <Heart className={cn('h-3.5 w-3.5', favoritesOnly && 'fill-rose-500')} />
-          Favorites
+          {t('user.catalogPage.favorites')}
           {favCount > 0 && (
             <span className={cn(
               'ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold',
@@ -238,14 +240,14 @@ export function CatalogPage() {
           )}
         >
           <div className={cn('w-2 h-2 rounded-full', inStockOnly ? 'bg-emerald-500' : 'bg-muted-foreground/30')} />
-          In stock
+          {t('user.catalogPage.inStock')}
         </button>
 
         {/* Sort */}
         <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-1">
           <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
           <Select value={sortBy} onChange={(e: any) => setSortBy(e.target.value)} className="border-0 bg-transparent text-sm h-8 w-32">
-            {SORT_OPTIONS.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {SORT_OPTIONS.map((o: any) => <option key={o.value} value={o.value}>{t(`user.catalogPage.${o.key}`)}</option>)}
           </Select>
         </div>
       </div>
@@ -253,14 +255,14 @@ export function CatalogPage() {
       {/* Results info */}
       {(searchQuery || inStockOnly || selectedCategory !== 'All') && (
         <p className="text-xs text-muted-foreground mb-4">
-          {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-          {searchQuery && <> for "{searchQuery}"</>}
+          {t('user.catalogPage.resultCount', { count: filtered.length })}
+          {searchQuery && <> {t('user.catalogPage.searchFor', { query: searchQuery })}</>}
         </p>
       )}
 
       {/* Product grid */}
       {filtered.length === 0 ? (
-        <EmptyState icon={Package} title="No equipment found" description={searchQuery ? 'Try different keywords' : 'No products match your filters'} />
+        <EmptyState icon={Package} title={t('user.catalogPage.emptyTitle')} description={searchQuery ? t('user.catalogPage.emptyTryDifferent') : t('user.catalogPage.emptyNoMatch')} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {filtered.map((product: any, i: any) => (

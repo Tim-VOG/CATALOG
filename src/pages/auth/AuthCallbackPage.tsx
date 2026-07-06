@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 
 export function AuthCallbackPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const handled = useRef(false)
 
@@ -40,5 +42,5 @@ export function AuthCallbackPage() {
     }
   }, [navigate])
 
-  return <PageLoading message="Completing sign in..." />
+  return <PageLoading message={t('user.authCallback.completingSignIn')} />
 }

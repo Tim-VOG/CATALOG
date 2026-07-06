@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { CheckCircle2, AlertTriangle, XCircle, Loader2, ArrowLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import i18n from '@/lib/i18n'
 
 type Status = 'pending' | 'ok' | 'degraded' | 'down'
 
@@ -22,11 +24,18 @@ const STATUS_STYLES: Record<Status, { color: string; bg: string; border: string;
   down:     { color: 'text-rose-500',         bg: 'bg-rose-500/10',    border: 'border-rose-500/30',    icon: XCircle },
 }
 
-const STATUS_LABEL: Record<Status, string> = {
-  pending: 'Checking…',
-  ok: 'Operational',
-  degraded: 'Degraded',
-  down: 'Down',
+const STATUS_LABEL_KEY: Record<Status, string> = {
+  pending: 'statusPending',
+  ok: 'statusOk',
+  degraded: 'statusDegraded',
+  down: 'statusDown',
+}
+
+const CHECK_LABEL_KEYS: Record<string, { label: string; description: string }> = {
+  db:      { label: 'checkDbLabel',      description: 'checkDbDesc' },
+  auth:    { label: 'checkAuthLabel',    description: 'checkAuthDesc' },
+  storage: { label: 'checkStorageLabel', description: 'checkStorageDesc' },
+  edge:    { label: 'checkEdgeLabel',    description: 'checkEdgeDesc' },
 }
 
 const initial: Check[] = [
@@ -65,14 +74,15 @@ async function runCheck(key: string): Promise<{ status: Status; message?: string
         return { status: 'ok', latencyMs: Math.round(performance.now() - t0) }
       }
       default:
-        return { status: 'degraded', message: 'unknown check' }
+        return { status: 'degraded', message: i18n.t('user.statusPage.unknownCheckError', { defaultValue: 'unknown check' }) }
     }
   } catch (err: any) {
-    return { status: 'down', message: err?.message || 'network error', latencyMs: Math.round(performance.now() - t0) }
+    return { status: 'down', message: err?.message || i18n.t('user.statusPage.networkError', { defaultValue: 'network error' }), latencyMs: Math.round(performance.now() - t0) }
   }
 }
 
 export function StatusPage() {
+  const { t } = useTranslation()
   const [checks, setChecks] = useState<Check[]>(initial)
   const [lastRun, setLastRun] = useState<Date | null>(null)
 
@@ -103,7 +113,7 @@ export function StatusPage() {
       <div className="w-full max-w-2xl">
         <Link to="/" className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground mb-6 transition-colors">
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to VO Hub
+          {t('user.statusPage.backToHub')}
         </Link>
 
         {/* Hero status banner */}
@@ -120,16 +130,16 @@ export function StatusPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-display font-bold tracking-tight">
-              {overall === 'ok' && 'All systems operational'}
-              {overall === 'degraded' && 'Some services degraded'}
-              {overall === 'down' && 'Major outage'}
-              {overall === 'pending' && 'Checking status…'}
+              {overall === 'ok' && t('user.statusPage.statusTitleOk')}
+              {overall === 'degraded' && t('user.statusPage.statusTitleDegraded')}
+              {overall === 'down' && t('user.statusPage.statusTitleDown')}
+              {overall === 'pending' && t('user.statusPage.statusTitleChecking')}
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               {lastRun
-                ? `Last checked ${lastRun.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
-                : 'Running checks…'}
-              {' '}— auto-refresh every 60 s.
+                ? t('user.statusPage.lastChecked', { time: lastRun.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) })
+                : t('user.statusPage.runningChecks')}
+              {' '}{t('user.statusPage.autoRefresh')}
             </p>
           </div>
         </div>
@@ -139,20 +149,21 @@ export function StatusPage() {
           {checks.map((c: any) => {
             const style = (STATUS_STYLES as Record<string, any>)[c.status]
             const Icon = style.icon
+            const meta = CHECK_LABEL_KEYS[c.key]
             return (
               <div key={c.key} className="rounded-xl border border-border/50 bg-card/40 p-4 flex items-center gap-3">
                 <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', style.bg)}>
                   <Icon className={cn('h-4 w-4', style.color, c.status === 'pending' && 'animate-spin')} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{c.label}</p>
-                  <p className="text-xs text-muted-foreground truncate">{c.description}</p>
+                  <p className="text-sm font-medium">{meta ? t(`user.statusPage.${meta.label}`) : c.label}</p>
+                  <p className="text-xs text-muted-foreground truncate">{meta ? t(`user.statusPage.${meta.description}`) : c.description}</p>
                   {c.message && <p className="text-[11px] text-rose-500 truncate mt-0.5">{c.message}</p>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className={cn('text-xs font-medium', style.color)}>{(STATUS_LABEL as Record<string, any>)[c.status]}</p>
+                  <p className={cn('text-xs font-medium', style.color)}>{t(`user.statusPage.${STATUS_LABEL_KEY[c.status as Status]}`)}</p>
                   {c.latencyMs != null && (
-                    <p className="text-[10px] text-muted-foreground tabular-nums mt-0.5">{c.latencyMs} ms</p>
+                    <p className="text-[10px] text-muted-foreground tabular-nums mt-0.5">{t('user.statusPage.latencyMs', { ms: c.latencyMs })}</p>
                   )}
                 </div>
               </div>
@@ -161,7 +172,7 @@ export function StatusPage() {
         </div>
 
         <p className="text-[10px] text-muted-foreground/60 text-center mt-6">
-          Public status page · VO Hub · No login required
+          {t('user.statusPage.footer')}
         </p>
       </div>
     </div>

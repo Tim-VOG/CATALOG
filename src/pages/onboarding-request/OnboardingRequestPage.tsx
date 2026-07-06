@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
@@ -172,6 +173,7 @@ const ALL_STEPS = [
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step: any, idx: any) => {
@@ -197,7 +199,7 @@ function StepProgress({ currentStep, steps  }: any) {
                   isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'
                 }`}
               >
-                {step.label}
+                {t(`user.onboardingForm.step${step.id.charAt(0).toUpperCase()}${step.id.slice(1)}Label`, { defaultValue: step.label })}
               </span>
             </div>
             {idx < steps.length - 1 && (
@@ -254,11 +256,12 @@ function MultiSelectField({ options, value, onChange, descriptions  }: any) {
 
 // ── Yes/No toggle ──
 function YesNoField({ value, onChange  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex gap-2">
       {[
-        { v: true, label: 'Yes' },
-        { v: false, label: 'No' },
+        { v: true, label: t('user.onboardingForm.yesLabel') },
+        { v: false, label: t('user.onboardingForm.noLabel') },
       ].map((opt: any) => {
         const selected = value === opt.v
         return (

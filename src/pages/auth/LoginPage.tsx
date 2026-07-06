@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
 import { Package, Shield, User, FlaskConical } from 'lucide-react'
@@ -9,7 +10,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/com
 
 const DEV_ACCOUNTS = [
   {
-    label: 'Admin',
+    labelKey: 'devAccountAdmin',
     email: 'admin@equiplend.test',
     password: 'admin123',
     icon: Shield,
@@ -17,7 +18,7 @@ const DEV_ACCOUNTS = [
     bg: 'bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20',
   },
   {
-    label: 'User',
+    labelKey: 'devAccountUser',
     email: 'testuser@vogroup.test',
     password: 'testuser123',
     icon: User,
@@ -36,6 +37,7 @@ const MicrosoftIcon = () => (
 )
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const { user, signIn, signInWithMicrosoft } = useAuth()
   const { data: settings } = useAppSettings()
   const [devLoading, setDevLoading] = useState<any>(null)
@@ -79,7 +81,7 @@ export function LoginPage() {
       await signIn(account.email, account.password)
     } catch (err: any) {
       console.error('[Dev Login]', err)
-      setDevError(err.message || 'Login failed')
+      setDevError(err.message || t('user.login.loginFailed'))
       setDevLoading(null)
     }
   }
@@ -169,7 +171,7 @@ export function LoginPage() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
               >
-                Book. Borrow. Return.
+                {t('user.login.tagline')}
               </motion.span>
             </CardDescription>
           </CardHeader>
@@ -181,7 +183,7 @@ export function LoginPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
             >
-              Sign in with your Microsoft account to access the equipment lending platform
+              {t('user.login.subtitle')}
             </motion.p>
 
             <motion.div
@@ -195,7 +197,7 @@ export function LoginPage() {
                 onClick={() => signInWithMicrosoft?.()}
               >
                 <MicrosoftIcon />
-                Sign in with Microsoft
+                {t('user.login.signInWithMicrosoft')}
               </Button>
             </motion.div>
 
@@ -205,7 +207,7 @@ export function LoginPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8, duration: 0.4 }}
             >
-              Works with existing and new Microsoft accounts
+              {t('user.login.microsoftAccountsNote')}
             </motion.p>
 
             {/* Dev login — local test accounts */}
@@ -223,7 +225,7 @@ export function LoginPage() {
                   <div className="relative flex justify-center text-xs">
                     <span className="bg-card px-3 text-muted-foreground/50 flex items-center gap-1.5">
                       <FlaskConical className="h-3 w-3" />
-                      Dev accounts
+                      {t('user.login.devAccounts')}
                     </span>
                   </div>
                 </div>
@@ -242,7 +244,9 @@ export function LoginPage() {
                       >
                         <Icon className={`h-4 w-4 ${account.color}`} />
                         <span className="text-foreground">
-                          {devLoading === account.email ? 'Signing in...' : account.label}
+                          {devLoading === account.email
+                            ? t('user.login.signingIn')
+                            : t(`user.login.${account.labelKey}`, { defaultValue: account.labelKey })}
                         </span>
                       </motion.button>
                     )

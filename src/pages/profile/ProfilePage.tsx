@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { useMyItRequests } from '@/hooks/use-it-requests'
@@ -30,6 +31,7 @@ const MAX_AVATAR_SIZE = 2 * 1024 * 1024 // 2MB
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export function ProfilePage() {
+  const { t } = useTranslation()
   const { user, profile, loading, refreshProfile } = useAuth()
   const { data: loanReqs = [] } = useMyLoanRequests(user?.id)
   const { data: itReqs = [] } = useMyItRequests(user?.id)
@@ -62,7 +64,7 @@ export function ProfilePage() {
     try {
       await updateProfile(user!.id, { phone })
       await refreshProfile()
-      showToast('Phone number updated')
+      showToast(t('user.profilePage.phoneUpdated'))
     } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
@@ -77,13 +79,13 @@ export function ProfilePage() {
 
     // Validate type
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      showToast('Please upload a PNG, JPEG, or WebP image', 'error')
+      showToast(t('user.profilePage.invalidImageType'), 'error')
       return
     }
 
     // Validate size
     if (file.size > MAX_AVATAR_SIZE) {
-      showToast('Image must be under 2MB', 'error')
+      showToast(t('user.profilePage.imageTooLarge'), 'error')
       return
     }
 
@@ -100,7 +102,7 @@ export function ProfilePage() {
       const { data } = supabase.storage.from('avatars').getPublicUrl(path)
       await updateProfile(user!.id, { avatar_url: data.publicUrl })
       await refreshProfile()
-      showToast('Profile photo updated')
+      showToast(t('user.profilePage.photoUpdated'))
     } catch (err: any) {
       showToast(err.message, 'error')
     } finally {
@@ -111,7 +113,7 @@ export function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Profile</h1>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">{t('user.profilePage.title')}</h1>
         <motion.div
           className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
@@ -139,7 +141,7 @@ export function ProfilePage() {
                 type="button"
                 onClick={() => !uploadingAvatar && avatarInputRef.current?.click()}
                 className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                aria-label="Change profile photo"
+                aria-label={t('user.profilePage.changePhotoAria')}
               >
                 {uploadingAvatar ? (
                   <Loader2 className="h-6 w-6 text-white animate-spin" />
@@ -170,7 +172,7 @@ export function ProfilePage() {
                   className="inline-flex items-center gap-1.5 text-sm text-[#6264A7] hover:underline w-fit"
                 >
                   <MessageSquare className="h-3.5 w-3.5" />
-                  Chat on Teams
+                  {t('user.profilePage.chatOnTeams')}
                 </a>
               )}
               {!!profile?.job_title && (
@@ -192,7 +194,7 @@ export function ProfilePage() {
                 </Badge>
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" />
-                  Joined {formatDate(profile?.created_at)}
+                  {t('user.profilePage.joined', { date: formatDate(profile?.created_at) })}
                 </span>
               </div>
             </div>
@@ -207,7 +209,7 @@ export function ProfilePage() {
             <div className="text-center">
               <ClipboardList className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
               <AnimatedCounter value={totalRequests} className="text-3xl font-bold" />
-              <p className="text-xs text-muted-foreground mt-1">Total Requests</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('user.profilePage.totalRequests')}</p>
             </div>
           </CardContent>
         </Card>
@@ -216,7 +218,7 @@ export function ProfilePage() {
             <div className="text-center">
               <Clock className="h-5 w-5 mx-auto mb-2 text-amber-500" />
               <AnimatedCounter value={activeRequests} className="text-3xl font-bold text-amber-500" />
-              <p className="text-xs text-muted-foreground mt-1">Active</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('user.profilePage.active')}</p>
             </div>
           </CardContent>
         </Card>
@@ -225,7 +227,7 @@ export function ProfilePage() {
             <div className="text-center">
               <CheckCircle2 className="h-5 w-5 mx-auto mb-2 text-green-500" />
               <AnimatedCounter value={completedRequests} className="text-3xl font-bold text-green-500" />
-              <p className="text-xs text-muted-foreground mt-1">Completed</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('user.profilePage.completed')}</p>
             </div>
           </CardContent>
         </Card>
@@ -241,7 +243,7 @@ export function ProfilePage() {
       <Card>
         <CardHeader className="px-6 pt-6 pb-4">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Palette className="h-4 w-4" /> Appearance
+            <Palette className="h-4 w-4" /> {t('user.profilePage.appearance')}
           </CardTitle>
         </CardHeader>
         <CardContent className="px-6 pb-6">
@@ -252,19 +254,19 @@ export function ProfilePage() {
                   {themeMode === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Theme</p>
+                  <p className="text-sm font-medium">{t('user.profilePage.theme')}</p>
                   <p className="text-xs text-muted-foreground">
-                    Currently {themeMode === 'dark' ? 'Dark' : 'Light'}.
+                    {t('user.profilePage.currently', { mode: themeMode === 'dark' ? t('user.profilePage.themeDark') : t('user.profilePage.themeLight') })}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={toggleTheme} className="gap-1.5">
                   {themeMode === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-                  Switch to {themeMode === 'dark' ? 'Light' : 'Dark'}
+                  {t('user.profilePage.switchTo', { mode: themeMode === 'dark' ? t('user.profilePage.themeLight') : t('user.profilePage.themeDark') })}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={clearThemeOverride} className="text-xs">
-                  Use default
+                  {t('user.profilePage.useDefault')}
                 </Button>
               </div>
             </div>
@@ -282,18 +284,18 @@ export function ProfilePage() {
       <Card>
         <CardHeader className="px-6 pt-6 pb-4">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Phone className="h-4 w-4" /> Contact
+            <Phone className="h-4 w-4" /> {t('user.profilePage.contact')}
           </CardTitle>
         </CardHeader>
         <CardContent className="px-6 pb-6">
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label>Phone number</Label>
+              <Label>{t('user.profilePage.phoneNumber')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={phone}
                   onChange={(e: any) => setPhone(e.target.value)}
-                  placeholder="+33 6 12 34 56 78"
+                  placeholder={t('user.profilePage.phonePlaceholder')}
                   className="max-w-xs"
                 />
                 <Button
@@ -303,7 +305,7 @@ export function ProfilePage() {
                   className="gap-2"
                 >
                   <Save className="h-3.5 w-3.5" />
-                  Save
+                  {t('user.profilePage.save')}
                 </Button>
               </div>
             </div>
