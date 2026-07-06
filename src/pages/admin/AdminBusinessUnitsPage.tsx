@@ -34,12 +34,6 @@ const EMPTY_FORM: FormState = {
   sort_order: '0',
 }
 
-const PATTERN_LABEL: Record<EmailPattern, string> = {
-  initial_last: 'jdoe@ (first initial + last name)',
-  first: 'john@ (first name)',
-  initials: 'jd@ (initials)',
-}
-
 const PATTERN_EXAMPLE: Record<EmailPattern, string> = {
   initial_last: 'jdoe@',
   first: 'john@',
