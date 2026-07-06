@@ -7,7 +7,7 @@ import { useMyLoanRequests } from '@/hooks/use-loan-requests'
 import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import {
-  Package, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus,
+  Package, PackageSearch, Laptop, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus,
   Loader2, CheckCircle, Sparkles, Clock,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -115,13 +115,13 @@ export function HubPage() {
 
   const cards: any[] = []
   cards.push(
-    <HubCard key="catalog" to="/catalog" icon={Package}
+    <HubCard key="catalog" to="/catalog" icon={PackageSearch}
       title={settings?.hub_catalog_title || 'Equipment Catalog'}
       description="Browse and request IT equipment for events or projects."
       color="primary" buttonLabel="Open Catalog" />
   )
   cards.push(
-    <HubCard key="my-equipment" to="/my-equipment" icon={Package}
+    <HubCard key="my-equipment" to="/my-equipment" icon={Laptop}
       title="My equipment"
       description="The devices currently in your hands — due dates, returns, problems."
       color="emerald" buttonLabel="View my devices" />
