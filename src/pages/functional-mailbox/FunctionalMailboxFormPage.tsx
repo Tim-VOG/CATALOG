@@ -539,10 +539,6 @@ export function FunctionalMailboxFormPage() {
   const { data: businessUnits = [] } = useBusinessUnits()
   const showToast = useUIStore((s: any) => s.showToast)
 
-  // The mailbox address domain is locked to the requester's own business
-  // unit (from their profile). Empty → the email field stays free-text.
-  const emailDomain = businessUnits.find((bu: any) => bu.value === profile?.business_unit)?.domain || ''
-
   const [currentStep, setCurrentStep] = useState(0)
   const [form, setForm] = useState<any>({
     project_name: '',
@@ -566,6 +562,26 @@ export function FunctionalMailboxFormPage() {
   })
 
   const setField = (key: any, value: any) => setForm((prev: any) => ({ ...prev, [key]: value }))
+
+  // The mailbox address domain follows the selected Company, falling back to
+  // the requester's own business unit, then to vo-group.be so the field always
+  // shows a locked domain.
+  const emailDomain =
+    businessUnits.find((bu: any) => bu.value === form.agency)?.domain
+    || businessUnits.find((bu: any) => bu.value === profile?.business_unit)?.domain
+    || 'vo-group.be'
+
+  // When the company (and thus the domain) changes, rewrite the domain part of
+  // an already-typed address so it never keeps a stale @domain.
+  useEffect(() => {
+    setForm((prev: any) => {
+      if (!prev.email_to_create) return prev
+      const local = prev.email_to_create.split('@')[0]
+      const next = `${local}@${emailDomain}`
+      return prev.email_to_create === next ? prev : { ...prev, email_to_create: next }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [emailDomain])
 
   // Auto-fill requester fields from profile
   useEffect(() => {
