@@ -123,13 +123,20 @@ serve(async (req) => {
   }
   // ── End rate limit ──
 
-  // ── Branding ──
+  // ── Branding + configurable reminder timing ──
   let branding = { appName: 'VO Hub', logoUrl: '' }
+  const rem = { beforeDays: 3, overdueDays: 1, beforeEnabled: true, overdueEnabled: true }
   try {
     const { data } = await supabase.from('app_settings').select('*').maybeSingle()
     branding = { appName: data?.app_name || 'VO Hub', logoUrl: data?.logo_url || '' }
+    if (data) {
+      if (typeof data.reminder_before_days === 'number') rem.beforeDays = data.reminder_before_days
+      if (typeof data.reminder_overdue_days === 'number') rem.overdueDays = data.reminder_overdue_days
+      if (data.reminder_before_enabled === false) rem.beforeEnabled = false
+      if (data.reminder_overdue_enabled === false) rem.overdueEnabled = false
+    }
   } catch (e) {
-    console.warn('[daily-reminders] could not load branding', e)
+    console.warn('[daily-reminders] could not load settings', e)
   }
 
   const today = todayIsoDate()
@@ -238,13 +245,13 @@ serve(async (req) => {
   // fired when an admin happened to open the dashboard). Matching the exact
   // date, combined with the once-a-day cron, means each active loan gets
   // exactly one reminder — no per-row "sent" flag needed.
-  const todayPlus3 = addDays(today, 3)
+  const beforeDate = addDays(today, rem.beforeDays)
   try {
-    const { data: dueSoon } = await supabase
+    const { data: dueSoon } = rem.beforeEnabled ? await supabase
       .from('user_equipment')
       .select('user_email, user_name, product_name, expected_return_date')
       .eq('status', 'active')
-      .eq('expected_return_date', todayPlus3)
+      .eq('expected_return_date', beforeDate) : { data: [] }
 
     if (dueSoon?.length) {
       // Respect admin edits to the template in /admin/communications.
@@ -285,13 +292,13 @@ serve(async (req) => {
   // ── 4) Overdue reminder — 1 day AFTER the expected return date ──
   // A single follow-up nudge the day after a loan becomes overdue. Exact-date
   // match + once-a-day cron means one overdue email per loan (no spam).
-  const yesterday = addDays(today, -1)
+  const overdueDate = addDays(today, -Math.max(1, rem.overdueDays))
   try {
-    const { data: overdue } = await supabase
+    const { data: overdue } = rem.overdueEnabled ? await supabase
       .from('user_equipment')
       .select('user_email, user_name, product_name, expected_return_date')
       .eq('status', 'active')
-      .eq('expected_return_date', yesterday)
+      .eq('expected_return_date', overdueDate) : { data: [] }
 
     if (overdue?.length) {
       let tmplSubject = 'Action required: {{product_name}} is overdue'

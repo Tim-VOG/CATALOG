@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { NotificationRecipientsManager } from '@/components/admin/NotificationRecipientsManager'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { ReminderSettingsCard } from '@/components/admin/ReminderSettingsCard'
 import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 
@@ -135,6 +136,8 @@ export function AdminEmailTemplatesPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title={t('admin.emailTemplates.pageTitle')} description={t('admin.emailTemplates.pageDescription')} />
+
+      <ReminderSettingsCard />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
