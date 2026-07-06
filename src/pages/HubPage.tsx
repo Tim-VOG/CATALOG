@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
@@ -9,7 +9,7 @@ import { useMyItRequests } from '@/hooks/use-it-requests'
 import { useMyMailboxRequests } from '@/hooks/use-mailbox-requests'
 import {
   Package, PackageSearch, Laptop, ArrowRight, Mail, QrCode, Inbox, UserPlus, UserMinus,
-  Loader2, CheckCircle, Sparkles, Clock,
+  Loader2, CheckCircle, Sparkles, Clock, SlidersHorizontal, Eye, EyeOff, ChevronUp, ChevronDown, RotateCcw,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -158,6 +158,37 @@ export function HubPage() {
       color="violet" buttonLabel={t('user.hubPage.newRequestButton')} />
   )
 
+  // ── Quick-action customization: hide + reorder, persisted locally ──
+  const [customizing, setCustomizing] = useState(false)
+  const [prefs, setPrefs] = useState<{ order: string[]; hidden: string[] }>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('vo-hub-prefs') || '{}')
+      return { order: saved.order || [], hidden: saved.hidden || [] }
+    } catch { return { order: [], hidden: [] } }
+  })
+  const savePrefs = (next: { order: string[]; hidden: string[] }) => {
+    setPrefs(next)
+    try { localStorage.setItem('vo-hub-prefs', JSON.stringify(next)) } catch { /* ignore */ }
+  }
+  const cardByKey = Object.fromEntries(cards.map((c: any) => [c.key, c]))
+  const orderedKeys = (() => {
+    const keys = cards.map((c: any) => c.key)
+    return [...prefs.order.filter((k: string) => keys.includes(k)), ...keys.filter((k: string) => !prefs.order.includes(k))]
+  })()
+  const moveCard = (key: string, dir: -1 | 1) => {
+    const idx = orderedKeys.indexOf(key)
+    const j = idx + dir
+    if (j < 0 || j >= orderedKeys.length) return
+    const next = [...orderedKeys]
+    ;[next[idx], next[j]] = [next[j], next[idx]]
+    savePrefs({ ...prefs, order: next })
+  }
+  const toggleHide = (key: string) => {
+    const hidden = prefs.hidden.includes(key) ? prefs.hidden.filter((k: string) => k !== key) : [...prefs.hidden, key]
+    savePrefs({ ...prefs, hidden })
+  }
+  const visibleKeys = orderedKeys.filter((k: string) => customizing || !prefs.hidden.includes(k))
+
   return (
     <div className="max-w-5xl mx-auto py-10 px-6 pb-24">
       {/* Hero header */}
@@ -199,13 +230,43 @@ export function HubPage() {
         <div className="flex items-center gap-2">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('user.hubPage.quickActions')}</h2>
           <div className="flex-1 h-px bg-border/40" />
+          <button
+            onClick={() => setCustomizing((v) => !v)}
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            {customizing ? <CheckCircle className="h-3.5 w-3.5" /> : <SlidersHorizontal className="h-3.5 w-3.5" />}
+            {customizing ? t('hubCustom.done') : t('hubCustom.customize')}
+          </button>
+          {customizing && (prefs.order.length > 0 || prefs.hidden.length > 0) && (
+            <button
+              onClick={() => savePrefs({ order: [], hidden: [] })}
+              className="flex items-center gap-1 rounded-full px-2 py-1 text-xs text-muted-foreground transition hover:text-foreground"
+              title={t('hubCustom.reset')}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {cards.map((card: any, i: any) => (
-            <DynamicsItem key={card.key} index={i}>
-              {card}
-            </DynamicsItem>
-          ))}
+          {visibleKeys.map((k: string, i: number) => {
+            const card = cardByKey[k]
+            if (!card) return null
+            const hidden = prefs.hidden.includes(k)
+            return (
+              <div key={k} className="relative">
+                {customizing && (
+                  <div className="absolute -right-2 -top-2 z-20 flex items-center gap-0.5 rounded-full border border-border bg-card px-1 py-0.5 shadow-md">
+                    <button onClick={() => moveCard(k, -1)} title={t('hubCustom.moveUp')} className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"><ChevronUp className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => moveCard(k, 1)} title={t('hubCustom.moveDown')} className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"><ChevronDown className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => toggleHide(k)} title={hidden ? t('hubCustom.show') : t('hubCustom.hide')} className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground">{hidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}</button>
+                  </div>
+                )}
+                <div className={hidden ? 'opacity-40 grayscale transition' : 'transition'}>
+                  <DynamicsItem index={i}>{card}</DynamicsItem>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

@@ -73,6 +73,15 @@ const en = {
     featOffboarding: 'Offboarding',
     featMailbox: 'Mailbox',
   },
+  hubCustom: {
+    customize: 'Customize',
+    done: 'Done',
+    hide: 'Hide',
+    show: 'Show',
+    moveUp: 'Move up',
+    moveDown: 'Move down',
+    reset: 'Reset',
+  },
   feedback: {
     button: 'Feedback',
     title: 'Share your feedback',
@@ -153,6 +162,15 @@ const fr = {
     featOffboarding: 'Départs',
     featMailbox: 'Boîte mail',
   },
+  hubCustom: {
+    customize: 'Personnaliser',
+    done: 'Terminé',
+    hide: 'Masquer',
+    show: 'Afficher',
+    moveUp: 'Monter',
+    moveDown: 'Descendre',
+    reset: 'Réinitialiser',
+  },
   feedback: {
     button: 'Avis',
     title: 'Partage ton avis',
@@ -232,6 +250,15 @@ const nl = {
     featOnboarding: 'Onboarding',
     featOffboarding: 'Offboarding',
     featMailbox: 'Mailbox',
+  },
+  hubCustom: {
+    customize: 'Aanpassen',
+    done: 'Klaar',
+    hide: 'Verbergen',
+    show: 'Tonen',
+    moveUp: 'Omhoog',
+    moveDown: 'Omlaag',
+    reset: 'Herstellen',
   },
   feedback: {
     button: 'Feedback',
