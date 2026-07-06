@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Package, QrCode, Clock, CheckCircle2, Calendar, Inbox, UserPlus, UserMinus, Mail, ClipboardList } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -12,11 +13,11 @@ const fmtDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 const REQ_TYPE_META = {
-  equipment: { icon: Package, color: 'text-primary', bg: 'bg-primary/10', label: 'Equipment' },
-  onboarding: { icon: UserPlus, color: 'text-cyan-500', bg: 'bg-cyan-500/10', label: 'Onboarding' },
-  offboarding: { icon: UserMinus, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'Offboarding' },
-  it: { icon: ClipboardList, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'IT Request' },
-  mailbox: { icon: Mail, color: 'text-violet-500', bg: 'bg-violet-500/10', label: 'Mailbox' },
+  equipment: { icon: Package, color: 'text-primary', bg: 'bg-primary/10', labelKey: 'typeEquipment' },
+  onboarding: { icon: UserPlus, color: 'text-cyan-500', bg: 'bg-cyan-500/10', labelKey: 'typeOnboarding' },
+  offboarding: { icon: UserMinus, color: 'text-rose-500', bg: 'bg-rose-500/10', labelKey: 'typeOffboarding' },
+  it: { icon: ClipboardList, color: 'text-amber-500', bg: 'bg-amber-500/10', labelKey: 'typeIt' },
+  mailbox: { icon: Mail, color: 'text-violet-500', bg: 'bg-violet-500/10', labelKey: 'typeMailbox' },
 }
 
 const STATUS_COLOR = {
@@ -33,11 +34,17 @@ const STATUS_COLOR = {
  * profile or admin user-detail page.
  */
 export function UserEquipmentPanel({ userId  }: any) {
+  const { t } = useTranslation()
   const { data: equipment = [], isLoading: equipLoading } = useUserEquipmentFor(userId)
   const { data: qrCodes = [], isLoading: qrLoading } = useQRCodesAssignedTo(userId)
   const { data: loanReqs = [] } = useMyLoanRequests(userId)
   const { data: itReqs = [] } = useMyItRequests(userId)
   const { data: mailboxReqs = [] } = useMyMailboxRequests(userId)
+
+  const typeLabel = (type: string) => {
+    const key = (REQ_TYPE_META as Record<string, any>)[type]?.labelKey || 'typeIt'
+    return t(`comp.userEquipmentPanel.${key}`)
+  }
 
   const activeEquipment = useMemo(
     () => equipment.filter((e: any) => e.status !== 'returned'),
@@ -50,8 +57,8 @@ export function UserEquipmentPanel({ userId  }: any) {
       items.push({
         id: `loan-${r.id}`,
         type: 'equipment',
-        title: r.project_name || 'Equipment Request',
-        subtitle: `${r.item_count || 0} item${(r.item_count || 0) !== 1 ? 's' : ''}`,
+        title: r.project_name || t('comp.userEquipmentPanel.equipmentRequestFallback'),
+        subtitle: t('comp.userEquipmentPanel.itemCount', { count: r.item_count || 0 }),
         status: r.status,
         date: r.created_at,
       })
@@ -62,7 +69,7 @@ export function UserEquipmentPanel({ userId  }: any) {
       items.push({
         id: `it-${r.id}`,
         type: r.type || 'it',
-        title: name || (REQ_TYPE_META as Record<string, any>)[r.type || 'it']?.label || 'IT Request',
+        title: name || typeLabel(r.type || 'it') || t('comp.userEquipmentPanel.itRequestFallback'),
         subtitle: data.company || data.business_unit || '',
         status: r.status,
         date: r.created_at,
@@ -72,14 +79,14 @@ export function UserEquipmentPanel({ userId  }: any) {
       items.push({
         id: `mb-${r.id}`,
         type: 'mailbox',
-        title: r.email_to_create || r.project_name || 'Mailbox Request',
+        title: r.email_to_create || r.project_name || t('comp.userEquipmentPanel.mailboxRequestFallback'),
         subtitle: r.project_name || '',
         status: r.status,
         date: r.created_at,
       })
     }
     return items.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  }, [loanReqs, itReqs, mailboxReqs])
+  }, [loanReqs, itReqs, mailboxReqs, t])
 
   return (
     <div className="space-y-4">
@@ -88,15 +95,15 @@ export function UserEquipmentPanel({ userId  }: any) {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <Package className="h-4 w-4 text-primary" />
-            Current equipment
+            {t('comp.userEquipmentPanel.currentEquipment')}
             <Badge variant="secondary" className="text-[10px] ml-1">{activeEquipment.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           {equipLoading ? (
-            <p className="text-xs text-muted-foreground">Loading…</p>
+            <p className="text-xs text-muted-foreground">{t('comp.userEquipmentPanel.loading')}</p>
           ) : activeEquipment.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">No equipment assigned.</p>
+            <p className="text-xs text-muted-foreground italic">{t('comp.userEquipmentPanel.noEquipmentAssigned')}</p>
           ) : (
             <div className="space-y-2">
               {activeEquipment.map((e: any) => (
@@ -109,7 +116,7 @@ export function UserEquipmentPanel({ userId  }: any) {
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                       {e.category_name && <span>{e.category_name}</span>}
                       {e.assigned_date && <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{fmtDate(e.assigned_date)}</span>}
-                      {e.expected_return_date && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Return {fmtDate(e.expected_return_date)}</span>}
+                      {e.expected_return_date && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{t('comp.userEquipmentPanel.returnDate', { date: fmtDate(e.expected_return_date) })}</span>}
                     </div>
                     {e.notes && <div className="text-[11px] text-muted-foreground/80 mt-0.5 italic truncate">{e.notes}</div>}
                   </div>
@@ -125,15 +132,15 @@ export function UserEquipmentPanel({ userId  }: any) {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <QrCode className="h-4 w-4 text-primary" />
-            Assigned QR codes
+            {t('comp.userEquipmentPanel.assignedQrCodes')}
             <Badge variant="secondary" className="text-[10px] ml-1">{qrCodes.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           {qrLoading ? (
-            <p className="text-xs text-muted-foreground">Loading…</p>
+            <p className="text-xs text-muted-foreground">{t('comp.userEquipmentPanel.loading')}</p>
           ) : qrCodes.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">No QR codes assigned.</p>
+            <p className="text-xs text-muted-foreground italic">{t('comp.userEquipmentPanel.noQrCodesAssigned')}</p>
           ) : (
             <div className="space-y-2">
               {qrCodes.map((q: any) => (
@@ -164,13 +171,13 @@ export function UserEquipmentPanel({ userId  }: any) {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <Inbox className="h-4 w-4 text-primary" />
-            Request history
+            {t('comp.userEquipmentPanel.requestHistory')}
             <Badge variant="secondary" className="text-[10px] ml-1">{history.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           {history.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">No requests yet.</p>
+            <p className="text-xs text-muted-foreground italic">{t('comp.userEquipmentPanel.noRequestsYet')}</p>
           ) : (
             <div className="space-y-1.5">
               {history.map((h: any) => {
@@ -184,11 +191,11 @@ export function UserEquipmentPanel({ userId  }: any) {
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{h.title}</div>
                       <div className="text-[11px] text-muted-foreground truncate">
-                        {meta.label}{h.subtitle ? ` · ${h.subtitle}` : ''} · {fmtDate(h.date)}
+                        {typeLabel(h.type)}{h.subtitle ? ` · ${h.subtitle}` : ''} · {fmtDate(h.date)}
                       </div>
                     </div>
                     <Badge variant="outline" className={`text-[10px] shrink-0 ${(STATUS_COLOR as Record<string, any>)[h.status] || ''}`}>
-                      {h.status}
+                      {t(`comp.userEquipmentPanel.status.${h.status}`, { defaultValue: h.status })}
                     </Badge>
                   </div>
                 )

@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -30,6 +31,7 @@ function setPinVerified() {
  * (and the scanner) is gated once, not per page.
  */
 export function PinGate({ children }: { children: ReactNode }) {
+  const { t } = useTranslation()
   const [verified, setVerified] = useState(isPinValid)
   const [pin, setPin] = useState('')
   const [pinError, setPinError] = useState(false)
@@ -57,8 +59,8 @@ export function PinGate({ children }: { children: ReactNode }) {
               <Lock className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <h2 className="font-display font-bold text-lg">Restricted area</h2>
-              <p className="text-sm text-muted-foreground mt-1">Enter the access PIN to continue</p>
+              <h2 className="font-display font-bold text-lg">{t('comp.pinGate.title')}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{t('comp.pinGate.subtitle')}</p>
             </div>
             <form onSubmit={handlePinSubmit} className="space-y-3">
               <Input
@@ -67,13 +69,13 @@ export function PinGate({ children }: { children: ReactNode }) {
                 maxLength={4}
                 value={pin}
                 onChange={(e: any) => { setPin(e.target.value.replace(/\D/g, '')); setPinError(false) }}
-                placeholder="Enter PIN"
+                placeholder={t('comp.pinGate.placeholder')}
                 className={`text-center text-lg tracking-[0.5em] ${pinError ? 'border-destructive' : ''}`}
                 autoFocus
               />
-              {pinError && <p className="text-xs text-destructive">Incorrect PIN</p>}
+              {pinError && <p className="text-xs text-destructive">{t('comp.pinGate.error')}</p>}
               <Button type="submit" disabled={pin.length < 4} className="w-full gap-2">
-                <ShieldCheck className="h-4 w-4" /> Unlock
+                <ShieldCheck className="h-4 w-4" /> {t('comp.pinGate.unlock')}
               </Button>
             </form>
           </CardContent>

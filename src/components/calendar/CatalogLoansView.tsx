@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   format, addDays, addMonths, subMonths, differenceInDays,
   startOfDay, startOfMonth, endOfMonth, eachDayOfInterval,
@@ -21,21 +22,22 @@ const STATUS_COLORS = {
   ready: 'bg-emerald-500/80 hover:bg-emerald-500',
 }
 
-const STATUS_LABELS = {
-  pending: 'Pending',
-  in_progress: 'In Progress',
-  ready: 'Ready',
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  pending: 'statusPending',
+  in_progress: 'statusInProgress',
+  ready: 'statusReady',
 }
 
 const VIEW_MODES = [
-  { key: '1W', label: '1 Week' },
-  { key: '1M', label: '1 Month' },
-  { key: '3M', label: '3 Months' },
+  { key: '1W', labelKey: 'viewWeek' },
+  { key: '1M', labelKey: 'viewMonth' },
+  { key: '3M', labelKey: 'viewThreeMonths' },
 ]
 
 const STATUS_PILLS = ['pending', 'in_progress', 'ready']
 
 export function CatalogLoansView({ events  }: any) {
+  const { t } = useTranslation()
   const [viewMode, setViewMode] = useState('1M')
   const [baseDate, setBaseDate] = useState(new Date())
   const [search, setSearch] = useState('')
@@ -284,7 +286,7 @@ export function CatalogLoansView({ events  }: any) {
           </Button>
           <Button variant="outline" size="sm" onClick={goToToday} className="gap-1.5 text-xs">
             <CalendarRange className="h-3.5 w-3.5" />
-            Today
+            {t('comp.catalogLoansView.today')}
           </Button>
           <Button variant="outline" size="icon" onClick={() => navigate(1)} className="h-8 w-8 rounded-lg">
             <ChevronRight className="h-4 w-4" />
@@ -293,7 +295,7 @@ export function CatalogLoansView({ events  }: any) {
         </div>
 
         <div className="flex gap-1 bg-muted/40 rounded-full p-1 border">
-          {VIEW_MODES.map(({ key, label }: any) => (
+          {VIEW_MODES.map(({ key, labelKey }: any) => (
             <Button
               key={key}
               variant={viewMode === key ? 'default' : 'ghost'}
@@ -301,7 +303,7 @@ export function CatalogLoansView({ events  }: any) {
               className={cn('h-7 text-xs px-3 rounded-full', viewMode === key && 'shadow-sm')}
               onClick={() => setViewMode(key)}
             >
-              {label}
+              {t(`comp.catalogLoansView.${labelKey}`)}
             </Button>
           ))}
         </div>
@@ -315,7 +317,7 @@ export function CatalogLoansView({ events  }: any) {
             type="text"
             value={search}
             onChange={(e: any) => setSearch(e.target.value)}
-            placeholder="Search products, users..."
+            placeholder={t('comp.catalogLoansView.searchPlaceholder')}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
           />
         </div>
@@ -337,7 +339,7 @@ export function CatalogLoansView({ events  }: any) {
               )}
             >
               <span className={cn('h-2 w-2 rounded-full', barColor.split(' ')[0])} />
-              {(STATUS_LABELS as Record<string, any>)[status]}
+              {t(`comp.catalogLoansView.${STATUS_LABEL_KEYS[status]}`)}
             </button>
           )
         })}
@@ -346,13 +348,13 @@ export function CatalogLoansView({ events  }: any) {
             onClick={() => setStatusFilter([])}
             className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground underline underline-offset-2 transition-colors ml-1"
           >
-            Clear
+            {t('comp.catalogLoansView.clear')}
           </button>
         )}
       </div>
 
       <p className="text-xs text-muted-foreground">
-        {totalLoans} loan{totalLoans !== 1 ? 's' : ''} &middot; {productRows.length} product{productRows.length !== 1 ? 's' : ''}
+        {t('comp.catalogLoansView.loanCount', { count: totalLoans })} &middot; {t('comp.catalogLoansView.productCount', { count: productRows.length })}
       </p>
 
       {/* Timeline */}
@@ -362,7 +364,7 @@ export function CatalogLoansView({ events  }: any) {
           {Object.entries(STATUS_COLORS as Record<string, any>).map(([status, color]) => (
             <div key={status} className="flex items-center gap-2">
               <div className={cn('h-2.5 w-2.5 rounded-full', color.split(' ')[0])} />
-              <span className="text-muted-foreground font-medium">{(STATUS_LABELS as Record<string, any>)[status]}</span>
+              <span className="text-muted-foreground font-medium">{t(`comp.catalogLoansView.${STATUS_LABEL_KEYS[status]}`)}</span>
             </div>
           ))}
         </div>
@@ -373,7 +375,7 @@ export function CatalogLoansView({ events  }: any) {
             <div className="flex border-b bg-muted/10 sticky top-0 z-10">
               <div className="w-64 shrink-0 px-5 py-2.5 font-semibold text-xs text-muted-foreground uppercase tracking-wider border-r flex items-center gap-2">
                 <Package className="h-3.5 w-3.5" />
-                Product
+                {t('comp.catalogLoansView.productColumn')}
               </div>
               <div className="flex-1 flex">
                 {columns.map((col: any) => (
@@ -404,7 +406,7 @@ export function CatalogLoansView({ events  }: any) {
             {productRows.length === 0 ? (
               <div className="py-16 text-center">
                 <Inbox className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No catalog loans in this period</p>
+                <p className="text-sm text-muted-foreground">{t('comp.catalogLoansView.emptyState')}</p>
               </div>
             ) : (
               productRows.map((row: any, rowIndex: any) => {
@@ -427,7 +429,7 @@ export function CatalogLoansView({ events  }: any) {
                         <div className="text-sm font-semibold truncate">{row.productName}</div>
                         <div className="text-[10px] text-muted-foreground mt-0.5">{row.categoryName}</div>
                         <div className="text-[10px] text-muted-foreground/60 mt-0.5">
-                          {row.reservations.length} reservation{row.reservations.length !== 1 ? 's' : ''}
+                          {t('comp.catalogLoansView.reservationCount', { count: row.reservations.length })}
                         </div>
                       </div>
                     </div>
@@ -462,7 +464,7 @@ export function CatalogLoansView({ events  }: any) {
                               ...barStyle,
                               top: `${10 + i * 36}px`,
                             }}
-                            title={`${item.userName} — ${item.productName}\n${format(item.startDate, 'dd MMM')} → ${format(item.endDate, 'dd MMM yyyy')}\nStatus: ${item.status}${item.projectName ? `\nProject: ${item.projectName}` : ''}`}
+                            title={`${item.userName} — ${item.productName}\n${format(item.startDate, 'dd MMM')} → ${format(item.endDate, 'dd MMM yyyy')}\n${t('comp.catalogLoansView.tooltipStatus', { status: t(`comp.catalogLoansView.${STATUS_LABEL_KEYS[item.status]}`) })}${item.projectName ? `\n${t('comp.catalogLoansView.tooltipProject', { project: item.projectName })}` : ''}`}
                           >
                             {item.userAvatar && (
                               <UserAvatar

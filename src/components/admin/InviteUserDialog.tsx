@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/auth'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useCreateInvitation, useUpdateInvitation } from '@/hooks/use-invitations'
@@ -38,6 +39,7 @@ Best,
 The VO Hub Team`
 
 export function InviteUserDialog({ open, onOpenChange, invitation: editingInvitation  }: any) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const { data: settings } = useAppSettings()
   const createInvitation = useCreateInvitation()
@@ -160,11 +162,11 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
   const validateForm = () => {
     const trimmedEmail = email.trim().toLowerCase()
     if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      showToast('Please enter a valid email address', 'error')
+      showToast(t('comp.inviteUser.invalidEmail'), 'error')
       return false
     }
     if (!emailBody.trim()) {
-      showToast('Email body cannot be empty', 'error')
+      showToast(t('comp.inviteUser.emailBodyEmpty'), 'error')
       return false
     }
     return true
@@ -185,7 +187,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
           email_subject: emailSubject,
           email_body: emailBody,
         })
-        showToast('Draft updated')
+        showToast(t('comp.inviteUser.draftUpdated'))
       } else {
         await createInvitation.mutateAsync({
           email: trimmedEmail,
@@ -196,13 +198,13 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
           email_subject: emailSubject,
           email_body: emailBody,
         })
-        showToast('Invitation draft saved')
+        showToast(t('comp.inviteUser.draftSaved'))
       }
       onOpenChange(false)
     } catch (err: any) {
-      const msg = err?.message || 'Failed to save draft'
+      const msg = err?.message || t('comp.inviteUser.failedSaveDraft')
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('23505')) {
-        showToast('An invitation is already pending for this email', 'error')
+        showToast(t('comp.inviteUser.alreadyPending'), 'error')
       } else {
         showToast(msg, 'error')
       }
@@ -270,12 +272,12 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
         })
       }
 
-      showToast(`Invitation sent to ${trimmedEmail}`)
+      showToast(t('comp.inviteUser.invitationSentTo', { email: trimmedEmail }))
       onOpenChange(false)
     } catch (err: any) {
-      const msg = err?.message || 'Failed to send invitation'
+      const msg = err?.message || t('comp.inviteUser.failedSendInvitation')
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('23505')) {
-        showToast('An invitation is already pending for this email', 'error')
+        showToast(t('comp.inviteUser.alreadyPending'), 'error')
       } else {
         showToast(msg, 'error')
       }
@@ -290,7 +292,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingInvitation ? 'Edit Invitation' : 'Invite User'}
+              {editingInvitation ? t('comp.inviteUser.editInvitationTitle') : t('comp.inviteUser.inviteUserTitle')}
             </DialogTitle>
           </DialogHeader>
 
@@ -300,11 +302,11 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
               {/* Recipient info */}
               <div className="space-y-3 p-3 rounded-lg border bg-muted/10">
                 <div className="space-y-1.5">
-                  <Label htmlFor="invite-email">Email *</Label>
+                  <Label htmlFor="invite-email">{t('comp.inviteUser.emailLabel')}</Label>
                   <Input
                     id="invite-email"
                     type="email"
-                    placeholder="john.doe@company.com"
+                    placeholder={t('comp.inviteUser.emailPlaceholder')}
                     value={email}
                     onChange={(e: any) => setEmail(e.target.value)}
                     disabled={!!editingInvitation}
@@ -314,19 +316,19 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1.5">
-                    <Label htmlFor="invite-first">First Name</Label>
+                    <Label htmlFor="invite-first">{t('comp.inviteUser.firstNameLabel')}</Label>
                     <Input
                       id="invite-first"
-                      placeholder="John"
+                      placeholder={t('comp.inviteUser.firstNamePlaceholder')}
                       value={firstName}
                       onChange={(e: any) => setFirstName(e.target.value)}
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="invite-last">Last Name</Label>
+                    <Label htmlFor="invite-last">{t('comp.inviteUser.lastNameLabel')}</Label>
                     <Input
                       id="invite-last"
-                      placeholder="Doe"
+                      placeholder={t('comp.inviteUser.lastNamePlaceholder')}
                       value={lastName}
                       onChange={(e: any) => setLastName(e.target.value)}
                     />
@@ -334,13 +336,13 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="invite-bu">Business Unit</Label>
+                  <Label htmlFor="invite-bu">{t('comp.inviteUser.businessUnitLabel')}</Label>
                   <Select
                     id="invite-bu"
                     value={businessUnit}
                     onChange={(e: any) => setBusinessUnit(e.target.value)}
                   >
-                    <option value="">— None —</option>
+                    <option value="">{t('comp.inviteUser.noneOption')}</option>
                     {businessUnits.map((bu: any) => (
                       <option key={bu.id} value={bu.value}>{bu.value}</option>
                     ))}
@@ -350,11 +352,11 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
 
               {/* Email subject */}
               <div className="space-y-1.5">
-                <Label>Subject</Label>
+                <Label>{t('comp.inviteUser.subjectLabel')}</Label>
                 <Input
                   value={emailSubject}
                   onChange={(e: any) => setEmailSubject(e.target.value)}
-                  placeholder="You're invited to join..."
+                  placeholder={t('comp.inviteUser.subjectPlaceholder')}
                 />
               </div>
 
@@ -363,7 +365,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
                 <div className="flex items-center gap-2">
                   <Label className="flex items-center gap-1.5">
                     <Variable className="h-3.5 w-3.5 text-muted-foreground" />
-                    Insert Variable
+                    {t('comp.inviteUser.insertVariableLabel')}
                   </Label>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -384,16 +386,16 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
 
               {/* Email body */}
               <div className="space-y-1.5">
-                <Label>Email Body</Label>
+                <Label>{t('comp.inviteUser.emailBodyLabel')}</Label>
                 <Textarea
                   ref={bodyRef}
                   value={emailBody}
                   onChange={(e: any) => setEmailBody(e.target.value)}
                   className="min-h-[260px] font-mono text-xs leading-relaxed"
-                  placeholder="Write your invitation email..."
+                  placeholder={t('comp.inviteUser.emailBodyPlaceholder')}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  Supports HTML. Use {`{{variable}}`} tags for dynamic content.
+                  {t('comp.inviteUser.supportsHtmlPrefix')} {`{{variable}}`} {t('comp.inviteUser.supportsHtmlSuffix')}
                 </p>
               </div>
             </div>
@@ -401,22 +403,22 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
             {/* Right: Preview */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Preview</Label>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">{t('comp.inviteUser.previewLabel')}</Label>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="gap-1 text-xs h-7"
                   onClick={() => setShowFullPreview(true)}
                 >
-                  <Eye className="h-3 w-3" /> Full screen
+                  <Eye className="h-3 w-3" /> {t('comp.inviteUser.fullScreenLabel')}
                 </Button>
               </div>
               <div className="border rounded-xl overflow-hidden bg-card">
                 <iframe
-                  srcDoc={previewHtml || '<div style="padding:40px;text-align:center;color:#666;font-family:sans-serif;">Preview will appear here</div>'}
+                  srcDoc={previewHtml || `<div style="padding:40px;text-align:center;color:#666;font-family:sans-serif;">${t('comp.inviteUser.previewPlaceholder')}</div>`}
                   className="w-full border-0"
                   style={{ minHeight: '480px', height: '55vh' }}
-                  title="Invitation email preview"
+                  title={t('comp.inviteUser.previewIframeTitle')}
                   sandbox=""
                 />
               </div>
@@ -425,7 +427,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('comp.inviteUser.cancel')}
             </Button>
             <Button
               type="button"
@@ -435,7 +437,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
               className="gap-2"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              Save Draft
+              {t('comp.inviteUser.saveDraft')}
             </Button>
             <Button
               type="button"
@@ -444,7 +446,7 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
               className="gap-2"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Send Invitation
+              {t('comp.inviteUser.sendInvitation')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -454,13 +456,13 @@ export function InviteUserDialog({ open, onOpenChange, invitation: editingInvita
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Email Preview</DialogTitle>
+            <DialogTitle>{t('comp.inviteUser.emailPreviewTitle')}</DialogTitle>
           </DialogHeader>
           <iframe
             srcDoc={previewHtml}
             className="w-full border rounded-lg"
             style={{ height: '70vh' }}
-            title="Full invitation email preview"
+            title={t('comp.inviteUser.fullPreviewIframeTitle')}
             sandbox=""
           />
         </DialogContent>

@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, X, ChevronDown, Users } from 'lucide-react'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { CalendarFilterBar } from './CalendarFilterBar'
 import { cn } from '@/lib/utils'
 
 function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef<any>(null)
@@ -50,10 +52,12 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
         <Users className="h-3 w-3" />
         {selectedUsers.length > 0 ? (
           <span className="max-w-[120px] truncate">
-            {selectedNames.length <= 2 ? selectedNames.join(', ') : `${selectedNames.length} users`}
+            {selectedNames.length <= 2
+              ? selectedNames.join(', ')
+              : t('comp.calendarFilterBar.usersSelected', { count: selectedNames.length })}
           </span>
         ) : (
-          'All users'
+          t('comp.calendarFilterBar.allUsers')
         )}
         <ChevronDown className={cn('h-3 w-3 transition-transform', open && 'rotate-180')} />
       </button>
@@ -68,7 +72,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
                 type="text"
                 value={search}
                 onChange={(e: any) => setSearch(e.target.value)}
-                placeholder="Search users..."
+                placeholder={t('comp.calendarFilterBar.searchUsersPlaceholder')}
                 className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/40"
                 autoFocus
               />
@@ -87,7 +91,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
                 onClick={clearAll}
                 className="w-full text-left px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/30 rounded-lg transition-colors"
               >
-                Clear all filters
+                {t('comp.calendarFilterBar.clearAllFilters')}
               </button>
             )}
             {filtered.map((user: any) => {
@@ -117,7 +121,7 @@ function UserFilterDropdown({ users, selectedUsers, onChange  }: any) {
               )
             })}
             {filtered.length === 0 && (
-              <p className="px-3 py-4 text-xs text-muted-foreground/50 text-center">No users found</p>
+              <p className="px-3 py-4 text-xs text-muted-foreground/50 text-center">{t('comp.calendarFilterBar.noUsersFound')}</p>
             )}
           </div>
         </div>

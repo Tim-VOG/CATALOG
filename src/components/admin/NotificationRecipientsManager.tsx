@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNotificationRecipients, useCreateNotificationRecipient, useUpdateNotificationRecipient, useDeleteNotificationRecipient } from '@/hooks/use-notification-recipients'
 import { Plus, Trash2, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { useUIStore } from '@/stores/ui-store'
 
 export function NotificationRecipientsManager() {
+  const { t } = useTranslation()
   const { data: recipients = [], isLoading } = useNotificationRecipients()
   const createRecipient = useCreateNotificationRecipient()
   const updateRecipient = useUpdateNotificationRecipient()
@@ -23,12 +25,12 @@ export function NotificationRecipientsManager() {
 
   const handleAddRecipient = async () => {
     if (!recipientForm.email.trim()) {
-      showToast('Email is required', 'error')
+      showToast(t('comp.notifRecipients.emailRequired'), 'error')
       return
     }
     try {
       await createRecipient.mutateAsync(recipientForm)
-      showToast('Recipient added')
+      showToast(t('comp.notifRecipients.recipientAdded'))
       setShowRecipientDialog(false)
       setRecipientForm({ email: '', name: '' })
     } catch (err: any) {
@@ -45,10 +47,10 @@ export function NotificationRecipientsManager() {
   }
 
   const handleDeleteRecipient = async (id: any) => {
-    if (!confirm('Remove this recipient?')) return
+    if (!confirm(t('comp.notifRecipients.confirmRemove'))) return
     try {
       await deleteRecipient.mutateAsync(id)
-      showToast('Recipient removed')
+      showToast(t('comp.notifRecipients.recipientRemoved'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -62,28 +64,28 @@ export function NotificationRecipientsManager() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Mail className="h-5 w-5" /> Notification Recipients
+              <Mail className="h-5 w-5" /> {t('comp.notifRecipients.title')}
             </CardTitle>
             <Button size="sm" onClick={() => setShowRecipientDialog(true)} className="gap-2">
-              <Plus className="h-4 w-4" /> Add Recipient
+              <Plus className="h-4 w-4" /> {t('comp.notifRecipients.addRecipient')}
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            These email addresses receive notifications for order events.
+            {t('comp.notifRecipients.description')}
           </p>
         </CardHeader>
         <CardContent>
           {recipients.length === 0 ? (
-            <p className="text-center py-6 text-muted-foreground text-sm">No recipients configured</p>
+            <p className="text-center py-6 text-muted-foreground text-sm">{t('comp.notifRecipients.noRecipients')}</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Recipient</TableHead>
-                  <TableHead className="text-center">New Request</TableHead>
-                  <TableHead className="text-center">Status Change</TableHead>
-                  <TableHead className="text-center">Return</TableHead>
-                  <TableHead className="w-16">Actions</TableHead>
+                  <TableHead>{t('comp.notifRecipients.recipient')}</TableHead>
+                  <TableHead className="text-center">{t('comp.notifRecipients.newRequest')}</TableHead>
+                  <TableHead className="text-center">{t('comp.notifRecipients.statusChange')}</TableHead>
+                  <TableHead className="text-center">{t('comp.notifRecipients.return')}</TableHead>
+                  <TableHead className="w-16">{t('comp.notifRecipients.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -112,7 +114,7 @@ export function NotificationRecipientsManager() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteRecipient(r.id)} aria-label={`Remove ${r.email}`}>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteRecipient(r.id)} aria-label={t('comp.notifRecipients.removeAriaLabel', { email: r.email })}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </TableCell>
@@ -128,30 +130,30 @@ export function NotificationRecipientsManager() {
       <Dialog open={showRecipientDialog} onOpenChange={setShowRecipientDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Notification Recipient</DialogTitle>
+            <DialogTitle>{t('comp.notifRecipients.addDialogTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label>Email *</Label>
+              <Label>{t('comp.notifRecipients.emailLabel')}</Label>
               <Input
                 type="email"
                 value={recipientForm.email}
                 onChange={(e: any) => setRecipientForm({ ...recipientForm, email: e.target.value })}
-                placeholder="user@company.com"
+                placeholder={t('comp.notifRecipients.emailPlaceholder')}
               />
             </div>
             <div className="space-y-1">
-              <Label>Name (optional)</Label>
+              <Label>{t('comp.notifRecipients.nameLabel')}</Label>
               <Input
                 value={recipientForm.name}
                 onChange={(e: any) => setRecipientForm({ ...recipientForm, name: e.target.value })}
-                placeholder="John Doe"
+                placeholder={t('comp.notifRecipients.namePlaceholder')}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRecipientDialog(false)}>Cancel</Button>
-            <Button onClick={handleAddRecipient}>Add Recipient</Button>
+            <Button variant="outline" onClick={() => setShowRecipientDialog(false)}>{t('comp.notifRecipients.cancel')}</Button>
+            <Button onClick={handleAddRecipient}>{t('comp.notifRecipients.addRecipient')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

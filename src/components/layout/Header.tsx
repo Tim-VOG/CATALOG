@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Package, Settings, Menu, Home, Sun, Moon, Search, X, QrCode, User, ShoppingCart, HelpCircle, Sparkles } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
+import { useTranslation } from 'react-i18next'
 
 import { useUIStore } from '@/stores/ui-store'
 import { useCart } from '@/hooks/use-cart'
@@ -15,6 +16,7 @@ import { UserMenu } from './UserMenu'
 import { cn } from '@/lib/utils'
 
 function HeaderSearch() {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -145,7 +147,7 @@ function HeaderSearch() {
         </div>
       ) : (
         <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-          No products found for &ldquo;{query}&rdquo;
+          {t('comp.header.noProductsFound', { query })}
         </div>
       )}
     </div>
@@ -167,7 +169,7 @@ function HeaderSearch() {
             }}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search products... (⌘K)"
+            placeholder={t('comp.header.searchPlaceholderDesktop')}
             data-search-input
             className={cn(
               'w-full h-9 pl-10 pr-4 text-sm rounded-full',
@@ -196,7 +198,7 @@ function HeaderSearch() {
         size="icon"
         className="md:hidden h-8 w-8 sm:h-9 sm:w-9"
         onClick={handleMobileToggle}
-        aria-label="Search"
+        aria-label={t('comp.header.search')}
       >
         {mobileOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
       </Button>
@@ -215,7 +217,7 @@ function HeaderSearch() {
                 setIsOpen(true)
               }}
               onKeyDown={handleKeyDown}
-              placeholder="Search products..."
+              placeholder={t('comp.header.searchPlaceholderMobile')}
               className={cn(
                 'w-full h-10 pl-10 pr-4 text-sm rounded-full',
                 'bg-muted/40 border border-border/50',
@@ -242,11 +244,12 @@ function HeaderSearch() {
 }
 
 function CartButton() {
+  const { t } = useTranslation()
   const { data: cartItems = [] } = useCart()
   const itemCount = cartItems.reduce((sum: any, i: any) => sum + i.quantity, 0)
   return (
     <Link to="/cart">
-      <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9" aria-label={itemCount > 0 ? `Cart (${itemCount} items)` : 'Cart'}>
+      <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9" aria-label={itemCount > 0 ? t('comp.header.cartWithItems', { count: itemCount }) : t('comp.header.cart')}>
         <ShoppingCart className="h-4 w-4" />
         {itemCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
@@ -259,6 +262,7 @@ function CartButton() {
 }
 
 export function Header({ onOpenTour  }: any) {
+  const { t } = useTranslation()
   const { isAdmin, isStaff } = useAuth()
   const location = useLocation()
   const toggleMobileNav = useUIStore((s: any) => s.toggleMobileNav)
@@ -277,7 +281,7 @@ export function Header({ onOpenTour  }: any) {
       <div className="flex h-16 items-center px-2 sm:px-4">
         {/* ── Left zone: hamburger + logo ─────── */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 sm:h-9 sm:w-9" onClick={toggleMobileNav} aria-label="Open menu">
+          <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 sm:h-9 sm:w-9" onClick={toggleMobileNav} aria-label={t('comp.header.openMenu')}>
             <Menu className="h-5 w-5" />
           </Button>
 
@@ -305,9 +309,9 @@ export function Header({ onOpenTour  }: any) {
         <div className="flex-1 flex items-center justify-center gap-1 mx-2 sm:mx-4">
           <nav className="hidden lg:flex items-center gap-1">
             {[
-              { to: '/', label: 'Hub', icon: Home, exact: true },
-              { to: '/catalog', label: 'Catalog', icon: Package },
-              ...(isAdmin ? [{ to: '/scan', label: 'Scan', icon: QrCode }] : []),
+              { to: '/', label: t('comp.header.navHub'), icon: Home, exact: true },
+              { to: '/catalog', label: t('comp.header.navCatalog'), icon: Package },
+              ...(isAdmin ? [{ to: '/scan', label: t('comp.header.navScan'), icon: QrCode }] : []),
             ].map(({ to, label, icon: Icon, exact }: any) => (
               <Link key={to} to={to}>
                 <Button
@@ -326,7 +330,7 @@ export function Header({ onOpenTour  }: any) {
                 <Link to="/admin">
                   <Button variant={location.pathname.startsWith('/admin') ? 'secondary' : 'ghost'} size="sm" className="gap-2">
                     <Settings className="h-4 w-4" />
-                    {isAdmin ? 'Admin' : 'Staff'}
+                    {isAdmin ? t('comp.header.navAdmin') : t('comp.header.navStaff')}
                   </Button>
                 </Link>
               </>
@@ -341,16 +345,16 @@ export function Header({ onOpenTour  }: any) {
           <CartButton />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link to="/whats-new" aria-label="What's new">
+              <Link to="/whats-new" aria-label={t('comp.header.whatsNew')}>
                 <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9 max-[374px]:hidden">
                   <Sparkles className="h-4 w-4" />
                 </Button>
               </Link>
             </TooltipTrigger>
-            <TooltipContent>What's new</TooltipContent>
+            <TooltipContent>{t('comp.header.whatsNew')}</TooltipContent>
           </Tooltip>
           {onOpenTour && (
-            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={onOpenTour} aria-label="How it works">
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={onOpenTour} aria-label={t('comp.header.howItWorks')}>
               <HelpCircle className="h-4 w-4" />
             </Button>
           )}
@@ -370,12 +374,12 @@ export function Header({ onOpenTour  }: any) {
                   <Moon className="h-4 w-4" />
                 )}
                 <span className="sr-only">
-                  {themeMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                  {themeMode === 'dark' ? t('comp.header.switchToLightMode') : t('comp.header.switchToDarkMode')}
                 </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {themeMode === 'dark' ? 'Light mode' : 'Dark mode'}
+              {themeMode === 'dark' ? t('comp.header.lightMode') : t('comp.header.darkMode')}
             </TooltipContent>
           </Tooltip>
 

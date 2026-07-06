@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react'
@@ -46,37 +47,39 @@ const BLOCKS_WITH_SECTION_LABEL = [
 
 // Generic section label override — shown for every block that has a visible section header
 function SectionLabelOptions({ blockKey, options, update  }: any) {
+  const { t } = useTranslation()
   if (!BLOCKS_WITH_SECTION_LABEL.includes(blockKey)) return null
   return (
     <div className="space-y-2 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Section Label Override</Label>
+      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.sectionLabelOverride')}</Label>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label className="text-xs">Label FR</Label>
+          <Label className="text-xs">{t('comp.sortableBlock.labelFr')}</Label>
           <Input
             value={options.section_label_fr || ''}
             onChange={(e: any) => update('section_label_fr', e.target.value)}
-            placeholder="Default from template"
+            placeholder={t('comp.sortableBlock.defaultFromTemplate')}
             className="text-sm"
           />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Label EN</Label>
+          <Label className="text-xs">{t('comp.sortableBlock.labelEn')}</Label>
           <Input
             value={options.section_label_en || ''}
             onChange={(e: any) => update('section_label_en', e.target.value)}
-            placeholder="Default from template"
+            placeholder={t('comp.sortableBlock.defaultFromTemplate')}
             className="text-sm"
           />
         </div>
       </div>
-      <p className="text-[10px] text-muted-foreground/50">Leave empty to use the default section label</p>
+      <p className="text-[10px] text-muted-foreground/50">{t('comp.sortableBlock.sectionLabelHint')}</p>
     </div>
   )
 }
 
 // Block-specific option fields
 function BlockOptions({ blockKey, options, onChange  }: any) {
+  const { t } = useTranslation()
   const update = (key: any, value: any) => onChange({ ...options, [key]: value })
 
   // Render specific options + generic section label options
@@ -86,21 +89,21 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
     case 'salutation':
       return (
         <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Header Branding</Label>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.emailHeaderBranding')}</Label>
           <div className="space-y-2">
             <div className="space-y-1">
-              <Label className="text-xs">Header title</Label>
+              <Label className="text-xs">{t('comp.sortableBlock.headerTitle')}</Label>
               <Input
                 value={options.header_title || ''}
                 onChange={(e: any) => update('header_title', e.target.value)}
                 placeholder="VO IT HUB"
                 className="text-sm"
               />
-              <p className="text-[10px] text-muted-foreground/50">Appears at the top of the email (e.g. "VO IT HUB")</p>
+              <p className="text-[10px] text-muted-foreground/50">{t('comp.sortableBlock.headerTitleHint')}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Welcome title FR</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.welcomeTitleFr')}</Label>
                 <Input
                   value={options.welcome_title_fr || ''}
                   onChange={(e: any) => update('welcome_title_fr', e.target.value)}
@@ -109,7 +112,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Welcome title EN</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.welcomeTitleEn')}</Label>
                 <Input
                   value={options.welcome_title_en || ''}
                   onChange={(e: any) => update('welcome_title_en', e.target.value)}
@@ -121,7 +124,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
             <p className="text-[10px] text-muted-foreground/50">Use {"{{first_name}}"}, {"{{last_name}}"}, etc. for dynamic values</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Subtitle FR</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.subtitleFr')}</Label>
                 <Input
                   value={options.header_subtitle_fr || ''}
                   onChange={(e: any) => update('header_subtitle_fr', e.target.value)}
@@ -130,7 +133,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Subtitle EN</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.subtitleEn')}</Label>
                 <Input
                   value={options.header_subtitle_en || ''}
                   onChange={(e: any) => update('header_subtitle_en', e.target.value)}
@@ -140,7 +143,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Accent color</Label>
+              <Label className="text-xs">{t('comp.sortableBlock.accentColor')}</Label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -155,11 +158,11 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   className="text-sm flex-1 font-mono"
                 />
               </div>
-              <p className="text-[10px] text-muted-foreground/50">Used for the header stripe, title accents, and footer branding</p>
+              <p className="text-[10px] text-muted-foreground/50">{t('comp.sortableBlock.accentColorHint')}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Footer text FR</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.footerTextFr')}</Label>
                 <Input
                   value={options.footer_text_fr || ''}
                   onChange={(e: any) => update('footer_text_fr', e.target.value)}
@@ -168,7 +171,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Footer text EN</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.footerTextEn')}</Label>
                 <Input
                   value={options.footer_text_en || ''}
                   onChange={(e: any) => update('footer_text_en', e.target.value)}
@@ -184,10 +187,10 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
     case 'closing':
       return (
         <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Footer Branding</Label>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.footerBranding')}</Label>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Auto-send notice FR</Label>
+              <Label className="text-xs">{t('comp.sortableBlock.autoNoticeFr')}</Label>
               <Input
                 value={options.auto_notice_fr || ''}
                 onChange={(e: any) => update('auto_notice_fr', e.target.value)}
@@ -196,7 +199,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Auto-send notice EN</Label>
+              <Label className="text-xs">{t('comp.sortableBlock.autoNoticeEn')}</Label>
               <Input
                 value={options.auto_notice_en || ''}
                 onChange={(e: any) => update('auto_notice_en', e.target.value)}
@@ -212,21 +215,21 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">1Password Link</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.onePasswordLink')}</Label>
             <div className="space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs">Secure share URL</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.secureShareUrl')}</Label>
                 <Input
                   value={options.url || ''}
                   onChange={(e: any) => update('url', e.target.value)}
                   placeholder="https://start.1password.com/..."
                   className="text-sm"
                 />
-                <p className="text-[10px] text-muted-foreground">Paste the 1Password sharing link unlocked by the recipient's personal e-mail.</p>
+                <p className="text-[10px] text-muted-foreground">{t('comp.sortableBlock.secureShareUrlHint')}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Label FR</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.labelFr')}</Label>
                   <Input
                     value={options.label_fr || ''}
                     onChange={(e: any) => update('label_fr', e.target.value)}
@@ -235,7 +238,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Label EN</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.labelEn')}</Label>
                   <Input
                     value={options.label_en || ''}
                     onChange={(e: any) => update('label_en', e.target.value)}
@@ -254,10 +257,10 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Button Settings</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.buttonSettings')}</Label>
             <div className="space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs">Button URL</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.buttonUrl')}</Label>
                 <Input
                   value={options.url || ''}
                   onChange={(e: any) => update('url', e.target.value)}
@@ -267,7 +270,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Label FR</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.labelFr')}</Label>
                   <Input
                     value={options.label_fr || ''}
                     onChange={(e: any) => update('label_fr', e.target.value)}
@@ -276,7 +279,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Label EN</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.labelEn')}</Label>
                   <Input
                     value={options.label_en || ''}
                     onChange={(e: any) => update('label_en', e.target.value)}
@@ -296,10 +299,10 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Link Settings</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.linkSettings')}</Label>
             <div className="space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs">Link URL</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.linkUrl')}</Label>
                 <Input
                   value={options.url || ''}
                   onChange={(e: any) => update('url', e.target.value)}
@@ -309,7 +312,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Button label FR</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.buttonLabelFr')}</Label>
                   <Input
                     value={options.label_fr || ''}
                     onChange={(e: any) => update('label_fr', e.target.value)}
@@ -317,7 +320,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Button label EN</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.buttonLabelEn')}</Label>
                   <Input
                     value={options.label_en || ''}
                     onChange={(e: any) => update('label_en', e.target.value)}
@@ -335,10 +338,10 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Network Settings</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.networkSettings')}</Label>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Network name</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.networkName')}</Label>
                 <Input
                   value={options.network_name || ''}
                   onChange={(e: any) => update('network_name', e.target.value)}
@@ -346,7 +349,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Guest network</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.guestNetwork')}</Label>
                 <Input
                   value={options.guest_network || ''}
                   onChange={(e: any) => update('guest_network', e.target.value)}
@@ -363,10 +366,10 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Building Details</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.buildingDetails')}</Label>
             <div className="space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs">Building address</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.buildingAddress')}</Label>
                 <Input
                   value={options.building_address || ''}
                   onChange={(e: any) => update('building_address', e.target.value)}
@@ -374,7 +377,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Reception phone</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.receptionPhone')}</Label>
                 <Input
                   value={options.reception_phone || ''}
                   onChange={(e: any) => update('reception_phone', e.target.value)}
@@ -392,10 +395,10 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
       return (
         <>
           <div className="space-y-3 mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Button Link</Label>
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('comp.sortableBlock.buttonLink')}</Label>
             <div className="space-y-2">
               <div className="space-y-1">
-                <Label className="text-xs">URL</Label>
+                <Label className="text-xs">{t('comp.sortableBlock.url')}</Label>
                 <Input
                   value={options.url || ''}
                   onChange={(e: any) => update('url', e.target.value)}
@@ -405,7 +408,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Label FR</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.labelFr')}</Label>
                   <Input
                     value={options.label_fr || ''}
                     onChange={(e: any) => update('label_fr', e.target.value)}
@@ -413,7 +416,7 @@ function BlockOptions({ blockKey, options, onChange  }: any) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Label EN</Label>
+                  <Label className="text-xs">{t('comp.sortableBlock.labelEn')}</Label>
                   <Input
                     value={options.label_en || ''}
                     onChange={(e: any) => update('label_en', e.target.value)}
@@ -446,6 +449,7 @@ function ContentPreview({ content  }: any) {
 }
 
 export function SortableBlock({ block, blockTemplate, language, onToggle, onContentChange, onOptionChange  }: any) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
 
   const {
@@ -555,10 +559,10 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
                   <div className="pt-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Content ({language.toUpperCase()})
+                        {t('comp.sortableBlock.contentLabel', { lang: language.toUpperCase() })}
                       </Label>
                       <span className="text-[10px] text-muted-foreground/50">
-                        {(content || '').length} chars
+                        {t('comp.sortableBlock.charsCount', { count: (content || '').length })}
                       </span>
                     </div>
                     <Textarea
@@ -566,7 +570,7 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
                       onChange={(e: any) => onContentChange(contentKey, e.target.value)}
                       rows={6}
                       className="text-sm font-mono bg-muted/20 border-muted-foreground/10 focus:border-primary/40"
-                      placeholder="Email block content..."
+                      placeholder={t('comp.sortableBlock.contentPlaceholder')}
                     />
                     <div className="flex flex-wrap gap-1.5">
                       {['first_name', 'last_name', 'email', 'start_date', 'team', 'department'].map((v: any) => (
