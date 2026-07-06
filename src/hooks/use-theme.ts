@@ -63,6 +63,22 @@ export function useToggleTheme() {
 }
 
 /**
+ * Set an explicit theme (dark or light). Like useToggleTheme but for
+ * choosing a specific mode — used by the welcome wizard.
+ */
+export function useSetTheme() {
+  const { user, refreshProfile } = useAuth()
+  return useCallback((next: 'dark' | 'light') => {
+    themeOverrideStore.set(next)
+    if (user?.id) {
+      updateProfile(user!.id, { theme_preference: next } as any)
+        .then(() => refreshProfile())
+        .catch(() => { /* silent — column may not exist yet */ })
+    }
+  }, [user?.id, refreshProfile])
+}
+
+/**
  * Clear user override, revert to admin-set default.
  */
 export function useClearThemeOverride() {
