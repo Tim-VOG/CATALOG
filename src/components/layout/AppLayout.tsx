@@ -7,6 +7,7 @@ import { MobileNav } from './MobileNav'
 import { BottomTabBar } from './BottomTabBar'
 import { NavigationProgress } from '@/components/common/NavigationProgress'
 import { WelcomeWizard } from '@/components/common/WelcomeWizard'
+import { FeedbackWidget } from '@/components/common/FeedbackWidget'
 import { PageTransition } from '@/components/ui/motion'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -83,6 +84,7 @@ export function AppLayout() {
         </a>
         <Header onOpenTour={() => setShowOnboarding(true)} />
         <WelcomeWizard forceOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
+        <FeedbackWidget />
         <MobileNav />
         <BottomTabBar />
         <main id="main-content" className="px-3 py-4 pb-20 sm:px-6 sm:py-6 md:pb-6 lg:px-10">

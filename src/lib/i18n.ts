@@ -73,6 +73,20 @@ const en = {
     featOffboarding: 'Offboarding',
     featMailbox: 'Mailbox',
   },
+  feedback: {
+    button: 'Feedback',
+    title: 'Share your feedback',
+    subtitle: 'An idea, a bug, a suggestion? Tell us — it helps.',
+    kindIdea: 'Idea',
+    kindBug: 'Bug',
+    kindOther: 'Other',
+    placeholder: 'What would you like to tell us?',
+    send: 'Send',
+    sending: 'Sending…',
+    cancel: 'Cancel',
+    sent: 'Thanks for your feedback! 🙌',
+    error: 'Could not send — please try again.',
+  },
 }
 
 // French — the primary language for VO Group.
@@ -139,6 +153,20 @@ const fr = {
     featOffboarding: 'Départs',
     featMailbox: 'Boîte mail',
   },
+  feedback: {
+    button: 'Avis',
+    title: 'Partage ton avis',
+    subtitle: 'Une idée, un bug, une suggestion ? Dis-nous — ça aide.',
+    kindIdea: 'Idée',
+    kindBug: 'Bug',
+    kindOther: 'Autre',
+    placeholder: 'Que veux-tu nous dire ?',
+    send: 'Envoyer',
+    sending: 'Envoi…',
+    cancel: 'Annuler',
+    sent: 'Merci pour ton retour ! 🙌',
+    error: "Impossible d'envoyer — réessaie.",
+  },
 }
 
 // Dutch — for VO's NL-speaking colleagues.
@@ -204,6 +232,20 @@ const nl = {
     featOnboarding: 'Onboarding',
     featOffboarding: 'Offboarding',
     featMailbox: 'Mailbox',
+  },
+  feedback: {
+    button: 'Feedback',
+    title: 'Deel je feedback',
+    subtitle: 'Een idee, een bug, een suggestie? Laat het ons weten — het helpt.',
+    kindIdea: 'Idee',
+    kindBug: 'Bug',
+    kindOther: 'Andere',
+    placeholder: 'Wat wil je ons vertellen?',
+    send: 'Versturen',
+    sending: 'Versturen…',
+    cancel: 'Annuleren',
+    sent: 'Bedankt voor je feedback! 🙌',
+    error: 'Kon niet verzenden — probeer opnieuw.',
   },
 }
 
