@@ -30,6 +30,7 @@ const ScanPage = lazy(() => import('@/pages/scan/ScanPage').then((m) => ({ defau
 const TrackingPage = lazy(() => import('@/pages/track/TrackingPage').then((m) => ({ default: m.TrackingPage })))
 const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ default: m.StatusPage })))
 const RequestSentPage = lazy(() => import('@/pages/RequestSentPage').then((m) => ({ default: m.RequestSentPage })))
+const WhatsNewPage = lazy(() => import('@/pages/WhatsNewPage').then((m) => ({ default: m.WhatsNewPage })))
 
 // ── Lazy: heavy form pages ─────────────────────────────────
 // Big form pages — only fetched when the user opens the matching link.
@@ -120,6 +121,7 @@ export function AppRoutes() {
           <Route path="equipment-request" element={<EquipmentRequestPage />} />
           <Route path="offboarding-request" element={<OffboardingRequestPage />} />
           <Route path="request-sent" element={<RequestSentPage />} />
+          <Route path="whats-new" element={<WhatsNewPage />} />
 
           {/* Admin + manager (staff) area. Managers see people-ops
               pages; AdminOnly bounces them off the sensitive ones. */}

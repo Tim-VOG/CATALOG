@@ -162,7 +162,7 @@ serve(async (req) => {
     }).filter(Boolean)
   )
 
-  const summary = { onboarding_sent: 0, offboarding_sent: 0, return_reminders_sent: 0, skipped: 0 }
+  const summary = { onboarding_sent: 0, offboarding_sent: 0, return_reminders_sent: 0, overdue_reminders_sent: 0, skipped: 0 }
 
   for (const req of (onboardings || [])) {
     const data = req.data || {}
@@ -280,6 +280,52 @@ serve(async (req) => {
     }
   } catch (e) {
     console.error('[daily-reminders] return reminder block failed', e)
+  }
+
+  // ── 4) Overdue reminder — 1 day AFTER the expected return date ──
+  // A single follow-up nudge the day after a loan becomes overdue. Exact-date
+  // match + once-a-day cron means one overdue email per loan (no spam).
+  const yesterday = addDays(today, -1)
+  try {
+    const { data: overdue } = await supabase
+      .from('user_equipment')
+      .select('user_email, user_name, product_name, expected_return_date')
+      .eq('status', 'active')
+      .eq('expected_return_date', yesterday)
+
+    if (overdue?.length) {
+      let tmplSubject = 'Action required: {{product_name}} is overdue'
+      let tmplBody = ''
+      try {
+        const { data: tmpl } = await supabase
+          .from('email_templates')
+          .select('subject, body')
+          .eq('template_key', 'request_overdue')
+          .maybeSingle()
+        if (tmpl?.subject) tmplSubject = tmpl.subject
+        if (tmpl?.body) tmplBody = tmpl.body
+      } catch (_e) { /* fall back to the inline default below */ }
+
+      for (const eq of overdue) {
+        if (!eq.user_email) continue
+        const vars: Record<string, string> = {
+          requester_name: eq.user_name || eq.user_email.split('@')[0],
+          product_name: eq.product_name || 'the equipment',
+          return_date: eq.expected_return_date || '',
+        }
+        const subst = (t: string) => (t || '').replace(/\{\{(\w+)\}\}/g, (_m: string, k: string) => vars[k] ?? `[${k}]`)
+        const subject = subst(tmplSubject)
+        const inner = tmplBody
+          ? subst(tmplBody)
+          : `<p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">Hi ${vars.requester_name},</p>
+             <p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;"><strong style="color:#0a2540;">${vars.product_name}</strong> was due back on <strong style="color:#0a2540;">${vars.return_date}</strong> and hasn't been returned yet. Please bring it to the IT desk as soon as possible.</p>`
+        const ok = await sendResend(eq.user_email, subject, wrapEmail(branding.appName, branding.logoUrl, inner))
+        if (ok) summary.overdue_reminders_sent++
+        else summary.skipped++
+      }
+    }
+  } catch (e) {
+    console.error('[daily-reminders] overdue reminder block failed', e)
   }
 
   // Log this successful run so the 23h rate-limit gate above blocks
