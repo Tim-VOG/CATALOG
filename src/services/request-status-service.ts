@@ -119,13 +119,13 @@ function fullName(...sources: any[]) {
   }
   return ''
 }
-function subjectLabelFor(requestType: string) {
+export function subjectLabelFor(requestType: string) {
   if (requestType === 'onboarding') return 'New hire'
   if (requestType === 'offboarding') return 'Person leaving'
   if (requestType === 'mailbox') return 'Mailbox'
   return 'Request'
 }
-function subjectNameFor(req: any, requestType: string) {
+export function subjectNameFor(req: any, requestType: string) {
   // For IT requests the form payload lives in req.data (jsonb) — dig into
   // it too so we never end up showing just the capitalised type.
   const data = req?.data || {}

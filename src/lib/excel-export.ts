@@ -26,7 +26,7 @@ interface ExportPayload {
 
 // Normalise the different request shapes into a single set of columns so
 // equipment, onboarding/offboarding/IT and mailbox requests read side by side.
-function normaliseRequests(payload: ExportPayload) {
+export function normaliseRequests(payload: ExportPayload) {
   const fmtDate = (d: any) => (d ? new Date(d).toLocaleDateString('fr-FR') : '')
   const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '')
   const rows: Record<string, string>[] = []
