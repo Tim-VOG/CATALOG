@@ -170,7 +170,21 @@ export function AdminProductsPage() {
     try {
       if (editing) {
         await updateProduct.mutateAsync({ id: editing.id, ...form })
-        showToast(t('admin.products.updated'))
+        // Auto-create QR codes for any added stock so the physical-unit count
+        // stays in sync with the stock number (one QR = one unit).
+        const newStock = Math.max(0, parseInt(String(form.total_stock), 10) || 0)
+        const added = newStock - (editing.total_stock || 0)
+        if (added > 0) {
+          const codes = Array.from({ length: added }, () => ({
+            code: generateQRCode('VO'),
+            product_id: editing.id,
+            is_active: true,
+          }))
+          await createQRCodes.mutateAsync(codes)
+          showToast(t('admin.products.qrAdded', { count: added }))
+        } else {
+          showToast(t('admin.products.updated'))
+        }
       } else {
         const created = await createProduct.mutateAsync(form)
         const stock = Math.max(0, parseInt(String(form.total_stock), 10) || 0)
