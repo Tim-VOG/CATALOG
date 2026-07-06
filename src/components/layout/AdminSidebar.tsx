@@ -7,12 +7,13 @@ import {
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
   CalendarClock, PackageSearch, Activity, Wrench, Building2,
-  AlarmClock,
+  AlarmClock, MessageSquare,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
+import { useFeedback } from '@/hooks/use-feedback'
 import { useAuth } from '@/lib/auth'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
@@ -26,6 +27,8 @@ export function AdminSidebar() {
   const { data: itReqs = [] } = useItRequests()
   const { data: mailboxReqs = [] } = useMailboxRequests()
   const { data: onboardingEmails = [] } = useOnboardingEmails()
+  const { data: feedbackItems = [] } = useFeedback()
+  const newFeedback = feedbackItems.filter((f: any) => f.status === 'new').length
 
   const pendingCounts = useMemo(() => {
     const sentRequestIds = new Set(
@@ -54,6 +57,7 @@ export function AdminSidebar() {
         { to: '/admin/planning', label: t('admin.sidebar.links.planning'), icon: CalendarRange, managerOk: true },
         { to: '/admin/stats', label: t('admin.sidebar.links.statistics'), icon: BarChart3 },
         { to: '/admin/utilization', label: t('admin.sidebar.links.utilization'), icon: Activity },
+        { to: '/admin/feedback', label: t('admin.feedback.title'), icon: MessageSquare, badge: newFeedback },
       ],
     },
     {

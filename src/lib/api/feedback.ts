@@ -32,3 +32,13 @@ export const getFeedback = async () => {
   if (error) throw error
   return data || []
 }
+
+export const updateFeedbackStatus = async (id: string, status: 'new' | 'seen' | 'done') => {
+  const { error } = await supabase.from('feedback').update({ status }).eq('id', id)
+  if (error) throw error
+}
+
+export const deleteFeedback = async (id: string) => {
+  const { error } = await supabase.from('feedback').delete().eq('id', id)
+  if (error) throw error
+}
