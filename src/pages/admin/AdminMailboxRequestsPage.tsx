@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMailboxRequests, useUpdateMailboxRequest, useDeleteMailboxRequest } from '@/hooks/use-mailbox-requests'
-import { useSharedMailboxes } from '@/hooks/use-shared-mailboxes'
+import { useSharedMailboxes, useCreateSharedMailbox } from '@/hooks/use-shared-mailboxes'
 import { useAppSettings } from '@/hooks/use-settings'
 import { useUIStore } from '@/stores/ui-store'
 import { sendEmail } from '@/lib/api/send-email'
@@ -687,6 +687,7 @@ export function AdminMailboxRequestsPage() {
   const deleteRequest = useDeleteMailboxRequest()
   const { data: settings } = useAppSettings()
   const { data: sharedMailboxes = [] } = useSharedMailboxes()
+  const createSharedMailbox = useCreateSharedMailbox()
   const [showAddToInventory, setShowAddToInventory] = useState(false)
   const showToast = useUIStore((s: any) => s.showToast)
 
@@ -788,6 +789,41 @@ export function AdminMailboxRequestsPage() {
             email_draft_onepassword: null,
           },
         })
+
+        // Auto-log the fulfilled mailbox into the Shared Mailboxes directory
+        // (once, deduped by email). It lands at the top of the list thanks to
+        // the created_at ordering. IT-side fields use sensible defaults the
+        // admin can fine-tune later on the Shared Mailboxes page.
+        try {
+          const email = selectedRequest.email_to_create
+          const already = sharedMailboxes.some(
+            (m: any) => (m.mail || '').toLowerCase() === (email || '').toLowerCase(),
+          )
+          if (email && !already) {
+            await createSharedMailbox.mutateAsync({
+              name: selectedRequest.project_name || 'Untitled mailbox',
+              mail: email,
+              company: selectedRequest.agency || null,
+              category: 'LEGER',
+              created_in: 'AD',
+              created_time: selectedRequest.creation_date
+                ? new Date(selectedRequest.creation_date).toISOString()
+                : new Date().toISOString(),
+              archive_to: selectedRequest.archive_date || null,
+              delete_on: selectedRequest.deletion_date || null,
+              display_name: selectedRequest.display_name || null,
+              have_access: selectedRequest.who_needs_access || null,
+              job_title: selectedRequest.signature_title || null,
+              licence: 'SHARED MAILBOX',
+              licence_checked: false,
+              profile: 'WORK MAILBOX',
+              project_leader: selectedRequest.project_leader || null,
+              notes: selectedRequest.admin_notes || selectedRequest.more_info || null,
+            })
+          }
+        } catch (e) {
+          console.warn('[mailbox] auto-add to shared mailboxes failed', e)
+        }
 
         showToast(t('admin.mailboxRequests.confirmationSentToast'))
         setShowEmail(false)

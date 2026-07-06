@@ -4,7 +4,8 @@ export const getSharedMailboxes = async () => {
   const { data, error } = await supabase
     .from('shared_mailboxes')
     .select('*')
-    .order('name', { ascending: true })
+    // Newest first — freshly-fulfilled mailboxes land at the top of the list.
+    .order('created_at', { ascending: false })
   if (error) throw error
   return data || []
 }
