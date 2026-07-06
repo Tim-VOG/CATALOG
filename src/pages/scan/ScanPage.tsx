@@ -13,8 +13,10 @@ import { useAuth } from '@/lib/auth'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { Trans, useTranslation } from 'react-i18next'
 
 export function ScanPage() {
+  const { t } = useTranslation()
   const { user, profile } = useAuth()
   const [scannedCode, setScannedCode] = useState<any>(null)
   const [waitlistJoined, setWaitlistJoined] = useState(false)
@@ -41,7 +43,7 @@ export function ScanPage() {
     if (bulkMode) {
       // In bulk mode, add to list if not already there
       if (bulkItems.some((item: any) => item.code === code)) {
-        toast.info('Item already in list')
+        toast.info(t('user.scanPage.itemAlreadyInList'))
         return
       }
       setScannedCode(code) // Trigger lookup
@@ -57,7 +59,7 @@ export function ScanPage() {
   if (bulkMode && qrData && scannedCode && !bulkItems.some((i: any) => i.code === scannedCode)) {
     setBulkItems(prev => [...prev, { code: scannedCode, qrData }])
     setScannedCode(null) // Reset for next scan
-    toast.success(`Added: ${qrData.product_name}`)
+    toast.success(t('user.scanPage.addedItem', { name: qrData.product_name }))
   }
 
   const handleManualSubmit = (e: any) => {
@@ -89,7 +91,7 @@ export function ScanPage() {
       if (extra.returnDate) response.returnDate = extra.returnDate
       setResult(response)
     } catch (err: any) {
-      setResult({ success: false, error: err.message || 'An error occurred' })
+      setResult({ success: false, error: err.message || t('user.scanPage.genericError') })
     }
   }
 
@@ -128,7 +130,7 @@ export function ScanPage() {
     setBulkResults(results)
 
     const successCount = results.filter((r: any) => r.success).length
-    toast.success(`${successCount}/${results.length} items processed`)
+    toast.success(t('user.scanPage.bulkProcessedToast', { success: successCount, total: results.length }))
   }
 
   const handleScanAgain = () => {
@@ -162,13 +164,13 @@ export function ScanPage() {
           <Link to="/">
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back
+              {t('user.scanPage.back')}
             </Button>
           </Link>
           <div className="flex items-center gap-2">
             <QrCode className="h-5 w-5 text-primary" />
             <h1 className="font-display font-bold text-lg">
-              {bulkMode ? 'Bulk Scan' : 'QR Scan'}
+              {bulkMode ? t('user.scanPage.bulkScanTitle') : t('user.scanPage.scanTitle')}
             </h1>
           </div>
           <Button
@@ -178,7 +180,7 @@ export function ScanPage() {
             className="gap-1.5 text-xs"
           >
             <Layers className="h-3.5 w-3.5" />
-            {bulkMode ? 'Exit' : 'Bulk'}
+            {bulkMode ? t('user.scanPage.exit') : t('user.scanPage.bulk')}
           </Button>
         </div>
       </div>
@@ -200,9 +202,9 @@ export function ScanPage() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
                   <Card className="p-4 text-center border-2 border-success/30 bg-success/5">
                     <Check className="h-10 w-10 mx-auto text-success mb-2" />
-                    <h3 className="font-display font-bold text-lg">Bulk Complete</h3>
+                    <h3 className="font-display font-bold text-lg">{t('user.scanPage.bulkCompleteTitle')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {bulkResults.filter((r: any) => r.success).length} of {bulkResults.length} items processed
+                      {t('user.scanPage.bulkCompleteSummary', { success: bulkResults.filter((r: any) => r.success).length, total: bulkResults.length })}
                     </p>
                   </Card>
                   <div className="space-y-1.5">
@@ -216,7 +218,7 @@ export function ScanPage() {
                     ))}
                   </div>
                   <Button variant="outline" onClick={resetBulk} className="w-full gap-2">
-                    <QrCode className="h-4 w-4" /> Done
+                    <QrCode className="h-4 w-4" /> {t('user.scanPage.done')}
                   </Button>
                 </motion.div>
               ) : (
@@ -229,28 +231,28 @@ export function ScanPage() {
                     <Input
                       value={manualCode}
                       onChange={(e: any) => setManualCode(e.target.value)}
-                      placeholder="Or enter code manually..."
+                      placeholder={t('user.scanPage.manualPlaceholderBulk')}
                       className="flex-1"
                     />
-                    <Button type="submit" disabled={!manualCode.trim()} size="sm">Add</Button>
+                    <Button type="submit" disabled={!manualCode.trim()} size="sm">{t('user.scanPage.add')}</Button>
                   </form>
 
                   {/* Scanned items list */}
                   <Card className="p-3">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-semibold">
-                        Scanned Items
+                        {t('user.scanPage.scannedItemsLabel')}
                         <Badge variant="secondary" className="ml-2 text-[10px]">{bulkItems.length}</Badge>
                       </span>
                       {bulkItems.length > 0 && (
                         <button onClick={() => setBulkItems([])} className="text-xs text-muted-foreground hover:text-destructive">
-                          Clear all
+                          {t('user.scanPage.clearAll')}
                         </button>
                       )}
                     </div>
                     {bulkItems.length === 0 ? (
                       <p className="text-xs text-muted-foreground text-center py-4">
-                        Scan items to add them to the list
+                        {t('user.scanPage.emptyBulkList')}
                       </p>
                     ) : (
                       <div className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -270,27 +272,27 @@ export function ScanPage() {
                   {/* Bulk dates step (before Take All) */}
                   {bulkDatesStep && bulkItems.length > 0 && (
                     <Card className="p-4 border-primary/20">
-                      <p className="text-sm font-semibold mb-3">Loan period for all items</p>
+                      <p className="text-sm font-semibold mb-3">{t('user.scanPage.loanPeriodTitle')}</p>
                       <div className="space-y-2">
                         <div>
-                          <label className="text-xs text-muted-foreground">Pickup date</label>
+                          <label className="text-xs text-muted-foreground">{t('user.scanPage.pickupDateLabel')}</label>
                           <input type="date" value={bulkPickupDate} min={new Date().toISOString().split('T')[0]}
                             onChange={(e: any) => setBulkPickupDate(e.target.value)}
                             className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
                         </div>
                         <div>
-                          <label className="text-xs text-muted-foreground">Return by</label>
+                          <label className="text-xs text-muted-foreground">{t('user.scanPage.returnByLabel')}</label>
                           <input type="date" value={bulkReturnDate} min={bulkPickupDate}
                             onChange={(e: any) => setBulkReturnDate(e.target.value)}
                             className="w-full h-9 px-3 mt-1 text-sm rounded-lg bg-muted/40 border border-border/50 focus:outline-none focus:border-primary/30" />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2 mt-3">
-                        <Button variant="outline" size="sm" onClick={() => setBulkDatesStep(false)}>Back</Button>
+                        <Button variant="outline" size="sm" onClick={() => setBulkDatesStep(false)}>{t('user.scanPage.back')}</Button>
                         <Button size="sm" onClick={() => handleBulkProcess('take')}
                           disabled={!bulkPickupDate || !bulkReturnDate || bulkProcessing} loading={bulkProcessing}
                           className="bg-gradient-to-br from-orange-500 to-red-500 text-white">
-                          Confirm Take All
+                          {t('user.scanPage.confirmTakeAll')}
                         </Button>
                       </div>
                     </Card>
@@ -309,7 +311,7 @@ export function ScanPage() {
                           'text-white shadow-lg shadow-orange-500/25'
                         )}
                       >
-                        Take All ({bulkItems.length})
+                        {t('user.scanPage.takeAllCount', { count: bulkItems.length })}
                       </Button>
                       <Button
                         onClick={() => handleBulkProcess('deposit')}
@@ -321,7 +323,7 @@ export function ScanPage() {
                           'text-white shadow-lg shadow-emerald-500/25'
                         )}
                       >
-                        Deposit All ({bulkItems.length})
+                        {t('user.scanPage.depositAllCount', { count: bulkItems.length })}
                       </Button>
                     </div>
                   )}
@@ -350,7 +352,7 @@ export function ScanPage() {
                   className="w-full gap-2 text-muted-foreground"
                 >
                   <Keyboard className="h-4 w-4" />
-                  {showManual ? 'Use camera instead' : 'Enter code manually'}
+                  {showManual ? t('user.scanPage.useCameraInstead') : t('user.scanPage.enterCodeManually')}
                 </Button>
 
                 {showManual && (
@@ -363,12 +365,12 @@ export function ScanPage() {
                     <Input
                       value={manualCode}
                       onChange={(e: any) => setManualCode(e.target.value)}
-                      placeholder="Enter QR code..."
+                      placeholder={t('user.scanPage.manualPlaceholderSingle')}
                       className="flex-1"
                       autoFocus
                     />
                     <Button type="submit" disabled={!manualCode.trim()}>
-                      Scan
+                      {t('user.scanPage.scanButton')}
                     </Button>
                   </motion.form>
                 )}
@@ -377,8 +379,10 @@ export function ScanPage() {
               <div className="max-w-sm mx-auto">
                 <Card className="p-4 bg-muted/50">
                   <p className="text-sm text-muted-foreground text-center">
-                    Point your camera at a QR code on the equipment to scan it.
-                    You'll then choose to <span className="text-foreground font-medium">take</span> or <span className="text-foreground font-medium">deposit</span> the item.
+                    <Trans
+                      i18nKey="user.scanPage.scanInstructions"
+                      components={{ b: <span className="text-foreground font-medium" /> }}
+                    />
                   </p>
                 </Card>
               </div>
@@ -394,7 +398,7 @@ export function ScanPage() {
               {loadingQR && (
                 <div className="max-w-sm mx-auto text-center py-12">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Looking up equipment...</p>
+                  <p className="text-sm text-muted-foreground">{t('user.scanPage.lookingUpEquipment')}</p>
                 </div>
               )}
 
@@ -406,12 +410,12 @@ export function ScanPage() {
                 >
                   <Card className="p-6 border-destructive/20 bg-destructive/5">
                     <QrCode className="h-12 w-12 mx-auto text-destructive mb-3" />
-                    <h3 className="font-display font-bold text-lg mb-1">Unknown QR Code</h3>
+                    <h3 className="font-display font-bold text-lg mb-1">{t('user.scanPage.unknownQrTitle')}</h3>
                     <p className="text-sm text-muted-foreground mb-1">
-                      Code: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{scannedCode}</code>
+                      {t('user.scanPage.codeLabel')} <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{scannedCode}</code>
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      This QR code is not registered in the system.
+                      {t('user.scanPage.notRegistered')}
                     </p>
                   </Card>
                 </motion.div>
@@ -434,9 +438,9 @@ export function ScanPage() {
                         userName: userName || user?.email,
                       })
                       setWaitlistJoined(true)
-                      toast.success('You will be notified when this item is available')
+                      toast.success(t('user.scanPage.waitlistJoinedToast'))
                     } catch {
-                      toast.error('Could not join waitlist')
+                      toast.error(t('user.scanPage.waitlistError'))
                     }
                   }}
                 />
@@ -449,7 +453,7 @@ export function ScanPage() {
                   className="w-full gap-2"
                 >
                   <QrCode className="h-4 w-4" />
-                  Scan another item
+                  {t('user.scanPage.scanAnotherItem')}
                 </Button>
               </div>
             </motion.div>

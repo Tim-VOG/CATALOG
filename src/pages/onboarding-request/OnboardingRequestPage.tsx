@@ -285,39 +285,40 @@ function YesNoField({ value, onChange  }: any) {
 
 // ── Step: Identity ──
 function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>
-            First Name <span className="text-destructive ml-1">*</span>
+            {t('user.onboardingForm.firstNameLabel')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Input
             value={form.first_name}
             onChange={(e: any) => update('first_name', e.target.value)}
-            placeholder="John"
+            placeholder={t('user.onboardingForm.firstNamePlaceholder')}
           />
         </div>
         <div className="space-y-2">
           <Label>
-            Last Name <span className="text-destructive ml-1">*</span>
+            {t('user.onboardingForm.lastNameLabel')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Input
             value={form.last_name}
             onChange={(e: any) => update('last_name', e.target.value)}
-            placeholder="Doe"
+            placeholder={t('user.onboardingForm.lastNamePlaceholder')}
           />
         </div>
       </div>
       <div className="space-y-2">
         <Label>
-          Mail to be created <span className="text-destructive ml-1">*</span>
+          {t('user.onboardingForm.emailToCreateLabel')} <span className="text-destructive ml-1">*</span>
         </Label>
         <div className="flex">
           <Input
             value={form.email_local}
             onChange={(e: any) => { setEmailLocalEdited(true); update('email_local', e.target.value) }}
-            placeholder="jdoe"
+            placeholder={t('user.onboardingForm.emailLocalPlaceholder')}
             className="rounded-r-none border-r-0 flex-1 min-w-0"
           />
           <span className="inline-flex items-center px-3 bg-muted border border-input border-l-0 text-sm text-muted-foreground select-none rounded-r-md min-w-[180px]">
@@ -325,28 +326,28 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
           </span>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Local part auto-suggested from first/last name. Domain follows the selected Company.
+          {t('user.onboardingForm.emailLocalHelp')}
         </p>
       </div>
       <div className="space-y-2">
         <Label>
-          Personal e-mail <span className="text-destructive ml-1">*</span>
+          {t('user.onboardingForm.personalEmailLabel')} <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           type="email"
           value={form.personal_email}
           onChange={(e: any) => update('personal_email', e.target.value)}
-          placeholder="jdoe@gmail.com"
+          placeholder={t('user.onboardingForm.personalEmailPlaceholder')}
         />
-        <p className="text-[11px] text-muted-foreground">Used to deliver the 1Password link before the corporate account is active</p>
+        <p className="text-[11px] text-muted-foreground">{t('user.onboardingForm.personalEmailHelp')}</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>
-            Profile <span className="text-destructive ml-1">*</span>
+            {t('user.onboardingForm.profileLabel')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Select value={form.profile} onChange={(e: any) => update('profile', e.target.value)}>
-            <option value="">Select...</option>
+            <option value="">{t('user.onboardingForm.selectPlaceholder')}</option>
             {PROFILES.map((p: any) => (
               <option key={p} value={p}>{p}</option>
             ))}
@@ -354,7 +355,7 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
         </div>
         <div className="space-y-2">
           <Label>
-            Company <span className="text-destructive ml-1">*</span>
+            {t('user.onboardingForm.companyLabel')} <span className="text-destructive ml-1">*</span>
           </Label>
           {form.company ? (
             // Locked after selection — the company drives the new hire's
@@ -362,12 +363,12 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
             <div className="flex items-center gap-2">
               <Input value={form.company} disabled readOnly className="bg-muted/40 cursor-not-allowed flex-1" />
               <Button type="button" variant="ghost" size="sm" className="text-xs shrink-0" onClick={() => update('company', '')}>
-                Change
+                {t('user.onboardingForm.changeButton')}
               </Button>
             </div>
           ) : (
             <Select value={form.company} onChange={(e: any) => update('company', e.target.value)}>
-              <option value="">Select...</option>
+              <option value="">{t('user.onboardingForm.selectPlaceholder')}</option>
               {COMPANIES.map((c: any) => (
                 <option key={c} value={c}>
                   {(COMPANY_FULL_NAMES as Record<string, any>)[c] ? `${c} — ${(COMPANY_FULL_NAMES as Record<string, any>)[c]}` : c}
@@ -379,29 +380,29 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
       </div>
       <div className="space-y-2">
         <Label>
-          Job Title <span className="text-destructive ml-1">*</span>
+          {t('user.onboardingForm.jobTitleLabel')} <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           value={form.job_title}
           onChange={(e: any) => update('job_title', e.target.value)}
-          placeholder="e.g. Consultant, Project Manager"
+          placeholder={t('user.onboardingForm.jobTitlePlaceholder')}
         />
-        <p className="text-[11px] text-muted-foreground">Used as signature title in emails</p>
+        <p className="text-[11px] text-muted-foreground">{t('user.onboardingForm.jobTitleHelp')}</p>
       </div>
       <div className="space-y-2">
-        <Label>Signing off as</Label>
+        <Label>{t('user.onboardingForm.signingOffAsLabel')}</Label>
         <Input
           value={form.signing_off_as}
           onChange={(e: any) => update('signing_off_as', e.target.value)}
-          placeholder="Optional — name to display in signature"
+          placeholder={t('user.onboardingForm.signingOffAsPlaceholder')}
         />
       </div>
       <div className="space-y-2">
-        <Label>Phone number</Label>
+        <Label>{t('user.onboardingForm.phoneLabel')}</Label>
         <Input
           value={form.phone}
           onChange={(e: any) => update('phone', e.target.value)}
-          placeholder="Optional — +32 ..."
+          placeholder={t('user.onboardingForm.phonePlaceholder')}
         />
       </div>
     </div>
@@ -410,23 +411,24 @@ function StepIdentity({ form, update, setEmailLocalEdited  }: any) {
 
 // ── Step: Project & Location ──
 function StepProject({ form, update  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <Label>Project Name / Mission</Label>
+        <Label>{t('user.onboardingForm.projectNameLabel')}</Label>
         <Input
           value={form.project_name}
           onChange={(e: any) => update('project_name', e.target.value)}
-          placeholder="Project or mission name"
+          placeholder={t('user.onboardingForm.projectNamePlaceholder')}
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>
-            Language <span className="text-destructive ml-1">*</span>
+            {t('user.onboardingForm.languageLabel')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Select value={form.language} onChange={(e: any) => update('language', e.target.value)}>
-            <option value="">Select...</option>
+            <option value="">{t('user.onboardingForm.selectPlaceholder')}</option>
             {LANGUAGES.map((l: any) => (
               <option key={l} value={l}>{l}</option>
             ))}
@@ -434,21 +436,21 @@ function StepProject({ form, update  }: any) {
         </div>
         <div className="space-y-2">
           <Label>
-            Country Based <span className="text-destructive ml-1">*</span>
+            {t('user.onboardingForm.countryBasedLabel')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Input
             value={form.country_based}
             onChange={(e: any) => update('country_based', e.target.value)}
-            placeholder="e.g. Belgium, France"
+            placeholder={t('user.onboardingForm.countryBasedPlaceholder')}
           />
         </div>
       </div>
       <div className="space-y-2">
-        <Label>Manager / Reports to</Label>
+        <Label>{t('user.onboardingForm.managerLabel')}</Label>
         <Input
           value={form.manager}
           onChange={(e: any) => update('manager', e.target.value)}
-          placeholder="Optional — N+1 name"
+          placeholder={t('user.onboardingForm.managerPlaceholder')}
         />
       </div>
     </div>
@@ -457,6 +459,7 @@ function StepProject({ form, update  }: any) {
 
 // ── Step: Dates ──
 function StepDates({ form, update  }: any) {
+  const { t } = useTranslation()
   const todayIso = new Date().toISOString().split('T')[0]
   const exitMin = form.first_day || todayIso
   const exitInvalid = form.last_day && form.first_day && form.last_day < form.first_day
@@ -464,7 +467,7 @@ function StepDates({ form, update  }: any) {
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          Entry Date <span className="text-destructive ml-1">*</span>
+          {t('user.onboardingForm.entryDateLabel')} <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           type="date"
@@ -474,7 +477,7 @@ function StepDates({ form, update  }: any) {
         />
       </div>
       <div className="space-y-2">
-        <Label>Exit Date</Label>
+        <Label>{t('user.onboardingForm.exitDateLabel')}</Label>
         <Input
           type="date"
           value={form.last_day}
@@ -482,7 +485,7 @@ function StepDates({ form, update  }: any) {
           onChange={(e: any) => update('last_day', e.target.value)}
         />
         {exitInvalid && (
-          <p className="text-[11px] text-destructive">Exit date must be on or after the entry date.</p>
+          <p className="text-[11px] text-destructive">{t('user.onboardingForm.exitDateError')}</p>
         )}
       </div>
     </div>
@@ -491,12 +494,13 @@ function StepDates({ form, update  }: any) {
 
 // ── Step: Access ──
 function StepAccess({ form, update  }: any) {
+  const { t } = useTranslation()
   const showFolders = Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
 
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <Label>What Access</Label>
+        <Label>{t('user.onboardingForm.whatAccessLabel')}</Label>
         <MultiSelectField
           options={ACCESS_OPTIONS}
           value={form.what_access}
@@ -510,18 +514,18 @@ function StepAccess({ form, update  }: any) {
           exit={{ opacity: 0, height: 0 }}
           className="space-y-2"
         >
-          <Label>Folder Access</Label>
+          <Label>{t('user.onboardingForm.folderAccessLabel')}</Label>
           <Input
             value={form.which_folders}
             onChange={(e: any) => update('which_folders', e.target.value)}
-            placeholder="https:// SharePoint URL"
+            placeholder={t('user.onboardingForm.folderAccessPlaceholder')}
           />
         </motion.div>
       )}
       <div className="space-y-2">
-        <Label>Distribution list</Label>
+        <Label>{t('user.onboardingForm.distributionListLabel')}</Label>
         <p className="text-[11px] text-muted-foreground">
-          Mailing lists to subscribe the new hire to. Options depend on the selected Company.
+          {t('user.onboardingForm.distributionListHelp')}
         </p>
         <MultiSelectField
           options={distributionListsFor(form.company)}
@@ -531,14 +535,14 @@ function StepAccess({ form, update  }: any) {
         />
       </div>
       <div className="space-y-2">
-        <Label>Internal Newsletter</Label>
+        <Label>{t('user.onboardingForm.internalNewsletterLabel')}</Label>
         <YesNoField
           value={form.internal_newsletter}
           onChange={(v: any) => update('internal_newsletter', v)}
         />
       </div>
       <div className="space-y-2">
-        <Label>Welcome Interview Reception</Label>
+        <Label>{t('user.onboardingForm.welcomeInterviewReceptionLabel')}</Label>
         <YesNoField
           value={form.welcome_interview}
           onChange={(v: any) => update('welcome_interview', v)}
@@ -550,24 +554,25 @@ function StepAccess({ form, update  }: any) {
 
 // ── Step: Requester ──
 function StepRequester({ form, update  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <Label>Requested On</Label>
+        <Label>{t('user.onboardingForm.requestedOnLabel')}</Label>
         <Input
           type="date"
           value={form.requested_on}
           onChange={(e: any) => update('requested_on', e.target.value)}
         />
-        <p className="text-[11px] text-muted-foreground">Auto-filled with today's date</p>
+        <p className="text-[11px] text-muted-foreground">{t('user.onboardingForm.requestedOnHelp')}</p>
       </div>
       <div className="space-y-2">
-        <Label>Requested By</Label>
+        <Label>{t('user.onboardingForm.requestedByLabel')}</Label>
         <Input
           value={form.requested_by}
           onChange={(e: any) => update('requested_by', e.target.value)}
         />
-        <p className="text-[11px] text-muted-foreground">Auto-filled from your profile</p>
+        <p className="text-[11px] text-muted-foreground">{t('user.onboardingForm.requestedByHelp')}</p>
       </div>
     </div>
   )
@@ -575,42 +580,43 @@ function StepRequester({ form, update  }: any) {
 
 // ── Step: Review ──
 function StepReview({ form, update  }: any) {
-  const fmtBool = (v: any) => (v === true ? 'Yes' : v === false ? 'No' : '—')
+  const { t } = useTranslation()
+  const fmtBool = (v: any) => (v === true ? t('user.onboardingForm.yesLabel') : v === false ? t('user.onboardingForm.noLabel') : '—')
   const isVoEurope = form.company === 'VO EUROPE'
   const fields = [
-    { label: 'First Name', value: form.first_name },
-    { label: 'Last Name', value: form.last_name },
-    { label: 'Mail to be created', value: form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : '' },
-    { label: 'Personal e-mail', value: form.personal_email },
-    { label: 'Profile', value: form.profile },
-    { label: 'Company', value: form.company },
-    { label: 'Job Title', value: form.job_title },
-    { label: 'Signing off as', value: form.signing_off_as },
-    { label: 'Phone', value: form.phone },
+    { label: t('user.onboardingForm.firstNameLabel'), value: form.first_name },
+    { label: t('user.onboardingForm.lastNameLabel'), value: form.last_name },
+    { label: t('user.onboardingForm.emailToCreateLabel'), value: form.email_local && form.email_domain ? `${form.email_local}@${form.email_domain}` : '' },
+    { label: t('user.onboardingForm.personalEmailLabel'), value: form.personal_email },
+    { label: t('user.onboardingForm.profileLabel'), value: form.profile },
+    { label: t('user.onboardingForm.companyLabel'), value: form.company },
+    { label: t('user.onboardingForm.jobTitleLabel'), value: form.job_title },
+    { label: t('user.onboardingForm.signingOffAsLabel'), value: form.signing_off_as },
+    { label: t('user.onboardingForm.reviewPhoneLabel'), value: form.phone },
     // VO EUROPE-only Project block
     ...(isVoEurope ? [
-      { label: 'Project Name / Mission', value: form.project_name },
-      { label: 'Language', value: form.language },
-      { label: 'Country Based', value: form.country_based },
-      { label: 'Manager', value: form.manager },
+      { label: t('user.onboardingForm.projectNameLabel'), value: form.project_name },
+      { label: t('user.onboardingForm.languageLabel'), value: form.language },
+      { label: t('user.onboardingForm.countryBasedLabel'), value: form.country_based },
+      { label: t('user.onboardingForm.managerLabel'), value: form.manager },
     ] : []),
-    { label: 'Entry Date', value: form.first_day },
-    { label: 'Exit Date', value: form.last_day },
-    { label: 'What Access', value: Array.isArray(form.what_access) ? form.what_access.join(', ') : '' },
+    { label: t('user.onboardingForm.entryDateLabel'), value: form.first_day },
+    { label: t('user.onboardingForm.exitDateLabel'), value: form.last_day },
+    { label: t('user.onboardingForm.whatAccessLabel'), value: Array.isArray(form.what_access) ? form.what_access.join(', ') : '' },
     ...(Array.isArray(form.what_access) && form.what_access.includes('SHAREPOINT')
-      ? [{ label: 'Folder Access', value: form.which_folders }]
+      ? [{ label: t('user.onboardingForm.folderAccessLabel'), value: form.which_folders }]
       : []),
-    { label: 'Distribution list', value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
-    { label: 'Internal Newsletter', value: fmtBool(form.internal_newsletter) },
-    { label: 'Welcome Interview', value: fmtBool(form.welcome_interview) },
-    { label: 'Requested On', value: form.requested_on },
-    { label: 'Requested By', value: form.requested_by },
+    { label: t('user.onboardingForm.distributionListLabel'), value: Array.isArray(form.subscribe_to) ? form.subscribe_to.join(', ') : '' },
+    { label: t('user.onboardingForm.internalNewsletterLabel'), value: fmtBool(form.internal_newsletter) },
+    { label: t('user.onboardingForm.reviewWelcomeInterviewLabel'), value: fmtBool(form.welcome_interview) },
+    { label: t('user.onboardingForm.requestedOnLabel'), value: form.requested_on },
+    { label: t('user.onboardingForm.requestedByLabel'), value: form.requested_by },
   ]
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Please review the information below before submitting.
+        {t('user.onboardingForm.reviewIntro')}
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
         {fields.map(({ label, value }, idx) => (
@@ -635,6 +641,7 @@ function StepReview({ form, update  }: any) {
 
 // ── Main page ──
 export function OnboardingRequestPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -818,7 +825,7 @@ export function OnboardingRequestPage() {
 
       navigate('/request-sent')
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit request', 'error')
+      showToast(err.message || t('user.onboardingForm.submitError'), 'error')
     }
     setSubmitting(false)
   }
@@ -835,13 +842,13 @@ export function OnboardingRequestPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <Badge variant="outline" className="mb-3 text-xs">
-          Onboarding
+          {t('user.onboardingForm.badgeOnboarding')}
         </Badge>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
-          New Onboarding Request
+          {t('user.onboardingForm.pageTitle')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Submit an IT onboarding request for a new team member
+          {t('user.onboardingForm.pageSubtitle')}
         </p>
       </motion.div>
 
@@ -857,10 +864,10 @@ export function OnboardingRequestPage() {
               return <StepIcon className="h-5 w-5 text-primary" />
             })()}
             <h2 className="text-lg font-display font-bold">
-              {currentStepDef.label}
+              {t(`user.onboardingForm.step${currentStepDef.id.charAt(0).toUpperCase()}${currentStepDef.id.slice(1)}Label`, { defaultValue: currentStepDef.label })}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {activeSteps.length}
+              {t('user.onboardingForm.stepCounter', { current: currentStep + 1, total: activeSteps.length })}
             </span>
           </div>
 
@@ -903,7 +910,7 @@ export function OnboardingRequestPage() {
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          {currentStep === 0 ? 'Cancel' : 'Back'}
+          {currentStep === 0 ? t('user.onboardingForm.cancelButton') : t('user.onboardingForm.backButton')}
         </Button>
 
         {currentStep < activeSteps.length - 1 ? (
@@ -912,7 +919,7 @@ export function OnboardingRequestPage() {
             disabled={!canGoNext()}
             className="gap-2"
           >
-            Next
+            {t('user.onboardingForm.nextButton')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
@@ -926,7 +933,7 @@ export function OnboardingRequestPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            Submit Request
+            {t('user.onboardingForm.submitButton')}
           </Button>
         )}
       </div>

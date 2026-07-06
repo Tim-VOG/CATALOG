@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useCreateItRequest } from '@/hooks/use-it-requests'
@@ -36,6 +37,15 @@ const STEP_DEFS = [
   { id: 'review', label: 'Review', icon: CheckCircle },
 ]
 
+// Maps step id -> i18n key suffix for the step label
+const STEP_LABEL_KEYS: Record<string, string> = {
+  identity: 'stepIdentity',
+  dates: 'stepDates',
+  'it-needs': 'stepItNeeds',
+  additional: 'stepAdditional',
+  review: 'stepReview',
+}
+
 // System field keys that map directly to it_requests columns
 const SYSTEM_FIELD_KEYS = new Set([
   'first_name', 'last_name', 'status', 'business_unit',
@@ -70,6 +80,7 @@ function evaluateCondition(field: any, formValues: any) {
 
 // ── Render a single dynamic field ──
 function DynamicField({ field, value, onChange, form  }: any) {
+  const { t } = useTranslation()
   const options = Array.isArray(field.options) ? field.options : []
   const { data: dbBusinessUnits } = useBusinessUnits()
   const businessUnits = dbBusinessUnits && dbBusinessUnits.length > 0
@@ -104,7 +115,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       if (field.field_key === 'business_unit') {
         return (
           <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
-            <option value="">Select...</option>
+            <option value="">{t('user.itForm.selectPlaceholder')}</option>
             {businessUnits.map((bu: any) => (
               <option key={bu.value} value={bu.value}>{bu.value}</option>
             ))}
@@ -113,7 +124,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       }
       return (
         <Select value={value || ''} onChange={(e: any) => onChange(e.target.value)}>
-          <option value="">Select...</option>
+          <option value="">{t('user.itForm.selectPlaceholder')}</option>
           {options.map((opt: any) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
@@ -178,7 +189,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
               onClick={() => onChange(true)}
               className="min-w-[80px]"
             >
-              Yes
+              {t('user.itForm.yes')}
             </Button>
             <Button
               type="button"
@@ -187,7 +198,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
               onClick={() => onChange(false)}
               className="min-w-[80px]"
             >
-              No
+              {t('user.itForm.no')}
             </Button>
           </div>
         )
@@ -195,7 +206,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
       return (
         <div className="flex items-center gap-3">
           <Switch checked={!!value} onCheckedChange={onChange} />
-          <span className="text-sm text-muted-foreground">{value ? 'Yes' : 'No'}</span>
+          <span className="text-sm text-muted-foreground">{value ? t('user.itForm.yes') : t('user.itForm.no')}</span>
         </div>
       )
 
@@ -220,6 +231,7 @@ function DynamicField({ field, value, onChange, form  }: any) {
 
 // ── Dynamic step: renders all fields for a given step ──
 function DynamicFormStep({ fields, form, setField  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       {fields.map((field: any) => {
@@ -259,7 +271,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
               <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-primary/5 border border-primary/20 mt-2">
                 <Mail className="h-4 w-4 text-primary shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[11px] text-muted-foreground">Generated corporate email</p>
+                  <p className="text-[11px] text-muted-foreground">{t('user.itForm.generatedCorporateEmail')}</p>
                   <code className="text-sm font-mono text-primary font-semibold">{form.generated_email}</code>
                 </div>
               </div>
@@ -273,6 +285,7 @@ function DynamicFormStep({ fields, form, setField  }: any) {
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step: any, idx: any) => {
@@ -298,7 +311,7 @@ function StepProgress({ currentStep, steps  }: any) {
                   isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'
                 }`}
               >
-                {step.label}
+                {t(`user.itForm.${STEP_LABEL_KEYS[step.id]}`, { defaultValue: step.label })}
               </span>
             </div>
             {idx < steps.length - 1 && (
@@ -317,6 +330,7 @@ function StepProgress({ currentStep, steps  }: any) {
 
 // ── Review step ──
 function StepReview({ form, profile, allFields  }: any) {
+  const { t } = useTranslation()
   const rows = allFields
     .filter((f: any) => f.is_active && evaluateCondition(f, form))
     .map((f: any) => {
@@ -327,7 +341,7 @@ function StepReview({ form, profile, allFields  }: any) {
       if (Array.isArray(raw)) {
         display = raw.join(', ') || '—'
       } else if (typeof raw === 'boolean') {
-        display = raw ? 'Yes' : 'No'
+        display = raw ? t('user.itForm.yes') : t('user.itForm.no')
       } else {
         display = raw || '—'
       }
@@ -339,17 +353,17 @@ function StepReview({ form, profile, allFields  }: any) {
   rows.splice(
     rows.findIndex((r: any) => r.label === 'Business Unit') + 1,
     0,
-    { label: 'Corporate Email', value: form.generated_email || '—' }
+    { label: t('user.itForm.corporateEmailLabel'), value: form.generated_email || '—' }
   )
   rows.push({
-    label: 'Requested By',
+    label: t('user.itForm.requestedByLabel'),
     value: profile ? `${profile.first_name} ${profile.last_name}` : '—',
   })
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Please review the information below before submitting.
+        {t('user.itForm.reviewIntro')}
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
         {rows.map(({ label, value }: any, idx: any) => (
@@ -372,6 +386,7 @@ function StepReview({ form, profile, allFields  }: any) {
 
 // ── Main page ──
 export function ItRequestFormPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const createRequest = useCreateItRequest()
@@ -475,7 +490,7 @@ export function ItRequestFormPage() {
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
         to: (user?.email || ""),
-        subject: 'Your IT request has been received',
+        subject: t('user.itForm.confirmationEmailSubject'),
         body: await buildConfirmationEmail({ name: submitterName, type: 'IT', detail: undefined }),
         isHtml: true,
       })
@@ -498,7 +513,7 @@ export function ItRequestFormPage() {
 
       navigate('/request-sent')
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit request', 'error')
+      showToast(err.message || t('user.itForm.submitFailed'), 'error')
     }
   }
 
@@ -516,13 +531,13 @@ export function ItRequestFormPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <Badge variant="outline" className="mb-3 text-xs">
-          IT Onboarding
+          {t('user.itForm.badgeItOnboarding')}
         </Badge>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
-          New IT Request
+          {t('user.itForm.pageTitle')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Submit an IT onboarding request for a new team member
+          {t('user.itForm.pageSubtitle')}
         </p>
       </motion.div>
 
@@ -538,10 +553,10 @@ export function ItRequestFormPage() {
               return <StepIcon className="h-5 w-5 text-primary" />
             })()}
             <h2 className="text-lg font-display font-bold">
-              {currentStepDef.label}
+              {t(`user.itForm.${STEP_LABEL_KEYS[currentStepDef.id]}`, { defaultValue: currentStepDef.label })}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {activeSteps.length}
+              {t('user.itForm.stepCounter', { current: currentStep + 1, total: activeSteps.length })}
             </span>
           </div>
 
@@ -575,7 +590,7 @@ export function ItRequestFormPage() {
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          {currentStep === 0 ? 'Cancel' : 'Back'}
+          {currentStep === 0 ? t('user.itForm.cancelButton') : t('user.itForm.backButton')}
         </Button>
 
         {currentStep < activeSteps.length - 1 ? (
@@ -584,7 +599,7 @@ export function ItRequestFormPage() {
             disabled={!canGoNext()}
             className="gap-2"
           >
-            Next
+            {t('user.itForm.nextButton')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
@@ -598,7 +613,7 @@ export function ItRequestFormPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            Submit Request
+            {t('user.itForm.submitButton')}
           </Button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useLoanRequest, useLoanRequestItems } from '@/hooks/use-loan-requests'
 import { useCreateExtensionRequest, useMyExtensionRequests } from '@/hooks/use-extension-requests'
@@ -25,6 +26,7 @@ const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 export function RequestDetailPage() {
+  const { t } = useTranslation()
   const { requestId } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -41,8 +43,8 @@ export function RequestDetailPage() {
 
   const submitExtension = async () => {
     const days = Number.parseInt(extDays, 10)
-    if (!days || days < 1) { showToast('Enter a valid number of days', 'error'); return }
-    if (!extReason.trim()) { showToast('Please give a reason', 'error'); return }
+    if (!days || days < 1) { showToast(t('user.requestDetailUser.invalidDays'), 'error'); return }
+    if (!extReason.trim()) { showToast(t('user.requestDetailUser.reasonRequired'), 'error'); return }
     try {
       await createExtension.mutateAsync({
         request_id: requestId as string,
@@ -50,11 +52,11 @@ export function RequestDetailPage() {
         requested_days: days,
         reason: extReason.trim(),
       })
-      showToast('Extension request sent')
+      showToast(t('user.requestDetailUser.extensionSent'))
       setExtOpen(false)
       setExtReason('')
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Failed to send', 'error')
+      showToast(err instanceof Error ? err.message : t('user.requestDetailUser.sendFailed'), 'error')
     }
   }
 
@@ -72,18 +74,18 @@ export function RequestDetailPage() {
       } />
     )
   }
-  if (!request) return <div className="text-center py-16 text-muted-foreground">Request not found</div>
+  if (!request) return <div className="text-center py-16 text-muted-foreground">{t('user.requestDetailUser.requestNotFound')}</div>
 
   const timeline = [
-    { label: 'Submitted', date: request.created_at },
-    ...(request.status === 'in_progress' || request.status === 'ready' ? [{ label: 'In Progress', date: request.updated_at }] : []),
-    ...(request.status === 'ready' ? [{ label: 'Ready', date: request.updated_at }] : []),
+    { label: t('user.requestDetailUser.timelineSubmitted'), date: request.created_at },
+    ...(request.status === 'in_progress' || request.status === 'ready' ? [{ label: t('user.requestDetailUser.timelineInProgress'), date: request.updated_at }] : []),
+    ...(request.status === 'ready' ? [{ label: t('user.requestDetailUser.timelineReady'), date: request.updated_at }] : []),
   ]
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate(-1)}>
-        <ArrowLeft className="h-4 w-4" /> Back
+        <ArrowLeft className="h-4 w-4" /> {t('user.requestDetailUser.back')}
       </Button>
 
       <div>
@@ -92,7 +94,7 @@ export function RequestDetailPage() {
           <StatusBadge status={request.status} />
         </div>
         {request.request_number && (
-          <p className="text-sm text-muted-foreground mt-1">Request #{request.request_number}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('user.requestDetailUser.requestNumber', { number: request.request_number })}</p>
         )}
       </div>
 
@@ -103,13 +105,13 @@ export function RequestDetailPage() {
             <CalendarClock className="h-4 w-4 text-primary shrink-0" />
             {myExtensions.some((e: any) => e.status === 'pending') ? (
               <span className="text-sm text-muted-foreground flex-1">
-                Extension request pending review. <Badge className="ml-1 text-[10px] bg-amber-500/15 text-amber-600">pending</Badge>
+                {t('user.requestDetailUser.extensionPendingReview')} <Badge className="ml-1 text-[10px] bg-amber-500/15 text-amber-600">{t('user.requestDetailUser.pendingBadge')}</Badge>
               </span>
             ) : (
               <>
-                <span className="text-sm text-muted-foreground flex-1">Need to keep this equipment longer?</span>
+                <span className="text-sm text-muted-foreground flex-1">{t('user.requestDetailUser.keepLonger')}</span>
                 <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setExtOpen(true)}>
-                  <CalendarClock className="h-3.5 w-3.5" /> Request extension
+                  <CalendarClock className="h-3.5 w-3.5" /> {t('user.requestDetailUser.requestExtension')}
                 </Button>
               </>
             )}
@@ -119,7 +121,7 @@ export function RequestDetailPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
-          <CardHeader><CardTitle className="text-base">Details</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t('user.requestDetailUser.details')}</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -131,7 +133,7 @@ export function RequestDetailPage() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-base">Timeline</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t('user.requestDetailUser.timeline')}</CardTitle></CardHeader>
           <CardContent>
             <AnimatedTimeline events={timeline} />
           </CardContent>
@@ -139,7 +141,7 @@ export function RequestDetailPage() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Items ({items.length})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">{t('user.requestDetailUser.itemsCount', { count: items.length })}</CardTitle></CardHeader>
         <CardContent className="divide-y">
           {items.map((item: any) => (
             <div key={item.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
@@ -159,24 +161,24 @@ export function RequestDetailPage() {
       <Dialog open={extOpen} onOpenChange={setExtOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Request an extension</DialogTitle>
+            <DialogTitle>{t('user.requestDetailUser.requestAnExtension')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label>Extra days</Label>
+              <Label>{t('user.requestDetailUser.extraDays')}</Label>
               <Input type="number" min={1} value={extDays} onChange={(e) => setExtDays(e.target.value)} />
               <p className="text-[10px] text-muted-foreground">
-                Current return date: {formatDate(request.return_date)}. An admin will review your request.
+                {t('user.requestDetailUser.currentReturnDate', { date: formatDate(request.return_date) })}
               </p>
             </div>
             <div className="space-y-1">
-              <Label>Reason</Label>
-              <Textarea value={extReason} onChange={(e) => setExtReason(e.target.value)} rows={3} placeholder="Why do you need more time?" />
+              <Label>{t('user.requestDetailUser.reason')}</Label>
+              <Textarea value={extReason} onChange={(e) => setExtReason(e.target.value)} rows={3} placeholder={t('user.requestDetailUser.reasonPlaceholder')} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setExtOpen(false)}>Cancel</Button>
-            <Button onClick={submitExtension} disabled={createExtension.isPending}>Send request</Button>
+            <Button variant="outline" onClick={() => setExtOpen(false)}>{t('user.requestDetailUser.cancel')}</Button>
+            <Button onClick={submitExtension} disabled={createExtension.isPending}>{t('user.requestDetailUser.sendRequest')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

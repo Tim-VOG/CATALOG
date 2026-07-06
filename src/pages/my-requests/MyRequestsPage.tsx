@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/lib/auth'
 import { useMyLoanRequests, useUpdateLoanRequest } from '@/hooks/use-loan-requests'
 import { useMyItRequests, useUpdateItRequest } from '@/hooks/use-it-requests'
@@ -41,6 +42,25 @@ const TYPE_FILTERS = [
   { key: 'mailbox', label: 'Mailbox' },
 ]
 
+const STEP_LABEL_KEYS: Record<string, string> = {
+  pending: 'steps.pending',
+  in_progress: 'steps.inProgress',
+  ready: 'steps.ready',
+}
+
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  equipment: 'types.equipment',
+  onboarding: 'types.onboarding',
+  offboarding: 'types.offboarding',
+  mailbox: 'types.mailbox',
+  it: 'types.it',
+}
+
+const FILTER_LABEL_KEYS: Record<string, string> = {
+  all: 'filters.all',
+  ...TYPE_LABEL_KEYS,
+}
+
 function getStepIndex(status: any) {
   const idx = STEPS.findIndex((s: any) => s.key === status)
   return idx >= 0 ? idx : 0
@@ -50,6 +70,7 @@ const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 function RequestStepper({ status  }: any) {
+  const { t } = useTranslation()
   const currentStep = getStepIndex(status)
   return (
     <div className="flex items-center gap-1 w-full">
@@ -73,7 +94,7 @@ function RequestStepper({ status  }: any) {
                 'text-[9px] font-medium',
                 isPending ? 'text-muted-foreground/50' : isCurrent ? step.color : 'text-muted-foreground'
               )}>
-                {step.label}
+                {t(`user.myRequests.${STEP_LABEL_KEYS[step.key] || 'steps.pending'}`, { defaultValue: step.label })}
               </span>
             </div>
             {idx < STEPS.length - 1 && (
@@ -87,6 +108,7 @@ function RequestStepper({ status  }: any) {
 }
 
 function SatisfactionRating({ requestId  }: any) {
+  const { t } = useTranslation()
   const key = `satisfaction-${requestId}`
   const [rating, setRating] = useState(() => localStorage.getItem(key))
   const rate = (value: any) => { localStorage.setItem(key, value); setRating(value) }
@@ -94,13 +116,13 @@ function SatisfactionRating({ requestId  }: any) {
     return (
       <div className="mt-3 pl-14 flex items-center gap-2 text-xs text-muted-foreground">
         {rating === 'up' ? <ThumbsUp className="h-3.5 w-3.5 text-emerald-500" /> : <ThumbsDown className="h-3.5 w-3.5 text-rose-500" />}
-        <span>{rating === 'up' ? 'Thanks for the feedback!' : 'We\'ll do better next time'}</span>
+        <span>{rating === 'up' ? t('user.myRequests.feedbackThanks') : t('user.myRequests.feedbackApology')}</span>
       </div>
     )
   }
   return (
     <div className="mt-3 pl-14 flex items-center gap-3">
-      <span className="text-xs text-muted-foreground">How was your experience?</span>
+      <span className="text-xs text-muted-foreground">{t('user.myRequests.howWasExperience')}</span>
       <button onClick={() => rate('up')} className="h-7 w-7 rounded-full hover:bg-emerald-500/10 flex items-center justify-center transition-colors">
         <ThumbsUp className="h-4 w-4 text-muted-foreground hover:text-emerald-500" />
       </button>
@@ -113,22 +135,23 @@ function SatisfactionRating({ requestId  }: any) {
 
 // Pretty-print any request payload as a list of key/value rows
 function RequestDataRows({ request  }: any) {
+  const { t } = useTranslation()
   const data = request.data || {}
   // Equipment requests use top-level columns instead of data{}
   const isEquipment = request._type === 'equipment'
   const entries = isEquipment
     ? [
-        ['Project name', request.project_name],
-        ['Items', request.item_count],
-        ['Pickup date', formatDate(request.pickup_date)],
-        ['Return date', formatDate(request.return_date)],
-        ['Notes', request.notes],
+        [t('user.myRequests.fieldProjectName'), request.project_name],
+        [t('user.myRequests.fieldItems'), request.item_count],
+        [t('user.myRequests.fieldPickupDate'), formatDate(request.pickup_date)],
+        [t('user.myRequests.fieldReturnDate'), formatDate(request.return_date)],
+        [t('user.myRequests.fieldNotes'), request.notes],
       ]
     : Object.entries(data as Record<string, any>)
         .filter(([k, v]) => v !== '' && v !== null && v !== undefined && k !== 'submitted_at' && k !== 'terms_accepted')
         .map(([k, v]) => [
           k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-          Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v),
+          Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? t('user.myRequests.yes') : t('user.myRequests.no')) : String(v),
         ])
 
   const submitted = new Date(request.created_at).toLocaleString('en-GB')
@@ -142,7 +165,7 @@ function RequestDataRows({ request  }: any) {
         </div>
       ))}
       <div className="flex items-start gap-3 text-sm border-t pt-2.5">
-        <span className="font-medium text-muted-foreground w-32 shrink-0 text-xs uppercase tracking-wider pt-0.5">Submitted</span>
+        <span className="font-medium text-muted-foreground w-32 shrink-0 text-xs uppercase tracking-wider pt-0.5">{t('user.myRequests.fieldSubmitted')}</span>
         <span className="text-foreground">{submitted}</span>
       </div>
     </div>
@@ -150,13 +173,15 @@ function RequestDataRows({ request  }: any) {
 }
 
 function RequestCard({ request, type, onOpen  }: any) {
+  const { t } = useTranslation()
   const config = (TYPE_CONFIG as Record<string, any>)[type] || TYPE_CONFIG.equipment
   const TypeIcon = config.icon
   const data = request.data || {}
+  const typeLabel = t(`user.myRequests.${TYPE_LABEL_KEYS[type] || TYPE_LABEL_KEYS.equipment}`, { defaultValue: config.label })
 
   const title = type === 'equipment'
-    ? (request.project_name || 'Equipment Request')
-    : (data.name || data.employee_name || data.project_name || request.requester_name || `${config.label} Request`)
+    ? (request.project_name || t('user.myRequests.genericRequestTitle', { type: typeLabel }))
+    : (data.name || data.employee_name || data.project_name || request.requester_name || t('user.myRequests.genericRequestTitle', { type: typeLabel }))
 
   return (
     <Card variant="elevated" className="overflow-hidden cursor-pointer hover:shadow-card-hover transition-shadow" onClick={onOpen}>
@@ -168,11 +193,11 @@ function RequestCard({ request, type, onOpen  }: any) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-sm truncate">{title}</h3>
-              <Badge variant="outline" className="text-[10px] shrink-0">{config.label}</Badge>
+              <Badge variant="outline" className="text-[10px] shrink-0">{typeLabel}</Badge>
             </div>
             <p className="text-xs text-muted-foreground">
               {formatDate(request.created_at)}
-              {type === 'equipment' && request.item_count && ` · ${request.item_count} item${request.item_count > 1 ? 's' : ''}`}
+              {type === 'equipment' && request.item_count && ` · ${t('user.myRequests.itemCount', { count: request.item_count })}`}
             </p>
           </div>
           <Button variant="ghost" size="sm" className="shrink-0" onClick={(e: any) => { e.stopPropagation(); onOpen() }}>
@@ -191,6 +216,7 @@ function RequestCard({ request, type, onOpen  }: any) {
 }
 
 export function MyRequestsPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const showToast = useUIStore((s: any) => s.showToast)
   const [typeFilter, setTypeFilter] = useState('all')
@@ -263,9 +289,9 @@ export function MyRequestsPage() {
         const newData = { ...(detail.data || {}), user_note: trimmed }
         await updateIt.mutateAsync({ id: detail.id, updates: { data: newData } })
       }
-      showToast(trimmed ? 'Note saved' : 'Note cleared')
+      showToast(trimmed ? t('user.myRequests.noteSaved') : t('user.myRequests.noteCleared'))
     } catch (err: any) {
-      showToast(err.message || 'Failed to save note', 'error')
+      showToast(err.message || t('user.myRequests.noteSaveFailed'), 'error')
     } finally {
       setNoteSaving(false)
     }
@@ -275,10 +301,16 @@ export function MyRequestsPage() {
 
   const canCancel = detail && detail.status === 'pending'
   const detailType = detail ? ((TYPE_CONFIG as Record<string, any>)[detail._type] || TYPE_CONFIG.equipment) : null
+  const detailTypeLabel = detail && detailType
+    ? t(`user.myRequests.${TYPE_LABEL_KEYS[detail._type] || TYPE_LABEL_KEYS.equipment}`, { defaultValue: detailType.label })
+    : ''
   const detailTitle = detail
     ? (detail._type === 'equipment'
-        ? (detail.project_name || 'Equipment Request')
-        : (detail.data?.name || detail.data?.employee_name || detail.data?.project_name || `${detailType.label} Request`))
+        ? (detail.project_name || t('user.myRequests.genericRequestTitle', { type: detailTypeLabel }))
+        : (detail.data?.name || detail.data?.employee_name || detail.data?.project_name || t('user.myRequests.genericRequestTitle', { type: detailTypeLabel })))
+    : ''
+  const detailStatusLabel = detail
+    ? t(`user.myRequests.${STEP_LABEL_KEYS[detail.status] || 'steps.pending'}`, { defaultValue: detail.status })
     : ''
 
   // ── Inline detail view (replaces the list) ───────────────────
@@ -287,7 +319,7 @@ export function MyRequestsPage() {
       <div className="max-w-2xl mx-auto py-10 px-4 space-y-5">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => setDetail(null)} className="gap-1.5 text-xs">
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to My Requests
+            <ArrowLeft className="h-3.5 w-3.5" /> {t('user.myRequests.backToMyRequests')}
           </Button>
         </div>
 
@@ -299,12 +331,12 @@ export function MyRequestsPage() {
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-display font-bold truncate">{detailTitle}</h2>
               <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline" className="text-[10px]">{detailType.label}</Badge>
+                <Badge variant="outline" className="text-[10px]">{detailTypeLabel}</Badge>
                 <Badge variant="outline" className={cn('text-[10px]',
                   detail.status === 'pending' && 'bg-amber-500/10 text-amber-600 border-amber-500/30',
                   detail.status === 'in_progress' && 'bg-blue-500/10 text-blue-600 border-blue-500/30',
                   detail.status === 'ready' && 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30',
-                )}>{detail.status}</Badge>
+                )}>{detailStatusLabel}</Badge>
               </div>
             </div>
           </div>
@@ -316,10 +348,10 @@ export function MyRequestsPage() {
           <div className="p-5 border-t border-border/50 bg-muted/20 space-y-3">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">Note to the IT team</h3>
+              <h3 className="text-sm font-semibold">{t('user.myRequests.noteToItTeam')}</h3>
             </div>
             <p className="text-xs text-muted-foreground">
-              Need to add something or change details? Drop a note here — the IT team will see it when they pick up your request.
+              {t('user.myRequests.noteToItTeamDescription')}
             </p>
             {canCancel ? (
               <>
@@ -327,7 +359,7 @@ export function MyRequestsPage() {
                   value={noteDraft}
                   onChange={(e: any) => setNoteDraft(e.target.value)}
                   rows={3}
-                  placeholder="e.g. The pickup date should actually be next Monday, sorry!"
+                  placeholder={t('user.myRequests.notePlaceholder')}
                   maxLength={1000}
                 />
                 <div className="flex items-center justify-between gap-3">
@@ -339,14 +371,14 @@ export function MyRequestsPage() {
                     className="gap-2"
                   >
                     {noteSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
-                    {noteSaving ? 'Saving...' : currentNote ? 'Update note' : 'Save note'}
+                    {noteSaving ? t('user.myRequests.savingNote') : currentNote ? t('user.myRequests.updateNote') : t('user.myRequests.saveNote')}
                   </Button>
                 </div>
               </>
             ) : currentNote ? (
               <div className="rounded-lg border border-border/40 bg-card p-3 text-sm">{currentNote}</div>
             ) : (
-              <p className="text-xs text-muted-foreground italic">Notes can only be added while the request is still pending.</p>
+              <p className="text-xs text-muted-foreground italic">{t('user.myRequests.notePendingOnly')}</p>
             )}
           </div>
         </div>
@@ -357,24 +389,24 @@ export function MyRequestsPage() {
   return (
     <div className="max-w-2xl mx-auto py-10 px-4 space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-display font-bold tracking-tight">My Requests</h1>
+        <h1 className="text-2xl font-display font-bold tracking-tight">{t('user.myRequests.pageTitle')}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          {allRequests.length} request{allRequests.length !== 1 ? 's' : ''}
+          {t('user.myRequests.requestCount', { count: allRequests.length })}
         </p>
       </motion.div>
 
       <div className="flex flex-wrap gap-1.5">
-        {TYPE_FILTERS.filter((t: any) => t.key === 'all' || (typeCounts as Record<string, any>)[t.key]).map((t: any) => (
+        {TYPE_FILTERS.filter((f: any) => f.key === 'all' || (typeCounts as Record<string, any>)[f.key]).map((f: any) => (
           <Button
-            key={t.key}
-            variant={typeFilter === t.key ? 'default' : 'outline'}
+            key={f.key}
+            variant={typeFilter === f.key ? 'default' : 'outline'}
             size="sm"
             className="text-xs h-8"
-            onClick={() => setTypeFilter(t.key)}
+            onClick={() => setTypeFilter(f.key)}
           >
-            {t.label}
-            {t.key !== 'all' && (typeCounts as Record<string, any>)[t.key] > 0 && (
-              <span className="ml-1 text-[10px] opacity-70">({(typeCounts as Record<string, any>)[t.key]})</span>
+            {t(`user.myRequests.${FILTER_LABEL_KEYS[f.key] || 'filters.all'}`, { defaultValue: f.label })}
+            {f.key !== 'all' && (typeCounts as Record<string, any>)[f.key] > 0 && (
+              <span className="ml-1 text-[10px] opacity-70">({(typeCounts as Record<string, any>)[f.key]})</span>
             )}
           </Button>
         ))}
@@ -383,8 +415,8 @@ export function MyRequestsPage() {
       {filtered.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="No requests"
-          description={typeFilter === 'all' ? 'Your submitted requests will appear here.' : `No ${typeFilter} requests found.`}
+          title={t('user.myRequests.noRequestsTitle')}
+          description={typeFilter === 'all' ? t('user.myRequests.noRequestsAllDescription') : t('user.myRequests.noRequestsTypeDescription', { type: t(`user.myRequests.${TYPE_LABEL_KEYS[typeFilter] || 'types.equipment'}`) })}
         />
       ) : (
         <div className="space-y-3">

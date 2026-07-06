@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
@@ -23,23 +24,24 @@ import { Textarea } from '@/components/ui/textarea'
 
 // ── Step definitions ──
 const STEP_DEFS = [
-  { id: 'requester', label: 'Requester', icon: User },
-  { id: 'event', label: 'Event', icon: Calendar },
-  { id: 'equipment', label: 'Equipment', icon: Monitor },
-  { id: 'subscription', label: 'Plan', icon: CreditCard },
-  { id: 'review', label: 'Review', icon: CheckCircle },
+  { id: 'requester', labelKey: 'stepRequester', icon: User },
+  { id: 'event', labelKey: 'stepEvent', icon: Calendar },
+  { id: 'equipment', labelKey: 'stepEquipment', icon: Monitor },
+  { id: 'subscription', labelKey: 'stepSubscription', icon: CreditCard },
+  { id: 'review', labelKey: 'stepReview', icon: CheckCircle },
 ]
 
 // ── Equipment items ──
 const EQUIPMENT_ITEMS = [
-  { id: 'PC', label: 'PC', icon: Laptop, category: 'pc' },
-  { id: 'SCREEN', label: 'Screen', icon: Tv, category: 'screen' },
-  { id: 'TABLET', label: 'Tablet', icon: Tablet, category: 'tablet' },
-  { id: 'PHONE', label: 'Phone', icon: Smartphone, category: 'phone' },
+  { id: 'PC', labelKey: 'equipmentPc', icon: Laptop, category: 'pc' },
+  { id: 'SCREEN', labelKey: 'equipmentScreen', icon: Tv, category: 'screen' },
+  { id: 'TABLET', labelKey: 'equipmentTablet', icon: Tablet, category: 'tablet' },
+  { id: 'PHONE', labelKey: 'equipmentPhone', icon: Smartphone, category: 'phone' },
 ]
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step: any, idx: any) => {
@@ -65,7 +67,7 @@ function StepProgress({ currentStep, steps  }: any) {
                   isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'
                 }`}
               >
-                {step.label}
+                {t(`user.equipmentForm.${step.labelKey}`)}
               </span>
             </div>
             {idx < steps.length - 1 && (
@@ -84,26 +86,27 @@ function StepProgress({ currentStep, steps  }: any) {
 
 // ── Step 1: Requester ──
 function StepRequester({ form, setField  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          Requested By <span className="text-destructive ml-1">*</span>
+          {t('user.equipmentForm.requestedBy')} <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           value={form.requested_by}
           onChange={(e: any) => setField('requested_by', e.target.value)}
-          placeholder="Your full name"
+          placeholder={t('user.equipmentForm.yourFullName')}
         />
       </div>
       <div className="space-y-2">
         <Label>
-          From Company <span className="text-destructive ml-1">*</span>
+          {t('user.equipmentForm.fromCompany')} <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           value={form.from_company}
           onChange={(e: any) => setField('from_company', e.target.value)}
-          placeholder="Company name"
+          placeholder={t('user.equipmentForm.companyName')}
         />
       </div>
     </div>
@@ -112,30 +115,31 @@ function StepRequester({ form, setField  }: any) {
 
 // ── Step 2: Event ──
 function StepEvent({ form, setField  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          Event Name <span className="text-destructive ml-1">*</span>
+          {t('user.equipmentForm.eventName')} <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           value={form.event_name}
           onChange={(e: any) => setField('event_name', e.target.value)}
-          placeholder="Name of the event"
+          placeholder={t('user.equipmentForm.eventNamePlaceholder')}
         />
       </div>
       <div className="space-y-2">
-        <Label>Job</Label>
+        <Label>{t('user.equipmentForm.job')}</Label>
         <Input
           value={form.job}
           onChange={(e: any) => setField('job', e.target.value)}
-          placeholder="Job reference"
+          placeholder={t('user.equipmentForm.jobPlaceholder')}
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>
-            Pick Up <span className="text-destructive ml-1">*</span>
+            {t('user.equipmentForm.pickUp')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Input
             type="date"
@@ -145,7 +149,7 @@ function StepEvent({ form, setField  }: any) {
         </div>
         <div className="space-y-2">
           <Label>
-            Deposit <span className="text-destructive ml-1">*</span>
+            {t('user.equipmentForm.deposit')} <span className="text-destructive ml-1">*</span>
           </Label>
           <Input
             type="date"
@@ -160,6 +164,7 @@ function StepEvent({ form, setField  }: any) {
 
 // ── Step 3: Equipment (with stock awareness) ──
 function StepEquipment({ form, setField, productsByCategory  }: any) {
+  const { t } = useTranslation()
   const selected = form.equipment_needed || []
 
   const toggleEquipment = (id: any) => {
@@ -183,7 +188,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <Label>I need for my event</Label>
+        <Label>{t('user.equipmentForm.needForEvent')}</Label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {EQUIPMENT_ITEMS.map((item: any) => {
             const Icon = item.icon
@@ -214,7 +219,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
                 )}
                 {isDisabled && (
                   <Badge variant="outline" className="absolute top-2 right-2 text-[8px] text-muted-foreground">
-                    Out of stock
+                    {t('user.equipmentForm.outOfStock')}
                   </Badge>
                 )}
                 <div
@@ -231,7 +236,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
                     isDisabled ? 'text-muted-foreground/50' : checked ? 'text-primary' : 'text-foreground'
                   }`}
                 >
-                  {item.label}
+                  {t(`user.equipmentForm.${item.labelKey}`)}
                 </span>
               </button>
             )
@@ -248,11 +253,11 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
-          <Label>PC Type <span className="text-destructive ml-1">*</span></Label>
+          <Label>{t('user.equipmentForm.pcType')} <span className="text-destructive ml-1">*</span></Label>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { value: 'apple', label: 'Apple (Mac)', icon: Apple },
-              { value: 'windows', label: 'Windows', icon: Laptop },
+              { value: 'apple', label: t('user.equipmentForm.pcTypeApple'), icon: Apple },
+              { value: 'windows', label: t('user.equipmentForm.pcTypeWindows'), icon: Laptop },
             ].map((opt: any) => {
               const Icon = opt.icon
               const isSelected = form.pc_type === opt.value
@@ -290,7 +295,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
-          <Label>Select Screen</Label>
+          <Label>{t('user.equipmentForm.selectScreen')}</Label>
           <div className="space-y-2">
             {screenModels.map((product: any) => {
               const isAvailable = product.total_stock > 0
@@ -319,12 +324,12 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{product.name}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {isAvailable ? `${product.total_stock} available` : 'Out of stock'}
+                      {isAvailable ? t('user.equipmentForm.stockAvailable', { count: product.total_stock }) : t('user.equipmentForm.outOfStock')}
                     </p>
                   </div>
                   {isSelected && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
                   {!isAvailable && (
-                    <Badge variant="outline" className="text-[9px] text-muted-foreground shrink-0">Unavailable</Badge>
+                    <Badge variant="outline" className="text-[9px] text-muted-foreground shrink-0">{t('user.equipmentForm.unavailable')}</Badge>
                   )}
                 </button>
               )
@@ -342,7 +347,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
-          <Label>Select Tablet</Label>
+          <Label>{t('user.equipmentForm.selectTablet')}</Label>
           <div className="space-y-2">
             {tabletModels.map((product: any) => {
               const isAvailable = product.total_stock > 0
@@ -371,12 +376,12 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{product.name}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {isAvailable ? `${product.total_stock} available` : 'Out of stock'}
+                      {isAvailable ? t('user.equipmentForm.stockAvailable', { count: product.total_stock }) : t('user.equipmentForm.outOfStock')}
                     </p>
                   </div>
                   {isSelected && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
                   {!isAvailable && (
-                    <Badge variant="outline" className="text-[9px] text-muted-foreground shrink-0">Unavailable</Badge>
+                    <Badge variant="outline" className="text-[9px] text-muted-foreground shrink-0">{t('user.equipmentForm.unavailable')}</Badge>
                   )}
                 </button>
               )
@@ -394,7 +399,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
           transition={{ duration: 0.2 }}
           className="space-y-3"
         >
-          <Label>Select Phone Model</Label>
+          <Label>{t('user.equipmentForm.selectPhone')}</Label>
           <div className="space-y-2">
             {phoneModels.map((product: any) => {
               const isAvailable = product.total_stock > 0
@@ -423,12 +428,12 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{product.name}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {isAvailable ? `${product.total_stock} available` : 'Out of stock'}
+                      {isAvailable ? t('user.equipmentForm.stockAvailable', { count: product.total_stock }) : t('user.equipmentForm.outOfStock')}
                     </p>
                   </div>
                   {isSelected && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
                   {!isAvailable && (
-                    <Badge variant="outline" className="text-[9px] text-muted-foreground shrink-0">Unavailable</Badge>
+                    <Badge variant="outline" className="text-[9px] text-muted-foreground shrink-0">{t('user.equipmentForm.unavailable')}</Badge>
                   )}
                 </button>
               )
@@ -439,11 +444,11 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
 
       {/* Additional notes */}
       <div className="space-y-2">
-        <Label>Additional notes</Label>
+        <Label>{t('user.equipmentForm.additionalNotes')}</Label>
         <Textarea
           value={form.additional_notes}
           onChange={(e: any) => setField('additional_notes', e.target.value)}
-          placeholder="Any specific requirements or details..."
+          placeholder={t('user.equipmentForm.additionalNotesPlaceholder')}
           rows={3}
         />
       </div>
@@ -453,6 +458,7 @@ function StepEquipment({ form, setField, productsByCategory  }: any) {
 
 // ── Step: Subscription Plan (for phone/router) ──
 function StepSubscription({ form, setField, subscriptionPlans  }: any) {
+  const { t } = useTranslation()
   const [filterType, setFilterType] = useState('all')
 
   const needsSubscription = (form.equipment_needed || []).some((id: any) => id === 'PHONE') ||
@@ -463,10 +469,10 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
       <div className="text-center py-8">
         <CreditCard className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
         <p className="text-sm text-muted-foreground">
-          No subscription plan needed for your selected equipment.
+          {t('user.equipmentForm.noSubscriptionNeeded')}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Subscription plans are available for phones and routers.
+          {t('user.equipmentForm.subscriptionAvailability')}
         </p>
       </div>
     )
@@ -479,16 +485,16 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground mb-4">
-          Select a subscription plan for your phone or router. This will be included with your equipment request.
+          {t('user.equipmentForm.subscriptionIntro')}
         </p>
 
         {/* Type filter */}
         <div className="flex gap-2 mb-4">
           {[
-            { value: 'all', label: 'All Plans' },
-            { value: 'call', label: 'Call' },
-            { value: 'data', label: 'Data' },
-            { value: 'both', label: 'Call + Data' },
+            { value: 'all', label: t('user.equipmentForm.filterAllPlans') },
+            { value: 'call', label: t('user.equipmentForm.filterCall') },
+            { value: 'data', label: t('user.equipmentForm.filterData') },
+            { value: 'both', label: t('user.equipmentForm.filterCallData') },
           ].map((opt: any) => (
             <Button
               key={opt.value}
@@ -506,7 +512,7 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
         {/* Plan list */}
         <div className="space-y-2">
           {filteredPlans.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No plans available for this filter.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{t('user.equipmentForm.noPlansForFilter')}</p>
           ) : (
             filteredPlans.map((plan: any) => {
               const isSelected = form.subscription_plan_id === plan.id
@@ -535,7 +541,7 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">{plan.name}</span>
                       <Badge className={`text-[10px] ${(typeBadgeColors as Record<string, any>)[plan.type] || ''}`}>
-                        {plan.type === 'call' ? 'Call' : plan.type === 'data' ? 'Data' : 'Call + Data'}
+                        {plan.type === 'call' ? t('user.equipmentForm.filterCall') : plan.type === 'data' ? t('user.equipmentForm.filterData') : t('user.equipmentForm.filterCallData')}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
@@ -563,15 +569,19 @@ function StepSubscription({ form, setField, subscriptionPlans  }: any) {
             : 'border-border hover:border-muted-foreground/30 text-muted-foreground'
         }`}
       >
-        No subscription plan needed
+        {t('user.equipmentForm.noSubscriptionOption')}
       </button>
     </div>
   )
 }
 
 function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
+  const { t } = useTranslation()
   const equipmentLabels = (form.equipment_needed || [])
-    .map((id: any) => EQUIPMENT_ITEMS.find((e: any) => e.id === id)?.label || id)
+    .map((id: any) => {
+      const item = EQUIPMENT_ITEMS.find((e: any) => e.id === id)
+      return item ? t(`user.equipmentForm.${item.labelKey}`) : id
+    })
     .join(', ')
 
   // Resolve product names for selected models
@@ -583,25 +593,25 @@ function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
   }
 
   const rows = [
-    { label: 'Requested By', value: form.requested_by },
-    { label: 'From Company', value: form.from_company },
-    { label: 'Event Name', value: form.event_name },
-    { label: 'Job', value: form.job },
-    { label: 'Pick Up', value: form.pick_up },
-    { label: 'Deposit', value: form.deposit },
-    { label: 'Equipment Needed', value: equipmentLabels },
-    ...(form.pc_type ? [{ label: 'PC Type', value: form.pc_type === 'apple' ? 'Apple (Mac)' : 'Windows' }] : []),
-    ...(form.screen_model ? [{ label: 'Screen', value: resolveProductName('screen', form.screen_model) }] : []),
-    ...(form.tablet_model ? [{ label: 'Tablet', value: resolveProductName('tablet', form.tablet_model) }] : []),
-    ...(form.phone_model ? [{ label: 'Phone', value: resolveProductName('phone', form.phone_model) }] : []),
-    ...(form.subscription_plan_id ? [{ label: 'Subscription Plan', value: (() => { const plan = subscriptionPlans.find((p: any) => p.id === form.subscription_plan_id); return plan ? `${plan.name} (${plan.price})` : '—' })() }] : []),
-    ...(form.additional_notes ? [{ label: 'Notes', value: form.additional_notes }] : []),
+    { label: t('user.equipmentForm.reviewRequestedBy'), value: form.requested_by },
+    { label: t('user.equipmentForm.fromCompany'), value: form.from_company },
+    { label: t('user.equipmentForm.eventName'), value: form.event_name },
+    { label: t('user.equipmentForm.job'), value: form.job },
+    { label: t('user.equipmentForm.pickUp'), value: form.pick_up },
+    { label: t('user.equipmentForm.deposit'), value: form.deposit },
+    { label: t('user.equipmentForm.equipmentNeeded'), value: equipmentLabels },
+    ...(form.pc_type ? [{ label: t('user.equipmentForm.pcType'), value: form.pc_type === 'apple' ? t('user.equipmentForm.pcTypeApple') : t('user.equipmentForm.pcTypeWindows') }] : []),
+    ...(form.screen_model ? [{ label: t('user.equipmentForm.equipmentScreen'), value: resolveProductName('screen', form.screen_model) }] : []),
+    ...(form.tablet_model ? [{ label: t('user.equipmentForm.equipmentTablet'), value: resolveProductName('tablet', form.tablet_model) }] : []),
+    ...(form.phone_model ? [{ label: t('user.equipmentForm.equipmentPhone'), value: resolveProductName('phone', form.phone_model) }] : []),
+    ...(form.subscription_plan_id ? [{ label: t('user.equipmentForm.subscriptionPlan'), value: (() => { const plan = subscriptionPlans.find((p: any) => p.id === form.subscription_plan_id); return plan ? `${plan.name} (${plan.price})` : '—' })() }] : []),
+    ...(form.additional_notes ? [{ label: t('user.equipmentForm.notes'), value: form.additional_notes }] : []),
   ]
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Please review the information below before submitting.
+        {t('user.equipmentForm.reviewIntro')}
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
         {rows.map(({ label, value }, idx) => (
@@ -626,6 +636,7 @@ function StepReview({ form, productsByCategory, subscriptionPlans  }: any) {
 
 // ── Main page ──
 export function EquipmentRequestPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -740,14 +751,14 @@ export function EquipmentRequestPage() {
       // Confirmation email to user
       sendEmail({
         to: (user?.email || ""),
-        subject: 'Your equipment request has been received',
+        subject: t('user.equipmentForm.confirmationEmailSubject'),
         body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: form.event_name }),
         isHtml: true,
       })
 
       navigate('/request-sent')
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit request', 'error')
+      showToast(err.message || t('user.equipmentForm.submitFailed'), 'error')
     }
     setSubmitting(false)
   }
@@ -764,13 +775,13 @@ export function EquipmentRequestPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <Badge variant="outline" className="mb-3 text-xs">
-          IT Equipment
+          {t('user.equipmentForm.badge')}
         </Badge>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
-          Request IT Equipment
+          {t('user.equipmentForm.title')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Please note that your request will depend on available stocks.
+          {t('user.equipmentForm.subtitle')}
         </p>
       </motion.div>
 
@@ -786,10 +797,10 @@ export function EquipmentRequestPage() {
               return <StepIcon className="h-5 w-5 text-primary" />
             })()}
             <h2 className="text-lg font-display font-bold">
-              {currentStepDef.label}
+              {t(`user.equipmentForm.${currentStepDef.labelKey}`)}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {STEP_DEFS.length}
+              {t('user.equipmentForm.stepCounter', { current: currentStep + 1, total: STEP_DEFS.length })}
             </span>
           </div>
 
@@ -827,7 +838,7 @@ export function EquipmentRequestPage() {
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          {currentStep === 0 ? 'Cancel' : 'Back'}
+          {currentStep === 0 ? t('user.equipmentForm.cancel') : t('user.equipmentForm.back')}
         </Button>
 
         {currentStep < STEP_DEFS.length - 1 ? (
@@ -836,7 +847,7 @@ export function EquipmentRequestPage() {
             disabled={!canGoNext}
             className="gap-2"
           >
-            Next
+            {t('user.equipmentForm.next')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
@@ -850,7 +861,7 @@ export function EquipmentRequestPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            Submit Request
+            {t('user.equipmentForm.submitRequest')}
           </Button>
         )}
       </div>

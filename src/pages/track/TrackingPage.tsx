@@ -7,11 +7,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { PickupPointMap } from '@/components/common/PickupPointMap'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 const STEPS = [
-  { key: 'pending', label: 'Pending', description: 'Request received', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500' },
-  { key: 'in_progress', label: 'In Progress', description: 'Being prepared', icon: Loader2, color: 'text-blue-500', bg: 'bg-blue-500' },
-  { key: 'ready', label: 'Ready', description: 'Ready for pickup', icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500' },
+  { key: 'pending', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500' },
+  { key: 'in_progress', icon: Loader2, color: 'text-blue-500', bg: 'bg-blue-500' },
+  { key: 'ready', icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500' },
 ]
 
 function getStepIndex(status: any) {
@@ -36,8 +37,20 @@ function useTrackingData(token: any) {
 }
 
 export function TrackingPage() {
+  const { t } = useTranslation()
   const { token } = useParams()
   const { data: request, isLoading, isError } = useTrackingData(token)
+
+  const stepLabels: Record<string, string> = {
+    pending: t('user.trackingPage.stepPendingLabel'),
+    in_progress: t('user.trackingPage.stepInProgressLabel'),
+    ready: t('user.trackingPage.stepReadyLabel'),
+  }
+  const stepDescriptions: Record<string, string> = {
+    pending: t('user.trackingPage.stepPendingDescription'),
+    in_progress: t('user.trackingPage.stepInProgressDescription'),
+    ready: t('user.trackingPage.stepReadyDescription'),
+  }
 
   if (isLoading) {
     return (
@@ -53,8 +66,8 @@ export function TrackingPage() {
         <Card className="max-w-sm w-full">
           <CardContent className="p-8 text-center">
             <Package className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-            <h2 className="font-display font-bold text-lg">Request not found</h2>
-            <p className="text-sm text-muted-foreground mt-2">This tracking link is invalid or has expired.</p>
+            <h2 className="font-display font-bold text-lg">{t('user.trackingPage.requestNotFoundTitle')}</h2>
+            <p className="text-sm text-muted-foreground mt-2">{t('user.trackingPage.requestNotFoundDescription')}</p>
           </CardContent>
         </Card>
       </div>
@@ -75,9 +88,9 @@ export function TrackingPage() {
           {/* Header */}
           <div className="bg-primary/5 border-b px-6 py-5">
             <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-              Request #{request.request_number}
+              {t('user.trackingPage.requestNumberLabel', { number: request.request_number })}
             </p>
-            <h1 className="font-display font-bold text-xl mt-1">{request.project_name || 'Equipment Request'}</h1>
+            <h1 className="font-display font-bold text-xl mt-1">{request.project_name || t('user.trackingPage.equipmentRequestFallback')}</h1>
             {request.pickup_date && (
               <p className="text-xs text-muted-foreground mt-2">
                 {request.pickup_date}{request.return_date ? ` → ${request.return_date}` : ''}
@@ -125,11 +138,11 @@ export function TrackingPage() {
                           'font-semibold text-sm',
                           isPending && 'text-muted-foreground'
                         )}>
-                          {step.label}
+                          {stepLabels[step.key]}
                         </h3>
                         {isCurrent && (
                           <Badge variant="outline" className={cn('text-[10px]', step.color)}>
-                            Current
+                            {t('user.trackingPage.currentBadge')}
                           </Badge>
                         )}
                         {isDone && (
@@ -140,7 +153,7 @@ export function TrackingPage() {
                         'text-xs mt-0.5',
                         isPending ? 'text-muted-foreground/50' : 'text-muted-foreground'
                       )}>
-                        {step.description}
+                        {stepDescriptions[step.key]}
                       </p>
                     </div>
                   </div>

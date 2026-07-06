@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useHasModuleAccess } from '@/hooks/use-has-module-access'
@@ -17,11 +18,11 @@ import { DynamicsItem } from '@/components/ui/motion'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
-function getGreeting() {
+function getGreetingKey() {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (hour < 12) return 'greetingMorning'
+  if (hour < 18) return 'greetingAfternoon'
+  return 'greetingEvening'
 }
 
 function getDayLabel() {
@@ -88,6 +89,7 @@ function HubCard({ to, icon: Icon, title, description, color = 'primary', badge,
 }
 
 export function HubPage() {
+  const { t } = useTranslation()
   const { user, profile, isAdmin } = useAuth()
   const { hasAccess: hasMailbox } = useHasModuleAccess('functional_mailbox')
   const { data: settings } = useAppSettings()
@@ -111,49 +113,49 @@ export function HubPage() {
   const readyRequests = allRequests.filter((r: any) => r.status === 'ready').length
 
   const firstName = profile?.first_name || ''
-  const greeting = getGreeting()
+  const greeting = t(`user.hubPage.${getGreetingKey()}`)
   const day = getDayLabel()
 
   const cards: any[] = []
   cards.push(
     <HubCard key="catalog" to="/catalog" icon={PackageSearch}
-      title={settings?.hub_catalog_title || 'Equipment Catalog'}
-      description="Browse and request IT equipment for events or projects."
-      color="primary" buttonLabel="Open Catalog" />
+      title={settings?.hub_catalog_title || t('user.hubPage.catalogTitle')}
+      description={t('user.hubPage.catalogDescription')}
+      color="primary" buttonLabel={t('user.hubPage.catalogButton')} />
   )
   cards.push(
     <HubCard key="my-equipment" to="/my-equipment" icon={Laptop}
-      title="My equipment"
-      description="The devices currently in your hands — due dates, returns, problems."
-      color="emerald" buttonLabel="View my devices" />
+      title={t('user.hubPage.myEquipmentTitle')}
+      description={t('user.hubPage.myEquipmentDescription')}
+      color="emerald" buttonLabel={t('user.hubPage.myEquipmentButton')} />
   )
   if (isAdmin) {
     cards.push(
       <HubCard key="scan" to="/scan" icon={QrCode}
-        title="Scan QR"
-        description="Take or return equipment via QR code."
-        color="blue" buttonLabel="Start Scanning" />
+        title={t('user.hubPage.scanTitle')}
+        description={t('user.hubPage.scanDescription')}
+        color="blue" buttonLabel={t('user.hubPage.scanButton')} />
     )
   }
   // 'My Requests' lives in the stats dashboard at the top — no card here.
   cards.push(
     <HubCard key="onboarding-request" to="/onboarding-request" icon={UserPlus}
-      title="Onboarding"
-      description="IT setup for a new team member."
-      color="cyan" buttonLabel="New Request" />
+      title={t('user.hubPage.onboardingTitle')}
+      description={t('user.hubPage.onboardingDescription')}
+      color="cyan" buttonLabel={t('user.hubPage.newRequestButton')} />
   )
   cards.push(
     <HubCard key="offboarding-request" to="/offboarding-request" icon={UserMinus}
-      title="Offboarding"
-      description="Access revocation for a departing employee."
-      color="rose" buttonLabel="New Request" />
+      title={t('user.hubPage.offboardingTitle')}
+      description={t('user.hubPage.offboardingDescription')}
+      color="rose" buttonLabel={t('user.hubPage.newRequestButton')} />
   )
   // Mailbox card always visible — module access is checked on the form itself
   cards.push(
     <HubCard key="mailbox" to="/functional-mailbox" icon={Mail}
-      title="Mailbox Request"
-      description="Request a functional mailbox."
-      color="violet" buttonLabel="New Request" />
+      title={t('user.hubPage.mailboxTitle')}
+      description={t('user.hubPage.mailboxDescription')}
+      color="violet" buttonLabel={t('user.hubPage.newRequestButton')} />
   )
 
   return (
@@ -172,7 +174,7 @@ export function HubPage() {
         <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight leading-tight">
           {greeting}{firstName ? <>, <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">{firstName}</span></> : ''}
         </h1>
-        <p className="text-muted-foreground text-sm mt-2">What do you need today?</p>
+        <p className="text-muted-foreground text-sm mt-2">{t('user.hubPage.subtitle')}</p>
       </motion.div>
 
       {/* Stats dashboard — always shown so My Requests stays one click away */}
@@ -182,20 +184,20 @@ export function HubPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.15 }}
       >
-          <StatCard icon={Inbox} label="All requests" value={allRequests.length}
+          <StatCard icon={Inbox} label={t('user.hubPage.statAllRequests')} value={allRequests.length}
             color={{ bg: 'bg-foreground/5', fg: 'text-foreground' }} to="/my-requests" />
-          <StatCard icon={Clock} label="Pending" value={pendingRequests}
+          <StatCard icon={Clock} label={t('user.hubPage.statPending')} value={pendingRequests}
             color={{ bg: 'bg-amber-500/15', fg: 'text-amber-600' }} to="/my-requests" />
-          <StatCard icon={Loader2} label="In Progress" value={inProgressRequests}
+          <StatCard icon={Loader2} label={t('user.hubPage.statInProgress')} value={inProgressRequests}
             color={{ bg: 'bg-blue-500/15', fg: 'text-blue-600' }} to="/my-requests" />
-        <StatCard icon={CheckCircle} label="Ready" value={readyRequests}
+        <StatCard icon={CheckCircle} label={t('user.hubPage.statReady')} value={readyRequests}
           color={{ bg: 'bg-emerald-500/15', fg: 'text-emerald-600' }} to="/my-requests" />
       </motion.div>
 
       {/* Quick actions */}
       <div className="space-y-3 mb-8">
         <div className="flex items-center gap-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('user.hubPage.quickActions')}</h2>
           <div className="flex-1 h-px bg-border/40" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

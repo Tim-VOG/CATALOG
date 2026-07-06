@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { DynamicsItem } from '@/components/ui/motion'
@@ -21,6 +22,7 @@ const formatDate = (d: any) =>
   new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
 function RequestCard({ req  }: any) {
+  const { t } = useTranslation()
   return (
     <Link to={`/requests/${req.id}`}>
       <Card className="hover:-translate-y-1 hover:shadow-elevated hover:border-primary/30 transition-all duration-300 cursor-pointer">
@@ -32,7 +34,7 @@ function RequestCard({ req  }: any) {
                 <StatusBadge status={req.status} />
                 {req.priority !== 'normal' && (
                   <Badge variant={req.priority === 'urgent' ? 'destructive' : req.priority === 'high' ? 'warning' : 'secondary'}>
-                    {req.priority}
+                    {t(`user.requestsList.priority.${req.priority}`, { defaultValue: req.priority })}
                   </Badge>
                 )}
               </div>
@@ -47,10 +49,10 @@ function RequestCard({ req  }: any) {
                     {req.location_name}
                   </span>
                 )}
-                <span>{req.item_count} item{req.item_count !== 1 ? 's' : ''}</span>
+                <span>{t('user.requestsList.itemCount', { count: req.item_count })}</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Submitted {formatDate(req.created_at)}
+                {t('user.requestsList.submittedOn', { date: formatDate(req.created_at) })}
                 {req.request_number && <> &mdash; #{req.request_number}</>}
               </p>
             </div>
@@ -63,6 +65,7 @@ function RequestCard({ req  }: any) {
 }
 
 export function RequestsPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const requestsQuery = useMyLoanRequests(user?.id)
   const [tab, setTab] = useState('active')
@@ -110,10 +113,10 @@ export function RequestsPage() {
     return (
       <EmptyState
         icon={ClipboardList}
-        title="No requests yet"
-        description="Browse the catalog and submit an equipment request"
+        title={t('user.requestsList.emptyTitle')}
+        description={t('user.requestsList.emptyDescription')}
       >
-        <Link to="/catalog"><Button>Browse Catalog</Button></Link>
+        <Link to="/catalog"><Button>{t('user.requestsList.browseCatalog')}</Button></Link>
       </EmptyState>
     )
   }
@@ -121,8 +124,8 @@ export function RequestsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">My Requests</h1>
-        <p className="text-muted-foreground mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} total</p>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">{t('user.requestsList.pageTitle')}</h1>
+        <p className="text-muted-foreground mt-1">{t('user.requestsList.requestsTotal', { count: requests.length })}</p>
         <motion.div
           className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-accent"
           initial={{ scaleX: 0 }}
@@ -135,29 +138,29 @@ export function RequestsPage() {
       {/* Tabs with animated underline */}
       <div className="flex gap-1 border-b relative">
         {[
-          { id: 'active', label: 'Active', count: activeRequests.length, showCount: activeRequests.length > 0 },
-          { id: 'past', label: 'Past', count: pastRequests.length, showCount: pastRequests.length > 0 },
-        ].map((t: any) => (
+          { id: 'active', label: t('user.requestsList.tabActive'), count: activeRequests.length, showCount: activeRequests.length > 0 },
+          { id: 'past', label: t('user.requestsList.tabPast'), count: pastRequests.length, showCount: pastRequests.length > 0 },
+        ].map((tabItem: any) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={tabItem.id}
+            onClick={() => setTab(tabItem.id)}
             className={cn(
               'relative px-4 py-2 text-sm font-medium transition-colors -mb-px',
-              tab === t.id
+              tab === tabItem.id
                 ? 'text-primary'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            {t.label}
-            {t.showCount && (
+            {tabItem.label}
+            {tabItem.showCount && (
               <span className={cn(
                 'ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full text-xs font-bold px-1.5',
-                tab === t.id ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                tab === tabItem.id ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
               )}>
-                {t.count}
+                {tabItem.count}
               </span>
             )}
-            {tab === t.id && (
+            {tab === tabItem.id && (
               <motion.div
                 layoutId="request-tab"
                 className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
@@ -173,8 +176,8 @@ export function RequestsPage() {
         <div className="text-center py-12 text-muted-foreground">
           <p className="text-sm">
             {tab === 'active'
-              ? 'No active requests. Browse the catalog to submit one!'
-              : 'No past requests yet.'}
+              ? t('user.requestsList.emptyActive')
+              : t('user.requestsList.emptyPast')}
           </p>
         </div>
       ) : (

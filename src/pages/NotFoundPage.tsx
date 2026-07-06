@@ -2,8 +2,10 @@ import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { Home, QrCode, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 
 export function NotFoundPage() {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center justify-center min-h-[70vh] relative overflow-hidden">
       <div className="absolute inset-0 bg-dot-grid opacity-20 pointer-events-none" />
@@ -24,9 +26,9 @@ export function NotFoundPage() {
         </motion.div>
 
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Page not found</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">{t('user.notFound.title')}</h1>
           <p className="text-muted-foreground mt-2 max-w-sm">
-            The page you're looking for doesn't exist or has been moved.
+            {t('user.notFound.description')}
           </p>
         </div>
 
@@ -34,13 +36,13 @@ export function NotFoundPage() {
           <Link to="/">
             <Button variant="gradient" className="gap-2">
               <Home className="h-4 w-4" />
-              Go to Hub
+              {t('user.notFound.goToHub')}
             </Button>
           </Link>
           <Link to="/catalog">
             <Button variant="ghost" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Equipment Catalog
+              {t('user.notFound.equipmentCatalog')}
             </Button>
           </Link>
         </div>

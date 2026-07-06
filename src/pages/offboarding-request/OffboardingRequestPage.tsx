@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import { useUIStore } from '@/stores/ui-store'
@@ -53,6 +54,7 @@ const STEPS = [
 
 // ── Step progress bar ──
 function StepProgress({ currentStep, steps  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1 mb-8">
       {steps.map((step: any, idx: any) => {
@@ -78,7 +80,7 @@ function StepProgress({ currentStep, steps  }: any) {
                   isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'
                 }`}
               >
-                {step.label}
+                {t(`user.offboardingForm.steps.${step.id}`, { defaultValue: step.label })}
               </span>
             </div>
             {idx < steps.length - 1 && (
@@ -97,6 +99,7 @@ function StepProgress({ currentStep, steps  }: any) {
 
 // ── Step 1: Who ──
 function StepWho({ form, setField, setMultipleFields  }: any) {
+  const { t } = useTranslation()
   const handlePickProfile = (profile: any) => {
     const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.email
     setMultipleFields({
@@ -111,7 +114,7 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          Name
+          {t('user.offboardingForm.nameLabel')}
           <span className="text-destructive ml-1">*</span>
         </Label>
         <ProfileAutocomplete
@@ -122,18 +125,18 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
             setMultipleFields({ name: text, leaving_user_id: null, leaving_user_email: '' })
           }}
           onSelect={handlePickProfile}
-          placeholder="Start typing the leaving person's name…"
+          placeholder={t('user.offboardingForm.namePlaceholder')}
         />
         <p className="text-[11px] text-muted-foreground">
           {form.leaving_user_id
-            ? 'Profile linked — company and assigned equipment have been auto-filled below.'
-            : 'Pick someone from the suggestions list to auto-fill company and pre-load their assigned equipment.'}
+            ? t('user.offboardingForm.nameHintLinked')
+            : t('user.offboardingForm.nameHintUnlinked')}
         </p>
       </div>
 
       <div className="space-y-2">
         <Label>
-          Company
+          {t('user.offboardingForm.companyLabel')}
           <span className="text-destructive ml-1">*</span>
         </Label>
         {form.leaving_user_id && form.company ? (
@@ -141,11 +144,11 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
           // to that person's BU (can't be changed by hand).
           <>
             <Input value={form.company} disabled readOnly className="bg-muted/40 cursor-not-allowed" />
-            <p className="text-[11px] text-muted-foreground">🔒 Locked to the selected person's business unit.</p>
+            <p className="text-[11px] text-muted-foreground">{t('user.offboardingForm.companyLocked')}</p>
           </>
         ) : (
           <Select value={form.company} onChange={(e: any) => setField('company', e.target.value)}>
-            <option value="">Select...</option>
+            <option value="">{t('user.offboardingForm.companySelectPlaceholder')}</option>
             {COMPANIES.map((c: any) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -158,12 +161,13 @@ function StepWho({ form, setField, setMultipleFields  }: any) {
 
 // ── Step 2: When ──
 function StepWhen({ form, setField  }: any) {
+  const { t } = useTranslation()
   const todayIso = new Date().toISOString().split('T')[0]
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          Departure On
+          {t('user.offboardingForm.departureOnLabel')}
           <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
@@ -179,59 +183,60 @@ function StepWhen({ form, setField  }: any) {
 
 // ── Step 3: Revocation ──
 function StepRevocation({ form, setField  }: any) {
+  const { t } = useTranslation()
   const showTransferDetails =
     form.transfer_mailbox_data || form.transfer_sharepoint_data
 
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <Label>Revoke email access</Label>
+        <Label>{t('user.offboardingForm.revokeEmailLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.revoke_email_access}
             onCheckedChange={(val: any) => setField('revoke_email_access', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.revoke_email_access ? 'Yes' : 'No'}
+            {form.revoke_email_access ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Revoke VPN / Tools access</Label>
+        <Label>{t('user.offboardingForm.revokeVpnLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.revoke_vpn_tools_access}
             onCheckedChange={(val: any) => setField('revoke_vpn_tools_access', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.revoke_vpn_tools_access ? 'Yes' : 'No'}
+            {form.revoke_vpn_tools_access ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Transfer mailbox data</Label>
+        <Label>{t('user.offboardingForm.transferMailboxLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.transfer_mailbox_data}
             onCheckedChange={(val: any) => setField('transfer_mailbox_data', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.transfer_mailbox_data ? 'Yes' : 'No'}
+            {form.transfer_mailbox_data ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Transfer SharePoint data</Label>
+        <Label>{t('user.offboardingForm.transferSharepointLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.transfer_sharepoint_data}
             onCheckedChange={(val: any) => setField('transfer_sharepoint_data', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.transfer_sharepoint_data ? 'Yes' : 'No'}
+            {form.transfer_sharepoint_data ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
@@ -239,17 +244,17 @@ function StepRevocation({ form, setField  }: any) {
       {showTransferDetails && (
         <div className="space-y-2">
           <Label>
-            Transfer details
+            {t('user.offboardingForm.transferDetailsLabel')}
             <span className="text-destructive ml-1">*</span>
           </Label>
           <Textarea
             value={form.transfer_details}
             onChange={(e: any) => setField('transfer_details', e.target.value)}
-            placeholder="What data needs to be transferred and to whom?"
+            placeholder={t('user.offboardingForm.transferDetailsPlaceholder')}
             rows={3}
           />
           <p className="text-[11px] text-muted-foreground">
-            Required when mailbox or SharePoint data needs to be transferred.
+            {t('user.offboardingForm.transferDetailsHint')}
           </p>
         </div>
       )}
@@ -258,7 +263,7 @@ function StepRevocation({ form, setField  }: any) {
       <div className="space-y-3 pt-3 border-t border-border/40">
         <div className="space-y-2">
           <Label className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-muted-foreground" /> Out of office auto-reply
+            <Mail className="h-4 w-4 text-muted-foreground" /> {t('user.offboardingForm.oooLabel')}
           </Label>
           <div className="flex items-center gap-3">
             <Switch
@@ -266,7 +271,7 @@ function StepRevocation({ form, setField  }: any) {
               onCheckedChange={(val: any) => setField('ooo_enabled', val)}
             />
             <span className="text-sm text-muted-foreground">
-              {form.ooo_enabled ? 'Yes — set up an auto-reply on the leaver\'s mailbox' : 'No'}
+              {form.ooo_enabled ? t('user.offboardingForm.oooYes') : t('user.offboardingForm.no')}
             </span>
           </div>
         </div>
@@ -275,7 +280,7 @@ function StepRevocation({ form, setField  }: any) {
           <div className="space-y-3 pl-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>From</Label>
+                <Label>{t('user.offboardingForm.oooFromLabel')}</Label>
                 <Input
                   type="date"
                   value={form.ooo_start}
@@ -283,7 +288,7 @@ function StepRevocation({ form, setField  }: any) {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Until (optional)</Label>
+                <Label>{t('user.offboardingForm.oooUntilLabel')}</Label>
                 <Input
                   type="date"
                   value={form.ooo_end}
@@ -293,11 +298,11 @@ function StepRevocation({ form, setField  }: any) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Auto-reply message</Label>
+              <Label>{t('user.offboardingForm.oooMessageLabel')}</Label>
               <Textarea
                 value={form.ooo_message}
                 onChange={(e: any) => setField('ooo_message', e.target.value)}
-                placeholder={`Example: I have left the company on ${form.departure_on || '[date]'}. For any inquiries, please contact …`}
+                placeholder={t('user.offboardingForm.oooMessagePlaceholder', { date: form.departure_on || t('user.offboardingForm.oooMessageDatePlaceholder') })}
                 rows={3}
               />
             </div>
@@ -318,6 +323,7 @@ const PHONE_KEYWORDS = ['phone', 'iphone', 'smartphone', 'mobile']
 const BADGE_KEYWORDS = ['badge', 'keys', 'clé', 'access card', 'fob']
 
 function StepEquipment({ form, setField, setMultipleFields  }: any) {
+  const { t } = useTranslation()
   const { data: equipment = [] } = useUserEquipmentFor(form.leaving_user_id)
   const { data: qrCodes = [] } = useQRCodesAssignedTo(form.leaving_user_id)
   const activeEquipment = useMemo(
@@ -358,7 +364,7 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
       {hasInventory && (
         <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2">
           <div className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
-            <Package className="h-3.5 w-3.5" /> Currently assigned to {form.name.split(' ')[0] || 'this person'}
+            <Package className="h-3.5 w-3.5" /> {t('user.offboardingForm.assignedTo', { name: form.name.split(' ')[0] || t('user.offboardingForm.assignedToThisPerson') })}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {activeEquipment.map((e: any) => (
@@ -373,56 +379,56 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
             ))}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Use this list to know what to collect. Toggle on the matching items below.
+            {t('user.offboardingForm.inventoryHint')}
           </p>
         </div>
       )}
 
       <div className="space-y-2">
-        <Label>Collect laptop</Label>
+        <Label>{t('user.offboardingForm.collectLaptopLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.collect_laptop}
             onCheckedChange={(val: any) => setField('collect_laptop', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.collect_laptop ? 'Yes' : 'No'}
+            {form.collect_laptop ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Collect phone</Label>
+        <Label>{t('user.offboardingForm.collectPhoneLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.collect_phone}
             onCheckedChange={(val: any) => setField('collect_phone', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.collect_phone ? 'Yes' : 'No'}
+            {form.collect_phone ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Collect badge/keys</Label>
+        <Label>{t('user.offboardingForm.collectBadgeLabel')}</Label>
         <div className="flex items-center gap-3">
           <Switch
             checked={form.collect_badge_keys}
             onCheckedChange={(val: any) => setField('collect_badge_keys', val)}
           />
           <span className="text-sm text-muted-foreground">
-            {form.collect_badge_keys ? 'Yes' : 'No'}
+            {form.collect_badge_keys ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')}
           </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Equipment notes</Label>
+        <Label>{t('user.offboardingForm.equipmentNotesLabel')}</Label>
         <Textarea
           value={form.equipment_notes}
           onChange={(e: any) => setField('equipment_notes', e.target.value)}
-          placeholder="Any special instructions for equipment collection"
+          placeholder={t('user.offboardingForm.equipmentNotesPlaceholder')}
           rows={3}
         />
       </div>
@@ -432,25 +438,26 @@ function StepEquipment({ form, setField, setMultipleFields  }: any) {
 
 // ── Step 5: Requester ──
 function StepRequester({ form, setField  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <Label>
-          Requested By
+          {t('user.offboardingForm.requestedByLabel')}
           <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
           type="text"
           value={form.requested_by}
           onChange={(e: any) => setField('requested_by', e.target.value)}
-          placeholder="Your full name"
+          placeholder={t('user.offboardingForm.requestedByPlaceholder')}
         />
-        <p className="text-[11px] text-muted-foreground">Auto-filled from your profile</p>
+        <p className="text-[11px] text-muted-foreground">{t('user.offboardingForm.requestedByHint')}</p>
       </div>
 
       <div className="space-y-2">
         <Label>
-          Requested On
+          {t('user.offboardingForm.requestedOnLabel')}
           <span className="text-destructive ml-1">*</span>
         </Label>
         <Input
@@ -458,7 +465,7 @@ function StepRequester({ form, setField  }: any) {
           value={form.requested_on}
           onChange={(e: any) => setField('requested_on', e.target.value)}
         />
-        <p className="text-[11px] text-muted-foreground">Auto-filled with today's date</p>
+        <p className="text-[11px] text-muted-foreground">{t('user.offboardingForm.requestedOnHint')}</p>
       </div>
     </div>
   )
@@ -466,44 +473,46 @@ function StepRequester({ form, setField  }: any) {
 
 // ── Step 6: Review ──
 const REVIEW_FIELDS = [
-  { key: 'name', label: 'Name' },
-  { key: 'company', label: 'Company' },
-  { key: 'departure_on', label: 'Departure On' },
-  { key: 'revoke_email_access', label: 'Revoke Email Access', type: 'toggle' },
-  { key: 'revoke_vpn_tools_access', label: 'Revoke VPN / Tools Access', type: 'toggle' },
-  { key: 'transfer_mailbox_data', label: 'Transfer Mailbox Data', type: 'toggle' },
-  { key: 'transfer_sharepoint_data', label: 'Transfer SharePoint Data', type: 'toggle' },
-  { key: 'transfer_details', label: 'Transfer Details', showIf: (f: any) => f.transfer_mailbox_data || f.transfer_sharepoint_data },
-  { key: 'ooo_enabled', label: 'Out Of Office Reply', type: 'toggle' },
-  { key: 'ooo_start', label: 'OOO From', showIf: (f: any) => f.ooo_enabled },
-  { key: 'ooo_end', label: 'OOO Until', showIf: (f: any) => f.ooo_enabled },
-  { key: 'ooo_message', label: 'OOO Message', showIf: (f: any) => f.ooo_enabled },
-  { key: 'collect_laptop', label: 'Collect Laptop', type: 'toggle' },
-  { key: 'collect_phone', label: 'Collect Phone', type: 'toggle' },
-  { key: 'collect_badge_keys', label: 'Collect Badge/Keys', type: 'toggle' },
-  { key: 'equipment_notes', label: 'Equipment Notes' },
-  { key: 'requested_by', label: 'Requested By' },
-  { key: 'requested_on', label: 'Requested On' },
+  { key: 'name', labelKey: 'name', label: 'Name' },
+  { key: 'company', labelKey: 'company', label: 'Company' },
+  { key: 'departure_on', labelKey: 'departureOn', label: 'Departure On' },
+  { key: 'revoke_email_access', labelKey: 'revokeEmailAccess', label: 'Revoke Email Access', type: 'toggle' },
+  { key: 'revoke_vpn_tools_access', labelKey: 'revokeVpnToolsAccess', label: 'Revoke VPN / Tools Access', type: 'toggle' },
+  { key: 'transfer_mailbox_data', labelKey: 'transferMailboxData', label: 'Transfer Mailbox Data', type: 'toggle' },
+  { key: 'transfer_sharepoint_data', labelKey: 'transferSharepointData', label: 'Transfer SharePoint Data', type: 'toggle' },
+  { key: 'transfer_details', labelKey: 'transferDetails', label: 'Transfer Details', showIf: (f: any) => f.transfer_mailbox_data || f.transfer_sharepoint_data },
+  { key: 'ooo_enabled', labelKey: 'oooEnabled', label: 'Out Of Office Reply', type: 'toggle' },
+  { key: 'ooo_start', labelKey: 'oooFrom', label: 'OOO From', showIf: (f: any) => f.ooo_enabled },
+  { key: 'ooo_end', labelKey: 'oooUntil', label: 'OOO Until', showIf: (f: any) => f.ooo_enabled },
+  { key: 'ooo_message', labelKey: 'oooMessage', label: 'OOO Message', showIf: (f: any) => f.ooo_enabled },
+  { key: 'collect_laptop', labelKey: 'collectLaptop', label: 'Collect Laptop', type: 'toggle' },
+  { key: 'collect_phone', labelKey: 'collectPhone', label: 'Collect Phone', type: 'toggle' },
+  { key: 'collect_badge_keys', labelKey: 'collectBadgeKeys', label: 'Collect Badge/Keys', type: 'toggle' },
+  { key: 'equipment_notes', labelKey: 'equipmentNotes', label: 'Equipment Notes' },
+  { key: 'requested_by', labelKey: 'requestedBy', label: 'Requested By' },
+  { key: 'requested_on', labelKey: 'requestedOn', label: 'Requested On' },
 ]
 
 function StepReview({ form  }: any) {
+  const { t } = useTranslation()
   const rows = REVIEW_FIELDS
     .filter((f: any) => !f.showIf || f.showIf(form))
     .map((f: any) => {
       const raw = form[f.key]
       let display: any
       if (f.type === 'toggle') {
-        display = raw ? 'Yes' : 'No'
+        display = raw ? t('user.offboardingForm.yes') : t('user.offboardingForm.no')
       } else {
         display = raw || '\u2014'
       }
-      return { label: f.label, value: display, key: f.key }
+      const label = t(`user.offboardingForm.review.${f.labelKey}`, { defaultValue: f.label })
+      return { label, value: display, key: f.key }
     })
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Please review the information below before submitting.
+        {t('user.offboardingForm.reviewIntro')}
       </p>
       <div className="rounded-xl border bg-card overflow-hidden">
         {rows.map(({ label, value, key }, idx) => (
@@ -528,6 +537,7 @@ function StepReview({ form  }: any) {
 
 // ── Main page ──
 export function OffboardingRequestPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -611,14 +621,14 @@ export function OffboardingRequestPage() {
       // Confirmation email to user
       sendEmail({
         to: (user?.email || ""),
-        subject: 'Your offboarding request has been received',
+        subject: t('user.offboardingForm.emailSubject'),
         body: await buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name }),
         isHtml: true,
       })
 
       navigate('/request-sent')
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit request', 'error')
+      showToast(err.message || t('user.offboardingForm.submitError'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -636,13 +646,13 @@ export function OffboardingRequestPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <Badge variant="outline" className="mb-3 text-xs">
-          Offboarding
+          {t('user.offboardingForm.pageBadge')}
         </Badge>
         <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">
-          Offboarding Request
+          {t('user.offboardingForm.title')}
         </h1>
         <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
-          It is imperative that the leaving collaborator passes on information (e-mail, Sharepoint, etc.) before departure.
+          {t('user.offboardingForm.subtitle')}
         </p>
       </motion.div>
 
@@ -658,10 +668,10 @@ export function OffboardingRequestPage() {
               return <StepIcon className="h-5 w-5 text-primary" />
             })()}
             <h2 className="text-lg font-display font-bold">
-              {currentStepDef.label}
+              {t(`user.offboardingForm.steps.${currentStepDef.id}`, { defaultValue: currentStepDef.label })}
             </h2>
             <span className="text-xs text-muted-foreground ml-auto">
-              Step {currentStep + 1} of {STEPS.length}
+              {t('user.offboardingForm.stepCounter', { current: currentStep + 1, total: STEPS.length })}
             </span>
           </div>
 
@@ -704,7 +714,7 @@ export function OffboardingRequestPage() {
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          {currentStep === 0 ? 'Cancel' : 'Back'}
+          {currentStep === 0 ? t('user.offboardingForm.cancelButton') : t('user.offboardingForm.backButton')}
         </Button>
 
         {currentStep < STEPS.length - 1 ? (
@@ -713,7 +723,7 @@ export function OffboardingRequestPage() {
             disabled={!canGoNext()}
             className="gap-2"
           >
-            Next
+            {t('user.offboardingForm.nextButton')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
@@ -727,7 +737,7 @@ export function OffboardingRequestPage() {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            Submit Request
+            {t('user.offboardingForm.submitButton')}
           </Button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { format, differenceInDays } from 'date-fns'
@@ -24,6 +25,7 @@ import { cn } from '@/lib/utils'
 const SUPPORT_EMAIL = 'it@vo-group.be'
 
 export function MyEquipmentPage() {
+  const { t } = useTranslation()
   const { user, profile } = useAuth()
   const { data: items = [], isLoading } = useQRCodesAssignedTo(user?.id)
 
@@ -47,19 +49,19 @@ export function MyEquipmentPage() {
 
   if (isLoading) return <PageLoading />
 
-  const firstName = profile?.first_name || 'there'
+  const firstName = profile?.first_name || t('user.myEquipment.fallbackName', { defaultValue: 'there' })
   const subjectPrefix = encodeURIComponent('[VO Hub] ')
-  const fromLine = encodeURIComponent(`Hi IT team,\n\nThis is ${firstName} (${user?.email || ''}).\n\n`)
+  const fromLine = encodeURIComponent(`${t('user.myEquipment.emailGreeting')}\n\n${t('user.myEquipment.emailIntro', { name: firstName, email: user?.email || '' })}\n\n`)
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 pb-12">
       <AdminPageHeader
-        title="My equipment"
+        title={t('user.myEquipment.pageTitle')}
         section="HUB"
         description={
           decoratedItems.length === 0
-            ? "You don't have any equipment checked out right now."
-            : `${decoratedItems.length} item${decoratedItems.length > 1 ? 's' : ''} assigned to you${overdueCount > 0 ? ` · ${overdueCount} overdue` : ''}.`
+            ? t('user.myEquipment.emptyDescription')
+            : `${t('user.myEquipment.itemsAssigned', { count: decoratedItems.length })}${overdueCount > 0 ? ` · ${t('user.myEquipment.overdueSuffix', { count: overdueCount })}` : ''}.`
         }
       />
 
@@ -69,14 +71,13 @@ export function MyEquipmentPage() {
             <div className="h-14 w-14 rounded-2xl bg-muted/40 flex items-center justify-center mb-3">
               <Package className="h-6 w-6 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium">Nothing on loan</p>
+            <p className="text-sm font-medium">{t('user.myEquipment.nothingOnLoan')}</p>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-              When IT hands you a laptop, phone or other equipment, it shows up here so you can
-              track when it's due and ask for help in one click.
+              {t('user.myEquipment.nothingOnLoanDescription')}
             </p>
             <Link to="/catalog" className="mt-4">
               <Button variant="outline" size="sm" className="gap-2">
-                Browse the catalog <ArrowRight className="h-3.5 w-3.5" />
+                {t('user.myEquipment.browseCatalog')} <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
           </CardContent>
@@ -100,16 +101,15 @@ export function MyEquipmentPage() {
 
       <Card className="mt-6">
         <CardContent className="p-5">
-          <p className="text-sm font-medium">Need something else?</p>
+          <p className="text-sm font-medium">{t('user.myEquipment.needSomethingElse')}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Anything outside what's already on loan goes through the catalog or the IT
-            request form. Returns happen at the IT desk — just bring the device.
+            {t('user.myEquipment.needSomethingElseDescription')}
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
-            <Link to="/catalog"><Button variant="outline" size="sm" className="gap-2"><Package className="h-3.5 w-3.5" /> Catalog</Button></Link>
-            <Link to="/it-request"><Button variant="outline" size="sm" className="gap-2"><ScanLine className="h-3.5 w-3.5" /> IT request</Button></Link>
+            <Link to="/catalog"><Button variant="outline" size="sm" className="gap-2"><Package className="h-3.5 w-3.5" /> {t('user.myEquipment.catalogButton')}</Button></Link>
+            <Link to="/it-request"><Button variant="outline" size="sm" className="gap-2"><ScanLine className="h-3.5 w-3.5" /> {t('user.myEquipment.itRequestButton')}</Button></Link>
             <a href={`mailto:${SUPPORT_EMAIL}?subject=${subjectPrefix}IT%20support&body=${fromLine}`}>
-              <Button variant="outline" size="sm" className="gap-2"><Mail className="h-3.5 w-3.5" /> Email IT</Button>
+              <Button variant="outline" size="sm" className="gap-2"><Mail className="h-3.5 w-3.5" /> {t('user.myEquipment.emailItButton')}</Button>
             </a>
           </div>
         </CardContent>
@@ -126,6 +126,7 @@ interface EquipmentCardProps {
 }
 
 function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
+  const { t } = useTranslation()
   const { user, profile } = useAuth()
   const showToast = useUIStore((s: any) => s.showToast)
   const createIssue = useCreateEquipmentIssue()
@@ -134,17 +135,17 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
   const [photoUrl, setPhotoUrl] = useState('')
   const [uploading, setUploading] = useState(false)
 
-  const productLineName = item.product_name || item.label || 'Device'
+  const productLineName = item.product_name || item.label || t('user.myEquipment.deviceFallback', { defaultValue: 'Device' })
 
   const handlePhoto = async (file: File) => {
     setUploading(true)
     try { setPhotoUrl(await uploadIssuePhoto(file)) }
-    catch (err: any) { showToast(err?.message || 'Upload failed', 'error') }
+    catch (err: any) { showToast(err?.message || t('user.myEquipment.uploadFailed'), 'error') }
     finally { setUploading(false) }
   }
 
   const submitIssue = async () => {
-    if (!desc.trim()) { showToast('Describe the problem first', 'error'); return }
+    if (!desc.trim()) { showToast(t('user.myEquipment.describeProblemFirst'), 'error'); return }
     try {
       await createIssue.mutateAsync({
         qr_code_id: item.id,
@@ -156,23 +157,23 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
         description: desc.trim(),
         photo_url: photoUrl || null,
       })
-      showToast('Problem reported — IT has been notified', 'success')
+      showToast(t('user.myEquipment.problemReported'), 'success')
       setIssueOpen(false); setDesc(''); setPhotoUrl('')
     } catch (err: any) {
-      showToast(err?.message || 'Could not send the report', 'error')
+      showToast(err?.message || t('user.myEquipment.couldNotSendReport'), 'error')
     }
   }
 
   const dueBadge = {
-    overdue:    { label: `${Math.abs(item.daysLeft || 0)} d overdue`, classes: 'bg-rose-500/12 text-rose-500 border-rose-500/30' },
-    soon:       { label: item.daysLeft === 0 ? 'due today' : `${item.daysLeft} d left`, classes: 'bg-amber-500/12 text-amber-600 border-amber-500/30' },
-    ok:         { label: `${item.daysLeft} d left`, classes: 'bg-emerald-500/12 text-emerald-600 border-emerald-500/30' },
-    'open-ended': { label: 'no return date set', classes: 'bg-muted text-muted-foreground border-border' },
+    overdue:    { label: t('user.myEquipment.overdueDays', { count: Math.abs(item.daysLeft || 0) }), classes: 'bg-rose-500/12 text-rose-500 border-rose-500/30' },
+    soon:       { label: item.daysLeft === 0 ? t('user.myEquipment.dueToday') : t('user.myEquipment.daysLeft', { count: item.daysLeft }), classes: 'bg-amber-500/12 text-amber-600 border-amber-500/30' },
+    ok:         { label: t('user.myEquipment.daysLeft', { count: item.daysLeft }), classes: 'bg-emerald-500/12 text-emerald-600 border-emerald-500/30' },
+    'open-ended': { label: t('user.myEquipment.noReturnDate'), classes: 'bg-muted text-muted-foreground border-border' },
   }[item.status as 'overdue' | 'soon' | 'ok' | 'open-ended']
 
   const productLine = productLineName
   const subject = `${subjectPrefix}${encodeURIComponent(`${productLine} — ${item.code}`)}`
-  const returnBody = `${fromLine}${encodeURIComponent(`I'd like to return:\n  · ${productLine}\n  · QR ${item.code}\n\nWhen would suit you?`)}`
+  const returnBody = `${fromLine}${encodeURIComponent(t('user.myEquipment.returnRequestBody', { product: productLine, code: item.code }))}`
 
   return (
     <Card>
@@ -200,13 +201,13 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
               {item.assigned_at && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Since {format(new Date(item.assigned_at), 'd MMM', { locale: fr })}
+                  {t('user.myEquipment.since', { date: format(new Date(item.assigned_at), 'd MMM', { locale: fr }) })}
                 </span>
               )}
               {item.expected && (
                 <span className="flex items-center gap-1">
                   <ArrowRight className="h-3 w-3" />
-                  Due {format(item.expected, 'd MMM yyyy', { locale: fr })}
+                  {t('user.myEquipment.due', { date: format(item.expected, 'd MMM yyyy', { locale: fr }) })}
                 </span>
               )}
             </div>
@@ -214,11 +215,11 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
             <div className="flex flex-wrap gap-2 mt-3">
               <a href={`mailto:${SUPPORT_EMAIL}?subject=Return%20-%20${subject}&body=${returnBody}`}>
                 <Button variant="outline" size="sm" className="gap-1.5">
-                  <ScanLine className="h-3 w-3" /> Request return
+                  <ScanLine className="h-3 w-3" /> {t('user.myEquipment.requestReturn')}
                 </Button>
               </a>
               <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => setIssueOpen(true)}>
-                <AlertCircle className="h-3 w-3" /> Report a problem
+                <AlertCircle className="h-3 w-3" /> {t('user.myEquipment.reportProblem')}
               </Button>
             </div>
           </div>
@@ -229,16 +230,16 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
       <Dialog open={issueOpen} onOpenChange={(v: boolean) => !v && setIssueOpen(false)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Report a problem — {productLineName}</DialogTitle>
+            <DialogTitle>{t('user.myEquipment.reportProblemTitle', { product: productLineName })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-1">
             <p className="text-xs text-muted-foreground">
-              <span className="font-mono">{item.code}</span> · IT gets notified right away and can follow up.
+              <span className="font-mono">{item.code}</span> · {t('user.myEquipment.itNotified')}
             </p>
             <Textarea
               value={desc}
               onChange={(e: any) => setDesc(e.target.value)}
-              placeholder="What's wrong? (cracked screen, won't charge, missing charger…)"
+              placeholder={t('user.myEquipment.problemPlaceholder')}
               rows={4}
               autoFocus
             />
@@ -253,14 +254,14 @@ function EquipmentCard({ item, subjectPrefix, fromLine }: EquipmentCardProps) {
               <label className="cursor-pointer inline-flex">
                 <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e: any) => e.target.files?.[0] && handlePhoto(e.target.files[0])} />
                 <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-input hover:bg-muted transition-colors">
-                  {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} Add a photo (optional)
+                  {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />} {t('user.myEquipment.addPhoto')}
                 </span>
               </label>
             )}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setIssueOpen(false)}>Cancel</Button>
-            <Button onClick={submitIssue} disabled={createIssue.isPending || uploading}>Send report</Button>
+            <Button variant="ghost" onClick={() => setIssueOpen(false)}>{t('user.myEquipment.cancel')}</Button>
+            <Button onClick={submitIssue} disabled={createIssue.isPending || uploading}>{t('user.myEquipment.sendReport')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '@/lib/auth'
@@ -39,12 +40,13 @@ function getOptionsSummary(options: any) {
 
 // ── Steps ──
 const STEPS = [
-  { id: 'cart', label: 'Cart', icon: ShoppingCart },
-  { id: 'details', label: 'Details', icon: Calendar },
-  { id: 'review', label: 'Review', icon: CheckCircle },
+  { id: 'cart', icon: ShoppingCart },
+  { id: 'details', icon: Calendar },
+  { id: 'review', icon: CheckCircle },
 ]
 
 function StepProgress({ currentStep  }: any) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-1 mb-8">
       {STEPS.map((step: any, idx: any) => {
@@ -63,7 +65,7 @@ function StepProgress({ currentStep  }: any) {
                 {isDone ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
               </div>
               <span className={cn('text-[10px] font-medium', isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground')}>
-                {step.label}
+                {t(`user.cartPage.stepLabels.${step.id}`, { defaultValue: step.id })}
               </span>
             </div>
             {idx < STEPS.length - 1 && (
@@ -78,6 +80,7 @@ function StepProgress({ currentStep  }: any) {
 
 // ── Item Options Editor (category-aware) ──
 function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const options = item.options || {}
   const services = options.services || {}
@@ -120,7 +123,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
         className="flex items-center gap-1.5 text-[11px] text-primary hover:underline"
       >
         <Settings2 className="h-3 w-3" />
-        {getOptionsSummary(options).length > 0 ? 'Edit options' : 'Configure options'}
+        {getOptionsSummary(options).length > 0 ? t('user.cartPage.editOptions') : t('user.cartPage.configureOptions')}
         {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
       </button>
 
@@ -134,7 +137,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
           {filteredPlans.length > 0 && (
             <div className="space-y-1.5">
               <Label className="text-[11px] flex items-center gap-1.5">
-                <CreditCard className="h-3 w-3 text-muted-foreground" /> Subscription Plan
+                <CreditCard className="h-3 w-3 text-muted-foreground" /> {t('user.cartPage.subscriptionPlan')}
               </Label>
               {filteredPlans.map((plan: any) => {
                 const isSelected = subscriptionPlan === plan.name
@@ -164,7 +167,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 
           {availableAccessories.length > 0 && (
             <div className="space-y-1.5">
-              <Label className="text-[11px]">Accessories</Label>
+              <Label className="text-[11px]">{t('user.cartPage.accessories')}</Label>
               {availableAccessories.map((acc: any) => (
                 <label key={acc} className={cn(
                   'flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer transition-all',
@@ -178,7 +181,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
           )}
 
           <Button size="sm" className="h-7 text-xs gap-1" onClick={handleSave}>
-            <Check className="h-3 w-3" /> Apply
+            <Check className="h-3 w-3" /> {t('user.cartPage.apply')}
           </Button>
         </motion.div>
       )}
@@ -196,6 +199,7 @@ function ItemOptionsEditor({ item, subscriptionPlans, onSave  }: any) {
 
 // ── Main Cart Page ──
 export function CartPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
   const showToast = useUIStore((s: any) => s.showToast)
@@ -229,7 +233,7 @@ export function CartPage() {
     // than physically exist. product_stock is hydrated from the catalog view.
     const stockCap = Number.isFinite(item.product_stock) ? Math.max(0, item.product_stock) : null
     if (stockCap !== null && newQty > stockCap) {
-      showToast(`Only ${stockCap} available in stock`, 'error')
+      showToast(t('user.cartPage.stockLimitToast', { count: stockCap }), 'error')
       return
     }
     updateItem.mutate({ id: item.id, quantity: newQty })
@@ -243,7 +247,7 @@ export function CartPage() {
     try {
       const newRequestId = await checkout.mutateAsync({
         userId: user!.id,
-        projectName: projectName || 'Equipment Request',
+        projectName: projectName || t('user.cartPage.defaultProjectName'),
         projectDescription: null,
         globalComment: globalComment || null,
         pickupDate,
@@ -275,13 +279,13 @@ export function CartPage() {
       const submitterName = profile ? `${profile.first_name} ${profile.last_name}` : user?.email
       sendEmail({
         to: (user?.email || ""),
-        subject: 'Your equipment request has been received',
-        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || 'Equipment'} (${totalItems} item${totalItems > 1 ? 's' : ''})` }),
+        subject: t('user.cartPage.confirmationEmailSubject'),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || t('user.cartPage.defaultEquipmentLabel')} (${t('user.cartPage.itemsCount', { count: totalItems })})` }),
         isHtml: true,
       })
       navigate('/request-sent')
     } catch (err: any) {
-      showToast(err.message || 'Failed to submit request', 'error')
+      showToast(err.message || t('user.cartPage.submitFailedToast'), 'error')
     }
   }
 
@@ -296,9 +300,9 @@ export function CartPage() {
   if (items.length === 0 && step === 0) {
     return (
       <div className="max-w-2xl mx-auto py-10 px-4">
-        <EmptyState icon={ShoppingCart} title="Your cart is empty" description="Browse the catalog and add equipment to your cart.">
+        <EmptyState icon={ShoppingCart} title={t('user.cartPage.emptyCartTitle')} description={t('user.cartPage.emptyCartDescription')}>
           <Link to="/catalog">
-            <Button className="gap-2"><Package className="h-4 w-4" /> Browse Catalog</Button>
+            <Button className="gap-2"><Package className="h-4 w-4" /> {t('user.cartPage.browseCatalog')}</Button>
           </Link>
         </EmptyState>
       </div>
@@ -309,9 +313,9 @@ export function CartPage() {
     <div className="max-w-2xl mx-auto py-10 px-4">
       {/* Header */}
       <motion.div className="text-center mb-6" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <Badge variant="outline" className="mb-3 text-xs">{totalItems} item{totalItems !== 1 ? 's' : ''}</Badge>
-        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">Equipment Request</h1>
-        <p className="text-muted-foreground mt-2">Review your selection and submit your request.</p>
+        <Badge variant="outline" className="mb-3 text-xs">{t('user.cartPage.itemsCount', { count: totalItems })}</Badge>
+        <h1 className="text-3xl font-display font-bold tracking-tight text-gradient-primary">{t('user.cartPage.pageTitle')}</h1>
+        <p className="text-muted-foreground mt-2">{t('user.cartPage.pageSubtitle')}</p>
       </motion.div>
 
       <StepProgress currentStep={step} />
@@ -368,11 +372,11 @@ export function CartPage() {
                       </div>
                       {Number.isFinite(item.product_stock) && (
                         <span className={`text-[10px] ${item.quantity >= item.product_stock ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>
-                          {item.quantity >= item.product_stock ? 'Max reached' : `${item.product_stock} in stock`}
+                          {item.quantity >= item.product_stock ? t('user.cartPage.maxReached') : t('user.cartPage.inStock', { count: item.product_stock })}
                         </span>
                       )}
                       <Button variant="ghost" size="sm" className="h-6 text-[10px] text-muted-foreground hover:text-destructive gap-1" onClick={() => removeItem.mutate(item.id)}>
-                        <Trash2 className="h-3 w-3" /> Remove
+                        <Trash2 className="h-3 w-3" /> {t('user.cartPage.remove')}
                       </Button>
                     </div>
                   </div>
@@ -385,18 +389,18 @@ export function CartPage() {
               <CardContent className="p-4 space-y-2">
                 <Label className="flex items-center gap-2 text-sm">
                   <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-                  Comment (optional)
+                  {t('user.cartPage.commentOptional')}
                 </Label>
-                <Textarea value={globalComment} onChange={(e: any) => setGlobalComment(e.target.value)} placeholder="Any notes for the IT team..." rows={2} />
+                <Textarea value={globalComment} onChange={(e: any) => setGlobalComment(e.target.value)} placeholder={t('user.cartPage.commentPlaceholder')} rows={2} />
               </CardContent>
             </Card>
 
             <div className="flex items-center justify-between pt-2">
               <Link to="/catalog">
-                <Button variant="ghost" className="gap-2"><ArrowLeft className="h-4 w-4" /> Continue Shopping</Button>
+                <Button variant="ghost" className="gap-2"><ArrowLeft className="h-4 w-4" /> {t('user.cartPage.continueShopping')}</Button>
               </Link>
               <Button onClick={() => setStep(1)} disabled={!canGoToDetails} className="gap-2">
-                Next <ArrowRight className="h-4 w-4" />
+                {t('user.cartPage.next')} <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -408,12 +412,12 @@ export function CartPage() {
             <Card variant="elevated">
               <CardContent className="p-6 space-y-5">
                 <div className="space-y-2">
-                  <Label>Project / Reason *</Label>
-                  <Input value={projectName} onChange={(e: any) => setProjectName(e.target.value)} placeholder="e.g. Client presentation, New hire setup..." />
+                  <Label>{t('user.cartPage.projectReasonLabel')}</Label>
+                  <Input value={projectName} onChange={(e: any) => setProjectName(e.target.value)} placeholder={t('user.cartPage.projectReasonPlaceholder')} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Pickup Date *</Label>
+                    <Label>{t('user.cartPage.pickupDateLabel')}</Label>
                     <Input
                       type="date"
                       value={pickupDate}
@@ -422,7 +426,7 @@ export function CartPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Return Date *</Label>
+                    <Label>{t('user.cartPage.returnDateLabel')}</Label>
                     <Input
                       type="date"
                       value={returnDate}
@@ -434,27 +438,27 @@ export function CartPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Pickup contact</Label>
+                    <Label>{t('user.cartPage.pickupContactLabel')}</Label>
                     <Input
                       value={pickupContact}
                       onChange={(e: any) => setPickupContact(e.target.value)}
-                      placeholder="First & last name (if not you)"
+                      placeholder={t('user.cartPage.contactPlaceholder')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Return contact</Label>
+                    <Label>{t('user.cartPage.returnContactLabel')}</Label>
                     <Input
                       value={returnContact}
                       onChange={(e: any) => setReturnContact(e.target.value)}
-                      placeholder="First & last name (if not you)"
+                      placeholder={t('user.cartPage.contactPlaceholder')}
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
             <div className="flex items-center justify-between pt-2">
-              <Button variant="ghost" className="gap-2" onClick={() => setStep(0)}><ArrowLeft className="h-4 w-4" /> Back</Button>
-              <Button onClick={() => setStep(2)} disabled={!canGoToReview} className="gap-2">Review <ArrowRight className="h-4 w-4" /></Button>
+              <Button variant="ghost" className="gap-2" onClick={() => setStep(0)}><ArrowLeft className="h-4 w-4" /> {t('user.cartPage.back')}</Button>
+              <Button onClick={() => setStep(2)} disabled={!canGoToReview} className="gap-2">{t('user.cartPage.review')} <ArrowRight className="h-4 w-4" /></Button>
             </div>
           </motion.div>
         )}
@@ -464,34 +468,34 @@ export function CartPage() {
           <motion.div key="review" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
             <Card variant="elevated">
               <CardContent className="p-6 space-y-4">
-                <h3 className="font-semibold text-base">Request Summary</h3>
+                <h3 className="font-semibold text-base">{t('user.cartPage.requestSummary')}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Requester</span>
+                    <span className="text-muted-foreground">{t('user.cartPage.requester')}</span>
                     <p className="font-medium">{profile?.first_name} {profile?.last_name}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Project</span>
+                    <span className="text-muted-foreground">{t('user.cartPage.project')}</span>
                     <p className="font-medium">{projectName || '—'}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Pickup</span>
+                    <span className="text-muted-foreground">{t('user.cartPage.pickup')}</span>
                     <p className="font-medium">{pickupDate}</p>
                     {pickupContact.trim() && (
-                      <p className="text-xs text-muted-foreground mt-0.5">by {pickupContact}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{t('user.cartPage.byContact', { name: pickupContact })}</p>
                     )}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Return</span>
+                    <span className="text-muted-foreground">{t('user.cartPage.return')}</span>
                     <p className="font-medium">{returnDate}</p>
                     {returnContact.trim() && (
-                      <p className="text-xs text-muted-foreground mt-0.5">by {returnContact}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{t('user.cartPage.byContact', { name: returnContact })}</p>
                     )}
                   </div>
                 </div>
                 {globalComment && (
                   <div className="text-sm border-t pt-3">
-                    <span className="text-muted-foreground">Comment</span>
+                    <span className="text-muted-foreground">{t('user.cartPage.comment')}</span>
                     <p>{globalComment}</p>
                   </div>
                 )}
@@ -500,7 +504,7 @@ export function CartPage() {
 
             <Card variant="elevated">
               <CardContent className="p-6">
-                <h3 className="font-semibold text-base mb-3">Items ({totalItems})</h3>
+                <h3 className="font-semibold text-base mb-3">{t('user.cartPage.itemsCount', { count: totalItems })}</h3>
                 <div className="divide-y">
                   {items.map((item: any) => {
                     const tags = getOptionsSummary(item.options)
@@ -535,10 +539,10 @@ export function CartPage() {
             </Card>
 
             <div className="flex items-center justify-between pt-2">
-              <Button variant="ghost" className="gap-2" onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> Edit</Button>
+              <Button variant="ghost" className="gap-2" onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> {t('user.cartPage.edit')}</Button>
               <Button onClick={handleCheckout} disabled={checkout.isPending} className="gap-2">
                 {checkout.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Submit Request
+                {t('user.cartPage.submitRequest')}
               </Button>
             </div>
           </motion.div>

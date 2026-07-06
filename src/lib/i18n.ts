@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { adminEn, adminFr, adminNl } from './i18n-admin'
 import { genEn, genFr, genNl } from './i18n-admin-generated'
+import { userGenEn, userGenFr, userGenNl } from './i18n-user-generated'
 
 // Phase-1 i18n: the high-traffic user-facing surface (nav, hub,
 // profile, my-equipment, common actions). Admin strings stay in EN
@@ -210,9 +211,9 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: { ...en, admin: { ...adminEn, ...genEn } } },
-      fr: { translation: { ...fr, admin: { ...adminFr, ...genFr } } },
-      nl: { translation: { ...nl, admin: { ...adminNl, ...genNl } } },
+      en: { translation: { ...en, admin: { ...adminEn, ...genEn }, user: userGenEn } },
+      fr: { translation: { ...fr, admin: { ...adminFr, ...genFr }, user: userGenFr } },
+      nl: { translation: { ...nl, admin: { ...adminNl, ...genNl }, user: userGenNl } },
     },
     fallbackLng: 'fr',
     supportedLngs: ['fr', 'en', 'nl'],
