@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { reserveOnboardingKit } from '@/lib/api/onboarding-kit'
+import { useProducts } from '@/hooks/use-products'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { WelcomeEmailSection } from '@/pages/admin/welcome/WelcomeEmailSection'
 
@@ -123,17 +124,29 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
   const data = req.data || {}
   const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || data.name || 'Unknown'
   const showToast = useUIStore((s: any) => s.showToast)
+  const { data: products = [] } = useProducts()
   const [reserving, setReserving] = useState(false)
+  const [kitOpen, setKitOpen] = useState(false)
+  const [kitSearch, setKitSearch] = useState('')
 
-  const handleReserveKit = async () => {
+  const kitProducts = useMemo(() => {
+    const q = kitSearch.trim().toLowerCase()
+    return (products as any[])
+      .filter((p: any) => p.is_visible !== false)
+      .filter((p: any) => !q || (p.name || '').toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q))
+  }, [products, kitSearch])
+
+  const handleReserveKit = async (productId: string, productName: string) => {
     setReserving(true)
     try {
-      const out = await reserveOnboardingKit(req)
-      const productNames = out.reserved.map((r: any) => r.product_name).join(', ')
-      showToast(t('admin.onboardingRequests.kitReserved', { products: productNames }), 'success')
-      if (out.missing.length) {
-        showToast(t('admin.onboardingRequests.missingInCatalog', { items: out.missing.map((m: any) => m.tag).join(', ') }), 'info')
-      }
+      const out = await reserveOnboardingKit(req, productId)
+      showToast(
+        out.alreadyExisted
+          ? t('admin.onboardingKit.alreadyReserved')
+          : t('admin.onboardingKit.reserved', { name: out.reserved[0]?.product_name || productName }),
+        out.alreadyExisted ? 'info' : 'success',
+      )
+      setKitOpen(false)
     } catch (err: any) {
       showToast(err?.message || t('admin.onboardingRequests.reserveKitError'), 'error')
     } finally {
@@ -165,14 +178,59 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
           <CardContent className="p-4 flex items-center gap-3">
             <Package className="h-4 w-4 text-primary shrink-0" />
             <span className="text-sm text-muted-foreground flex-1">
-              {t('admin.onboardingRequests.reserveKitDescription')}
+              {t('admin.onboardingKit.cardDescription')}
             </span>
-            <Button variant="outline" size="sm" onClick={handleReserveKit} disabled={reserving} className="gap-1.5 text-xs">
-              <Package className="h-3.5 w-3.5" /> {reserving ? t('admin.onboardingRequests.reserving') : t('admin.onboardingRequests.reserveKit')}
+            <Button variant="outline" size="sm" onClick={() => { setKitSearch(''); setKitOpen(true) }} disabled={reserving} className="gap-1.5 text-xs">
+              <Package className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.reserveKit')}
             </Button>
           </CardContent>
         </Card>
       )}
+
+      {/* Laptop picker */}
+      <Dialog open={kitOpen} onOpenChange={(v: boolean) => !v && setKitOpen(false)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t('admin.onboardingKit.chooseTitle')}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground -mt-1">{t('admin.onboardingKit.chooseSubtitle')}</p>
+          <Input
+            value={kitSearch}
+            onChange={(e: any) => setKitSearch(e.target.value)}
+            placeholder={t('admin.onboardingKit.searchPlaceholder')}
+            className="mt-1"
+          />
+          <div className="max-h-[46vh] overflow-y-auto -mx-1 px-1 space-y-1.5">
+            {kitProducts.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">{t('admin.onboardingKit.noProducts')}</p>
+            ) : kitProducts.map((p: any) => {
+              const out = (p.total_stock ?? 0) <= 0
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => !reserving && handleReserveKit(p.id, p.name)}
+                  disabled={reserving}
+                  className="flex w-full items-center gap-3 rounded-xl border border-border/60 p-2.5 text-left transition hover:border-primary/40 hover:bg-muted/40 disabled:opacity-60"
+                >
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+                    {p.image_url ? <img src={p.image_url} alt="" className="h-full w-full object-cover" /> : <Package className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">{p.category_name || ''}</p>
+                  </div>
+                  <Badge variant="outline" className={cn('text-[10px] shrink-0', out ? 'text-rose-500 border-rose-500/30' : 'text-emerald-600 border-emerald-500/30')}>
+                    {out ? t('admin.onboardingKit.outOfStock') : t('admin.onboardingKit.inStock', { count: p.total_stock })}
+                  </Badge>
+                </button>
+              )
+            })}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setKitOpen(false)} disabled={reserving}>{t('admin.onboardingKit.cancel')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {req.status === 'pending' && (
         <Card variant="elevated">
