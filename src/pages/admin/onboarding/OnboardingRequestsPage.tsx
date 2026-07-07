@@ -131,9 +131,18 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
 
   const kitProducts = useMemo(() => {
     const q = kitSearch.trim().toLowerCase()
-    return (products as any[])
-      .filter((p: any) => p.is_visible !== false)
-      .filter((p: any) => !q || (p.name || '').toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q))
+    // Only laptops / PCs — a starter kit isn't an iPad, a charger or a cable.
+    // Match on category or name; if the catalog uses none of these words, fall
+    // back to every visible product so the picker is never empty.
+    const LAPTOP_KW = ['laptop', 'pc', 'ordinateur', 'portable', 'macbook', 'notebook', 'computer']
+    const isLaptop = (p: any) => {
+      const hay = `${p.category_name || ''} ${p.name || ''}`.toLowerCase()
+      return LAPTOP_KW.some((k) => hay.includes(k))
+    }
+    const visible = (products as any[]).filter((p: any) => p.is_visible !== false)
+    const laptops = visible.filter(isLaptop)
+    const base = laptops.length ? laptops : visible
+    return base.filter((p: any) => !q || (p.name || '').toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q))
   }, [products, kitSearch])
 
   const handleReserveKit = async (productId: string, productName: string) => {
