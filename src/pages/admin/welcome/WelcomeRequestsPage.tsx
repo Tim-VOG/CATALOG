@@ -30,6 +30,7 @@ function requestToRecipient(req: any, personalEmail: any) {
     email,
     personal_email: (personalEmail || data.personal_email || '').trim().toLowerCase(),
     team: data.business_unit || data.company || '',
+    company: data.company || data.business_unit || '',
     department: data.profile || data.job_title || '',
     start_date: data.first_day || null,
     language: (data.language || 'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en',

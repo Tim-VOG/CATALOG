@@ -433,6 +433,7 @@ export function buildMjmlFromBlocks(blocksConfig: any, language: any, recipient:
     email: recipient.email || '',
     personal_email: recipient.personal_email || '',
     team: recipient.team || '',
+    company: recipient.company || recipient.team || '',
     department: recipient.department || '',
     start_date: recipient.start_date
       ? new Date(recipient.start_date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-GB', {

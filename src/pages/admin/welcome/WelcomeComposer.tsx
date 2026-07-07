@@ -82,10 +82,11 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       }))
       setBlocksConfig(initial)
       const name = recipient?.first_name || 'Name'
+      const company = recipient?.company || recipient?.team || 'VO Group'
       setSubject(
         language === 'fr'
-          ? `Bienvenue chez VO Group, ${name}`
-          : `Welcome to VO Group, ${name}`
+          ? `Bienvenue chez ${company}, ${name}`
+          : `Welcome to ${company}, ${name}`
       )
       setInitialized(true)
     }
@@ -149,7 +150,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
         recipient_name: `${recipient.first_name || ''} ${recipient.last_name || ''}`.trim(),
         recipient_email: recipient.email,
         language,
-        subject: subject || `Welcome to VO Group, ${recipient.first_name}!`,
+        subject: subject || `Welcome to ${recipient.company || recipient.team || 'VO Group'}, ${recipient.first_name}!`,
         blocks_config: currentBlocks,
         status: 'draft',
         created_by: user?.id,
@@ -180,7 +181,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       const mjmlSource = buildPreview()
       const { default: mjml2html } = await import('mjml-browser')
       const { html } = mjml2html(mjmlSource, { validationLevel: 'soft' })
-      const subjectLine = subject || `Welcome to VO Group, ${recipient.first_name}!`
+      const subjectLine = subject || `Welcome to ${recipient.company || recipient.team || 'VO Group'}, ${recipient.first_name}!`
 
       const result = await sendEmail({
         to: deliveryEmail,
