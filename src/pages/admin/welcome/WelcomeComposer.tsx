@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useOnboardingBlockTemplates, useOnboardingEmailsByRequest, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
 import { useUpdateItRequest } from '@/hooks/use-it-requests'
+import { useProfiles } from '@/hooks/use-profiles'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildMjmlFromBlocks } from '@/lib/onboarding-mjml'
 import { DEFAULT_BLOCK_TEMPLATES } from '@/lib/onboarding-defaults'
@@ -10,6 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { BlockEditor } from '@/components/admin/onboarding/BlockEditor'
@@ -53,6 +56,16 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
   const [language, setLanguage] = useState((recipient?.language || 'fr') === 'fr' ? 'fr' : 'en')
   const [subject, setSubject] = useState('')
   const [blocksConfig, setBlocksConfig] = useState<any[]>([])
+  const [ccManagers, setCcManagers] = useState(false)
+
+  // Managers (role = 'manager') that can be CC'd on the welcome email.
+  const { data: allProfiles = [] } = useProfiles()
+  const managerEmails = useMemo(
+    () => (allProfiles as any[])
+      .filter((p: any) => p.role === 'manager' && p.email && p.is_active !== false)
+      .map((p: any) => p.email as string),
+    [allProfiles],
+  )
   const blocksRef = useRef(blocksConfig)
   useEffect(() => { blocksRef.current = blocksConfig }, [blocksConfig])
 
@@ -185,6 +198,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
       const result = await sendEmail({
         to: deliveryEmail,
+        cc: ccManagers && managerEmails.length ? managerEmails : undefined,
         subject: subjectLine,
         body: html,
         isHtml: true,
@@ -275,6 +289,24 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
             <Label className="text-xs">{t('admin.welcomeComposer.subjectLabel')}</Label>
             <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} />
           </div>
+        </div>
+
+        {/* CC managers option */}
+        <div className="px-5 pb-4 -mt-1 border-b border-border/50">
+          <label className={cn(
+            'inline-flex items-center gap-2.5 rounded-xl border px-3 py-2 text-sm transition',
+            managerEmails.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted/30',
+            ccManagers && 'border-primary/40 bg-primary/5',
+          )}>
+            <Switch checked={ccManagers} onCheckedChange={setCcManagers} disabled={managerEmails.length === 0} />
+            <span className="text-foreground">{t('admin.welcomeComposer.ccManagers')}</span>
+            <Badge variant="outline" className="text-[10px]">{managerEmails.length}</Badge>
+          </label>
+          {ccManagers && managerEmails.length > 0 && (
+            <p className="mt-1.5 text-[11px] text-muted-foreground truncate">
+              {t('admin.welcomeComposer.ccLabel')} {managerEmails.join(', ')}
+            </p>
+          )}
         </div>
 
         {/* Editor + preview */}
