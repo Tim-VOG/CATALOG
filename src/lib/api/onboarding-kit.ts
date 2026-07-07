@@ -81,3 +81,33 @@ export async function reserveOnboardingKit(
 
   return { loan_request_id: created.id, reserved: [{ product_id: product.id, product_name: product.name }], alreadyExisted: false }
 }
+
+/** The kit (loan_request + items) reserved for this onboarding, or null. */
+export async function getOnboardingKit(itRequestId: string) {
+  const { data: lr } = await supabase
+    .from('loan_requests')
+    .select('id, status')
+    .eq('onboarding_request_id', itRequestId)
+    .limit(1)
+    .maybeSingle()
+  if (!lr) return null
+  const { data: items } = await supabase
+    .from('loan_request_items_with_details')
+    .select('product_name, quantity')
+    .eq('request_id', lr.id)
+  return { id: lr.id, status: lr.status, items: (items || []) as any[] }
+}
+
+/** Remove the reserved kit for this onboarding (cascade drops the items). */
+export async function removeOnboardingKit(itRequestId: string) {
+  const { data: lr } = await supabase
+    .from('loan_requests')
+    .select('id')
+    .eq('onboarding_request_id', itRequestId)
+    .limit(1)
+    .maybeSingle()
+  if (lr) {
+    const { error } = await supabase.from('loan_requests').delete().eq('id', lr.id)
+    if (error) throw error
+  }
+}

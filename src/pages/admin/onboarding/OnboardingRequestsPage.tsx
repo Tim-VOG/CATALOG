@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useItRequests, useUpdateItRequest, useDeleteItRequest } from '@/hooks/use-it-requests'
 import { useOnboardingEmails } from '@/hooks/use-onboarding'
@@ -17,7 +17,7 @@ import { PageLoading } from '@/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
 import { EmptyState } from '@/components/common/EmptyState'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
-import { reserveOnboardingKit } from '@/lib/api/onboarding-kit'
+import { reserveOnboardingKit, getOnboardingKit, removeOnboardingKit } from '@/lib/api/onboarding-kit'
 import { useProducts } from '@/hooks/use-products'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { WelcomeEmailSection } from '@/pages/admin/welcome/WelcomeEmailSection'
@@ -129,6 +129,26 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
   const [kitOpen, setKitOpen] = useState(false)
   const [kitSearch, setKitSearch] = useState('')
   const [kitCategory, setKitCategory] = useState('') // '' = all categories
+  const [kit, setKit] = useState<any>(null) // existing reservation for this onboarding
+
+  const loadKit = async () => {
+    try { setKit(await getOnboardingKit(req.id)) } catch { /* table/loan may not exist yet */ }
+  }
+  useEffect(() => { loadKit() /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [req.id])
+
+  const handleRemoveKit = async () => {
+    if (!confirm(t('admin.onboardingKit.confirmRemove'))) return
+    setReserving(true)
+    try {
+      await removeOnboardingKit(req.id)
+      showToast(t('admin.onboardingKit.removed'), 'success')
+      await loadKit()
+    } catch (err: any) {
+      showToast(err?.message || t('admin.onboardingKit.removeError'), 'error')
+    } finally {
+      setReserving(false)
+    }
+  }
 
   const LAPTOP_KW = ['laptop', 'pc', 'ordinateur', 'portable', 'macbook', 'notebook', 'computer']
 
@@ -163,6 +183,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
         out.alreadyExisted ? 'info' : 'success',
       )
       setKitOpen(false)
+      await loadKit()
     } catch (err: any) {
       showToast(err?.message || t('admin.onboardingRequests.reserveKitError'), 'error')
     } finally {
@@ -193,12 +214,26 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
         <Card variant="elevated">
           <CardContent className="p-4 flex items-center gap-3">
             <Package className="h-4 w-4 text-primary shrink-0" />
-            <span className="text-sm text-muted-foreground flex-1">
-              {t('admin.onboardingKit.cardDescription')}
-            </span>
-            <Button variant="outline" size="sm" onClick={() => { setKitSearch(''); setKitCategory(autoLaptopCategory()); setKitOpen(true) }} disabled={reserving} className="gap-1.5 text-xs">
-              <Package className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.reserveKit')}
-            </Button>
+            {kit && kit.items?.length ? (
+              <>
+                <span className="text-sm flex-1">
+                  <span className="text-emerald-600 font-medium">✓ </span>
+                  {t('admin.onboardingKit.reservedLabel', { items: kit.items.map((i: any) => i.product_name).join(', ') })}
+                </span>
+                <Button variant="ghost" size="sm" onClick={handleRemoveKit} disabled={reserving} className="gap-1.5 text-xs text-muted-foreground hover:text-destructive">
+                  <Trash2 className="h-3.5 w-3.5" /> {t('admin.onboardingKit.remove')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="text-sm text-muted-foreground flex-1">
+                  {t('admin.onboardingKit.cardDescription')}
+                </span>
+                <Button variant="outline" size="sm" onClick={() => { setKitSearch(''); setKitCategory(autoLaptopCategory()); setKitOpen(true) }} disabled={reserving} className="gap-1.5 text-xs">
+                  <Package className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.reserveKit')}
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
