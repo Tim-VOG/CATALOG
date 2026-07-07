@@ -219,13 +219,13 @@ export async function sendStatusChangeEmail(newStatus: any, { request, requestTy
 
 
 export const formatDate = (d: any) =>
-  new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
 export const formatDateTime = (d: any) =>
-  new Date(d).toLocaleString('en-GB', {
+  d ? new Date(d).toLocaleString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
-  })
+  }) : '—'
 
 export function buildTimeline(request: any) {
   const events = [{ label: 'Submitted', date: request.created_at }]
