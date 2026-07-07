@@ -128,22 +128,29 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
   const [reserving, setReserving] = useState(false)
   const [kitOpen, setKitOpen] = useState(false)
   const [kitSearch, setKitSearch] = useState('')
+  const [kitCategory, setKitCategory] = useState('') // '' = all categories
+
+  const LAPTOP_KW = ['laptop', 'pc', 'ordinateur', 'portable', 'macbook', 'notebook', 'computer']
+
+  const kitCategories = useMemo(() => {
+    const set = new Set<string>()
+    for (const p of products as any[]) {
+      if (p.is_visible !== false && p.category_name) set.add(p.category_name)
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [products])
+
+  // Best guess at the "laptops/PC" category, used to pre-select the filter.
+  const autoLaptopCategory = () =>
+    kitCategories.find((c) => LAPTOP_KW.some((k) => c.toLowerCase().includes(k))) || ''
 
   const kitProducts = useMemo(() => {
     const q = kitSearch.trim().toLowerCase()
-    // Only laptops / PCs — a starter kit isn't an iPad, a charger or a cable.
-    // Match on category or name; if the catalog uses none of these words, fall
-    // back to every visible product so the picker is never empty.
-    const LAPTOP_KW = ['laptop', 'pc', 'ordinateur', 'portable', 'macbook', 'notebook', 'computer']
-    const isLaptop = (p: any) => {
-      const hay = `${p.category_name || ''} ${p.name || ''}`.toLowerCase()
-      return LAPTOP_KW.some((k) => hay.includes(k))
-    }
-    const visible = (products as any[]).filter((p: any) => p.is_visible !== false)
-    const laptops = visible.filter(isLaptop)
-    const base = laptops.length ? laptops : visible
-    return base.filter((p: any) => !q || (p.name || '').toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q))
-  }, [products, kitSearch])
+    return (products as any[])
+      .filter((p: any) => p.is_visible !== false)
+      .filter((p: any) => !kitCategory || p.category_name === kitCategory)
+      .filter((p: any) => !q || (p.name || '').toLowerCase().includes(q) || (p.category_name || '').toLowerCase().includes(q))
+  }, [products, kitSearch, kitCategory])
 
   const handleReserveKit = async (productId: string, productName: string) => {
     setReserving(true)
@@ -189,7 +196,7 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
             <span className="text-sm text-muted-foreground flex-1">
               {t('admin.onboardingKit.cardDescription')}
             </span>
-            <Button variant="outline" size="sm" onClick={() => { setKitSearch(''); setKitOpen(true) }} disabled={reserving} className="gap-1.5 text-xs">
+            <Button variant="outline" size="sm" onClick={() => { setKitSearch(''); setKitCategory(autoLaptopCategory()); setKitOpen(true) }} disabled={reserving} className="gap-1.5 text-xs">
               <Package className="h-3.5 w-3.5" /> {t('admin.onboardingRequests.reserveKit')}
             </Button>
           </CardContent>
@@ -209,7 +216,26 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
             placeholder={t('admin.onboardingKit.searchPlaceholder')}
             className="mt-1"
           />
-          <div className="max-h-[46vh] overflow-y-auto -mx-1 px-1 space-y-1.5">
+          {kitCategories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => setKitCategory('')}
+                className={cn('rounded-full px-3 py-1 text-xs font-medium transition', kitCategory === '' ? 'bg-foreground text-background' : 'bg-muted/60 text-muted-foreground hover:bg-muted')}
+              >
+                {t('admin.onboardingKit.allCategories')}
+              </button>
+              {kitCategories.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setKitCategory(c)}
+                  className={cn('rounded-full px-3 py-1 text-xs font-medium transition', kitCategory === c ? 'bg-foreground text-background' : 'bg-muted/60 text-muted-foreground hover:bg-muted')}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="max-h-[42vh] overflow-y-auto -mx-1 px-1 space-y-1.5">
             {kitProducts.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">{t('admin.onboardingKit.noProducts')}</p>
             ) : kitProducts.map((p: any) => {

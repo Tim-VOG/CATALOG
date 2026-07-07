@@ -88,6 +88,7 @@ export const adminEn = {
   onboardingKit: {
     cardDescription: 'Reserve a laptop for the new hire (charger comes with it). Phone stays manual.',
     chooseTitle: 'Choose a laptop',
+    allCategories: 'All',
     chooseSubtitle: 'Pick the laptop from the catalog. The charger ships with it.',
     searchPlaceholder: 'Search a product…',
     noProducts: 'No products in the catalog.',
@@ -437,6 +438,7 @@ export const adminFr: typeof adminEn = {
   onboardingKit: {
     cardDescription: 'Réserve un laptop pour le nouvel arrivant (le chargeur vient avec). Le téléphone reste manuel.',
     chooseTitle: 'Choisir un laptop',
+    allCategories: 'Toutes',
     chooseSubtitle: 'Choisis le laptop dans le catalogue. Le chargeur est fourni avec.',
     searchPlaceholder: 'Rechercher un produit…',
     noProducts: 'Aucun produit dans le catalogue.',
@@ -786,6 +788,7 @@ export const adminNl: typeof adminEn = {
   onboardingKit: {
     cardDescription: 'Reserveer een laptop voor de nieuwe medewerker (lader hoort erbij). Telefoon blijft handmatig.',
     chooseTitle: 'Kies een laptop',
+    allCategories: 'Alle',
     chooseSubtitle: 'Kies de laptop uit de catalogus. De lader wordt meegeleverd.',
     searchPlaceholder: 'Zoek een product…',
     noProducts: 'Geen producten in de catalogus.',
