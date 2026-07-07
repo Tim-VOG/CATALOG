@@ -6,12 +6,12 @@ import { useProfiles } from '@/hooks/use-profiles'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildMjmlFromBlocks } from '@/lib/onboarding-mjml'
 import { DEFAULT_BLOCK_TEMPLATES } from '@/lib/onboarding-defaults'
-import { Save, Send, Eye, Globe, X } from 'lucide-react'
+import { Save, Send, Eye, Globe, X, Users, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -56,16 +56,34 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
   const [language, setLanguage] = useState((recipient?.language || 'fr') === 'fr' ? 'fr' : 'en')
   const [subject, setSubject] = useState('')
   const [blocksConfig, setBlocksConfig] = useState<any[]>([])
-  const [ccManagers, setCcManagers] = useState(false)
+  const [ccOpen, setCcOpen] = useState(false)
+  const [ccSelected, setCcSelected] = useState<Set<string>>(new Set())
 
-  // Managers (role = 'manager') that can be CC'd on the welcome email.
+  // Managers (role = 'manager') grouped by their business unit, so the admin
+  // can pick which managers to CC on the welcome email.
   const { data: allProfiles = [] } = useProfiles()
-  const managerEmails = useMemo(
-    () => (allProfiles as any[])
-      .filter((p: any) => p.role === 'manager' && p.email && p.is_active !== false)
-      .map((p: any) => p.email as string),
-    [allProfiles],
-  )
+  const managersByBU = useMemo(() => {
+    const groups: Record<string, any[]> = {}
+    for (const p of allProfiles as any[]) {
+      if (p.role !== 'manager' || !p.email || p.is_active === false) continue
+      const bu = p.business_unit || '—'
+      ;(groups[bu] || (groups[bu] = [])).push(p)
+    }
+    return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]))
+  }, [allProfiles])
+  const hasManagers = managersByBU.length > 0
+
+  const toggleMgr = (email: string) => setCcSelected((prev) => {
+    const n = new Set(prev)
+    n.has(email) ? n.delete(email) : n.add(email)
+    return n
+  })
+  const toggleBu = (mgrs: any[]) => setCcSelected((prev) => {
+    const n = new Set(prev)
+    const allIn = mgrs.every((m: any) => n.has(m.email))
+    mgrs.forEach((m: any) => (allIn ? n.delete(m.email) : n.add(m.email)))
+    return n
+  })
   const blocksRef = useRef(blocksConfig)
   useEffect(() => { blocksRef.current = blocksConfig }, [blocksConfig])
 
@@ -198,7 +216,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
       const result = await sendEmail({
         to: deliveryEmail,
-        cc: ccManagers && managerEmails.length ? managerEmails : undefined,
+        cc: ccSelected.size ? Array.from(ccSelected) : undefined,
         subject: subjectLine,
         body: html,
         isHtml: true,
@@ -291,20 +309,54 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
           </div>
         </div>
 
-        {/* CC managers option */}
+        {/* CC managers — pick which ones, grouped by business unit */}
         <div className="px-5 pb-4 -mt-1 border-b border-border/50">
-          <label className={cn(
-            'inline-flex items-center gap-2.5 rounded-xl border px-3 py-2 text-sm transition',
-            managerEmails.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted/30',
-            ccManagers && 'border-primary/40 bg-primary/5',
-          )}>
-            <Switch checked={ccManagers} onCheckedChange={setCcManagers} disabled={managerEmails.length === 0} />
-            <span className="text-foreground">{t('admin.welcomeComposer.ccManagers')}</span>
-            <Badge variant="outline" className="text-[10px]">{managerEmails.length}</Badge>
-          </label>
-          {ccManagers && managerEmails.length > 0 && (
-            <p className="mt-1.5 text-[11px] text-muted-foreground truncate">
-              {t('admin.welcomeComposer.ccLabel')} {managerEmails.join(', ')}
+          <button
+            type="button"
+            onClick={() => hasManagers && setCcOpen((o) => !o)}
+            disabled={!hasManagers}
+            className={cn(
+              'flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-sm transition',
+              hasManagers ? 'hover:bg-muted/30' : 'opacity-50 cursor-not-allowed',
+              ccSelected.size > 0 && 'border-primary/40 bg-primary/5',
+            )}
+          >
+            <Users className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-foreground font-medium">{t('admin.welcomeComposer.ccManagers')}</span>
+            {ccSelected.size > 0 && <Badge className="text-[10px] bg-primary text-primary-foreground">{t('admin.welcomeComposer.ccSelected', { count: ccSelected.size })}</Badge>}
+            <ChevronDown className={cn('h-4 w-4 ml-auto text-muted-foreground transition-transform', ccOpen && 'rotate-180')} />
+          </button>
+
+          {ccOpen && hasManagers && (
+            <div className="mt-2 max-h-56 space-y-3 overflow-y-auto rounded-xl border border-border/60 p-2.5">
+              {managersByBU.map(([bu, mgrs]) => {
+                const allIn = mgrs.every((m: any) => ccSelected.has(m.email))
+                return (
+                  <div key={bu}>
+                    <div className="mb-1 flex items-center justify-between px-1">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{bu}</span>
+                      <button type="button" onClick={() => toggleBu(mgrs)} className="text-[10px] font-medium text-primary hover:underline">
+                        {allIn ? t('admin.welcomeComposer.ccDeselectAll') : t('admin.welcomeComposer.ccSelectAll')}
+                      </button>
+                    </div>
+                    {mgrs.map((m: any) => (
+                      <label key={m.email} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-muted/40">
+                        <Checkbox checked={ccSelected.has(m.email)} onCheckedChange={() => toggleMgr(m.email)} />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm">{[m.first_name, m.last_name].filter(Boolean).join(' ') || m.email}</p>
+                          <p className="truncate text-[11px] text-muted-foreground">{m.email}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {ccSelected.size > 0 && (
+            <p className="mt-1.5 truncate text-[11px] text-muted-foreground">
+              {t('admin.welcomeComposer.ccLabel')} {Array.from(ccSelected).join(', ')}
             </p>
           )}
         </div>
