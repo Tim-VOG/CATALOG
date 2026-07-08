@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useOnboardingBlockTemplates, useOnboardingEmailsByRequest, useCreateEmail, useUpdateEmail } from '@/hooks/use-onboarding'
+import { useOnboardingBlockTemplates, useOnboardingEmailsByRequest, useCreateEmail, useUpdateEmail, useSaveBlockTemplateDefaults } from '@/hooks/use-onboarding'
 import { useUpdateItRequest } from '@/hooks/use-it-requests'
 import { useProfiles } from '@/hooks/use-profiles'
 import { sendEmail } from '@/lib/api/send-email'
 import { buildMjmlFromBlocks } from '@/lib/onboarding-mjml'
 import { DEFAULT_BLOCK_TEMPLATES } from '@/lib/onboarding-defaults'
-import { Save, Send, Eye, Globe, X, Users, ChevronDown } from 'lucide-react'
+import { Save, Send, Eye, Globe, X, Users, ChevronDown, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,11 +36,16 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
   const { data: settings } = useAppSettings()
   const showToast = useUIStore((s: any) => s.showToast)
 
-  const { data: dbBlockTemplates = [], isLoading: blocksLoading, error: blocksError } = useOnboardingBlockTemplates()
+  // The recipient's business unit drives which template set we load — a BU
+  // inherits VO Group's blocks until it has its own saved copy.
+  const recipientBU = recipient?.company || recipient?.team || ''
+  const { data: dbBlockTemplates = [], isLoading: blocksLoading, error: blocksError } = useOnboardingBlockTemplates(recipientBU)
   const { data: existingEmails = [] } = useOnboardingEmailsByRequest(requestId)
   const createEmail = useCreateEmail()
   const updateEmail = useUpdateEmail()
   const updateItRequest = useUpdateItRequest()
+  const saveDefaults = useSaveBlockTemplateDefaults()
+  const [savingTemplate, setSavingTemplate] = useState(false)
 
   const blockTemplates = dbBlockTemplates.length > 0 ? dbBlockTemplates : DEFAULT_BLOCK_TEMPLATES
 
@@ -214,6 +219,31 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       return null
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Save the current blocks as the reusable template for this recipient's
+  // business unit, so future onboardings in that BU pre-fill with this
+  // content. Labels/icons are carried over from the loaded templates.
+  const handleSaveAsTemplate = async () => {
+    const bu = String(recipientBU || '').trim()
+    if (!bu) {
+      showToast(t('admin.welcomeComposer.templateNoBu'), 'error')
+      return
+    }
+    setSavingTemplate(true)
+    try {
+      const metaByKey = new Map<string, any>((blockTemplates as any[]).map((b: any) => [b.block_key, b]))
+      const enriched = blocksRef.current.map((b: any) => {
+        const meta = metaByKey.get(b.block_key) || {}
+        return { ...b, label_fr: meta.label_fr, label_en: meta.label_en, icon: meta.icon }
+      })
+      await saveDefaults.mutateAsync({ blocksConfig: enriched, businessUnit: bu })
+      showToast(t('admin.welcomeComposer.templateSaved', { bu: bu.toUpperCase() }))
+    } catch (err: any) {
+      showToast(err.message, 'error')
+    } finally {
+      setSavingTemplate(false)
     }
   }
 
@@ -430,15 +460,30 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
         </div>
 
         {/* Action bar */}
-        <div className="p-4 flex items-center justify-end gap-3 border-t border-border/50 bg-muted/20">
-          <Button variant="outline" className="gap-2" onClick={handleSave} disabled={saving}>
-            <Save className="h-4 w-4" />
-            {saving ? t('admin.welcomeComposer.saving') : t('admin.welcomeComposer.saveDraft')}
+        <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/50 bg-muted/20">
+          {/* Save current blocks as the reusable template for this BU */}
+          <Button
+            variant="ghost"
+            className="gap-2 text-xs"
+            onClick={handleSaveAsTemplate}
+            disabled={savingTemplate || !recipientBU}
+            title={recipientBU ? '' : t('admin.welcomeComposer.templateNoBu')}
+          >
+            <Bookmark className="h-4 w-4" />
+            {savingTemplate
+              ? t('admin.welcomeComposer.templateSaving')
+              : t('admin.welcomeComposer.saveAsTemplate', { bu: String(recipientBU || '').toUpperCase() || '—' })}
           </Button>
-          <Button className="gap-2" onClick={() => setShowSendDialog(true)} disabled={sending}>
-            <Send className="h-4 w-4" />
-            {t('admin.welcomeComposer.sendEmail')}
-          </Button>
+          <div className="flex items-center gap-3 ml-auto">
+            <Button variant="outline" className="gap-2" onClick={handleSave} disabled={saving}>
+              <Save className="h-4 w-4" />
+              {saving ? t('admin.welcomeComposer.saving') : t('admin.welcomeComposer.saveDraft')}
+            </Button>
+            <Button className="gap-2" onClick={() => setShowSendDialog(true)} disabled={sending}>
+              <Send className="h-4 w-4" />
+              {t('admin.welcomeComposer.sendEmail')}
+            </Button>
+          </div>
         </div>
       </CardContent>
 

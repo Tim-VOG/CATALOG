@@ -5,6 +5,7 @@ import {
   updateOnboardingRecipient,
   deleteOnboardingRecipient,
   getOnboardingBlockTemplates,
+  saveBlockTemplateDefaults,
   getOnboardingEmails,
   getOnboardingEmail,
   createOnboardingEmail,
@@ -47,13 +48,21 @@ export const useDeleteRecipient = () => {
 
 // ── Block Templates ──
 
-export const useOnboardingBlockTemplates = () =>
+export const useOnboardingBlockTemplates = (businessUnit: any = '') =>
   useQuery({
-    queryKey: ['onboarding-block-templates'],
-    queryFn: getOnboardingBlockTemplates,
+    queryKey: ['onboarding-block-templates', String(businessUnit || '').trim().toUpperCase()],
+    queryFn: () => getOnboardingBlockTemplates(businessUnit),
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 min — block templates rarely change
   })
+
+export const useSaveBlockTemplateDefaults = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blocksConfig, businessUnit }: any) => saveBlockTemplateDefaults(blocksConfig, businessUnit),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['onboarding-block-templates'] }),
+  })
+}
 
 // ── Emails ──
 

@@ -42,13 +42,44 @@ export const deleteOnboardingRecipient = async (id: any) => {
 
 // ── Block Templates ──
 
-export const getOnboardingBlockTemplates = async () => {
+// Normalise a recipient's company/business-unit into the value we store in
+// onboarding_block_templates.business_unit (upper-cased, trimmed). '' means
+// the default set that every BU inherits from.
+export const normalizeBusinessUnit = (bu: any) =>
+  String(bu || '').trim().toUpperCase()
+
+// Load the block templates for a given business unit. Rows for the BU are
+// layered on top of the default ('') set, per block_key, so a BU only needs
+// to override the blocks that differ — everything else falls back to VO Group.
+export const getOnboardingBlockTemplates = async (businessUnit: any = '') => {
+  const bu = normalizeBusinessUnit(businessUnit)
+  const wanted = bu ? ['', bu] : ['']
   const { data, error } = await supabase
     .from('onboarding_block_templates')
     .select('*')
+    .in('business_unit', wanted)
     .order('sort_order')
   if (error) throw error
-  return data
+
+  // Merge: start from defaults, override with BU-specific rows by block_key.
+  // BU rows inherit label/icon/sort from the default row when they omit them.
+  const defaults = new Map<string, any>()
+  for (const row of data || []) {
+    if ((row.business_unit || '') === '') defaults.set(row.block_key, row)
+  }
+  const byKey = new Map<string, any>(defaults)
+  for (const row of data || []) {
+    if ((row.business_unit || '') === '') continue
+    const base = defaults.get(row.block_key) || {}
+    byKey.set(row.block_key, {
+      ...row,
+      label_fr: row.label_fr || base.label_fr,
+      label_en: row.label_en || base.label_en,
+      icon: row.icon || base.icon,
+      sort_order: row.sort_order ?? base.sort_order,
+    })
+  }
+  return Array.from(byKey.values()).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
 }
 
 // ── Emails ──
@@ -103,9 +134,12 @@ export const deleteOnboardingEmail = async (id: any) => {
 
 // ── Save Block Template Defaults ──
 
-export const saveBlockTemplateDefaults = async (blocksConfig: any) => {
-  // Batch-update each block template with current content, options, enabled state, and sort order
+export const saveBlockTemplateDefaults = async (blocksConfig: any, businessUnit: any = '') => {
+  const bu = normalizeBusinessUnit(businessUnit)
+  // Batch-update each block template with current content, options, enabled
+  // state, and sort order — scoped to the given business unit ('' = default).
   const updates = blocksConfig.map((block: any, index: number) => ({
+    business_unit: bu,
     block_key: block.block_key,
     default_content_fr: block.content_fr,
     default_content_en: block.content_en,
@@ -114,10 +148,10 @@ export const saveBlockTemplateDefaults = async (blocksConfig: any) => {
     sort_order: index + 1,
   }))
 
-  // Upsert all blocks by block_key
+  // Upsert all blocks by (business_unit, block_key)
   const { data, error } = await supabase
     .from('onboarding_block_templates')
-    .upsert(updates, { onConflict: 'block_key' })
+    .upsert(updates, { onConflict: 'business_unit,block_key' })
     .select()
   if (error) throw error
   return data
