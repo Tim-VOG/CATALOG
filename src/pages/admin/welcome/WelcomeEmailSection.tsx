@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useMemo } from 'react'
+import { lazy, Suspense, useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AtSign, CheckCircle, Send, Loader2 } from 'lucide-react'
 import { useOnboardingRecipients, useCreateRecipient, useUpdateRecipient } from '@/hooks/use-onboarding'
@@ -49,11 +49,17 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   const updateRecipient = useUpdateRecipient()
   const showToast = useUIStore((s: any) => s.showToast)
 
-  const [personalEmail, setPersonalEmail] = useState('')
+  const [personalEmail, setPersonalEmail] = useState(() => req?.data?.personal_email || '')
   const [recipientForCompose, setRecipientForCompose] = useState<any>(null)
   const [preparing, setPreparing] = useState(false)
 
   const data = useMemo(() => req?.data || {}, [req])
+
+  // Auto-fill the personal email from the HR-collected data whenever a
+  // different request loads and the admin hasn't typed their own value yet.
+  useEffect(() => {
+    if (data.personal_email) setPersonalEmail((prev: string) => prev || data.personal_email)
+  }, [req?.id, data.personal_email])
 
   if (sentEmail) {
     return (
