@@ -61,6 +61,7 @@ function OnboardingRequestInfoCard({ req, sentEmail  }: any) {
     [t('admin.onboardingRequests.fieldFirstName'), data.first_name],
     [t('admin.onboardingRequests.fieldLastName'), data.last_name],
     [t('admin.onboardingRequests.fieldCorporateEmail'), corporateEmail],
+    [t('admin.onboardingRequests.fieldPersonalEmail'), data.personal_email],
     [t('admin.onboardingRequests.fieldProfile'), data.profile],
     [t('admin.onboardingRequests.fieldCompany'), data.company],
     [t('admin.onboardingRequests.fieldJobTitle'), data.job_title],
