@@ -235,7 +235,7 @@ export async function getEmailBranding() {
 /**
  * Wrap email body in a full HTML document (Stripe-inspired light theme).
  */
-export function wrapEmailHtml(body: any, { appName = 'VO Hub', logoUrl = '', tagline = '', logoHeight = 0, raw = false }: any = {}) {
+export function wrapEmailHtml(body: any, { appName = 'VO Hub', logoUrl = '', tagline = '', logoHeight = 0, raw = false, footerNote = null, footerHtml = null }: any = {}) {
   // Pre-process body:
   //  1. {{cta:Label|URL}} → styled black button
   //  2. **bold** → <strong> (also in raw mode — DB templates use markdown bold
@@ -296,12 +296,12 @@ export function wrapEmailHtml(body: any, { appName = 'VO Hub', logoUrl = '', tag
           <!-- Footer -->
           <tr>
             <td style="padding:24px 40px 28px 40px;background:#f6f9fc;border-top:1px solid #eef2f7;">
-              <div style="font-size:12px;color:#8898aa;line-height:1.6;">
+              ${footerHtml != null ? footerHtml : `<div style="font-size:12px;color:#8898aa;line-height:1.6;">
                 Sent from <strong style="color:#525f7f;font-weight:600;">${escapeHtml(appName)}</strong>
-              </div>
-              <div style="font-size:11px;color:#aab7c4;margin-top:4px;">
-                Need help? Just reply to this email and the IT team will get back to you.
-              </div>
+              </div>`}
+              ${footerNote === '' ? '' : `<div style="font-size:11px;color:#aab7c4;margin-top:4px;">
+                ${footerNote != null ? escapeHtml(footerNote) : 'Need help? Just reply to this email and the IT team will get back to you.'}
+              </div>`}
             </td>
           </tr>
         </table>

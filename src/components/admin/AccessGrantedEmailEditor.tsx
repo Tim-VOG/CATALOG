@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Send, Loader2, Users, UserCheck, KeyRound, Eye, X } from 'lucide-react'
 import { useUIStore } from '@/stores/ui-store'
+import { useAuth } from '@/lib/auth'
 import { sendEmail } from '@/lib/api/send-email'
-import { wrapEmailHtml, ctaButton, escapeHtml } from '@/lib/email-html'
+import { wrapEmailHtml, ctaButton, escapeHtml, escapeAttr } from '@/lib/email-html'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,11 +24,20 @@ export function extractAccessEmails(text: any) {
 // visual language as the welcome email.
 const ACCESS_DEFAULT_INTRO = `Je t'ai ajouté(e) sur une boîte mail partagée. Voici tout ce qu'il te faut pour y accéder 👇`
 
-// "laura.smith@vo.eu" → "Laura". Falls back to "" if nothing usable.
-function nameFromEmail(email: any) {
-  const local = String(email || '').split('@')[0] || ''
-  const token = local.split(/[.\-_+0-9]+/).filter(Boolean)[0] || ''
-  return token ? token.charAt(0).toUpperCase() + token.slice(1).toLowerCase() : ''
+// Footer signature block with the sending admin's contact details
+// (name, phone, email) — so the recipient knows who to reach.
+export function buildAdminFooterHtml(profile: any, appName: any) {
+  const name = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim()
+  const phone = profile?.phone || ''
+  const email = profile?.email || ''
+  if (!name && !phone && !email) {
+    return `<div style="font-size:12px;color:#8898aa;line-height:1.6;">Sent from <strong style="color:#525f7f;font-weight:600;">${escapeHtml(appName)}</strong></div>`
+  }
+  return `<div style="line-height:1.5;">
+    ${name ? `<div style="font-weight:700;color:#0a2540;font-size:14px;">${escapeHtml(name)}</div>` : ''}
+    ${phone ? `<div style="color:#8898aa;font-size:12px;margin-top:3px;">${escapeHtml(phone)}</div>` : ''}
+    ${email ? `<div style="font-size:12px;margin-top:1px;"><a href="mailto:${escapeAttr(email)}" style="color:#635bff;text-decoration:none;">${escapeHtml(email)}</a></div>` : ''}
+  </div>`
 }
 
 // A white, rounded section card matching the welcome email look.
@@ -43,11 +53,10 @@ function emailCard(icon: string, label: string, innerHtml: string) {
  * Rendered through wrapEmailHtml({ raw:true }) so the branded shell wraps it.
  */
 export function buildAccessEmailBody(opts: any) {
-  const { recipientEmail, mailboxEmail, intro, onepasswordLink, includeWindows } = opts
-  const name = nameFromEmail(recipientEmail) || 'à toi'
+  const { mailboxEmail, intro, onepasswordLink, includeWindows } = opts
   const mb = escapeHtml(mailboxEmail || '')
 
-  const greeting = `<p style="margin:0 0 18px 0;font-size:20px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">Hey ${escapeHtml(name)} &#128075;</p>`
+  const greeting = `<p style="margin:0 0 18px 0;font-size:20px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">Salut &#128075;</p>`
   const introHtml = `<p style="margin:0 0 8px 0;line-height:1.65;color:#425466;font-size:15px;">${escapeHtml(intro || '')}</p>`
 
   const accessCard = emailCard('&#128236;', 'Ta boîte partagée',
@@ -69,9 +78,14 @@ export function buildAccessEmailBody(opts: any) {
     `<div style="color:#425466;font-size:14px;line-height:1.6;margin-bottom:4px;">Le mot de passe a été partagé en toute sécurité via 1Password :</div>
      ${ctaButton('Ouvrir dans 1Password', onepasswordLink)}`) : ''
 
-  const outro = `<p style="margin:20px 0 0 0;line-height:1.65;color:#425466;font-size:15px;">Une question ? Réponds simplement à cet email &#128578;</p>`
+  // Help block — for a shared mailbox you don't reply to the email, you
+  // ping the IT team on Teams. Styled like the other cards (Teams purple).
+  const helpCard = `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;background:#f5f3ff;border-radius:12px;border:1px solid #ddd6fe;margin:24px 0 4px 0;overflow:hidden;"><tr><td style="padding:16px 20px;">
+    <div style="font-size:15px;font-weight:700;color:#5b21b6;margin-bottom:2px;">&#128172; Besoin d'aide ?</div>
+    <div style="color:#4c1d95;font-size:14px;line-height:1.6;">Contacte l'équipe IT sur <strong>Microsoft Teams</strong> et on s'en occupe avec toi. &#128075;</div>
+  </td></tr></table>`
 
-  return greeting + introHtml + accessCard + macCard + winCard + opCard + outro
+  return greeting + introHtml + accessCard + macCard + winCard + opCard + helpCard
 }
 
 /**
@@ -82,6 +96,7 @@ export function buildAccessEmailBody(opts: any) {
 export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any) {
   const { t } = useTranslation()
   const showToast = useUIStore((s: any) => s.showToast)
+  const { profile } = useAuth()
   const appName = settings?.app_name || 'VO Hub'
   const mailboxEmail = req.email_to_create || ''
 
@@ -111,13 +126,15 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
       tagline: settings?.email_tagline || '',
       logoHeight: settings?.email_logo_height || 0,
       raw: true,
+      footerNote: '',
+      footerHtml: buildAdminFooterHtml(profile, appName),
     }
   )
 
   const previewHtml = useMemo(
     () => renderFor(recipients[0] || ''),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [recipients, mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows]
+    [recipients, mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows, profile]
   )
 
   const handleSend = async () => {
