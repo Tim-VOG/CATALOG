@@ -1,10 +1,11 @@
 import { useState, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { useEmailTemplates, useUpdateEmailTemplate } from '@/hooks/use-email-templates'
+import { useEmailTemplates, useUpdateEmailTemplate, useCreateEmailTemplateOverride, useDeleteEmailTemplate } from '@/hooks/use-email-templates'
+import { useBusinessUnits } from '@/hooks/use-business-units'
 import { wrapEmailHtml } from '@/lib/email-html'
 import { useAppSettings } from '@/hooks/use-settings'
-import { Mail, Pencil, Save, Eye, UserPlus, Inbox, ClipboardList, Bell, Blocks, ArrowRight } from 'lucide-react'
+import { Mail, Pencil, Save, Eye, UserPlus, Inbox, ClipboardList, Bell, Blocks, ArrowRight, Building2, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -51,9 +52,13 @@ const CATEGORIES = [
 
 export function AdminEmailTemplatesPage() {
   const { t } = useTranslation()
-  const { data: templates = [], isLoading, isError, error, refetch } = useEmailTemplates()
+  const [businessUnit, setBusinessUnit] = useState('') // '' = default (VO Group)
+  const { data: templates = [], isLoading, isError, error, refetch } = useEmailTemplates(businessUnit)
+  const { data: businessUnits = [] } = useBusinessUnits()
   const { data: settings } = useAppSettings()
   const updateTemplate = useUpdateEmailTemplate()
+  const createOverride = useCreateEmailTemplateOverride()
+  const deleteTemplate = useDeleteEmailTemplate()
   const showToast = useUIStore((s: any) => s.showToast)
 
   const [activeTab, setActiveTab] = useState('templates')
@@ -100,9 +105,25 @@ export function AdminEmailTemplatesPage() {
   const handleSave = async () => {
     if (!editing) return
     try {
-      await updateTemplate.mutateAsync({ id: editing.id, subject, body })
-      showToast(t('admin.emailTemplates.toastUpdated'))
+      if (businessUnit && editing._inherited) {
+        // First edit for this BU → create an override copied from the default.
+        await createOverride.mutateAsync({ base: editing, businessUnit, updates: { subject, body } })
+        showToast(t('admin.emailTemplates.toastOverrideCreated', { bu: businessUnit.toUpperCase() }))
+      } else {
+        await updateTemplate.mutateAsync({ id: editing.id, subject, body })
+        showToast(t('admin.emailTemplates.toastUpdated'))
+      }
       setEditing(null)
+    } catch (err: any) {
+      showToast(err.message, 'error')
+    }
+  }
+
+  const handleResetToDefault = async (template: any) => {
+    if (!template?.id || template._inherited) return
+    try {
+      await deleteTemplate.mutateAsync(template.id)
+      showToast(t('admin.emailTemplates.toastResetToDefault'))
     } catch (err: any) {
       showToast(err.message, 'error')
     }
@@ -136,6 +157,38 @@ export function AdminEmailTemplatesPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title={t('admin.emailTemplates.pageTitle')} description={t('admin.emailTemplates.pageDescription')} />
+
+      {/* Business-unit selector — each BU can override any template. */}
+      <Card variant="elevated" className="border-primary/20">
+        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-2 text-sm font-semibold shrink-0">
+            <Building2 className="h-4 w-4 text-primary" />
+            {t('admin.emailTemplates.businessUnitLabel')}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              onClick={() => setBusinessUnit('')}
+              className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
+                !businessUnit ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-muted border-border')}
+            >
+              {t('admin.emailTemplates.defaultBu')}
+            </button>
+            {businessUnits.map((bu: any) => (
+              <button
+                key={bu.id || bu.value}
+                onClick={() => setBusinessUnit(bu.value)}
+                className={cn('px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors',
+                  businessUnit === bu.value ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-muted border-border')}
+              >
+                {bu.value}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground sm:ml-auto">
+            {businessUnit ? t('admin.emailTemplates.buEditingNote', { bu: businessUnit.toUpperCase() }) : t('admin.emailTemplates.defaultEditingNote')}
+          </p>
+        </CardContent>
+      </Card>
 
       <ReminderSettingsCard />
 
@@ -179,11 +232,21 @@ export function AdminEmailTemplatesPage() {
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="font-semibold text-sm">{template.name}</h3>
                                 <Badge variant="outline" className="text-[10px]">{template.template_key}</Badge>
+                                {businessUnit && (template._inherited ? (
+                                  <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">{t('admin.emailTemplates.inheritedBadge')}</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">{t('admin.emailTemplates.customisedBadge', { bu: businessUnit.toUpperCase() })}</Badge>
+                                ))}
                               </div>
                               <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
                               <p className="text-xs text-muted-foreground mt-0.5 truncate">{t('admin.emailTemplates.subjectLabel', { subject: template.subject })}</p>
                             </div>
                             <div className="flex items-center gap-2">
+                              {businessUnit && !template._inherited && (
+                                <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground" onClick={() => handleResetToDefault(template)} title={t('admin.emailTemplates.resetToDefault')}>
+                                  <RotateCcw className="h-3 w-3" /> <span className="hidden sm:inline">{t('admin.emailTemplates.resetToDefault')}</span>
+                                </Button>
+                              )}
                               <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => openPreview(template)}>
                                 <Eye className="h-3 w-3" /> {t('admin.emailTemplates.preview')}
                               </Button>

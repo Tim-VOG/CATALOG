@@ -380,11 +380,12 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
 
   useEffect(() => {
     let cancelled = false
-    getEmailTemplateByKey('mailbox_confirmation')
+    // Use the mailbox's business unit (agency) so a BU-specific template wins.
+    getEmailTemplateByKey('mailbox_confirmation', req.agency)
       .then((tmpl: any) => { if (!cancelled) setDbTemplate(tmpl) })
       .catch(() => {})
     return () => { cancelled = true }
-  }, [])
+  }, [req.agency])
 
   const savedTemplate = dbTemplate?.body || settings?.mailbox_email_template || DEFAULT_TEMPLATE
   const savedSubject = dbTemplate?.subject || `${appName} — Your functional mailbox has been created`

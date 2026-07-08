@@ -68,9 +68,9 @@ function substitute(text: string, vars: Record<string, any>) {
  * Always returns { subject, body } where body is the inner content
  * (not yet wrapped by wrapEmailHtml).
  */
-export async function renderTemplate(key: string, vars: Record<string, any>) {
+export async function renderTemplate(key: string, vars: Record<string, any>, businessUnit: any = '') {
   let tmpl: any = null
-  try { tmpl = await getEmailTemplateByKey(key) } catch {}
+  try { tmpl = await getEmailTemplateByKey(key, businessUnit) } catch {}
   const source = tmpl || (FALLBACK_TEMPLATES as Record<string, any>)[key as keyof typeof FALLBACK_TEMPLATES] || { subject: '', body: '' }
   return {
     subject: substitute(source.subject, vars),
@@ -194,13 +194,14 @@ export async function sendStatusChangeEmail(newStatus: any, { request, requestTy
     } catch {}
   }
 
+  const bu = request.business_unit || request.agency || request.data?.business_unit || request.data?.company || ''
   const { subject, body } = await renderTemplate(key, {
     requester_name: name,
     request_type: requestType,
     subject_label: subjectLabelFor(requestType),
     subject_name: subjectNameFor(request, requestType),
     items_html: itemsHtml,
-  })
+  }, bu)
 
   await sendEmail({
     to: email,
