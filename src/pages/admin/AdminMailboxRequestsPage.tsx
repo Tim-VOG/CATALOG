@@ -15,6 +15,7 @@ import {
   CheckCircle, XCircle, Send, Loader2, KeyRound, Clock,
   Save, FileText, ChevronDown, ChevronUp, Info, Sparkles,
   User, Globe, Archive, AlertTriangle, Download, Pencil, X,
+  Users, UserCheck,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -86,6 +87,43 @@ function fillTemplate(template: any, req: any, appName: any) {
 
 // ── Format date for display ──
 const fmtDate = (d: any) => d ? new Date(d).toLocaleDateString('fr-FR') : null
+
+// ══════════════════════════════════════════
+//  Access-granted email (to the people who got access)
+// ══════════════════════════════════════════
+
+// Default "you now have access" template. Editable in the composer; the
+// tone mirrors the manual email IT used to send by hand. {{recipient_name}}
+// is derived per-recipient from their email address.
+const ACCESS_DEFAULT_TEMPLATE = `Salut {{recipient_name}},
+
+Je t'ai ajouté(e) sur la boîte mail partagée **{{mailbox_email}}**.
+
+**Sur Mac**, il faut l'ajouter manuellement dans Outlook :
+Outils → Comptes → ton compte → Délégation et partage → Autorisations → **+** puis ajoute **{{mailbox_email}}**
+
+**Sur Windows**, la boîte apparaît automatiquement après quelques minutes (sinon redémarre Outlook).
+
+Une question ? Réponds simplement à cet email 🙂
+
+Bonne journée,
+L'équipe {{app_name}}`
+
+// Derive a friendly first name from an email local-part:
+// "laura.smith@vo.eu" → "Laura". Falls back to "" if nothing usable.
+function nameFromEmail(email: any) {
+  const local = String(email || '').split('@')[0] || ''
+  const token = local.split(/[.\-_+0-9]+/).filter(Boolean)[0] || ''
+  return token ? token.charAt(0).toUpperCase() + token.slice(1).toLowerCase() : ''
+}
+
+function fillAccessTemplate(template: any, recipientEmail: any, mailboxEmail: any, appName: any) {
+  const name = nameFromEmail(recipientEmail)
+  return template
+    .replace(/\{\{recipient_name\}\}/g, name || 'à toi')
+    .replace(/\{\{mailbox_email\}\}/g, mailboxEmail || '')
+    .replace(/\{\{app_name\}\}/g, appName)
+}
 
 // ── Banner download (fetch blob → Save As dialog) ──
 function BannerDownloadButton({ url, projectName  }: any) {
@@ -656,6 +694,177 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
 }
 
 // ══════════════════════════════════════════
+//  Access-Granted Email Editor
+//  Sends one personalised email per person in "who needs access",
+//  telling them how to add the shared mailbox in Outlook.
+// ══════════════════════════════════════════
+function AccessGrantedEmailEditor({ req, settings, onClose  }: any) {
+  const { t } = useTranslation()
+  const showToast = useUIStore((s: any) => s.showToast)
+  const appName = settings?.app_name || 'VO Hub'
+  const mailboxEmail = req.email_to_create || ''
+
+  const [dbTemplate, setDbTemplate] = useState<any>(null)
+  useEffect(() => {
+    let cancelled = false
+    getEmailTemplateByKey('mailbox_access_granted')
+      .then((tmpl: any) => { if (!cancelled) setDbTemplate(tmpl) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  const [recipients, setRecipients] = useState<any>(() => extractEmails(req.who_needs_access))
+  const [inputValue, setInputValue] = useState('')
+  const [subject, setSubject] = useState(
+    () => t('admin.mailboxRequests.accessSubjectDefault', { mailbox_email: mailboxEmail })
+  )
+  const [body, setBody] = useState(() => ACCESS_DEFAULT_TEMPLATE)
+  const [showPreview, setShowPreview] = useState(false)
+  const [sending, setSending] = useState(false)
+
+  // Adopt the DB template once it loads (admin can still edit afterwards).
+  useEffect(() => {
+    if (!dbTemplate) return
+    if (dbTemplate.body) setBody(dbTemplate.body)
+    if (dbTemplate.subject) setSubject(dbTemplate.subject.replace(/\{\{mailbox_email\}\}/g, mailboxEmail).replace(/\{\{app_name\}\}/g, appName))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dbTemplate])
+
+  const isValidEmail = (e: any) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(String(e).trim())
+  const addRecipient = (raw: any) => {
+    const e = String(raw).trim().toLowerCase()
+    if (!e || !isValidEmail(e) || recipients.includes(e)) { setInputValue(''); return }
+    setRecipients((prev: any) => [...prev, e]); setInputValue('')
+  }
+  const removeRecipient = (idx: any) => setRecipients((prev: any) => prev.filter((_: any, i: any) => i !== idx))
+
+  // Preview reflects the first recipient (or a placeholder name).
+  const previewHtml = useMemo(() => {
+    const filled = fillAccessTemplate(body, recipients[0] || '', mailboxEmail, appName)
+    return wrapEmailHtml(filled, {
+      appName,
+      logoUrl: settings?.logo_url || '',
+      tagline: settings?.email_tagline || '',
+      logoHeight: settings?.email_logo_height || 0,
+    })
+  }, [body, recipients, mailboxEmail, appName, settings])
+
+  const handleSend = async () => {
+    if (!recipients.length) return
+    setSending(true)
+    let ok = 0
+    const failed: any[] = []
+    for (const to of recipients) {
+      try {
+        const filled = fillAccessTemplate(body, to, mailboxEmail, appName)
+        const htmlBody = wrapEmailHtml(filled, {
+          appName,
+          logoUrl: settings?.logo_url || '',
+          tagline: settings?.email_tagline || '',
+          logoHeight: settings?.email_logo_height || 0,
+        })
+        const result = await sendEmail({ to, subject, body: htmlBody, isHtml: true })
+        if (result.success) ok++
+        else failed.push(to)
+      } catch {
+        failed.push(to)
+      }
+    }
+    setSending(false)
+    if (failed.length === 0) {
+      showToast(t('admin.mailboxRequests.accessSentToast', { count: ok }))
+      onClose()
+    } else {
+      showToast(t('admin.mailboxRequests.accessPartialToast', { ok, total: recipients.length, failed: failed.length }), 'error')
+    }
+  }
+
+  return (
+    <Card variant="elevated" className="overflow-hidden">
+      <CardContent className="p-0">
+        {/* Header */}
+        <div className="px-5 py-4 bg-gradient-to-r from-emerald-500/5 via-primary/5 to-cyan-500/5 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+              <UserCheck className="h-4 w-4 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm">{t('admin.mailboxRequests.accessEmailTitle')}</h3>
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxRequests.accessEmailDesc')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 space-y-4">
+          {/* Recipients */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Users className="h-3 w-3 text-primary" />
+              {t('admin.mailboxRequests.accessRecipientsLabel')}
+            </Label>
+            <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-muted/30 px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
+              {recipients.map((tag: any, idx: any) => (
+                <span key={tag} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
+                  {tag}
+                  <button type="button" onClick={() => removeRecipient(idx)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button>
+                </span>
+              ))}
+              <input
+                type="email"
+                value={inputValue}
+                onChange={(e: any) => setInputValue(e.target.value)}
+                onKeyDown={(e: any) => { if (['Enter', ',', 'Tab'].includes(e.key)) { e.preventDefault(); addRecipient(inputValue) } }}
+                onBlur={() => { if (inputValue.trim()) addRecipient(inputValue) }}
+                placeholder="prenom@vo-group.be"
+                className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground">{t('admin.mailboxRequests.accessRecipientsHint')}</p>
+          </div>
+
+          {/* Subject */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxRequests.subjectLabel')}</Label>
+            <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} className="bg-muted/30" />
+          </div>
+
+          {/* Body edit / preview */}
+          <div className="border-t border-border/50 pt-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxRequests.emailBodyLabel')}</Label>
+              <div className="inline-flex rounded-lg border border-border/50 overflow-hidden">
+                <button type="button" onClick={() => setShowPreview(false)} className={`px-3 py-1 text-xs font-medium transition-colors ${!showPreview ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}>{t('admin.mailboxRequests.editToggle')}</button>
+                <button type="button" onClick={() => setShowPreview(true)} className={`px-3 py-1 text-xs font-medium transition-colors ${showPreview ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}>{t('admin.mailboxRequests.previewToggle')}</button>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-2">
+              <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">{'{{recipient_name}}'}</code> {t('admin.mailboxRequests.accessTemplateVarRecipientName')}
+            </p>
+            {showPreview ? (
+              <div className="rounded-lg border border-border/50 overflow-hidden bg-white">
+                <iframe title={t('admin.mailboxRequests.emailPreviewTitle')} srcDoc={previewHtml} className="w-full h-[420px] border-0" sandbox="" />
+              </div>
+            ) : (
+              <Textarea value={body} onChange={(e: any) => setBody(e.target.value)} rows={14} className="font-mono text-xs leading-relaxed bg-muted/30 resize-y" />
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="px-5 py-4 bg-muted/20 border-t border-border/50 flex items-center gap-3">
+          <div className="flex-1" />
+          <Button variant="outline" onClick={onClose} className="text-xs" disabled={sending}>{t('admin.mailboxRequests.cancel')}</Button>
+          <Button onClick={handleSend} disabled={sending || !recipients.length} className="gap-2 text-xs min-w-[140px]">
+            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            {sending ? t('admin.mailboxRequests.accessSendingButton') : t('admin.mailboxRequests.accessSendButton', { count: recipients.length })}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ══════════════════════════════════════════
 //  Email Sent Summary
 // ══════════════════════════════════════════
 function EmailSentBadge() {
@@ -696,6 +905,7 @@ export function AdminMailboxRequestsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null)
   const [sending, setSending] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
+  const [showAccessEmail, setShowAccessEmail] = useState(false)
 
   // Find the selected request
   const selectedRequest = useMemo(
@@ -865,7 +1075,7 @@ export function AdminMailboxRequestsPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => { setSelectedId(null); setShowEmail(false) }}
+            onClick={() => { setSelectedId(null); setShowEmail(false); setShowAccessEmail(false) }}
             className="gap-1.5 text-xs"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -903,6 +1113,29 @@ export function AdminMailboxRequestsPage() {
             }
           }}
         />
+
+        {/* Access-granted email — notify the people who got access */}
+        {!showAccessEmail ? (
+          <Button
+            onClick={() => setShowAccessEmail(true)}
+            variant="outline"
+            className="w-full gap-2 py-5 text-sm border-dashed hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all"
+          >
+            <UserCheck className="h-4 w-4 text-emerald-600" />
+            {t('admin.mailboxRequests.accessEmailButton')}
+            {extractEmails(selectedRequest.who_needs_access).length > 0 && (
+              <Badge variant="outline" className="ml-1 text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+                {extractEmails(selectedRequest.who_needs_access).length}
+              </Badge>
+            )}
+          </Button>
+        ) : (
+          <AccessGrantedEmailEditor
+            req={selectedRequest}
+            settings={settings}
+            onClose={() => setShowAccessEmail(false)}
+          />
+        )}
 
         {/* Status actions */}
         {selectedRequest.status === 'pending' && (
