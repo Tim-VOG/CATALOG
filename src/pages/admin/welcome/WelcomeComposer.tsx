@@ -58,6 +58,18 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
   const [blocksConfig, setBlocksConfig] = useState<any[]>([])
   const [ccOpen, setCcOpen] = useState(false)
   const [ccSelected, setCcSelected] = useState<Set<string>>(new Set())
+  const [ccExtra, setCcExtra] = useState<string[]>([]) // manually-added emails (any address)
+  const [ccInput, setCcInput] = useState('')
+
+  const isEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim())
+  const addExtraEmail = (raw: string) => {
+    const e = raw.trim().toLowerCase()
+    if (!isEmail(e)) return
+    setCcExtra((prev) => (prev.includes(e) ? prev : [...prev, e]))
+    setCcInput('')
+  }
+  const removeExtraEmail = (e: string) => setCcExtra((prev) => prev.filter((x) => x !== e))
+  const ccAll = useMemo(() => Array.from(new Set([...Array.from(ccSelected), ...ccExtra])), [ccSelected, ccExtra])
 
   // Managers (role = 'manager') grouped by their business unit, so the admin
   // can pick which managers to CC on the welcome email.
@@ -216,7 +228,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
 
       const result = await sendEmail({
         to: deliveryEmail,
-        cc: ccSelected.size ? Array.from(ccSelected) : undefined,
+        cc: ccAll.length ? ccAll : undefined,
         subject: subjectLine,
         body: html,
         isHtml: true,
@@ -313,22 +325,43 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
         <div className="px-5 pb-4 -mt-1 border-b border-border/50">
           <button
             type="button"
-            onClick={() => hasManagers && setCcOpen((o) => !o)}
-            disabled={!hasManagers}
+            onClick={() => setCcOpen((o) => !o)}
             className={cn(
-              'flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-sm transition',
-              hasManagers ? 'hover:bg-muted/30' : 'opacity-50 cursor-not-allowed',
-              ccSelected.size > 0 && 'border-primary/40 bg-primary/5',
+              'flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-sm transition hover:bg-muted/30',
+              ccAll.length > 0 && 'border-primary/40 bg-primary/5',
             )}
           >
             <Users className="h-4 w-4 text-primary shrink-0" />
-            <span className="text-foreground font-medium">{t('admin.welcomeComposer.ccManagers')}</span>
-            {ccSelected.size > 0 && <Badge className="text-[10px] bg-primary text-primary-foreground">{t('admin.welcomeComposer.ccSelected', { count: ccSelected.size })}</Badge>}
+            <span className="text-foreground font-medium">{t('admin.welcomeComposer.ccTitle')}</span>
+            {ccAll.length > 0 && <Badge className="text-[10px] bg-primary text-primary-foreground">{t('admin.welcomeComposer.ccSelected', { count: ccAll.length })}</Badge>}
             <ChevronDown className={cn('h-4 w-4 ml-auto text-muted-foreground transition-transform', ccOpen && 'rotate-180')} />
           </button>
 
-          {ccOpen && hasManagers && (
-            <div className="mt-2 max-h-56 space-y-3 overflow-y-auto rounded-xl border border-border/60 p-2.5">
+          {ccOpen && (
+            <div className="mt-2 max-h-72 space-y-3 overflow-y-auto rounded-xl border border-border/60 p-2.5">
+              {/* Free-form emails (anyone, incl. personal) */}
+              <div>
+                <div className="mb-1 px-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t('admin.welcomeComposer.ccAddEmailLabel')}</div>
+                <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-border/60 px-2 py-1.5">
+                  {ccExtra.map((e) => (
+                    <span key={e} className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                      {e}
+                      <button type="button" onClick={() => removeExtraEmail(e)} className="hover:text-destructive"><X className="h-3 w-3" /></button>
+                    </span>
+                  ))}
+                  <input
+                    value={ccInput}
+                    onChange={(e: any) => setCcInput(e.target.value)}
+                    onKeyDown={(e: any) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addExtraEmail(ccInput) } }}
+                    onBlur={() => ccInput.trim() && addExtraEmail(ccInput)}
+                    placeholder={t('admin.welcomeComposer.ccAddEmailPlaceholder')}
+                    className="min-w-[140px] flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+                    type="email"
+                  />
+                </div>
+              </div>
+
+              {hasManagers && <div className="px-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t('admin.welcomeComposer.ccManagersLabel')}</div>}
               {managersByBU.map(([bu, mgrs]) => {
                 const allIn = mgrs.every((m: any) => ccSelected.has(m.email))
                 return (
@@ -354,9 +387,9 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
             </div>
           )}
 
-          {ccSelected.size > 0 && (
+          {ccAll.length > 0 && (
             <p className="mt-1.5 truncate text-[11px] text-muted-foreground">
-              {t('admin.welcomeComposer.ccLabel')} {Array.from(ccSelected).join(', ')}
+              {t('admin.welcomeComposer.ccLabel')} {ccAll.join(', ')}
             </p>
           )}
         </div>
