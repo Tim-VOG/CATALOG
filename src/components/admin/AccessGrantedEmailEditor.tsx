@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Send, Loader2, Users, UserCheck, KeyRound, Eye, X } from 'lucide-react'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuth } from '@/lib/auth'
+import { useUpdateMailboxRequest } from '@/hooks/use-mailbox-requests'
 import { sendEmail } from '@/lib/api/send-email'
 import { wrapEmailHtml, ctaButton, escapeHtml, escapeAttr } from '@/lib/email-html'
 import { Button } from '@/components/ui/button'
@@ -97,6 +98,7 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   const { t } = useTranslation()
   const showToast = useUIStore((s: any) => s.showToast)
   const { profile } = useAuth()
+  const updateRequest = useUpdateMailboxRequest()
   const appName = settings?.app_name || 'VO Hub'
   const mailboxEmail = req.email_to_create || ''
 
@@ -151,6 +153,24 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
         failed.push(to)
       }
     }
+    // Mark the mailbox as "announced" as soon as at least one email went
+    // out, so the list shows a "Sent" badge. Re-sending simply bumps the
+    // count and the timestamp. Never let a bookkeeping failure hide the
+    // send result from the admin.
+    if (ok > 0) {
+      try {
+        await updateRequest.mutateAsync({
+          id: req.id,
+          updates: {
+            announcement_sent_at: new Date().toISOString(),
+            announcement_sent_count: (req.announcement_sent_count || 0) + ok,
+          },
+        })
+      } catch (e) {
+        console.warn('[mailbox announcement] could not mark as sent', e)
+      }
+    }
+
     setSending(false)
     if (failed.length === 0) {
       showToast(t('admin.mailboxAnnouncement.accessSentToast', { count: ok }))

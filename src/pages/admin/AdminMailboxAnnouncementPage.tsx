@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useAppSettings } from '@/hooks/use-settings'
 import {
-  Search, Mail, ArrowLeft, Megaphone, Users, ChevronRight, Building2, Calendar,
+  Search, Mail, ArrowLeft, Megaphone, Users, ChevronRight, Building2, Calendar, CheckCircle,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -61,6 +61,20 @@ export function AdminMailboxAnnouncementPage() {
             <p className="text-xs text-muted-foreground truncate">{selected.email_to_create}</p>
           </div>
         </div>
+
+        {selected.announcement_sent_at && (
+          <Card variant="elevated" className="border-blue-500/30">
+            <CardContent className="p-4 flex items-center gap-3">
+              <CheckCircle className="h-4 w-4 text-blue-500 shrink-0" />
+              <span className="text-sm text-muted-foreground">
+                {t('admin.mailboxAnnouncement.alreadySentNotice', {
+                  date: fmtDate(selected.announcement_sent_at),
+                  count: selected.announcement_sent_count || 0,
+                })}
+              </span>
+            </CardContent>
+          </Card>
+        )}
 
         <AccessGrantedEmailEditor
           req={selected}
@@ -125,10 +139,22 @@ export function AdminMailboxAnnouncementPage() {
                           <Users className="h-2.5 w-2.5" />
                           {t('admin.mailboxAnnouncement.peopleCount', { count })}
                         </Badge>
+                        {req.announcement_sent_at && (
+                          <Badge variant="outline" className="text-[10px] gap-1 bg-blue-500/10 text-blue-600 border-blue-500/30">
+                            <CheckCircle className="h-2.5 w-2.5" />
+                            {t('admin.mailboxAnnouncement.sentBadge')}
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {req.email_to_create}</span>
                         {req.creation_date && <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {fmtDate(req.creation_date)}</span>}
+                        {req.announcement_sent_at && (
+                          <span className="flex items-center gap-1 text-blue-600">
+                            <CheckCircle className="h-3 w-3" />
+                            {t('admin.mailboxAnnouncement.announcedOn', { date: fmtDate(req.announcement_sent_at) })}
+                          </span>
+                        )}
                       </div>
                     </div>
 
