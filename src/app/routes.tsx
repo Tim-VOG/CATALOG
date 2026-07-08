@@ -66,6 +66,7 @@ const AdminItFormBuilderPage = lazy(() => import('@/pages/admin/AdminItFormBuild
 const OffboardingPage = lazy(() => import('@/pages/admin/offboarding/OffboardingPage').then((m) => ({ default: m.OffboardingPage })))
 const AdminOffboardingFormBuilderPage = lazy(() => import('@/pages/admin/AdminOffboardingFormBuilderPage').then((m) => ({ default: m.AdminOffboardingFormBuilderPage })))
 const AdminMailboxRequestsPage = lazy(() => import('@/pages/admin/AdminMailboxRequestsPage').then((m) => ({ default: m.AdminMailboxRequestsPage })))
+const AdminMailboxAnnouncementPage = lazy(() => import('@/pages/admin/AdminMailboxAnnouncementPage').then((m) => ({ default: m.AdminMailboxAnnouncementPage })))
 const AdminMailboxFormBuilderPage = lazy(() => import('@/pages/admin/AdminMailboxFormBuilderPage').then((m) => ({ default: m.AdminMailboxFormBuilderPage })))
 const AdminAllRequestsPage = lazy(() => import('@/pages/admin/AdminAllRequestsPage').then((m) => ({ default: m.AdminAllRequestsPage })))
 const AdminQRCodesPage = lazy(() => import('@/pages/admin/AdminQRCodesPage').then((m) => ({ default: m.AdminQRCodesPage })))
@@ -143,6 +144,7 @@ export function AppRoutes() {
             <Route path="offboarding-requests" element={<AdminOffboardingRequestsPage />} />
             <Route path="offboarding" element={<OffboardingPage />} />
             <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
+            <Route path="mailbox-announcement" element={<AdminMailboxAnnouncementPage />} />
             <Route path="overdue" element={<AdminOnly><AdminOverduePage /></AdminOnly>} />
 
             {/* Admin only — wrapped so managers bounce back to /admin */}

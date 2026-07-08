@@ -7,7 +7,7 @@ import {
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
   CalendarClock, PackageSearch, Activity, Wrench, Building2,
-  AlarmClock, MessageSquare,
+  AlarmClock, MessageSquare, Megaphone,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -71,6 +71,7 @@ export function AdminSidebar() {
         { to: '/admin/onboarding/requests', label: t('admin.sidebar.links.onboarding'), icon: UserPlus, badge: pendingCounts.onboarding, managerOk: true },
         { to: '/admin/offboarding-requests', label: t('admin.sidebar.links.offboarding'), icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
         { to: '/admin/mailbox-requests', label: t('admin.sidebar.links.mailbox'), icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
+        { to: '/admin/mailbox-announcement', label: t('admin.sidebar.links.mailboxAnnouncement'), icon: Megaphone, managerOk: true },
         { to: '/admin/issues', label: t('admin.sidebar.links.issues'), icon: Wrench },
       ],
     },

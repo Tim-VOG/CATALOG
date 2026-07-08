@@ -1,0 +1,260 @@
+import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Send, Loader2, Users, UserCheck, KeyRound, Eye, X } from 'lucide-react'
+import { useUIStore } from '@/stores/ui-store'
+import { sendEmail } from '@/lib/api/send-email'
+import { wrapEmailHtml, ctaButton, escapeHtml } from '@/lib/email-html'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
+
+// ── Pull emails out of a free-text "who needs access" field ──
+export function extractAccessEmails(text: any) {
+  if (!text) return []
+  const matches = String(text).match(/[\w.+-]+@[\w.-]+\.\w{2,}/g)
+  return matches || []
+}
+
+// Default editable intro line. Everything else (access card, Mac/Windows
+// steps, the optional 1Password button) renders as branded cards — same
+// visual language as the welcome email.
+const ACCESS_DEFAULT_INTRO = `Je t'ai ajouté(e) sur une boîte mail partagée. Voici tout ce qu'il te faut pour y accéder 👇`
+
+// "laura.smith@vo.eu" → "Laura". Falls back to "" if nothing usable.
+function nameFromEmail(email: any) {
+  const local = String(email || '').split('@')[0] || ''
+  const token = local.split(/[.\-_+0-9]+/).filter(Boolean)[0] || ''
+  return token ? token.charAt(0).toUpperCase() + token.slice(1).toLowerCase() : ''
+}
+
+// A white, rounded section card matching the welcome email look.
+function emailCard(icon: string, label: string, innerHtml: string) {
+  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;background:#ffffff;border-radius:12px;border:1px solid #e6ebf1;margin:20px 0;overflow:hidden;box-shadow:0 1px 2px rgba(10,37,64,0.04);"><tr><td style="padding:18px 22px;">
+    <div style="font-size:11px;color:#8898aa;text-transform:uppercase;letter-spacing:0.6px;font-weight:700;margin-bottom:10px;">${icon}&nbsp; ${escapeHtml(label)}</div>
+    ${innerHtml}
+  </td></tr></table>`
+}
+
+/**
+ * Build the full inner HTML of the access-granted email for one recipient.
+ * Rendered through wrapEmailHtml({ raw:true }) so the branded shell wraps it.
+ */
+export function buildAccessEmailBody(opts: any) {
+  const { recipientEmail, mailboxEmail, intro, onepasswordLink, includeWindows } = opts
+  const name = nameFromEmail(recipientEmail) || 'à toi'
+  const mb = escapeHtml(mailboxEmail || '')
+
+  const greeting = `<p style="margin:0 0 18px 0;font-size:20px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">Hey ${escapeHtml(name)} &#128075;</p>`
+  const introHtml = `<p style="margin:0 0 8px 0;line-height:1.65;color:#425466;font-size:15px;">${escapeHtml(intro || '')}</p>`
+
+  const accessCard = emailCard('&#128236;', 'Ta boîte partagée',
+    `<div style="font-weight:700;color:#0a2540;font-size:18px;letter-spacing:-0.2px;">${mb}</div>
+     <div style="margin-top:4px;color:#425466;font-size:14px;">Tu y as maintenant accès. &#9989;</div>`)
+
+  const macCard = emailCard('&#127822;', 'Sur Mac — à ajouter dans Outlook',
+    `<ol style="margin:0;padding-left:20px;color:#425466;font-size:14px;line-height:1.9;">
+       <li>Ouvre <strong style="color:#0a2540;">Outils &rarr; Comptes</strong></li>
+       <li>Sélectionne ton compte</li>
+       <li>Va dans <strong style="color:#0a2540;">Délégation et partage &rarr; Autorisations</strong></li>
+       <li>Clique sur <strong style="color:#0a2540;">+</strong> et ajoute <strong style="color:#0a2540;">${mb}</strong></li>
+     </ol>`)
+
+  const winCard = includeWindows ? emailCard('&#128421;', 'Sur Windows',
+    `<div style="color:#425466;font-size:14px;line-height:1.6;">La boîte apparaît automatiquement après quelques minutes. Si ce n'est pas le cas, redémarre Outlook.</div>`) : ''
+
+  const opCard = onepasswordLink ? emailCard('&#128273;', 'Mot de passe',
+    `<div style="color:#425466;font-size:14px;line-height:1.6;margin-bottom:4px;">Le mot de passe a été partagé en toute sécurité via 1Password :</div>
+     ${ctaButton('Ouvrir dans 1Password', onepasswordLink)}`) : ''
+
+  const outro = `<p style="margin:20px 0 0 0;line-height:1.65;color:#425466;font-size:15px;">Une question ? Réponds simplement à cet email &#128578;</p>`
+
+  return greeting + introHtml + accessCard + macCard + winCard + opCard + outro
+}
+
+/**
+ * Compose + send one personalised "you now have access" email per person
+ * in a shared-mailbox request's "who needs access" list. Rendered as branded
+ * cards (Mac/Windows setup steps + optional 1Password button).
+ */
+export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any) {
+  const { t } = useTranslation()
+  const showToast = useUIStore((s: any) => s.showToast)
+  const appName = settings?.app_name || 'VO Hub'
+  const mailboxEmail = req.email_to_create || ''
+
+  const [recipients, setRecipients] = useState<any>(() => extractAccessEmails(req.who_needs_access))
+  const [inputValue, setInputValue] = useState('')
+  const [subject, setSubject] = useState(
+    () => t('admin.mailboxAnnouncement.accessSubjectDefault', { mailbox_email: mailboxEmail })
+  )
+  const [intro, setIntro] = useState(() => ACCESS_DEFAULT_INTRO)
+  const [onepasswordLink, setOnepasswordLink] = useState(() => req.onepassword_link || '')
+  const [includeWindows, setIncludeWindows] = useState(true)
+  const [sending, setSending] = useState(false)
+
+  const isValidEmail = (e: any) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(String(e).trim())
+  const addRecipient = (raw: any) => {
+    const e = String(raw).trim().toLowerCase()
+    if (!e || !isValidEmail(e) || recipients.includes(e)) { setInputValue(''); return }
+    setRecipients((prev: any) => [...prev, e]); setInputValue('')
+  }
+  const removeRecipient = (idx: any) => setRecipients((prev: any) => prev.filter((_: any, i: any) => i !== idx))
+
+  const renderFor = (recipientEmail: any) => wrapEmailHtml(
+    buildAccessEmailBody({ recipientEmail, mailboxEmail, intro, onepasswordLink, includeWindows }),
+    {
+      appName,
+      logoUrl: settings?.logo_url || '',
+      tagline: settings?.email_tagline || '',
+      logoHeight: settings?.email_logo_height || 0,
+      raw: true,
+    }
+  )
+
+  const previewHtml = useMemo(
+    () => renderFor(recipients[0] || ''),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [recipients, mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows]
+  )
+
+  const handleSend = async () => {
+    if (!recipients.length) return
+    setSending(true)
+    let ok = 0
+    const failed: any[] = []
+    for (const to of recipients) {
+      try {
+        const result = await sendEmail({ to, subject, body: renderFor(to), isHtml: true })
+        if (result.success) ok++
+        else failed.push(to)
+      } catch {
+        failed.push(to)
+      }
+    }
+    setSending(false)
+    if (failed.length === 0) {
+      showToast(t('admin.mailboxAnnouncement.accessSentToast', { count: ok }))
+      onSent?.()
+      onClose?.()
+    } else {
+      showToast(t('admin.mailboxAnnouncement.accessPartialToast', { ok, total: recipients.length, failed: failed.length }), 'error')
+    }
+  }
+
+  return (
+    <Card variant="elevated" className="overflow-hidden">
+      <CardContent className="p-0">
+        {/* Header */}
+        <div className="px-5 py-4 bg-gradient-to-r from-emerald-500/5 via-primary/5 to-cyan-500/5 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+              <UserCheck className="h-4 w-4 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm">{t('admin.mailboxAnnouncement.accessEmailTitle')}</h3>
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessEmailDesc')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-0">
+          {/* ── Left: form ── */}
+          <div className="p-5 space-y-4 md:border-r border-border/50">
+            {/* Recipients */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Users className="h-3 w-3 text-primary" />
+                {t('admin.mailboxAnnouncement.accessRecipientsLabel')}
+              </Label>
+              <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-muted/30 px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
+                {recipients.map((tag: any, idx: any) => (
+                  <span key={tag} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
+                    {tag}
+                    <button type="button" onClick={() => removeRecipient(idx)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button>
+                  </span>
+                ))}
+                <input
+                  type="email"
+                  value={inputValue}
+                  onChange={(e: any) => setInputValue(e.target.value)}
+                  onKeyDown={(e: any) => { if (['Enter', ',', 'Tab'].includes(e.key)) { e.preventDefault(); addRecipient(inputValue) } }}
+                  onBlur={() => { if (inputValue.trim()) addRecipient(inputValue) }}
+                  placeholder="prenom@vo-group.be"
+                  className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessRecipientsHint')}</p>
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxAnnouncement.subjectLabel')}</Label>
+              <Input value={subject} onChange={(e: any) => setSubject(e.target.value)} className="bg-muted/30" />
+            </div>
+
+            {/* Intro line */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxAnnouncement.accessIntroLabel')}</Label>
+              <Textarea value={intro} onChange={(e: any) => setIntro(e.target.value)} rows={3} className="text-sm bg-muted/30 resize-y" />
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessGreetingNote')}</p>
+            </div>
+
+            {/* 1Password link → renders a button block when filled */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <KeyRound className="h-3 w-3 text-primary" />
+                {t('admin.mailboxAnnouncement.onepasswordLinkLabel')}
+              </Label>
+              <Input
+                value={onepasswordLink}
+                onChange={(e: any) => setOnepasswordLink(e.target.value)}
+                placeholder={t('admin.mailboxAnnouncement.onepasswordPlaceholder')}
+                className="bg-muted/30"
+              />
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessOnepasswordNote')}</p>
+            </div>
+
+            {/* Windows block toggle */}
+            <div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/20 px-3 py-2">
+              <span className="text-xs font-medium flex items-center gap-1.5">
+                <span aria-hidden>🪟</span> {t('admin.mailboxAnnouncement.accessWindowsToggle')}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={includeWindows}
+                onClick={() => setIncludeWindows((v: boolean) => !v)}
+                className={cn('relative h-5 w-9 rounded-full transition-colors', includeWindows ? 'bg-primary' : 'bg-muted-foreground/30')}
+              >
+                <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform', includeWindows ? 'translate-x-4' : 'translate-x-0.5')} />
+              </button>
+            </div>
+          </div>
+
+          {/* ── Right: live preview ── */}
+          <div className="p-5 space-y-2 bg-muted/10">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Eye className="h-3 w-3 text-primary" /> {t('admin.mailboxAnnouncement.previewLabel')}
+            </Label>
+            <div className="rounded-lg border border-border/50 overflow-hidden bg-white">
+              <iframe title={t('admin.mailboxAnnouncement.previewLabel')} srcDoc={previewHtml} className="w-full h-[560px] border-0" sandbox="" />
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="px-5 py-4 bg-muted/20 border-t border-border/50 flex items-center gap-3">
+          <div className="flex-1" />
+          {onClose && <Button variant="outline" onClick={onClose} className="text-xs" disabled={sending}>{t('admin.mailboxAnnouncement.cancel')}</Button>}
+          <Button onClick={handleSend} disabled={sending || !recipients.length} className="gap-2 text-xs min-w-[140px]">
+            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            {sending ? t('admin.mailboxAnnouncement.accessSendingButton') : t('admin.mailboxAnnouncement.accessSendButton', { count: recipients.length })}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
