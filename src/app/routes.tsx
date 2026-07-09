@@ -59,6 +59,8 @@ const AdminEmailTemplatesPage = lazy(() => import('@/pages/admin/AdminEmailTempl
 const AdminEmailLogPage = lazy(() => import('@/pages/admin/AdminEmailLogPage').then((m) => ({ default: m.AdminEmailLogPage })))
 const AdminCalendarPage = lazy(() => import('@/pages/admin/AdminCalendarPage').then((m) => ({ default: m.AdminCalendarPage })))
 const AdminHolidaysPage = lazy(() => import('@/pages/admin/AdminHolidaysPage').then((m) => ({ default: m.AdminHolidaysPage })))
+const AdminFleetPage = lazy(() => import('@/pages/admin/AdminFleetPage').then((m) => ({ default: m.AdminFleetPage })))
+const AdminDeviceHistoryPage = lazy(() => import('@/pages/admin/AdminDeviceHistoryPage').then((m) => ({ default: m.AdminDeviceHistoryPage })))
 const AdminSubscriptionPlansPage = lazy(() => import('@/pages/admin/AdminSubscriptionPlansPage').then((m) => ({ default: m.AdminSubscriptionPlansPage })))
 const AdminBusinessUnitsPage = lazy(() => import('@/pages/admin/AdminBusinessUnitsPage').then((m) => ({ default: m.AdminBusinessUnitsPage })))
 const AdminExtensionsPage = lazy(() => import('@/pages/admin/AdminExtensionsPage').then((m) => ({ default: m.AdminExtensionsPage })))
@@ -173,6 +175,8 @@ export function AppRoutes() {
             <Route path="mailbox-form-builder" element={<AdminOnly><AdminMailboxFormBuilderPage /></AdminOnly>} />
             <Route path="local-it" element={<AdminOnly><AdminLocalITPage /></AdminOnly>} />
             <Route path="it-inventory" element={<AdminOnly><AdminItInventoryPage /></AdminOnly>} />
+            <Route path="fleet" element={<AdminOnly><AdminFleetPage /></AdminOnly>} />
+            <Route path="device-history" element={<AdminOnly><AdminDeviceHistoryPage /></AdminOnly>} />
             <Route path="qr-codes" element={<AdminOnly><AdminQRCodesPage /></AdminOnly>} />
             <Route path="scan-logs" element={<AdminOnly><AdminScanLogsPage /></AdminOnly>} />
             <Route path="audit" element={<AdminOnly><AdminAuditLogPage /></AdminOnly>} />

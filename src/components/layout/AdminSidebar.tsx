@@ -8,6 +8,7 @@ import {
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
   CalendarClock, PackageSearch, Activity, Wrench, Building2,
   AlarmClock, MessageSquare, Megaphone, MailCheck, CalendarDays, CalendarOff,
+  PackageCheck, Clock,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -81,6 +82,7 @@ export function AdminSidebar() {
       label: t('admin.sidebar.sections.inventory'),
       defaultOpen: false,
       links: [
+        { to: '/admin/fleet', label: t('admin.sidebar.links.fleet'), icon: PackageCheck },
         { to: '/admin/products', label: t('admin.sidebar.links.products'), icon: Package },
         { to: '/admin/it-inventory', label: t('admin.sidebar.links.itInventory'), icon: ScrollText },
         { to: '/admin/local-it', label: t('admin.sidebar.links.localIt'), icon: Monitor },
@@ -96,6 +98,7 @@ export function AdminSidebar() {
       links: [
         { to: '/admin/qr-codes', label: t('admin.sidebar.links.qrCodes'), icon: QrCode },
         { to: '/admin/scan-logs', label: t('admin.sidebar.links.scanLogs'), icon: ScrollText },
+        { to: '/admin/device-history', label: t('admin.sidebar.links.deviceHistory'), icon: Clock },
         { to: '/admin/lost-items', label: t('admin.sidebar.links.lostItems'), icon: PackageSearch },
       ],
     },
