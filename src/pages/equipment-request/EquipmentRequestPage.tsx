@@ -752,7 +752,7 @@ export function EquipmentRequestPage() {
       sendEmail({
         to: (user?.email || ""),
         subject: t('user.equipmentForm.confirmationEmailSubject'),
-        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: form.event_name }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: form.event_name, company: (profile as any)?.business_unit }),
         isHtml: true,
       })
 

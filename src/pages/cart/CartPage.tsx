@@ -280,7 +280,7 @@ export function CartPage() {
       sendEmail({
         to: (user?.email || ""),
         subject: t('user.cartPage.confirmationEmailSubject'),
-        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || t('user.cartPage.defaultEquipmentLabel')} (${t('user.cartPage.itemsCount', { count: totalItems })})` }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'equipment', detail: `${projectName || t('user.cartPage.defaultEquipmentLabel')} (${t('user.cartPage.itemsCount', { count: totalItems })})`, company: (profile as any)?.business_unit }),
         isHtml: true,
       })
       navigate('/request-sent')

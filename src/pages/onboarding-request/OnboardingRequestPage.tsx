@@ -818,8 +818,8 @@ export function OnboardingRequestPage() {
       // 3. Confirmation email to the requester (with HR personal-info reminder)
       sendEmail({
         to: (user?.email || ""),
-        subject: await buildConfirmationSubject({ type: 'onboarding', newHireName: fullName }),
-        body: await buildConfirmationEmail({ name: submitterName, type: 'onboarding', newHireName: fullName, detail: fullName }),
+        subject: await buildConfirmationSubject({ type: 'onboarding', newHireName: fullName, company: (profile as any)?.business_unit }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'onboarding', newHireName: fullName, detail: fullName, company: (profile as any)?.business_unit }),
         isHtml: true,
       })
 

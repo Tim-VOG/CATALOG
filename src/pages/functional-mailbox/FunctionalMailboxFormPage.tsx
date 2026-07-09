@@ -672,7 +672,7 @@ export function FunctionalMailboxFormPage() {
       sendEmail({
         to: (user?.email || ""),
         subject: t('user.mailboxForm.emailSubjectConfirmation'),
-        body: await buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'mailbox', detail: form.email_to_create || form.project_name, company: (profile as any)?.business_unit }),
         isHtml: true,
       })
 

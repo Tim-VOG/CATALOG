@@ -622,7 +622,7 @@ export function OffboardingRequestPage() {
       sendEmail({
         to: (user?.email || ""),
         subject: t('user.offboardingForm.emailSubject'),
-        body: await buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name }),
+        body: await buildConfirmationEmail({ name: submitterName, type: 'offboarding', detail: form.name, company: (profile as any)?.business_unit }),
         isHtml: true,
       })
 
