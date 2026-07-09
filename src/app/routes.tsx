@@ -56,6 +56,7 @@ const AdminSharedMailboxesPage = lazy(() => import('@/pages/admin/AdminSharedMai
 const AdminDeviceCredentialsPage = lazy(() => import('@/pages/admin/AdminDeviceCredentialsPage').then((m) => ({ default: m.AdminDeviceCredentialsPage })))
 const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage').then((m) => ({ default: m.AdminDesignPage })))
 const AdminEmailTemplatesPage = lazy(() => import('@/pages/admin/AdminEmailTemplatesPage').then((m) => ({ default: m.AdminEmailTemplatesPage })))
+const AdminEmailLogPage = lazy(() => import('@/pages/admin/AdminEmailLogPage').then((m) => ({ default: m.AdminEmailLogPage })))
 const AdminSubscriptionPlansPage = lazy(() => import('@/pages/admin/AdminSubscriptionPlansPage').then((m) => ({ default: m.AdminSubscriptionPlansPage })))
 const AdminBusinessUnitsPage = lazy(() => import('@/pages/admin/AdminBusinessUnitsPage').then((m) => ({ default: m.AdminBusinessUnitsPage })))
 const AdminExtensionsPage = lazy(() => import('@/pages/admin/AdminExtensionsPage').then((m) => ({ default: m.AdminExtensionsPage })))
@@ -160,6 +161,7 @@ export function AppRoutes() {
             <Route path="users/:userId" element={<AdminOnly><AdminUserDetailPage /></AdminOnly>} />
             <Route path="design" element={<AdminOnly><AdminDesignPage /></AdminOnly>} />
             <Route path="email-templates" element={<AdminOnly><AdminEmailTemplatesPage /></AdminOnly>} />
+            <Route path="email-log" element={<AdminEmailLogPage />} />
             <Route path="shared-mailboxes" element={<AdminOnly><AdminSharedMailboxesPage /></AdminOnly>} />
             <Route path="device-credentials" element={<AdminOnly><AdminDeviceCredentialsPage /></AdminOnly>} />
             <Route path="it-form-builder" element={<AdminOnly><AdminItFormBuilderPage /></AdminOnly>} />

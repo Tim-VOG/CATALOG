@@ -7,7 +7,7 @@ import {
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
   CalendarClock, PackageSearch, Activity, Wrench, Building2,
-  AlarmClock, MessageSquare, Megaphone,
+  AlarmClock, MessageSquare, Megaphone, MailCheck,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -112,6 +112,7 @@ export function AdminSidebar() {
         { to: '/admin/subscription-plans', label: t('admin.sidebar.links.subscriptionPlans'), icon: CreditCard },
         { to: '/admin/business-units', label: t('admin.sidebar.links.businessUnits'), icon: Building2 },
         { to: '/admin/email-templates', label: t('admin.sidebar.links.communications'), icon: Mail },
+        { to: '/admin/email-log', label: t('admin.sidebar.links.emailLog'), icon: MailCheck, managerOk: true },
         { to: '/admin/design', label: t('admin.sidebar.links.designBranding'), icon: Palette },
         { to: '/admin/audit', label: t('admin.sidebar.links.auditLog'), icon: ShieldCheck },
       ],
