@@ -50,6 +50,7 @@ export const adminEn = {
       holidays: 'Holidays',
       designBranding: 'Design & Branding',
       auditLog: 'Audit Log',
+      systemHealth: 'System health',
     },
   },
   // Uppercase eyebrow labels shown above page titles.
@@ -412,6 +413,7 @@ export const adminFr: typeof adminEn = {
       holidays: 'Jours fériés',
       designBranding: 'Design & Identité',
       auditLog: "Journal d'audit",
+      systemHealth: 'Santé système',
     },
   },
   eyebrow: {
@@ -773,6 +775,7 @@ export const adminNl: typeof adminEn = {
       holidays: 'Feestdagen',
       designBranding: 'Ontwerp & Branding',
       auditLog: 'Auditlogboek',
+      systemHealth: 'Systeemstatus',
     },
   },
   eyebrow: {

@@ -46,6 +46,16 @@ const en = {
     inStock: 'In stock', outOfStock: 'Coming soon', backSoon: 'Back soon',
     availableFrom: 'Available from {{date}}', addToCart: 'Add to cart',
   },
+  globalSearch: {
+    placeholder: 'Search people, devices, products, requests…',
+    hint: 'Type to search across the whole hub.',
+    noResults: 'No results.',
+    people: 'People',
+    devices: 'Devices',
+    products: 'Products',
+    mailboxes: 'Mailboxes',
+    requests: 'Requests',
+  },
   requestSent: {
     title: 'Request sent!',
     message: 'Your request has been sent successfully. You will receive a confirmation email shortly.',
@@ -135,6 +145,16 @@ const fr = {
     inStock: 'En stock', outOfStock: 'Bientôt', backSoon: 'Bientôt de retour',
     availableFrom: 'Dispo à partir du {{date}}', addToCart: 'Ajouter au panier',
   },
+  globalSearch: {
+    placeholder: 'Rechercher personnes, appareils, produits, demandes…',
+    hint: 'Tape pour chercher dans tout le hub.',
+    noResults: 'Aucun résultat.',
+    people: 'Personnes',
+    devices: 'Appareils',
+    products: 'Produits',
+    mailboxes: 'Boîtes mail',
+    requests: 'Demandes',
+  },
   requestSent: {
     title: 'Demande envoyée !',
     message: 'Votre demande a bien été envoyée. Vous recevrez un email de confirmation sous peu.',
@@ -223,6 +243,16 @@ const nl = {
   catalog: {
     inStock: 'Op voorraad', outOfStock: 'Binnenkort', backSoon: 'Snel terug',
     availableFrom: 'Beschikbaar vanaf {{date}}', addToCart: 'Toevoegen aan winkelmand',
+  },
+  globalSearch: {
+    placeholder: 'Zoek personen, toestellen, producten, aanvragen…',
+    hint: 'Typ om in de hele hub te zoeken.',
+    noResults: 'Geen resultaten.',
+    people: 'Personen',
+    devices: 'Toestellen',
+    products: 'Producten',
+    mailboxes: 'Mailboxen',
+    requests: 'Aanvragen',
   },
   requestSent: {
     title: 'Aanvraag verzonden!',

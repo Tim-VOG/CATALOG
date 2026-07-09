@@ -120,6 +120,7 @@ export function AdminSidebar() {
         { to: '/admin/holidays', label: t('admin.sidebar.links.holidays'), icon: CalendarOff },
         { to: '/admin/design', label: t('admin.sidebar.links.designBranding'), icon: Palette },
         { to: '/admin/audit', label: t('admin.sidebar.links.auditLog'), icon: ShieldCheck },
+        { to: '/admin/system-health', label: t('admin.sidebar.links.systemHealth'), icon: Activity },
       ],
     },
   ]
