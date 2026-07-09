@@ -18,6 +18,15 @@ const CHANGELOG: Entry[] = [
   {
     date: '2026-07',
     tag: 'new',
+    title: { fr: 'Ton avis compte', en: 'Your feedback matters', nl: 'Jouw mening telt' },
+    items: [
+      { fr: 'Un bouton flottant pour envoyer une idée ou signaler un bug en deux clics.', en: 'A floating button to send an idea or report a bug in two clicks.', nl: 'Een zwevende knop om een idee te sturen of een bug te melden in twee klikken.' },
+      { fr: 'Cette page « Nouveautés » pour suivre tout ce qui change dans VO Hub.', en: "This 'What's new' page to follow everything that changes in VO Hub.", nl: "Deze 'Nieuw'-pagina om alles te volgen wat er verandert in VO Hub." },
+    ],
+  },
+  {
+    date: '2026-07',
+    tag: 'new',
     title: { fr: 'Un site entièrement multilingue', en: 'A fully multilingual app', nl: 'Een volledig meertalige app' },
     items: [
       { fr: 'Tout VO Hub est maintenant disponible en français, néerlandais et anglais — change de langue depuis ton profil.', en: 'All of VO Hub is now available in French, Dutch and English — switch language from your profile.', nl: 'Heel VO Hub is nu beschikbaar in het Frans, Nederlands en Engels — wissel van taal via je profiel.' },
