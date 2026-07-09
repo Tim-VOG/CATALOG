@@ -17,6 +17,15 @@ type Entry = {
 const CHANGELOG: Entry[] = [
   {
     date: '2026-07',
+    tag: 'improved',
+    title: { fr: 'Complète ton profil', en: 'Complete your profile', nl: 'Vervolledig je profiel' },
+    items: [
+      { fr: 'Ajoute ton intitulé de poste et ton téléphone depuis ton profil.', en: 'Add your job title and phone number from your profile.', nl: 'Voeg je functietitel en telefoonnummer toe via je profiel.' },
+      { fr: 'Ces infos remplissent automatiquement ta signature dans les emails envoyés depuis VO Hub.', en: 'These details auto-fill your signature in emails sent from VO Hub.', nl: 'Deze gegevens vullen automatisch je handtekening in e-mails vanuit VO Hub.' },
+    ],
+  },
+  {
+    date: '2026-07',
     tag: 'new',
     title: { fr: 'Ton avis compte', en: 'Your feedback matters', nl: 'Jouw mening telt' },
     items: [

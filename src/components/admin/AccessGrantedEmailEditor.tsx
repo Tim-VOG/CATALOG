@@ -29,6 +29,7 @@ const ACCESS_DEFAULT_INTRO = `Je t'ai ajouté(e) sur une boîte mail partagée. 
 // (name, phone, email) — so the recipient knows who to reach.
 export function buildAdminFooterHtml(profile: any, appName: any) {
   const name = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim()
+  const title = profile?.job_title || profile?.title || ''
   const phone = profile?.phone || ''
   const email = profile?.email || ''
   if (!name && !phone && !email) {
@@ -36,6 +37,7 @@ export function buildAdminFooterHtml(profile: any, appName: any) {
   }
   return `<div style="line-height:1.5;">
     ${name ? `<div style="font-weight:700;color:#0a2540;font-size:14px;">${escapeHtml(name)}</div>` : ''}
+    ${title ? `<div style="color:#525f7f;font-size:12px;margin-top:1px;">${escapeHtml(title)}</div>` : ''}
     ${phone ? `<div style="color:#8898aa;font-size:12px;margin-top:3px;">${escapeHtml(phone)}</div>` : ''}
     ${email ? `<div style="font-size:12px;margin-top:1px;"><a href="mailto:${escapeAttr(email)}" style="color:#635bff;text-decoration:none;">${escapeHtml(email)}</a></div>` : ''}
   </div>`

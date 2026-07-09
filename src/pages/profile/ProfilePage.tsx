@@ -43,6 +43,7 @@ export function ProfilePage() {
   const clearThemeOverride = useClearThemeOverride()
 
   const [phone, setPhone] = useState(profile?.phone || '')
+  const [jobTitle, setJobTitle] = useState<string>(String(profile?.job_title || ''))
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const avatarInputRef = useRef<any>(null)
@@ -57,12 +58,13 @@ export function ProfilePage() {
   const completedRequests = requests.filter((r: any) => r.status === 'ready').length
 
   const phoneChanged = phone !== (profile?.phone || '')
+  const jobTitleChanged = jobTitle !== String(profile?.job_title || '')
 
-  const handleSavePhone = async () => {
-    if (!phoneChanged) return
+  const handleSaveContact = async () => {
+    if (!phoneChanged && !jobTitleChanged) return
     setSaving(true)
     try {
-      await updateProfile(user!.id, { phone })
+      await updateProfile(user!.id, { phone, job_title: jobTitle })
       await refreshProfile()
       showToast(t('user.profilePage.phoneUpdated'))
     } catch (err: any) {
@@ -290,25 +292,33 @@ export function ProfilePage() {
         <CardContent className="px-6 pb-6">
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label>{t('user.profilePage.phoneNumber')}</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={phone}
-                  onChange={(e: any) => setPhone(e.target.value)}
-                  placeholder={t('user.profilePage.phonePlaceholder')}
-                  className="max-w-xs"
-                />
-                <Button
-                  onClick={handleSavePhone}
-                  disabled={!phoneChanged || saving}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Save className="h-3.5 w-3.5" />
-                  {t('user.profilePage.save')}
-                </Button>
-              </div>
+              <Label>{t('user.profilePage.jobTitle')}</Label>
+              <Input
+                value={jobTitle}
+                onChange={(e: any) => setJobTitle(e.target.value)}
+                placeholder={t('user.profilePage.jobTitlePlaceholder')}
+                className="max-w-xs"
+              />
+              <p className="text-[11px] text-muted-foreground">{t('user.profilePage.signatureNote')}</p>
             </div>
+            <div className="space-y-1">
+              <Label>{t('user.profilePage.phoneNumber')}</Label>
+              <Input
+                value={phone}
+                onChange={(e: any) => setPhone(e.target.value)}
+                placeholder={t('user.profilePage.phonePlaceholder')}
+                className="max-w-xs"
+              />
+            </div>
+            <Button
+              onClick={handleSaveContact}
+              disabled={(!phoneChanged && !jobTitleChanged) || saving}
+              size="sm"
+              className="gap-2"
+            >
+              <Save className="h-3.5 w-3.5" />
+              {t('user.profilePage.save')}
+            </Button>
           </div>
         </CardContent>
       </Card>
