@@ -57,6 +57,8 @@ const AdminDeviceCredentialsPage = lazy(() => import('@/pages/admin/AdminDeviceC
 const AdminDesignPage = lazy(() => import('@/pages/admin/AdminDesignPage').then((m) => ({ default: m.AdminDesignPage })))
 const AdminEmailTemplatesPage = lazy(() => import('@/pages/admin/AdminEmailTemplatesPage').then((m) => ({ default: m.AdminEmailTemplatesPage })))
 const AdminEmailLogPage = lazy(() => import('@/pages/admin/AdminEmailLogPage').then((m) => ({ default: m.AdminEmailLogPage })))
+const AdminCalendarPage = lazy(() => import('@/pages/admin/AdminCalendarPage').then((m) => ({ default: m.AdminCalendarPage })))
+const AdminHolidaysPage = lazy(() => import('@/pages/admin/AdminHolidaysPage').then((m) => ({ default: m.AdminHolidaysPage })))
 const AdminSubscriptionPlansPage = lazy(() => import('@/pages/admin/AdminSubscriptionPlansPage').then((m) => ({ default: m.AdminSubscriptionPlansPage })))
 const AdminBusinessUnitsPage = lazy(() => import('@/pages/admin/AdminBusinessUnitsPage').then((m) => ({ default: m.AdminBusinessUnitsPage })))
 const AdminExtensionsPage = lazy(() => import('@/pages/admin/AdminExtensionsPage').then((m) => ({ default: m.AdminExtensionsPage })))
@@ -146,6 +148,7 @@ export function AppRoutes() {
             <Route path="offboarding" element={<OffboardingPage />} />
             <Route path="mailbox-requests" element={<AdminMailboxRequestsPage />} />
             <Route path="mailbox-announcement" element={<AdminMailboxAnnouncementPage />} />
+            <Route path="calendar" element={<AdminCalendarPage />} />
             <Route path="overdue" element={<AdminOnly><AdminOverduePage /></AdminOnly>} />
 
             {/* Admin only — wrapped so managers bounce back to /admin */}
@@ -162,6 +165,7 @@ export function AppRoutes() {
             <Route path="design" element={<AdminOnly><AdminDesignPage /></AdminOnly>} />
             <Route path="email-templates" element={<AdminOnly><AdminEmailTemplatesPage /></AdminOnly>} />
             <Route path="email-log" element={<AdminEmailLogPage />} />
+            <Route path="holidays" element={<AdminOnly><AdminHolidaysPage /></AdminOnly>} />
             <Route path="shared-mailboxes" element={<AdminOnly><AdminSharedMailboxesPage /></AdminOnly>} />
             <Route path="device-credentials" element={<AdminOnly><AdminDeviceCredentialsPage /></AdminOnly>} />
             <Route path="it-form-builder" element={<AdminOnly><AdminItFormBuilderPage /></AdminOnly>} />

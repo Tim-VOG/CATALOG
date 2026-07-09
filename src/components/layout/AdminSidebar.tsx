@@ -7,7 +7,7 @@ import {
   QrCode, ScrollText, CalendarRange,
   ChevronRight, CreditCard, KeyRound, ShieldCheck,
   CalendarClock, PackageSearch, Activity, Wrench, Building2,
-  AlarmClock, MessageSquare, Megaphone, MailCheck,
+  AlarmClock, MessageSquare, Megaphone, MailCheck, CalendarDays, CalendarOff,
 } from 'lucide-react'
 import { useLoanRequests } from '@/hooks/use-loan-requests'
 import { useItRequests } from '@/hooks/use-it-requests'
@@ -72,6 +72,7 @@ export function AdminSidebar() {
         { to: '/admin/offboarding-requests', label: t('admin.sidebar.links.offboarding'), icon: UserMinus, badge: pendingCounts.offboarding, managerOk: true },
         { to: '/admin/mailbox-requests', label: t('admin.sidebar.links.mailbox'), icon: Mail, badge: pendingCounts.mailbox, managerOk: true },
         { to: '/admin/mailbox-announcement', label: t('admin.sidebar.links.mailboxAnnouncement'), icon: Megaphone, managerOk: true },
+        { to: '/admin/calendar', label: t('admin.sidebar.links.calendar'), icon: CalendarDays, managerOk: true },
         { to: '/admin/issues', label: t('admin.sidebar.links.issues'), icon: Wrench },
       ],
     },
@@ -113,6 +114,7 @@ export function AdminSidebar() {
         { to: '/admin/business-units', label: t('admin.sidebar.links.businessUnits'), icon: Building2 },
         { to: '/admin/email-templates', label: t('admin.sidebar.links.communications'), icon: Mail },
         { to: '/admin/email-log', label: t('admin.sidebar.links.emailLog'), icon: MailCheck, managerOk: true },
+        { to: '/admin/holidays', label: t('admin.sidebar.links.holidays'), icon: CalendarOff },
         { to: '/admin/design', label: t('admin.sidebar.links.designBranding'), icon: Palette },
         { to: '/admin/audit', label: t('admin.sidebar.links.auditLog'), icon: ShieldCheck },
       ],

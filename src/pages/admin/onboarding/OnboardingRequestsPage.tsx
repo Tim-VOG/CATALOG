@@ -21,6 +21,7 @@ import { reserveOnboardingKit, getOnboardingKit, removeOnboardingKit } from '@/l
 import { useProducts } from '@/hooks/use-products'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { WelcomeEmailSection } from '@/pages/admin/welcome/WelcomeEmailSection'
+import { OnboardingChecklistCard } from '@/components/admin/onboarding/OnboardingChecklistCard'
 
 const formatDate = (d: any) =>
   d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
@@ -210,6 +211,8 @@ function RequestDetail({ req, onBack, onDelete, onStatusChange, sentEmail  }: an
       </div>
 
       <OnboardingRequestInfoCard req={req} sentEmail={sentEmail} />
+
+      {canChangeStatus && <OnboardingChecklistCard req={req} />}
 
       {canChangeStatus && (req.status === 'in_progress' || req.status === 'ready') && (
         <Card variant="elevated">

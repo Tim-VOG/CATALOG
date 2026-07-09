@@ -558,6 +558,39 @@ export const genEn = {
     "toastToggleFailed": "Toggle failed",
     "toastDeleteFailed": "Delete failed"
   },
+  "onboardingChecklist": {
+    "title": "IT provisioning checklist",
+    "progress": "{{done}}/{{total}} done",
+    "stepAd": "Create user properly in the AD",
+    "stepLicense": "Assign license in Microsoft Admin",
+    "stepPc": "Prepare a PC (if needed)",
+    "addPlaceholder": "Add a step…",
+    "addButton": "Add"
+  },
+  "calendar": {
+    "title": "Arrivals & departures",
+    "description": "Onboarding arrivals and offboarding departures at a glance.",
+    "today": "Today",
+    "arrivals": "{{count}} arrivals",
+    "departures": "{{count}} departures",
+    "upcoming": "Upcoming",
+    "newHire": "New hire",
+    "leaver": "Leaver"
+  },
+  "holidays": {
+    "title": "Company holidays",
+    "description": "Days the office is closed — planning and reminders can take them into account.",
+    "dateLabel": "Date",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Christmas",
+    "addButton": "Add",
+    "added": "Holiday added",
+    "removed": "Holiday removed",
+    "duplicate": "That date is already a holiday.",
+    "empty": "No holidays yet.",
+    "upcoming": "Upcoming",
+    "past": "Past"
+  },
   "emailLog": {
     "title": "Email log",
     "description": "Every email the app sent — confirm what went out, spot what failed.",
@@ -1903,6 +1936,39 @@ export const genFr = {
     "toastToggleFailed": "Échec de l'activation/désactivation",
     "toastDeleteFailed": "Échec de la suppression"
   },
+  "onboardingChecklist": {
+    "title": "Checklist de provisioning IT",
+    "progress": "{{done}}/{{total}} fait",
+    "stepAd": "Créer l'utilisateur proprement dans l'AD",
+    "stepLicense": "Attribuer la licence dans Microsoft Admin",
+    "stepPc": "Préparer un PC (si besoin)",
+    "addPlaceholder": "Ajouter une étape…",
+    "addButton": "Ajouter"
+  },
+  "calendar": {
+    "title": "Arrivées & départs",
+    "description": "Les arrivées (onboarding) et départs (offboarding) en un coup d'œil.",
+    "today": "Aujourd'hui",
+    "arrivals": "{{count}} arrivées",
+    "departures": "{{count}} départs",
+    "upcoming": "À venir",
+    "newHire": "Nouvel arrivant",
+    "leaver": "Départ"
+  },
+  "holidays": {
+    "title": "Jours fériés",
+    "description": "Les jours où le bureau est fermé — le planning et les rappels peuvent en tenir compte.",
+    "dateLabel": "Date",
+    "nameLabel": "Nom",
+    "namePlaceholder": "ex. Noël",
+    "addButton": "Ajouter",
+    "added": "Jour férié ajouté",
+    "removed": "Jour férié supprimé",
+    "duplicate": "Cette date est déjà un jour férié.",
+    "empty": "Aucun jour férié pour l'instant.",
+    "upcoming": "À venir",
+    "past": "Passés"
+  },
   "emailLog": {
     "title": "Journal des emails",
     "description": "Tous les emails envoyés par l'app — vérifie ce qui est parti, repère les échecs.",
@@ -3247,6 +3313,39 @@ export const genNl = {
     "toastFieldDeleted": "Veld verwijderd",
     "toastToggleFailed": "Wijzigen van status mislukt",
     "toastDeleteFailed": "Verwijderen mislukt"
+  },
+  "onboardingChecklist": {
+    "title": "IT-provisioning checklist",
+    "progress": "{{done}}/{{total}} klaar",
+    "stepAd": "Gebruiker correct aanmaken in de AD",
+    "stepLicense": "Licentie toewijzen in Microsoft Admin",
+    "stepPc": "Een pc voorbereiden (indien nodig)",
+    "addPlaceholder": "Stap toevoegen…",
+    "addButton": "Toevoegen"
+  },
+  "calendar": {
+    "title": "Aankomsten & vertrekken",
+    "description": "Onboarding-aankomsten en offboarding-vertrekken in één oogopslag.",
+    "today": "Vandaag",
+    "arrivals": "{{count}} aankomsten",
+    "departures": "{{count}} vertrekken",
+    "upcoming": "Binnenkort",
+    "newHire": "Nieuwe medewerker",
+    "leaver": "Vertrekker"
+  },
+  "holidays": {
+    "title": "Feestdagen",
+    "description": "Dagen dat het kantoor gesloten is — planning en herinneringen kunnen er rekening mee houden.",
+    "dateLabel": "Datum",
+    "nameLabel": "Naam",
+    "namePlaceholder": "bijv. Kerstmis",
+    "addButton": "Toevoegen",
+    "added": "Feestdag toegevoegd",
+    "removed": "Feestdag verwijderd",
+    "duplicate": "Die datum is al een feestdag.",
+    "empty": "Nog geen feestdagen.",
+    "upcoming": "Binnenkort",
+    "past": "Voorbij"
   },
   "emailLog": {
     "title": "E-maillogboek",
