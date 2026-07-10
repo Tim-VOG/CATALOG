@@ -20,10 +20,54 @@ export function extractAccessEmails(text: any) {
   return matches || []
 }
 
-// Default editable intro line. Everything else (access card, Mac/Windows
-// steps, the optional 1Password button) renders as branded cards — same
-// visual language as the welcome email.
-const ACCESS_DEFAULT_INTRO = `Je t'ai ajouté(e) sur une boîte mail partagée. Voici tout ce qu'il te faut pour y accéder 👇`
+export const normAccessLang = (l: any): 'fr' | 'en' | 'nl' => {
+  const s = String(l || 'fr').slice(0, 2).toLowerCase()
+  return s === 'en' || s === 'nl' ? s : 'fr'
+}
+
+// Every string of the access email, per language — so subject AND body stay
+// in one language (no more English subject over a French body).
+const ACCESS_I18N: Record<'fr' | 'en' | 'nl', any> = {
+  fr: {
+    subject: 'Tu as désormais accès à {{mailbox_email}}',
+    intro: `Je t'ai ajouté(e) sur une boîte mail partagée. Voici tout ce qu'il te faut pour y accéder 👇`,
+    greeting: 'Salut',
+    boxLabel: 'Ta boîte partagée', boxNote: 'Tu y as maintenant accès.',
+    macLabel: 'Sur Mac — à ajouter dans Outlook',
+    macSteps: ['Ouvre <b>Outils &rarr; Comptes</b>', 'Sélectionne ton compte', 'Va dans <b>Délégation et partage &rarr; Autorisations</b>', 'Clique sur <b>+</b> et ajoute <b>{{mb}}</b>'],
+    winLabel: 'Sur Windows', winText: `La boîte apparaît automatiquement après quelques minutes. Si ce n'est pas le cas, redémarre Outlook.`,
+    pwLabel: 'Mot de passe', pwText: 'Le mot de passe a été partagé en toute sécurité via 1Password :', pwBtn: 'Ouvrir dans 1Password',
+    helpTitle: "Besoin d'aide ?", helpText: `Contacte l'équipe IT sur <strong>Microsoft Teams</strong> et on s'en occupe avec toi. 👋`,
+    greetingNote: `Une courte salutation (« Salut 👋 ») est ajoutée automatiquement en haut.`,
+  },
+  en: {
+    subject: 'You now have access to {{mailbox_email}}',
+    intro: `I've added you to a shared mailbox. Here's everything you need to access it 👇`,
+    greeting: 'Hi',
+    boxLabel: 'Your shared mailbox', boxNote: 'You now have access.',
+    macLabel: 'On Mac — add it in Outlook',
+    macSteps: ['Open <b>Tools &rarr; Accounts</b>', 'Select your account', 'Go to <b>Delegation and Sharing &rarr; Permissions</b>', 'Click <b>+</b> and add <b>{{mb}}</b>'],
+    winLabel: 'On Windows', winText: 'The mailbox appears automatically after a few minutes. If not, restart Outlook.',
+    pwLabel: 'Password', pwText: 'The password has been securely shared via 1Password:', pwBtn: 'Open in 1Password',
+    helpTitle: 'Need help?', helpText: `Contact the IT team on <strong>Microsoft Teams</strong> and we'll sort it out with you. 👋`,
+    greetingNote: `A short greeting ("Hi 👋") is added automatically at the top.`,
+  },
+  nl: {
+    subject: 'Je hebt nu toegang tot {{mailbox_email}}',
+    intro: `Ik heb je toegevoegd aan een gedeelde mailbox. Hier vind je alles om er toegang toe te krijgen 👇`,
+    greeting: 'Hallo',
+    boxLabel: 'Je gedeelde mailbox', boxNote: 'Je hebt nu toegang.',
+    macLabel: 'Op Mac — toevoegen in Outlook',
+    macSteps: ['Open <b>Extra &rarr; Accounts</b>', 'Selecteer je account', 'Ga naar <b>Delegatie en delen &rarr; Machtigingen</b>', 'Klik op <b>+</b> en voeg <b>{{mb}}</b> toe'],
+    winLabel: 'Op Windows', winText: 'De mailbox verschijnt automatisch na een paar minuten. Zo niet, herstart Outlook.',
+    pwLabel: 'Wachtwoord', pwText: 'Het wachtwoord is veilig gedeeld via 1Password:', pwBtn: 'Openen in 1Password',
+    helpTitle: 'Hulp nodig?', helpText: `Neem contact op met het IT-team via <strong>Microsoft Teams</strong> en we regelen het samen. 👋`,
+    greetingNote: `Een korte begroeting ("Hallo 👋") wordt automatisch bovenaan toegevoegd.`,
+  },
+}
+export const accessSubjectFor = (lang: any, mailboxEmail: any) =>
+  ACCESS_I18N[normAccessLang(lang)].subject.replace(/\{\{mailbox_email\}\}/g, mailboxEmail || '')
+export const accessIntroFor = (lang: any) => ACCESS_I18N[normAccessLang(lang)].intro
 
 // Footer signature block with the sending admin's contact details
 // (name, phone, email) — so the recipient knows who to reach.
@@ -56,36 +100,34 @@ function emailCard(icon: string, label: string, innerHtml: string) {
  * Rendered through wrapEmailHtml({ raw:true }) so the branded shell wraps it.
  */
 export function buildAccessEmailBody(opts: any) {
-  const { mailboxEmail, intro, onepasswordLink, includeWindows } = opts
+  const { mailboxEmail, intro, onepasswordLink, includeWindows, language } = opts
+  const L = ACCESS_I18N[normAccessLang(language)]
   const mb = escapeHtml(mailboxEmail || '')
 
-  const greeting = `<p style="margin:0 0 18px 0;font-size:20px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">Salut &#128075;</p>`
+  const greeting = `<p style="margin:0 0 18px 0;font-size:20px;font-weight:700;color:#0a2540;letter-spacing:-0.3px;">${escapeHtml(L.greeting)} &#128075;</p>`
   const introHtml = `<p style="margin:0 0 8px 0;line-height:1.65;color:#425466;font-size:15px;">${escapeHtml(intro || '')}</p>`
 
-  const accessCard = emailCard('&#128236;', 'Ta boîte partagée',
+  const accessCard = emailCard('&#128236;', L.boxLabel,
     `<div style="font-weight:700;color:#0a2540;font-size:18px;letter-spacing:-0.2px;">${mb}</div>
-     <div style="margin-top:4px;color:#425466;font-size:14px;">Tu y as maintenant accès. &#9989;</div>`)
+     <div style="margin-top:4px;color:#425466;font-size:14px;">${escapeHtml(L.boxNote)} &#9989;</div>`)
 
-  const macCard = emailCard('&#127822;', 'Sur Mac — à ajouter dans Outlook',
-    `<ol style="margin:0;padding-left:20px;color:#425466;font-size:14px;line-height:1.9;">
-       <li>Ouvre <strong style="color:#0a2540;">Outils &rarr; Comptes</strong></li>
-       <li>Sélectionne ton compte</li>
-       <li>Va dans <strong style="color:#0a2540;">Délégation et partage &rarr; Autorisations</strong></li>
-       <li>Clique sur <strong style="color:#0a2540;">+</strong> et ajoute <strong style="color:#0a2540;">${mb}</strong></li>
-     </ol>`)
+  const steps = L.macSteps
+    .map((s: string) => `<li>${s.replace(/\{\{mb\}\}/g, mb).replace(/<b>/g, '<strong style="color:#0a2540;">').replace(/<\/b>/g, '</strong>')}</li>`)
+    .join('')
+  const macCard = emailCard('&#127822;', L.macLabel,
+    `<ol style="margin:0;padding-left:20px;color:#425466;font-size:14px;line-height:1.9;">${steps}</ol>`)
 
-  const winCard = includeWindows ? emailCard('&#128421;', 'Sur Windows',
-    `<div style="color:#425466;font-size:14px;line-height:1.6;">La boîte apparaît automatiquement après quelques minutes. Si ce n'est pas le cas, redémarre Outlook.</div>`) : ''
+  const winCard = includeWindows ? emailCard('&#128421;', L.winLabel,
+    `<div style="color:#425466;font-size:14px;line-height:1.6;">${escapeHtml(L.winText)}</div>`) : ''
 
-  const opCard = onepasswordLink ? emailCard('&#128273;', 'Mot de passe',
-    `<div style="color:#425466;font-size:14px;line-height:1.6;margin-bottom:4px;">Le mot de passe a été partagé en toute sécurité via 1Password :</div>
-     ${ctaButton('Ouvrir dans 1Password', onepasswordLink)}`) : ''
+  const opCard = onepasswordLink ? emailCard('&#128273;', L.pwLabel,
+    `<div style="color:#425466;font-size:14px;line-height:1.6;margin-bottom:4px;">${escapeHtml(L.pwText)}</div>
+     ${ctaButton(L.pwBtn, onepasswordLink)}`) : ''
 
-  // Help block — for a shared mailbox you don't reply to the email, you
-  // ping the IT team on Teams. Styled like the other cards (Teams purple).
+  // Help block — for a shared mailbox you ping the IT team on Teams.
   const helpCard = `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;background:#f5f3ff;border-radius:12px;border:1px solid #ddd6fe;margin:24px 0 4px 0;overflow:hidden;"><tr><td style="padding:16px 20px;">
-    <div style="font-size:15px;font-weight:700;color:#5b21b6;margin-bottom:2px;">&#128172; Besoin d'aide ?</div>
-    <div style="color:#4c1d95;font-size:14px;line-height:1.6;">Contacte l'équipe IT sur <strong>Microsoft Teams</strong> et on s'en occupe avec toi. &#128075;</div>
+    <div style="font-size:15px;font-weight:700;color:#5b21b6;margin-bottom:2px;">&#128172; ${escapeHtml(L.helpTitle)}</div>
+    <div style="color:#4c1d95;font-size:14px;line-height:1.6;">${L.helpText}</div>
   </td></tr></table>`
 
   return greeting + introHtml + accessCard + macCard + winCard + opCard + helpCard
@@ -109,13 +151,20 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   const [mainTo, setMainTo] = useState<string>(() => (req.requester_email || '').toLowerCase())
   const [recipients, setRecipients] = useState<any>(() => extractAccessEmails(req.who_needs_access))
   const [inputValue, setInputValue] = useState('')
-  const [subject, setSubject] = useState(
-    () => t('admin.mailboxAnnouncement.accessSubjectDefault', { mailbox_email: mailboxEmail })
-  )
-  const [intro, setIntro] = useState(() => ACCESS_DEFAULT_INTRO)
+  // The whole email (subject + body) is in ONE language, chosen here.
+  const [lang, setLang] = useState<'fr' | 'en' | 'nl'>(() => normAccessLang(req.requester_language || req.data?.language || 'fr'))
+  const [subject, setSubject] = useState(() => accessSubjectFor(lang, mailboxEmail))
+  const [intro, setIntro] = useState(() => accessIntroFor(lang))
   const [onepasswordLink, setOnepasswordLink] = useState(() => req.onepassword_link || '')
   const [includeWindows, setIncludeWindows] = useState(true)
   const [sending, setSending] = useState(false)
+
+  // Switching language re-seeds subject + intro (the rest is generated).
+  const applyLang = (l: 'fr' | 'en' | 'nl') => {
+    setLang(l)
+    setSubject(accessSubjectFor(l, mailboxEmail))
+    setIntro(accessIntroFor(l))
+  }
 
   const isValidEmail = (e: any) => /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(String(e).trim())
   const addRecipient = (raw: any) => {
@@ -128,7 +177,7 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   // One shared email body (generic greeting), sent to the requester with the
   // access people in CC.
   const renderBody = () => wrapEmailHtml(
-    buildAccessEmailBody({ mailboxEmail, intro, onepasswordLink, includeWindows }),
+    buildAccessEmailBody({ mailboxEmail, intro, onepasswordLink, includeWindows, language: lang }),
     {
       appName,
       logoUrl: settings?.logo_url || '',
@@ -143,7 +192,7 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   const previewHtml = useMemo(
     () => renderBody(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows, profile]
+    [mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows, profile, lang]
   )
 
   const handleSend = async () => {
@@ -193,9 +242,23 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
             <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
               <UserCheck className="h-4 w-4 text-emerald-600" />
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="font-bold text-sm">{t('admin.mailboxAnnouncement.accessEmailTitle')}</h3>
               <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessEmailDesc')}</p>
+            </div>
+            {/* Language — keeps subject + body in one language */}
+            <div className="inline-flex rounded-lg border border-border/50 overflow-hidden shrink-0">
+              {(['fr', 'en', 'nl'] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => applyLang(l)}
+                  className={cn('px-2.5 py-1 text-xs font-medium uppercase transition-colors',
+                    lang === l ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted')}
+                >
+                  {l}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -255,7 +318,7 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxAnnouncement.accessIntroLabel')}</Label>
               <Textarea value={intro} onChange={(e: any) => setIntro(e.target.value)} rows={3} className="text-sm bg-muted/30 resize-y" />
-              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessGreetingNote')}</p>
+              <p className="text-[10px] text-muted-foreground">{ACCESS_I18N[lang].greetingNote}</p>
             </div>
 
             {/* 1Password link → renders a button block when filled */}
