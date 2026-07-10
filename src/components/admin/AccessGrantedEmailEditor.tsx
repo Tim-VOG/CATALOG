@@ -149,7 +149,11 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   // Main recipient = the person who requested the mailbox. Everyone who
   // needs access goes in CC, so a single email reaches all of them.
   const [mainTo, setMainTo] = useState<string>(() => (req.requester_email || '').toLowerCase())
-  const [recipients, setRecipients] = useState<any>(() => extractAccessEmails(req.who_needs_access))
+  // CC = people who need access, minus the main recipient (no duplicate).
+  const [recipients, setRecipients] = useState<any>(() => {
+    const to = (req.requester_email || '').toLowerCase()
+    return extractAccessEmails(req.who_needs_access).filter((e: string) => e.toLowerCase() !== to)
+  })
   const [inputValue, setInputValue] = useState('')
   // The whole email (subject + body) is in ONE language, chosen here.
   const [lang, setLang] = useState<'fr' | 'en' | 'nl'>(() => normAccessLang(req.requester_language || req.data?.language || 'fr'))
@@ -172,7 +176,9 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
     if (!e || !isValidEmail(e) || recipients.includes(e)) { setInputValue(''); return }
     setRecipients((prev: any) => [...prev, e]); setInputValue('')
   }
-  const removeRecipient = (idx: any) => setRecipients((prev: any) => prev.filter((_: any, i: any) => i !== idx))
+  const removeRecipient = (email: any) => setRecipients((prev: any) => prev.filter((e: string) => e !== email))
+  // Never show the main recipient among the CC chips.
+  const ccVisible = recipients.filter((e: string) => e.toLowerCase() !== mainTo.trim().toLowerCase())
 
   // One shared email body (generic greeting), sent to the requester with the
   // access people in CC.
@@ -289,10 +295,10 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
                 {t('admin.mailboxAnnouncement.ccLabel')}
               </Label>
               <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-muted/30 px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
-                {recipients.map((tag: any, idx: any) => (
+                {ccVisible.map((tag: any) => (
                   <span key={tag} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
                     {tag}
-                    <button type="button" onClick={() => removeRecipient(idx)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button>
+                    <button type="button" onClick={() => removeRecipient(tag)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button>
                   </span>
                 ))}
                 <input
