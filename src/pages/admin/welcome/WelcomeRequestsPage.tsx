@@ -33,7 +33,12 @@ function requestToRecipient(req: any, personalEmail: any) {
     company: data.company || data.business_unit || '',
     department: data.profile || data.job_title || '',
     start_date: data.first_day || null,
-    language: (data.language || 'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en',
+    language: (() => {
+      const l = String(data.language || 'fr').toLowerCase()
+      if (l.startsWith('nl')) return 'nl'
+      if (l.startsWith('en')) return 'en'
+      return 'fr'
+    })(),
     custom_links: [],
   }
 }
