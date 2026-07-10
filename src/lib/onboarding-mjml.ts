@@ -66,23 +66,24 @@ interface BlockTheme {
   color?: string
   label_fr: string
   label_en: string
+  label_nl?: string
 }
 const BLOCK_THEME: Record<string, BlockTheme> = {
-  salutation:      { emoji: '&#x1F44B;', color: '#22c55e', label_fr: 'Bienvenue',          label_en: 'Welcome' },
-  email_info:      { emoji: '&#x1F4E7;', color: '#3b82f6', label_fr: 'Ton adresse e-mail', label_en: 'Your email' },
-  password:        { emoji: '&#x1F510;', color: '#0a0a0a', label_fr: 'Ton mot de passe',   label_en: 'Your password' },
-  building_info:   { emoji: '&#x1F3E2;', color: '#f59e0b', label_fr: 'Jacqmotte Rules',    label_en: 'Jacqmotte Rules' },
-  it_security:     { emoji: '&#x1F512;', color: '#ef4444', label_fr: 'S\u00e9curit\u00e9 IT', label_en: 'IT Security' },
-  email_signature: { emoji: '&#x2709;',  color: '#8b5cf6', label_fr: 'Signature mail',      label_en: 'Email signature' },
-  sharepoint:      { emoji: '&#x1F4C1;', color: '#2563eb', label_fr: 'SharePoint',          label_en: 'SharePoint' },
-  teams:           { emoji: '&#x1F4AC;', color: '#6366f1', label_fr: 'Teams',               label_en: 'Teams' },
-  vo_hub:          { emoji: '&#x2728;',  color: '#f97316', label_fr: 'Le VO Hub',           label_en: 'The VO Hub' },
-  wifi:            { emoji: '&#x1F4F6;', color: '#06b6d4', label_fr: 'WiFi',                label_en: 'WiFi' },
-  image_rights:    { emoji: '&#x1F4F8;', color: '#ec4899', label_fr: 'Droit \u00e0 l\'image', label_en: 'Image Rights' },
-  faq_it:          { emoji: '&#x1F4A1;', color: '#f97316', label_fr: 'FAQ IT',              label_en: 'IT FAQ' },
-  cta_link:        { emoji: '&#x1F517;', color: '#f97316', label_fr: 'Lien',                label_en: 'Link' },
-  closing:         { emoji: '&#x2728;',  color: '#14b8a6', label_fr: 'Conclusion',          label_en: 'Closing' },
-  signature_admin: { emoji: '&#x270D;',  color: '#0a2540', label_fr: 'Signature',           label_en: 'Signature' },
+  salutation:      { emoji: '&#x1F44B;', color: '#22c55e', label_fr: 'Bienvenue',          label_en: 'Welcome', label_nl: 'Welkom' },
+  email_info:      { emoji: '&#x1F4E7;', color: '#3b82f6', label_fr: 'Ton adresse e-mail', label_en: 'Your email', label_nl: 'Je e-mailadres' },
+  password:        { emoji: '&#x1F510;', color: '#0a0a0a', label_fr: 'Ton mot de passe',   label_en: 'Your password', label_nl: 'Je wachtwoord' },
+  building_info:   { emoji: '&#x1F3E2;', color: '#f59e0b', label_fr: 'Jacqmotte Rules',    label_en: 'Jacqmotte Rules', label_nl: 'Jacqmotte Rules' },
+  it_security:     { emoji: '&#x1F512;', color: '#ef4444', label_fr: 'S\u00e9curit\u00e9 IT', label_en: 'IT Security', label_nl: 'IT-beveiliging' },
+  email_signature: { emoji: '&#x2709;',  color: '#8b5cf6', label_fr: 'Signature mail',      label_en: 'Email signature', label_nl: 'E-mailhandtekening' },
+  sharepoint:      { emoji: '&#x1F4C1;', color: '#2563eb', label_fr: 'SharePoint',          label_en: 'SharePoint', label_nl: 'SharePoint' },
+  teams:           { emoji: '&#x1F4AC;', color: '#6366f1', label_fr: 'Teams',               label_en: 'Teams', label_nl: 'Teams' },
+  vo_hub:          { emoji: '&#x2728;',  color: '#f97316', label_fr: 'Le VO Hub',           label_en: 'The VO Hub', label_nl: 'De VO Hub' },
+  wifi:            { emoji: '&#x1F4F6;', color: '#06b6d4', label_fr: 'WiFi',                label_en: 'WiFi', label_nl: 'WiFi' },
+  image_rights:    { emoji: '&#x1F4F8;', color: '#ec4899', label_fr: 'Droit \u00e0 l\'image', label_en: 'Image Rights', label_nl: 'Portretrecht' },
+  faq_it:          { emoji: '&#x1F4A1;', color: '#f97316', label_fr: 'FAQ IT',              label_en: 'IT FAQ', label_nl: 'IT FAQ' },
+  cta_link:        { emoji: '&#x1F517;', color: '#f97316', label_fr: 'Lien',                label_en: 'Link', label_nl: 'Link' },
+  closing:         { emoji: '&#x2728;',  color: '#14b8a6', label_fr: 'Conclusion',          label_en: 'Closing', label_nl: 'Afsluiting' },
+  signature_admin: { emoji: '&#x270D;',  color: '#0a2540', label_fr: 'Signature',           label_en: 'Signature', label_nl: 'Handtekening' },
 }
 
 /**
@@ -93,15 +94,22 @@ function getSectionLabel(block: any, language: string): string {
   const theme = (BLOCK_THEME as Record<string, any>)[block.block_key] || { label_fr: 'Bloc', label_en: 'Block' }
 
   // Per-block override from admin UI
-  if (language === 'fr' && opts.section_label_fr) return opts.section_label_fr
-  if (language === 'en' && opts.section_label_en) return opts.section_label_en
+  const override = opts[`section_label_${language}`]
+  if (override) return override
 
-  // Default from theme
-  return language === 'fr' ? theme.label_fr : theme.label_en
+  // Default from theme (requested language → EN → FR)
+  return theme[`label_${language}`] || theme.label_en || theme.label_fr
+}
+
+// Pick a language-suffixed field (content_nl / label_nl …) with graceful
+// fallback: requested language → English → French.
+function pickLang(obj: any, base: string, language: string): string {
+  if (!obj) return ''
+  return obj[`${base}_${language}`] || obj[`${base}_en`] || obj[`${base}_fr`] || ''
 }
 
 function buildBlockMjml(block: any, language: string, vars: Record<string, any>, index: number, totalEnabled: number): string {
-  const content = language === 'fr' ? block.content_fr : block.content_en
+  const content = pickLang(block, 'content', language)
   // wifi & signature_admin render from options / sender, no text content needed
   const allowEmpty = block.block_key === 'wifi' || block.block_key === 'signature_admin'
   if (!content && !allowEmpty) return ''
@@ -138,9 +146,7 @@ function buildBlockMjml(block: any, language: string, vars: Record<string, any>,
 
   // CTA blocks: prominent button
   if (block.block_key === 'cta_link' && opts.url) {
-    const btnLabel = language === 'fr'
-      ? (opts.label_fr || 'Acceder')
-      : (opts.label_en || 'Access')
+    const btnLabel = opts[`label_${language}`] || opts.label_en || opts.label_fr || 'Access'
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
@@ -168,9 +174,7 @@ function buildBlockMjml(block: any, language: string, vars: Record<string, any>,
 
   // SharePoint / Teams / VO Hub: card with outline button
   if ((block.block_key === 'sharepoint' || block.block_key === 'teams' || block.block_key === 'vo_hub') && opts.url) {
-    const btnLabel = language === 'fr'
-      ? (opts.label_fr || 'Ouvrir')
-      : (opts.label_en || 'Open')
+    const btnLabel = opts[`label_${language}`] || opts.label_en || opts.label_fr || 'Open'
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
@@ -202,10 +206,10 @@ function buildBlockMjml(block: any, language: string, vars: Record<string, any>,
     const compPassword = opts.computer_password || 'Stalle2Jacq#2024'
     const phoneNetwork = opts.phone_network || 'VO Smart'
     const phonePassword = opts.phone_password || 'Jacq#139'
-    const labelComp = language === 'fr' ? 'Sur ton ordi' : 'On your computer'
-    const labelPhone = language === 'fr' ? 'Sur ton smartphone' : 'On your smartphone'
-    const labelNetwork = language === 'fr' ? 'Réseau' : 'Network'
-    const labelPassword = language === 'fr' ? 'Mot de passe' : 'Password'
+    const labelComp = language === 'fr' ? 'Sur ton ordi' : language === 'nl' ? 'Op je computer' : 'On your computer'
+    const labelPhone = language === 'fr' ? 'Sur ton smartphone' : language === 'nl' ? 'Op je smartphone' : 'On your smartphone'
+    const labelNetwork = language === 'fr' ? 'Réseau' : language === 'nl' ? 'Netwerk' : 'Network'
+    const labelPassword = language === 'fr' ? 'Mot de passe' : language === 'nl' ? 'Wachtwoord' : 'Password'
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
@@ -242,9 +246,7 @@ function buildBlockMjml(block: any, language: string, vars: Record<string, any>,
 
   // Password block: card with key icon + prominent black CTA
   if (block.block_key === 'password') {
-    const btnLabel = language === 'fr'
-      ? (opts.label_fr || 'Récupérer mon mot de passe')
-      : (opts.label_en || 'Retrieve my password')
+    const btnLabel = opts[`label_${language}`] || opts.label_en || opts.label_fr || 'Retrieve my password'
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
@@ -272,9 +274,7 @@ function buildBlockMjml(block: any, language: string, vars: Record<string, any>,
 
   // FAQ IT & Image Rights: same pattern as cta_link (text + black CTA)
   if ((block.block_key === 'faq_it' || block.block_key === 'image_rights') && opts.url) {
-    const btnLabel = language === 'fr'
-      ? (opts.label_fr || 'Accéder')
-      : (opts.label_en || 'Access')
+    const btnLabel = opts[`label_${language}`] || opts.label_en || opts.label_fr || 'Access'
     return `
     <mj-section background-color="#ffffff" padding="8px 32px">
       <mj-column background-color="#ffffff" border-radius="12px" border="1px solid #e6ebf1" padding="0">
@@ -436,7 +436,7 @@ export function buildMjmlFromBlocks(blocksConfig: any, language: any, recipient:
     company: recipient.company || recipient.team || '',
     department: recipient.department || '',
     start_date: recipient.start_date
-      ? new Date(recipient.start_date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-GB', {
+      ? new Date(recipient.start_date).toLocaleDateString(language === 'fr' ? 'fr-FR' : language === 'nl' ? 'nl-BE' : 'en-GB', {
           day: '2-digit', month: 'long', year: 'numeric',
         })
       : '',
@@ -456,6 +456,8 @@ export function buildMjmlFromBlocks(blocksConfig: any, language: any, recipient:
   // Customizable welcome title with variable substitution
   const welcomeTitlePattern = language === 'fr'
     ? (salutationOpts.welcome_title_fr || 'Bienvenue {{first_name}} !')
+    : language === 'nl'
+    ? (salutationOpts.welcome_title_nl || salutationOpts.welcome_title_en || 'Welkom {{first_name}}!')
     : (salutationOpts.welcome_title_en || 'Welcome {{first_name}}!')
   const welcomeTitle = substituteVars(welcomeTitlePattern, vars)
 

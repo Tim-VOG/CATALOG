@@ -470,9 +470,9 @@ export function SortableBlock({ block, blockTemplate, language, onToggle, onCont
 
   const colors = (BLOCK_COLORS as Record<string, any>)[block.block_key] || DEFAULT_COLOR
   const BlockIcon = getIcon(blockTemplate?.icon)
-  const label = language === 'fr' ? blockTemplate?.label_fr : blockTemplate?.label_en
-  const content = language === 'fr' ? block.content_fr : block.content_en
-  const contentKey = language === 'fr' ? 'content_fr' : 'content_en'
+  const label = blockTemplate?.[`label_${language}`] || blockTemplate?.label_en || blockTemplate?.label_fr
+  const content = block[`content_${language}`] ?? ''
+  const contentKey = `content_${language}`
 
   return (
     <div ref={setNodeRef} style={style}>

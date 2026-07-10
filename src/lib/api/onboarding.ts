@@ -143,6 +143,7 @@ export const saveBlockTemplateDefaults = async (blocksConfig: any, businessUnit:
     block_key: block.block_key,
     default_content_fr: block.content_fr,
     default_content_en: block.content_en,
+    default_content_nl: block.content_nl,
     default_options: block.options || {},
     default_enabled: block.enabled ?? true,
     sort_order: index + 1,

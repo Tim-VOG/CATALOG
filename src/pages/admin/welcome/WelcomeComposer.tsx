@@ -58,7 +58,10 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
   const [emailDbId, setEmailDbId] = useState<any>(null)
   const deliveryEmail = recipient?.personal_email || recipient?.email || ''
   const usingPersonal = !!recipient?.personal_email
-  const [language, setLanguage] = useState((recipient?.language || 'fr') === 'fr' ? 'fr' : 'en')
+  const [language, setLanguage] = useState(() => {
+    const l = String(recipient?.language || 'fr').slice(0, 2).toLowerCase()
+    return l === 'en' || l === 'nl' ? l : 'fr'
+  })
   const [subject, setSubject] = useState('')
   const [blocksConfig, setBlocksConfig] = useState<any[]>([])
   const [ccOpen, setCcOpen] = useState(false)
@@ -126,6 +129,7 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
         enabled: t.default_enabled ?? true,
         content_fr: t.default_content_fr,
         content_en: t.default_content_en,
+        content_nl: t.default_content_nl,
         options: { ...(t.default_options || {}) },
       }))
       setBlocksConfig(initial)
@@ -134,6 +138,8 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
       setSubject(
         language === 'fr'
           ? `Bienvenue chez ${company}, ${name}`
+          : language === 'nl'
+          ? `Welkom bij ${company}, ${name}`
           : `Welcome to ${company}, ${name}`
       )
       setInitialized(true)
@@ -342,6 +348,14 @@ export function WelcomeComposer({ recipient, requestId, onSent, onClose  }: any)
                 onClick={() => setLanguage('en')}
               >
                 <Globe className="h-3 w-3 mr-1" /> EN
+              </Button>
+              <Button
+                variant={language === 'nl' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 text-xs px-3 rounded-full"
+                onClick={() => setLanguage('nl')}
+              >
+                <Globe className="h-3 w-3 mr-1" /> NL
               </Button>
             </div>
           </div>
