@@ -39,8 +39,24 @@ const STATUS_ICONS = {
   ready: CheckCircle,
 }
 
-// ── Default email template (fallback if DB template is not yet seeded) ──
-const DEFAULT_TEMPLATE = `Hi {{requester_name}},
+// ── Default email templates (fallback if DB template is not yet seeded) ──
+// Trilingual FR/NL/EN so the confirmation goes out in the requester's language.
+const DEFAULT_TEMPLATES_I18N: Record<'fr' | 'en' | 'nl', string> = {
+  fr: `Bonjour {{requester_name}},
+
+Ta boîte mail fonctionnelle a été créée et est prête à l'emploi.
+
+**Boîte mail** {{mailbox_email}}
+**Projet** {{project_name}}
+**Nom d'affichage** {{display_name}}
+
+{{onepassword_section}}
+
+Une question ? Réponds simplement à cet email — on est là pour aider.
+
+Bien à toi,
+L'équipe {{company}}`,
+  en: `Hi {{requester_name}},
 
 Your functional mailbox has been created and is ready to use.
 
@@ -53,7 +69,28 @@ Your functional mailbox has been created and is ready to use.
 If you have any questions, just reply to this email — we're here to help.
 
 Best,
-The VO Hub Team`
+The {{company}} team`,
+  nl: `Hallo {{requester_name}},
+
+Je functionele mailbox is aangemaakt en klaar voor gebruik.
+
+**Mailbox** {{mailbox_email}}
+**Project** {{project_name}}
+**Weergavenaam** {{display_name}}
+
+{{onepassword_section}}
+
+Vragen? Antwoord gewoon op deze e-mail — we helpen je graag.
+
+Met vriendelijke groet,
+Het {{company}}-team`,
+}
+const DEFAULT_SUBJECTS_I18N: Record<'fr' | 'en' | 'nl', string> = {
+  fr: `{{app_name}} — Ta boîte mail fonctionnelle a été créée`,
+  en: `{{app_name}} — Your functional mailbox has been created`,
+  nl: `{{app_name}} — Je functionele mailbox is aangemaakt`,
+}
+const DEFAULT_TEMPLATE = DEFAULT_TEMPLATES_I18N.fr
 
 // ── Available template variables ──
 const TEMPLATE_VARS = [
@@ -81,6 +118,7 @@ function fillTemplate(template: any, req: any, appName: any) {
     .replace(/\{\{project_name\}\}/g, req.project_name || '')
     .replace(/\{\{display_name\}\}/g, req.display_name || '—')
     .replace(/\{\{agency\}\}/g, req.agency || '')
+    .replace(/\{\{company\}\}/g, req.agency || 'VO Group')
     .replace(/\{\{app_name\}\}/g, appName)
 }
 
@@ -375,6 +413,7 @@ function EditableCCEmails({ req, onSave  }: any) {
 function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: any) {
   const { t } = useTranslation()
   const appName = settings?.app_name || 'VO Hub'
+  const [emailLang, setEmailLang] = useState<'fr' | 'en' | 'nl'>('fr')
 
   const [dbTemplate, setDbTemplate] = useState<any>(null)
 
@@ -387,8 +426,8 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
     return () => { cancelled = true }
   }, [req.agency])
 
-  const savedTemplate = dbTemplate?.body || settings?.mailbox_email_template || DEFAULT_TEMPLATE
-  const savedSubject = dbTemplate?.subject || `${appName} — Your functional mailbox has been created`
+  const savedTemplate = dbTemplate?.body || settings?.mailbox_email_template || DEFAULT_TEMPLATES_I18N[emailLang]
+  const savedSubject = dbTemplate?.subject || DEFAULT_SUBJECTS_I18N[emailLang]
 
   // Initialize from draft (if saved) or template
   const [emailForm, setEmailForm] = useState(() => {
@@ -396,7 +435,7 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
       return {
         to: req.email_draft_to || req.requester_email || '',
         cc: req.email_draft_cc || extractEmails(req.who_needs_access).join(', '),
-        subject: req.email_draft_subject || `${appName} — Your functional mailbox has been created`,
+        subject: req.email_draft_subject || DEFAULT_SUBJECTS_I18N.fr.replace(/\{\{app_name\}\}/g, appName),
         body: req.email_draft_body,
         onepassword_link: req.email_draft_onepassword || req.onepassword_link || '',
       }
@@ -404,11 +443,23 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
     return {
       to: req.requester_email || '',
       cc: extractEmails(req.who_needs_access).join(', '),
-      subject: `${appName} — Your functional mailbox has been created`,
+      subject: DEFAULT_SUBJECTS_I18N.fr.replace(/\{\{app_name\}\}/g, appName),
       body: fillTemplate(DEFAULT_TEMPLATE, req, appName),
       onepassword_link: req.onepassword_link || '',
     }
   })
+
+  // Switch the default template + subject to another language (only when the
+  // admin hasn't started from a saved DB template / draft they want to keep).
+  const applyLanguage = (lang: 'fr' | 'en' | 'nl') => {
+    setEmailLang(lang)
+    if (dbTemplate || req.email_draft_body) return
+    setEmailForm((prev: any) => ({
+      ...prev,
+      subject: DEFAULT_SUBJECTS_I18N[lang].replace(/\{\{app_name\}\}/g, appName),
+      body: fillTemplate(DEFAULT_TEMPLATES_I18N[lang], req, appName),
+    }))
+  }
 
   // Once the DB template loads (after mount), refresh body/subject if no draft exists
   useEffect(() => {
@@ -484,6 +535,27 @@ function EmailEditor({ req, settings, onSend, onSaveDraft, onClose, sending  }: 
 
         {/* Email fields */}
         <div className="p-5 space-y-4">
+          {/* Language */}
+          <div className="flex items-center gap-2">
+            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="inline-flex rounded-lg border border-border/50 overflow-hidden">
+              {(['fr', 'en', 'nl'] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => applyLanguage(l)}
+                  className={cn('px-3 py-1 text-xs font-medium uppercase transition-colors',
+                    emailLang === l ? 'bg-foreground text-background' : 'bg-transparent text-muted-foreground hover:bg-muted')}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+            {(dbTemplate || req.email_draft_body) && (
+              <span className="text-[10px] text-muted-foreground">{t('admin.mailboxRequests.langKeepsContent')}</span>
+            )}
+          </div>
+
           {/* To */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('admin.mailboxRequests.toLabel')}</Label>

@@ -63,6 +63,39 @@ function wrapEmail(appName: string, logoUrl: string, bodyHtml: string): string {
 </table></td></tr></table></body></html>`
 }
 
+// Trilingual return / overdue reminders, picked by the recipient's language.
+// {{company}} auto-fills from their business unit.
+const P = (s: string) => `<p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">${s}</p>`
+const B = (s: string) => `<strong style="color:#0a2540;">${s}</strong>`
+const REMINDER_I18N: Record<string, Record<string, { subject: string; body: (v: any) => string }>> = {
+  return: {
+    fr: { subject: 'Rappel : {{product_name}} à rendre le {{return_date}}', body: (v) => P(`Bonjour ${v.requester_name},`) + P(`Petit rappel : ${B(v.product_name)} doit être rendu le ${B(v.return_date)}. Merci de le rapporter au bureau IT.`) + P(`Bien à toi,<br/>L'équipe ${v.company}`) },
+    en: { subject: 'Reminder: {{product_name}} due back on {{return_date}}', body: (v) => P(`Hi ${v.requester_name},`) + P(`Friendly reminder that ${B(v.product_name)} is due for return on ${B(v.return_date)}. Please bring it to the IT desk.`) + P(`Best,<br/>The ${v.company} team`) },
+    nl: { subject: 'Herinnering: {{product_name}} terug op {{return_date}}', body: (v) => P(`Hallo ${v.requester_name},`) + P(`Vriendelijke herinnering dat ${B(v.product_name)} terug moet op ${B(v.return_date)}. Breng het naar de IT-balie.`) + P(`Met vriendelijke groet,<br/>Het ${v.company}-team`) },
+  },
+  overdue: {
+    fr: { subject: 'Action requise : {{product_name}} est en retard', body: (v) => P(`Bonjour ${v.requester_name},`) + P(`${B(v.product_name)} devait être rendu le ${B(v.return_date)} et ne l'a pas encore été. Merci de le rapporter au bureau IT dès que possible.`) + P(`Bien à toi,<br/>L'équipe ${v.company}`) },
+    en: { subject: 'Action required: {{product_name}} is overdue', body: (v) => P(`Hi ${v.requester_name},`) + P(`${B(v.product_name)} was due back on ${B(v.return_date)} and hasn't been returned yet. Please bring it to the IT desk as soon as possible.`) + P(`Best,<br/>The ${v.company} team`) },
+    nl: { subject: 'Actie vereist: {{product_name}} is te laat', body: (v) => P(`Hallo ${v.requester_name},`) + P(`${B(v.product_name)} moest terug op ${B(v.return_date)} en is nog niet teruggebracht. Breng het zo snel mogelijk naar de IT-balie.`) + P(`Met vriendelijke groet,<br/>Het ${v.company}-team`) },
+  },
+}
+const normLang = (l: unknown): 'fr' | 'en' | 'nl' => {
+  const s = String(l || '').slice(0, 2).toLowerCase()
+  return s === 'en' || s === 'nl' ? s : 'fr'
+}
+
+// Build an email → { language, business_unit } map for a batch of recipients.
+async function profileMap(supabase: any, emails: string[]): Promise<Record<string, any>> {
+  const map: Record<string, any> = {}
+  const uniq = [...new Set(emails.filter(Boolean).map((e) => e.toLowerCase()))]
+  if (!uniq.length) return map
+  try {
+    const { data } = await supabase.from('profiles').select('email, language, business_unit').in('email', uniq)
+    for (const p of data || []) map[String(p.email).toLowerCase()] = p
+  } catch (_e) { /* profiles may be locked down — fall back to defaults */ }
+  return map
+}
+
 async function sendResend(to: string, subject: string, html: string): Promise<boolean> {
   if (!RESEND_API_KEY) {
     console.error('[daily-reminders] RESEND_API_KEY not configured')
@@ -254,32 +287,20 @@ serve(async (req) => {
       .eq('expected_return_date', beforeDate) : { data: [] }
 
     if (dueSoon?.length) {
-      // Respect admin edits to the template in /admin/communications.
-      let tmplSubject = 'Reminder: {{product_name}} due back on {{return_date}}'
-      let tmplBody = ''
-      try {
-        const { data: tmpl } = await supabase
-          .from('email_templates')
-          .select('subject, body')
-          .eq('template_key', 'request_return_reminder')
-          .maybeSingle()
-        if (tmpl?.subject) tmplSubject = tmpl.subject
-        if (tmpl?.body) tmplBody = tmpl.body
-      } catch (_e) { /* fall back to the inline default below */ }
-
+      const profs = await profileMap(supabase, dueSoon.map((e: any) => e.user_email))
       for (const eq of dueSoon) {
         if (!eq.user_email) continue
+        const prof = profs[eq.user_email.toLowerCase()] || {}
+        const lang = normLang(prof.language)
         const vars: Record<string, string> = {
           requester_name: eq.user_name || eq.user_email.split('@')[0],
           product_name: eq.product_name || 'the equipment',
           return_date: eq.expected_return_date || '',
+          company: prof.business_unit || 'VO Group',
         }
-        const subst = (t: string) => (t || '').replace(/\{\{(\w+)\}\}/g, (_m: string, k: string) => vars[k] ?? `[${k}]`)
-        const subject = subst(tmplSubject)
-        const inner = tmplBody
-          ? subst(tmplBody)
-          : `<p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">Hi ${vars.requester_name},</p>
-             <p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">Friendly reminder that <strong style="color:#0a2540;">${vars.product_name}</strong> is due for return on <strong style="color:#0a2540;">${vars.return_date}</strong>. Please bring it to the IT desk.</p>`
+        const tmpl = REMINDER_I18N.return[lang]
+        const subject = tmpl.subject.replace(/\{\{(\w+)\}\}/g, (_m: string, k: string) => vars[k] ?? `[${k}]`)
+        const inner = tmpl.body(vars)
         const ok = await sendResend(eq.user_email, subject, wrapEmail(branding.appName, branding.logoUrl, inner))
         if (ok) summary.return_reminders_sent++
         else summary.skipped++
@@ -301,31 +322,20 @@ serve(async (req) => {
       .eq('expected_return_date', overdueDate) : { data: [] }
 
     if (overdue?.length) {
-      let tmplSubject = 'Action required: {{product_name}} is overdue'
-      let tmplBody = ''
-      try {
-        const { data: tmpl } = await supabase
-          .from('email_templates')
-          .select('subject, body')
-          .eq('template_key', 'request_overdue')
-          .maybeSingle()
-        if (tmpl?.subject) tmplSubject = tmpl.subject
-        if (tmpl?.body) tmplBody = tmpl.body
-      } catch (_e) { /* fall back to the inline default below */ }
-
+      const profs = await profileMap(supabase, overdue.map((e: any) => e.user_email))
       for (const eq of overdue) {
         if (!eq.user_email) continue
+        const prof = profs[eq.user_email.toLowerCase()] || {}
+        const lang = normLang(prof.language)
         const vars: Record<string, string> = {
           requester_name: eq.user_name || eq.user_email.split('@')[0],
           product_name: eq.product_name || 'the equipment',
           return_date: eq.expected_return_date || '',
+          company: prof.business_unit || 'VO Group',
         }
-        const subst = (t: string) => (t || '').replace(/\{\{(\w+)\}\}/g, (_m: string, k: string) => vars[k] ?? `[${k}]`)
-        const subject = subst(tmplSubject)
-        const inner = tmplBody
-          ? subst(tmplBody)
-          : `<p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;">Hi ${vars.requester_name},</p>
-             <p style="margin:0 0 18px 0;line-height:1.65;color:#425466;font-size:15px;"><strong style="color:#0a2540;">${vars.product_name}</strong> was due back on <strong style="color:#0a2540;">${vars.return_date}</strong> and hasn't been returned yet. Please bring it to the IT desk as soon as possible.</p>`
+        const tmpl = REMINDER_I18N.overdue[lang]
+        const subject = tmpl.subject.replace(/\{\{(\w+)\}\}/g, (_m: string, k: string) => vars[k] ?? `[${k}]`)
+        const inner = tmpl.body(vars)
         const ok = await sendResend(eq.user_email, subject, wrapEmail(branding.appName, branding.logoUrl, inner))
         if (ok) summary.overdue_reminders_sent++
         else summary.skipped++
