@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useMailboxRequests } from '@/hooks/use-mailbox-requests'
 import { useAppSettings } from '@/hooks/use-settings'
 import {
-  Search, Mail, ArrowLeft, Megaphone, Users, ChevronRight, Building2, Calendar, CheckCircle,
+  Search, Mail, ArrowLeft, Megaphone, Users, ChevronRight, Building2, Calendar, CheckCircle, RefreshCw,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -12,12 +12,13 @@ import { Button } from '@/components/ui/button'
 import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { AccessGrantedEmailEditor, extractAccessEmails } from '@/components/admin/AccessGrantedEmailEditor'
+import { cn } from '@/lib/utils'
 
 const fmtDate = (d: any) => d ? new Date(d).toLocaleDateString('fr-FR') : null
 
 export function AdminMailboxAnnouncementPage() {
   const { t } = useTranslation()
-  const { data: requests = [], isLoading } = useMailboxRequests()
+  const { data: requests = [], isLoading, refetch, isFetching } = useMailboxRequests()
   const { data: settings } = useAppSettings()
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<any>(null)
@@ -27,9 +28,10 @@ export function AdminMailboxAnnouncementPage() {
     [requests, selectedId]
   )
 
-  // Only requests that actually have a mailbox to announce are useful here.
+  // Show every mailbox request — an announcement is useful even before the
+  // address is final. (Filtering on email_to_create hid legitimate rows.)
   const announceable = useMemo(
-    () => requests.filter((r: any) => r.email_to_create),
+    () => requests.filter((r: any) => r.email_to_create || r.project_name),
     [requests]
   )
 
@@ -94,14 +96,19 @@ export function AdminMailboxAnnouncementPage() {
         description={t('admin.mailboxAnnouncement.description')}
       />
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={t('admin.mailboxAnnouncement.searchPlaceholder')}
-          className="pl-9"
-          value={search}
-          onChange={(e: any) => setSearch(e.target.value)}
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={t('admin.mailboxAnnouncement.searchPlaceholder')}
+            className="pl-9"
+            value={search}
+            onChange={(e: any) => setSearch(e.target.value)}
+          />
+        </div>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => refetch()}>
+          <RefreshCw className={cn('h-3.5 w-3.5', isFetching && 'animate-spin')} /> {t('admin.mailboxAnnouncement.refresh')}
+        </Button>
       </div>
 
       {filtered.length === 0 ? (
