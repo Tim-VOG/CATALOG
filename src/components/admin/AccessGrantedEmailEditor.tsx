@@ -104,6 +104,9 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   const appName = settings?.app_name || 'VO Hub'
   const mailboxEmail = req.email_to_create || ''
 
+  // Main recipient = the person who requested the mailbox. Everyone who
+  // needs access goes in CC, so a single email reaches all of them.
+  const [mainTo, setMainTo] = useState<string>(() => (req.requester_email || '').toLowerCase())
   const [recipients, setRecipients] = useState<any>(() => extractAccessEmails(req.who_needs_access))
   const [inputValue, setInputValue] = useState('')
   const [subject, setSubject] = useState(
@@ -122,8 +125,10 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   }
   const removeRecipient = (idx: any) => setRecipients((prev: any) => prev.filter((_: any, i: any) => i !== idx))
 
-  const renderFor = (recipientEmail: any) => wrapEmailHtml(
-    buildAccessEmailBody({ recipientEmail, mailboxEmail, intro, onepasswordLink, includeWindows }),
+  // One shared email body (generic greeting), sent to the requester with the
+  // access people in CC.
+  const renderBody = () => wrapEmailHtml(
+    buildAccessEmailBody({ mailboxEmail, intro, onepasswordLink, includeWindows }),
     {
       appName,
       logoUrl: settings?.logo_url || '',
@@ -136,36 +141,32 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
   )
 
   const previewHtml = useMemo(
-    () => renderFor(recipients[0] || ''),
+    () => renderBody(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [recipients, mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows, profile]
+    [mailboxEmail, appName, settings, intro, onepasswordLink, includeWindows, profile]
   )
 
   const handleSend = async () => {
-    if (!recipients.length) return
+    const to = mainTo.trim().toLowerCase()
+    // CC = everyone who needs access, minus the main recipient (no dupes).
+    const cc = recipients.filter((e: string) => e.toLowerCase() !== to)
+    if (!to && !cc.length) return
+    // If there's no explicit main recipient, promote the first CC to "To".
+    const primary = to || cc.shift()
     setSending(true)
-    let ok = 0
-    const failed: any[] = []
-    for (const to of recipients) {
-      try {
-        const result = await sendEmail({ to, subject, body: renderFor(to), isHtml: true })
-        if (result.success) ok++
-        else failed.push(to)
-      } catch {
-        failed.push(to)
-      }
-    }
-    // Mark the mailbox as "announced" as soon as at least one email went
-    // out, so the list shows a "Sent" badge. Re-sending simply bumps the
-    // count and the timestamp. Never let a bookkeeping failure hide the
-    // send result from the admin.
-    if (ok > 0) {
+    let sent = false
+    try {
+      const result = await sendEmail({ to: primary, cc: cc.length ? cc : undefined, subject, body: renderBody(), isHtml: true })
+      sent = !!result.success
+    } catch { sent = false }
+
+    if (sent) {
       try {
         await updateRequest.mutateAsync({
           id: req.id,
           updates: {
             announcement_sent_at: new Date().toISOString(),
-            announcement_sent_count: (req.announcement_sent_count || 0) + ok,
+            announcement_sent_count: (req.announcement_sent_count || 0) + 1,
           },
         })
       } catch (e) {
@@ -174,12 +175,12 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
     }
 
     setSending(false)
-    if (failed.length === 0) {
-      showToast(t('admin.mailboxAnnouncement.accessSentToast', { count: ok }))
+    if (sent) {
+      showToast(t('admin.mailboxAnnouncement.accessSentToast', { count: 1 + cc.length }))
       onSent?.()
       onClose?.()
     } else {
-      showToast(t('admin.mailboxAnnouncement.accessPartialToast', { ok, total: recipients.length, failed: failed.length }), 'error')
+      showToast(t('admin.mailboxAnnouncement.accessSendFailed'), 'error')
     }
   }
 
@@ -202,11 +203,27 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
         <div className="grid md:grid-cols-2 gap-0">
           {/* ── Left: form ── */}
           <div className="p-5 space-y-4 md:border-r border-border/50">
-            {/* Recipients */}
+            {/* Main recipient (requester) */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <UserCheck className="h-3 w-3 text-primary" />
+                {t('admin.mailboxAnnouncement.mainRecipientLabel')}
+              </Label>
+              <input
+                type="email"
+                value={mainTo}
+                onChange={(e: any) => setMainTo(e.target.value)}
+                placeholder={t('admin.mailboxAnnouncement.mainRecipientPlaceholder')}
+                className="w-full rounded-lg border bg-muted/30 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground/50"
+              />
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.mainRecipientHint')}</p>
+            </div>
+
+            {/* CC — people who need access */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <Users className="h-3 w-3 text-primary" />
-                {t('admin.mailboxAnnouncement.accessRecipientsLabel')}
+                {t('admin.mailboxAnnouncement.ccLabel')}
               </Label>
               <div className="min-h-[42px] flex flex-wrap items-center gap-1.5 rounded-lg border bg-muted/30 px-3 py-2 focus-within:ring-2 focus-within:ring-ring">
                 {recipients.map((tag: any, idx: any) => (
@@ -225,7 +242,7 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
                   className="flex-1 min-w-[150px] bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
                 />
               </div>
-              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.accessRecipientsHint')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('admin.mailboxAnnouncement.ccHint')}</p>
             </div>
 
             {/* Subject */}
@@ -288,10 +305,15 @@ export function AccessGrantedEmailEditor({ req, settings, onClose, onSent }: any
         <div className="px-5 py-4 bg-muted/20 border-t border-border/50 flex items-center gap-3">
           <div className="flex-1" />
           {onClose && <Button variant="outline" onClick={onClose} className="text-xs" disabled={sending}>{t('admin.mailboxAnnouncement.cancel')}</Button>}
-          <Button onClick={handleSend} disabled={sending || !recipients.length} className="gap-2 text-xs min-w-[140px]">
-            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-            {sending ? t('admin.mailboxAnnouncement.accessSendingButton') : t('admin.mailboxAnnouncement.accessSendButton', { count: recipients.length })}
-          </Button>
+          {(() => {
+            const total = (mainTo.trim() ? 1 : 0) + recipients.filter((e: string) => e.toLowerCase() !== mainTo.trim().toLowerCase()).length
+            return (
+              <Button onClick={handleSend} disabled={sending || total === 0} className="gap-2 text-xs min-w-[140px]">
+                {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                {sending ? t('admin.mailboxAnnouncement.accessSendingButton') : t('admin.mailboxAnnouncement.accessSendButton', { count: total })}
+              </Button>
+            )
+          })()}
         </div>
       </CardContent>
     </Card>
