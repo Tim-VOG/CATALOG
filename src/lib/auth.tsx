@@ -122,11 +122,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // a pre-populated profile without typing anything.
       try {
         const email = (profileData as any)?.email
-        const missing = profileData && (!(profileData as any).phone || !(profileData as any).job_title || !(profileData as any).business_unit || !(profileData as any).language || !(profileData as any).department)
+        const pd = profileData as any
+        const missing = pd && (!pd.first_name || !pd.last_name || !pd.phone || !pd.job_title || !pd.business_unit || !pd.language || !pd.department)
         if (email && missing) {
           const dir = await getDirectoryByEmail(email)
           if (dir) {
             const patch: Record<string, any> = {}
+            if (!(profileData as any).first_name && dir.first_name) patch.first_name = dir.first_name
+            if (!(profileData as any).last_name && dir.last_name) patch.last_name = dir.last_name
             if (!(profileData as any).phone && dir.phone) patch.phone = dir.phone
             if (!(profileData as any).job_title && dir.job_title) patch.job_title = dir.job_title
             if (!(profileData as any).business_unit && dir.business_unit) patch.business_unit = dir.business_unit
