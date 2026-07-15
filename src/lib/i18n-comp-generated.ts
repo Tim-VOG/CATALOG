@@ -141,7 +141,11 @@ export const compGenEn = {
     "subtitle": "Enter the access PIN to continue",
     "placeholder": "Enter PIN",
     "error": "Incorrect PIN",
-    "unlock": "Unlock"
+    "unlock": "Unlock",
+    "biometricUnlock": "Unlock with Face ID / Touch ID",
+    "biometricFailed": "Biometric check failed. Use your PIN.",
+    "enableBiometric": "Enable biometric unlock on this device",
+    "or": "or"
   },
   "sortableBlock": {
     "sectionLabelOverride": "Section Label Override",
@@ -353,7 +357,11 @@ export const compGenFr = {
     "subtitle": "Entrez le code PIN d'accès pour continuer",
     "placeholder": "Entrez le PIN",
     "error": "Code PIN incorrect",
-    "unlock": "Déverrouiller"
+    "unlock": "Déverrouiller",
+    "biometricUnlock": "Déverrouiller avec Face ID / empreinte",
+    "biometricFailed": "Échec de la biométrie. Utilise ton PIN.",
+    "enableBiometric": "Activer le déverrouillage biométrique sur cet appareil",
+    "or": "ou"
   },
   "sortableBlock": {
     "sectionLabelOverride": "Libellé de section personnalisé",
@@ -565,7 +573,11 @@ export const compGenNl = {
     "subtitle": "Voer de toegangspincode in om verder te gaan",
     "placeholder": "Voer pincode in",
     "error": "Onjuiste pincode",
-    "unlock": "Ontgrendelen"
+    "unlock": "Ontgrendelen",
+    "biometricUnlock": "Ontgrendelen met Face ID / vingerafdruk",
+    "biometricFailed": "Biometrische controle mislukt. Gebruik je pincode.",
+    "enableBiometric": "Biometrische ontgrendeling op dit toestel inschakelen",
+    "or": "of"
   },
   "sortableBlock": {
     "sectionLabelOverride": "Aangepast sectielabel",
