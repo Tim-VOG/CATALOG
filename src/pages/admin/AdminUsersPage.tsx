@@ -421,7 +421,7 @@ export function AdminUsersPage() {
                       />
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate hover:underline">
-                          {p.full_name || t('admin.users.unnamed')}
+                          {[p.first_name, p.last_name].filter(Boolean).join(' ').trim() || p.full_name || t('admin.users.unnamed')}
                           {isSelf && (
                             <span className="text-[10px] text-muted-foreground ml-1">{t('admin.users.youIndicator')}</span>
                           )}
@@ -459,7 +459,7 @@ export function AdminUsersPage() {
                     ) : (
                       <Select
                         value={p.role}
-                        onChange={(e: any) => handleRoleChange(p.id, e.target.value, p.full_name || p.email)}
+                        onChange={(e: any) => handleRoleChange(p.id, e.target.value, [p.first_name, p.last_name].filter(Boolean).join(" ").trim() || p.email)}
                         className="w-24 h-8 text-xs"
                       >
                         {ROLE_OPTIONS.map((r: any) => (
@@ -531,7 +531,7 @@ export function AdminUsersPage() {
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-muted-foreground hover:text-red-400"
-                        onClick={() => handleDelete(p.id, p.full_name || p.email)}
+                        onClick={() => handleDelete(p.id, [p.first_name, p.last_name].filter(Boolean).join(" ").trim() || p.email)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
