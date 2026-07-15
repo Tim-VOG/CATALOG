@@ -6,6 +6,7 @@ import {
 import type { User } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import { getProfile, updateProfile } from './api/profiles'
+import { getDirectoryByEmail } from './api/people-directory'
 import { getInvitationByEmail, acceptInvitation } from './api/invitations'
 import { upsertModuleAccess } from './api/module-access'
 
@@ -113,6 +114,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
           }
         }
+      }
+
+      // First-login auto-fill: pull phone / job title / business unit /
+      // language / department from the people directory (matched by email),
+      // filling only the fields the user hasn't set. So a new VO login gets
+      // a pre-populated profile without typing anything.
+      try {
+        const email = (profileData as any)?.email
+        const missing = profileData && (!(profileData as any).phone || !(profileData as any).job_title || !(profileData as any).business_unit || !(profileData as any).language || !(profileData as any).department)
+        if (email && missing) {
+          const dir = await getDirectoryByEmail(email)
+          if (dir) {
+            const patch: Record<string, any> = {}
+            if (!(profileData as any).phone && dir.phone) patch.phone = dir.phone
+            if (!(profileData as any).job_title && dir.job_title) patch.job_title = dir.job_title
+            if (!(profileData as any).business_unit && dir.business_unit) patch.business_unit = dir.business_unit
+            if (!(profileData as any).language && dir.language) patch.language = dir.language
+            if (!(profileData as any).department && dir.department) patch.department = dir.department
+            if (Object.keys(patch).length > 0) {
+              const enriched = await updateProfile(userId, patch)
+              setProfile(enriched)
+              return enriched
+            }
+          }
+        }
+      } catch (e: any) {
+        console.warn('[Auth] directory auto-fill skipped:', e?.message || e)
       }
 
       setProfile(profileData)

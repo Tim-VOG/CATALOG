@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { usePaginated } from '@/hooks/use-paginated'
 import { useProfiles, useUpdateProfile, useUpdateProfileRole, useToggleProfileActive, useDeleteProfile } from '@/hooks/use-profiles'
+import { usePeopleDirectory } from '@/hooks/use-people-directory'
 import { useAllModuleAccess, useUpsertModuleAccess } from '@/hooks/use-module-access'
 import { useInvitations, useDeleteInvitation } from '@/hooks/use-invitations'
 import { useAuth } from '@/lib/auth'
@@ -10,7 +11,7 @@ import { useBusinessUnits } from '@/hooks/use-business-units'
 import {
   Search, Trash2,
   Package, UserPlus, ClipboardList, Mail, UserMinus,
-  Check, Loader2, ShieldCheck, Clock, X, Send, Pencil,
+  Check, Loader2, ShieldCheck, Clock, X, Send, Pencil, IdCard,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { UserAvatar } from '@/components/common/UserAvatar'
@@ -109,6 +110,7 @@ export function AdminUsersPage() {
   const [editingInvitation, setEditingInvitation] = useState<any>(null)
 
   const { data: profiles = [], isLoading: profilesLoading } = useProfiles({ search: search.trim() || undefined, role: roleFilter })
+  const { data: directory = [] } = usePeopleDirectory()
   const { data: allAccess = [], isLoading: accessLoading } = useAllModuleAccess()
   const { data: invitations = [] } = useInvitations('pending')
   const { data: scanLogs = [] } = useScanLogs({ limit: 500 })
@@ -158,6 +160,17 @@ export function AdminUsersPage() {
     if (buFilter === 'all') return profiles
     return profiles.filter((p: any) => p.business_unit === buFilter)
   }, [profiles, buFilter])
+
+  // Imported directory people who don't have an account yet (no matching
+  // profile email) — shown as "pending first login".
+  const notActivated = useMemo(() => {
+    const emails = new Set((profiles as any[]).map((p: any) => (p.email || '').toLowerCase()))
+    const q = search.trim().toLowerCase()
+    return (directory as any[])
+      .filter((d: any) => !emails.has((d.email || '').toLowerCase()))
+      .filter((d: any) => buFilter === 'all' || d.business_unit === buFilter)
+      .filter((d: any) => !q || d.full_name?.toLowerCase().includes(q) || d.email?.toLowerCase().includes(q) || d.job_title?.toLowerCase().includes(q))
+  }, [directory, profiles, search, buFilter])
 
   // Show 50 at a time to keep large tables snappy
   const { items: visibleRows, hasMore, loadMore, total, reset: resetPagination } = usePaginated(filtered, 50)
@@ -545,6 +558,45 @@ export function AdminUsersPage() {
         )}
         </div>
       </div>
+
+      {/* People directory — imported staff who haven't signed in yet. Their
+          profile auto-fills from here on first VO login. */}
+      {notActivated.length > 0 && (
+        <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
+          <div className="px-5 py-3 border-b border-border/50 flex items-center gap-2">
+            <IdCard className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold">{t('admin.users.directoryTitle')}</h3>
+            <span className="text-xs text-muted-foreground">{t('admin.users.directoryCount', { count: notActivated.length })}</span>
+          </div>
+          <div className="divide-y divide-border/40">
+            {notActivated.slice(0, 100).map((d: any) => (
+              <div key={d.id} className="px-5 py-2.5 flex items-center gap-3 text-sm">
+                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                  {(d.first_name?.[0] || d.full_name?.[0] || '?').toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium">{d.full_name}</span>
+                    {d.business_unit && <Badge variant="secondary" className="text-[10px]">{d.business_unit}</Badge>}
+                    {!d.is_active && <Badge variant="outline" className="text-[10px] bg-muted text-muted-foreground">{t('admin.users.directorySuspended')}</Badge>}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {d.email}{d.job_title ? ` · ${d.job_title}` : ''}{d.phone ? ` · ${d.phone}` : ''}
+                  </div>
+                </div>
+                <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 border-amber-500/30 shrink-0">
+                  {t('admin.users.directoryPending')}
+                </Badge>
+              </div>
+            ))}
+          </div>
+          {notActivated.length > 100 && (
+            <div className="px-5 py-2 text-center text-xs text-muted-foreground border-t border-border/40">
+              {t('admin.users.directoryMore', { count: notActivated.length - 100 })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Confirm role change dialog */}
       <Dialog open={!!confirmDialog} onOpenChange={() => setConfirmDialog(null)}>
