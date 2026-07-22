@@ -3,10 +3,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { getSystemHealth, exportConfig } from '@/lib/api/system-health'
 import { useUIStore } from '@/stores/ui-store'
+import { useAuth } from '@/lib/auth'
+import { sendEmail } from '@/lib/api/send-email'
+import { wrapEmailHtml, getEmailBranding } from '@/lib/email-html'
 import {
-  Activity, Database, Zap, Mail, AlertTriangle, CheckCircle, Bell, Download, RefreshCw, Loader2,
+  Activity, Database, Zap, Mail, AlertTriangle, CheckCircle, Bell, Download, RefreshCw, Loader2, Send,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageLoading } from '@/components/common/LoadingSpinner'
@@ -28,8 +32,34 @@ const fmtAgo = (d: any, t: any) => {
 export function AdminSystemHealthPage() {
   const { t } = useTranslation()
   const showToast = useUIStore((s: any) => s.showToast)
+  const { profile, user } = useAuth()
   const { data: health, isLoading, refetch, isFetching } = useQuery({ queryKey: ['system-health'], queryFn: getSystemHealth, refetchInterval: 60000 })
   const [exporting, setExporting] = useState(false)
+  const [testTo, setTestTo] = useState<string>(() => (profile as any)?.email || user?.email || '')
+  const [testing, setTesting] = useState(false)
+
+  const handleSendTest = async () => {
+    const to = testTo.trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { showToast(t('admin.systemHealth.testInvalid'), 'error'); return }
+    setTesting(true)
+    try {
+      const branding = await getEmailBranding()
+      const when = new Date().toLocaleString('fr-FR')
+      const body = wrapEmailHtml(
+        `<p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#0a2540;">${t('admin.systemHealth.testEmailHeading')} &#9989;</p>` +
+        `<p style="margin:0 0 12px;">${t('admin.systemHealth.testEmailBody')}</p>` +
+        `<p style="margin:0;color:#8898aa;font-size:13px;">${when}</p>`,
+        { ...branding, raw: true },
+      )
+      const res = await sendEmail({ to, subject: t('admin.systemHealth.testEmailSubject'), body, isHtml: true }, { templateKey: 'test' })
+      if (res.success) showToast(t('admin.systemHealth.testSent', { email: to }))
+      else showToast(res.error || t('admin.systemHealth.testFailed'), 'error')
+    } catch (err: any) {
+      showToast(err.message || t('admin.systemHealth.testFailed'), 'error')
+    } finally {
+      setTesting(false)
+    }
+  }
 
   const handleExport = async () => {
     setExporting(true)
@@ -75,6 +105,30 @@ export function AdminSystemHealthPage() {
           <RefreshCw className={cn('h-3.5 w-3.5', isFetching && 'animate-spin')} /> {t('admin.systemHealth.refresh')}
         </Button>
       </div>
+
+      {/* Test email — send a real email to check delivery works */}
+      <Card variant="elevated" className="border-primary/20">
+        <CardContent className="p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold flex items-center gap-2"><Send className="h-4 w-4 text-primary" /> {t('admin.systemHealth.testTitle')}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{t('admin.systemHealth.testDesc')}</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Input
+                type="email"
+                value={testTo}
+                onChange={(e: any) => setTestTo(e.target.value)}
+                placeholder="you@vo-group.be"
+                className="w-56"
+              />
+              <Button onClick={handleSendTest} disabled={testing || !testTo.trim()} className="gap-2 shrink-0">
+                {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} {t('admin.systemHealth.testSend')}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Status cards */}
       <div className="grid sm:grid-cols-3 gap-3">

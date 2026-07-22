@@ -581,7 +581,16 @@ export const genEn = {
     "exportTitle": "Export configuration",
     "exportDesc": "Download templates, form builders, settings, business units and holidays as one JSON backup.",
     "exportButton": "Export config",
-    "exportDone": "Configuration exported."
+    "exportDone": "Configuration exported.",
+    "testTitle": "Test email",
+    "testDesc": "Send a real email to any address to check that delivery works.",
+    "testSend": "Send test",
+    "testInvalid": "Please enter a valid email address.",
+    "testSent": "Test email sent to {{email}}.",
+    "testFailed": "Could not send the test email.",
+    "testEmailSubject": "VO Hub — Test email",
+    "testEmailHeading": "Email delivery works",
+    "testEmailBody": "This is a test email from VO Hub. If you received it, sending is working correctly."
   },
   "fleet": {
     "title": "Fleet overview",
@@ -2053,7 +2062,16 @@ export const genFr = {
     "exportTitle": "Exporter la configuration",
     "exportDesc": "Télécharge les modèles, form builders, réglages, business units et jours fériés en une sauvegarde JSON.",
     "exportButton": "Exporter la config",
-    "exportDone": "Configuration exportée."
+    "exportDone": "Configuration exportée.",
+    "testTitle": "Email de test",
+    "testDesc": "Envoie un vrai email à n'importe quelle adresse pour vérifier que l'envoi fonctionne.",
+    "testSend": "Envoyer un test",
+    "testInvalid": "Entre une adresse email valide.",
+    "testSent": "Email de test envoyé à {{email}}.",
+    "testFailed": "Impossible d'envoyer l'email de test.",
+    "testEmailSubject": "VO Hub — Email de test",
+    "testEmailHeading": "L'envoi d'emails fonctionne",
+    "testEmailBody": "Ceci est un email de test depuis VO Hub. Si tu l'as reçu, l'envoi fonctionne correctement."
   },
   "fleet": {
     "title": "État du parc",
@@ -3525,7 +3543,16 @@ export const genNl = {
     "exportTitle": "Configuratie exporteren",
     "exportDesc": "Download sjablonen, formulierbouwers, instellingen, business units en feestdagen als één JSON-back-up.",
     "exportButton": "Config exporteren",
-    "exportDone": "Configuratie geëxporteerd."
+    "exportDone": "Configuratie geëxporteerd.",
+    "testTitle": "Test-e-mail",
+    "testDesc": "Verstuur een echte e-mail naar een willekeurig adres om te controleren of verzenden werkt.",
+    "testSend": "Test versturen",
+    "testInvalid": "Voer een geldig e-mailadres in.",
+    "testSent": "Test-e-mail verzonden naar {{email}}.",
+    "testFailed": "Kon de test-e-mail niet verzenden.",
+    "testEmailSubject": "VO Hub — Test-e-mail",
+    "testEmailHeading": "E-mailverzending werkt",
+    "testEmailBody": "Dit is een test-e-mail van VO Hub. Als je hem ontvangt, werkt het verzenden correct."
   },
   "fleet": {
     "title": "Materiaaloverzicht",
