@@ -1432,7 +1432,7 @@ export const genEn = {
   },
   "welcomeEmailSection": {
     "sentOnPrefix": "Welcome email was sent on",
-    "resendButton": "Resend",
+    "resendButton": "Resend the welcome email",
     "resendTitle": "Resend the welcome email",
     "resendDescription": "Send the welcome again — e.g. wrong address or the new hire didn't get it.",
     "cancelResend": "Cancel",
@@ -2904,7 +2904,7 @@ export const genFr = {
   },
   "welcomeEmailSection": {
     "sentOnPrefix": "L'email de bienvenue a été envoyé le",
-    "resendButton": "Renvoyer",
+    "resendButton": "Renvoyer l'email de bienvenue",
     "resendTitle": "Renvoyer l'email de bienvenue",
     "resendDescription": "Renvoie le welcome — ex. mauvaise adresse ou l'arrivant ne l'a pas reçu.",
     "cancelResend": "Annuler",
@@ -4376,7 +4376,7 @@ export const genNl = {
   },
   "welcomeEmailSection": {
     "sentOnPrefix": "De welkomstmail is verzonden op",
-    "resendButton": "Opnieuw versturen",
+    "resendButton": "Welkomstmail opnieuw versturen",
     "resendTitle": "Welkomstmail opnieuw versturen",
     "resendDescription": "Verstuur de welkom opnieuw — bijv. verkeerd adres of niet ontvangen.",
     "cancelResend": "Annuleren",

@@ -70,13 +70,15 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   if (sentEmail && !resend) {
     return (
       <Card variant="elevated" className="border-emerald-500/30">
-        <CardContent className="p-4 flex items-center gap-3">
-          <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-          <span className="text-sm text-muted-foreground flex-1">
-            {t('admin.welcomeEmailSection.sentOnPrefix')} <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
-          </span>
-          <Button variant="outline" size="sm" onClick={() => setResend(true)} className="gap-1.5 text-xs shrink-0">
-            <Send className="h-3.5 w-3.5" /> {t('admin.welcomeEmailSection.resendButton')}
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span className="text-sm text-muted-foreground flex-1">
+              {t('admin.welcomeEmailSection.sentOnPrefix')} <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
+            </span>
+          </div>
+          <Button variant="outline" onClick={() => setResend(true)} className="w-full gap-2">
+            <Send className="h-4 w-4" /> {t('admin.welcomeEmailSection.resendButton')}
           </Button>
         </CardContent>
       </Card>
