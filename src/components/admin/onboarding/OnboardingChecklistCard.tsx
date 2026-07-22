@@ -19,7 +19,9 @@ export function OnboardingChecklistCard({ req }: any) {
   const defaults = useMemo(() => [
     t('admin.onboardingChecklist.stepAd'),
     t('admin.onboardingChecklist.stepLicense'),
-    t('admin.onboardingChecklist.stepPc'),
+    t('admin.onboardingChecklist.stepHr'),
+    t('admin.onboardingChecklist.stepEquipment'),
+    t('admin.onboardingChecklist.stepWelcome'),
   ].map((label: string, i: number) => ({ id: mkId(label, i), label, done: false })), [t])
 
   const [items, setItems] = useState<any[]>(() =>

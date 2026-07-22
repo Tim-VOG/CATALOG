@@ -619,9 +619,11 @@ export const genEn = {
   "onboardingChecklist": {
     "title": "IT provisioning checklist",
     "progress": "{{done}}/{{total}} done",
-    "stepAd": "Create user properly in the AD",
-    "stepLicense": "Assign license in Microsoft Admin",
-    "stepPc": "Prepare a PC (if needed)",
+    "stepAd": "Create user in the AD + sync",
+    "stepLicense": "License in Microsoft Admin (Premium)",
+    "stepHr": "HR form",
+    "stepEquipment": "Equipment",
+    "stepWelcome": "Welcome template",
     "addPlaceholder": "Add a step…",
     "addButton": "Add"
   },
@@ -2085,9 +2087,11 @@ export const genFr = {
   "onboardingChecklist": {
     "title": "Checklist de provisioning IT",
     "progress": "{{done}}/{{total}} fait",
-    "stepAd": "Créer l'utilisateur proprement dans l'AD",
-    "stepLicense": "Attribuer la licence dans Microsoft Admin",
-    "stepPc": "Préparer un PC (si besoin)",
+    "stepAd": "Création user sur l'AD + synchro",
+    "stepLicense": "Licence sur Microsoft Admin (Premium)",
+    "stepHr": "Formulaire HR",
+    "stepEquipment": "Équipement",
+    "stepWelcome": "Template de bienvenue",
     "addPlaceholder": "Ajouter une étape…",
     "addButton": "Ajouter"
   },
@@ -3551,9 +3555,11 @@ export const genNl = {
   "onboardingChecklist": {
     "title": "IT-provisioning checklist",
     "progress": "{{done}}/{{total}} klaar",
-    "stepAd": "Gebruiker correct aanmaken in de AD",
-    "stepLicense": "Licentie toewijzen in Microsoft Admin",
-    "stepPc": "Een pc voorbereiden (indien nodig)",
+    "stepAd": "Gebruiker aanmaken in de AD + sync",
+    "stepLicense": "Licentie in Microsoft Admin (Premium)",
+    "stepHr": "HR-formulier",
+    "stepEquipment": "Materiaal",
+    "stepWelcome": "Welkomstsjabloon",
     "addPlaceholder": "Stap toevoegen…",
     "addButton": "Toevoegen"
   },
