@@ -57,6 +57,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
   const [personalEmail, setPersonalEmail] = useState(() => req?.data?.personal_email || '')
   const [recipientForCompose, setRecipientForCompose] = useState<any>(null)
   const [preparing, setPreparing] = useState(false)
+  const [resend, setResend] = useState(false)
 
   const data = useMemo(() => req?.data || {}, [req])
 
@@ -66,7 +67,7 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
     if (data.personal_email) setPersonalEmail((prev: string) => prev || data.personal_email)
   }, [req?.id, data.personal_email])
 
-  if (sentEmail) {
+  if (sentEmail && !resend) {
     return (
       <Card variant="elevated" className="border-emerald-500/30">
         <CardContent className="p-4 flex items-center gap-3">
@@ -74,6 +75,9 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
           <span className="text-sm text-muted-foreground flex-1">
             {t('admin.welcomeEmailSection.sentOnPrefix')} <strong className="text-foreground">{formatDate(sentEmail.sent_at)}</strong>
           </span>
+          <Button variant="outline" size="sm" onClick={() => setResend(true)} className="gap-1.5 text-xs shrink-0">
+            <Send className="h-3.5 w-3.5" /> {t('admin.welcomeEmailSection.resendButton')}
+          </Button>
         </CardContent>
       </Card>
     )
@@ -92,8 +96,8 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
         <WelcomeComposer
           recipient={recipientForCompose}
           requestId={req.id}
-          onSent={() => { setRecipientForCompose(null); onSent?.() }}
-          onClose={() => setRecipientForCompose(null)}
+          onSent={() => { setRecipientForCompose(null); setResend(false); onSent?.() }}
+          onClose={() => { setRecipientForCompose(null); setResend(false) }}
         />
       </Suspense>
     )
@@ -139,11 +143,18 @@ export function WelcomeEmailSection({ req, sentEmail, onSent  }: any) {
             <AtSign className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-sm">{t('admin.welcomeEmailSection.title')}</h4>
+            <h4 className="font-semibold text-sm">
+              {resend ? t('admin.welcomeEmailSection.resendTitle') : t('admin.welcomeEmailSection.title')}
+            </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {t('admin.welcomeEmailSection.description')}
+              {resend ? t('admin.welcomeEmailSection.resendDescription') : t('admin.welcomeEmailSection.description')}
             </p>
           </div>
+          {resend && (
+            <Button variant="ghost" size="sm" onClick={() => setResend(false)} className="text-xs shrink-0">
+              {t('admin.welcomeEmailSection.cancelResend')}
+            </Button>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor={`personal-email-${req.id}`} className="text-xs">

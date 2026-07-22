@@ -1432,6 +1432,10 @@ export const genEn = {
   },
   "welcomeEmailSection": {
     "sentOnPrefix": "Welcome email was sent on",
+    "resendButton": "Resend",
+    "resendTitle": "Resend the welcome email",
+    "resendDescription": "Send the welcome again — e.g. wrong address or the new hire didn't get it.",
+    "cancelResend": "Cancel",
     "loadingComposer": "Loading composer…",
     "invalidEmailToast": "Please enter a valid personal email",
     "title": "Send the welcome email",
@@ -2900,6 +2904,10 @@ export const genFr = {
   },
   "welcomeEmailSection": {
     "sentOnPrefix": "L'email de bienvenue a été envoyé le",
+    "resendButton": "Renvoyer",
+    "resendTitle": "Renvoyer l'email de bienvenue",
+    "resendDescription": "Renvoie le welcome — ex. mauvaise adresse ou l'arrivant ne l'a pas reçu.",
+    "cancelResend": "Annuler",
     "loadingComposer": "Chargement du composeur…",
     "invalidEmailToast": "Veuillez saisir un email personnel valide",
     "title": "Envoyer l'email de bienvenue",
@@ -4368,6 +4376,10 @@ export const genNl = {
   },
   "welcomeEmailSection": {
     "sentOnPrefix": "De welkomstmail is verzonden op",
+    "resendButton": "Opnieuw versturen",
+    "resendTitle": "Welkomstmail opnieuw versturen",
+    "resendDescription": "Verstuur de welkom opnieuw — bijv. verkeerd adres of niet ontvangen.",
+    "cancelResend": "Annuleren",
     "loadingComposer": "Composer wordt geladen…",
     "invalidEmailToast": "Voer een geldig persoonlijk e-mailadres in",
     "title": "Welkomstmail versturen",
