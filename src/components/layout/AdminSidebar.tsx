@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, useLayoutEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, Inbox, Users, Palette, Mail, ArrowLeft,
@@ -19,6 +19,9 @@ import { cn } from '@/lib/utils'
 
 const COLLAPSE_KEY = 'vo-admin-sidebar-collapsed'
 const OPEN_KEY = 'vo-admin-sidebar-open'
+// Remember the sidebar scroll position across navigations so it never
+// jumps back to the top when you open a page from a lower group.
+let savedNavScroll = 0
 
 export function AdminSidebar() {
   const location = useLocation()
@@ -151,6 +154,13 @@ export function AdminSidebar() {
   useEffect(() => { try { localStorage.setItem(COLLAPSE_KEY, collapsed ? '1' : '0') } catch { /* */ } }, [collapsed])
   useEffect(() => { try { localStorage.setItem(OPEN_KEY, JSON.stringify(openGroups)) } catch { /* */ } }, [openGroups])
 
+  // Keep the sidebar's scroll where the user left it on every navigation.
+  const navRef = useRef<HTMLElement>(null)
+  useLayoutEffect(() => {
+    const el = navRef.current
+    if (el && el.scrollTop !== savedNavScroll) el.scrollTop = savedNavScroll
+  }, [location.pathname])
+
   const toggleGroup = (id: string) => setOpenGroups((p) => ({ ...p, [id]: !p[id] }))
 
   // Search flattens across all groups.
@@ -206,7 +216,11 @@ export function AdminSidebar() {
         )}
 
         {/* Nav */}
-        <nav className={cn('flex-1 overflow-y-auto overflow-x-hidden pr-1', collapsed ? 'space-y-1 px-1' : 'space-y-4')}>
+        <nav
+          ref={navRef}
+          onScroll={(e) => { savedNavScroll = (e.currentTarget as HTMLElement).scrollTop }}
+          className={cn('flex-1 overflow-y-auto overflow-x-hidden pr-1', collapsed ? 'space-y-1 px-1' : 'space-y-4')}
+        >
           {searchResults ? (
             <div className="space-y-px">
               {searchResults.length === 0 && (
