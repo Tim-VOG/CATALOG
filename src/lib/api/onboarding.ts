@@ -138,12 +138,14 @@ export const saveBlockTemplateDefaults = async (blocksConfig: any, businessUnit:
   const bu = normalizeBusinessUnit(businessUnit)
   // Batch-update each block template with current content, options, enabled
   // state, and sort order — scoped to the given business unit ('' = default).
+  // Content columns are NOT NULL — coalesce missing languages (e.g. an older
+  // draft with no Dutch content yet) to an empty string.
   const updates = blocksConfig.map((block: any, index: number) => ({
     business_unit: bu,
     block_key: block.block_key,
-    default_content_fr: block.content_fr,
-    default_content_en: block.content_en,
-    default_content_nl: block.content_nl,
+    default_content_fr: block.content_fr ?? '',
+    default_content_en: block.content_en ?? '',
+    default_content_nl: block.content_nl ?? '',
     default_options: block.options || {},
     default_enabled: block.enabled ?? true,
     sort_order: index + 1,
