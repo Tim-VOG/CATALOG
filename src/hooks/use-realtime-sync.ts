@@ -11,6 +11,13 @@ const TABLE_KEYS: Record<string, string[][]> = {
   mailbox_requests: [['mailbox-requests']],
   qr_codes: [['qr-codes']],
   equipment_issues: [['equipment-issues']],
+  products: [['products']],
+  profiles: [['profiles']],
+  feedback: [['feedback']],
+  people_directory: [['people-directory']],
+  shared_mailboxes: [['shared-mailboxes']],
+  holidays: [['holidays']],
+  onboarding_emails: [['onboarding-emails']],
 }
 
 /**
@@ -38,9 +45,15 @@ export function useRealtimeSync() {
     channel.on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user!.id}` }, () => invalidate('notifications'))
     channel.on('postgres_changes', { event: '*', schema: 'public', table: 'qr_codes' }, () => invalidate('qr_codes'))
 
-    // Staff: the request streams + issue tickets.
+    // Staff: every live admin surface — request streams, issue tickets,
+    // stock, users, feedback, directory, shared mailboxes… so the whole
+    // admin updates instantly without a manual refresh.
     if (isStaff) {
-      for (const table of ['loan_requests', 'it_requests', 'mailbox_requests', 'equipment_issues']) {
+      for (const table of [
+        'loan_requests', 'it_requests', 'mailbox_requests', 'equipment_issues',
+        'products', 'profiles', 'feedback', 'people_directory', 'shared_mailboxes',
+        'holidays', 'onboarding_emails',
+      ]) {
         channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => invalidate(table))
       }
     }
