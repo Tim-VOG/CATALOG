@@ -6,7 +6,7 @@ import { sendStatusChangeEmail } from '@/services/request-status-service'
 import { useUIStore } from '@/stores/ui-store'
 import { useAuth } from '@/lib/auth'
 import {
-  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye,
+  Search, UserPlus, Trash2, ArrowLeft, Package, Check, Mail, Info, Clock, CheckCircle, Eye, ListChecks,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -540,6 +540,17 @@ export function OnboardingRequestsPage() {
                             <Check className="h-2.5 w-2.5" /> {t('admin.onboardingRequests.welcomeSent')}
                           </Badge>
                         )}
+                        {(() => {
+                          const cl = Array.isArray(req.checklist) ? req.checklist : []
+                          if (!cl.length) return null
+                          const done = cl.filter((i: any) => i.done).length
+                          const pct = Math.round((done / cl.length) * 100)
+                          return (
+                            <Badge variant="outline" className={cn('text-[10px] gap-1', pct === 100 ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-primary/10 text-primary border-primary/30')}>
+                              <ListChecks className="h-2.5 w-2.5" /> {pct}%
+                            </Badge>
+                          )
+                        })()}
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                         {submitter && <span>{t('admin.onboardingRequests.byLabel', { name: submitter })}</span>}
