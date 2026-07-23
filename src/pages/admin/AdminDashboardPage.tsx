@@ -246,6 +246,26 @@ export function AdminDashboardPage() {
     })
   }, [activeLoans])
 
+  // Requests created per week over the last 8 weeks (all types combined).
+  const weeklyTrend = useMemo(() => {
+    const weeks = 8
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const buckets = Array.from({ length: weeks }, (_, i) => {
+      const start = new Date(today); start.setDate(today.getDate() - (weeks - 1 - i) * 7)
+      return { label: start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }), count: 0 }
+    })
+    const all = [...loanReqs, ...itReqs, ...mailboxReqs]
+    for (const r of all as any[]) {
+      if (!r.created_at) continue
+      const days = Math.floor((today.getTime() - new Date(r.created_at).getTime()) / 86400000)
+      const idx = weeks - 1 - Math.floor(days / 7)
+      if (idx >= 0 && idx < weeks) buckets[idx].count++
+    }
+    return buckets
+  }, [loanReqs, itReqs, mailboxReqs])
+  const trendMax = Math.max(1, ...weeklyTrend.map((b) => b.count))
+  const trendTotal = weeklyTrend.reduce((s, b) => s + b.count, 0)
+
   const categoryBreakdown = useMemo(() => {
     const map = new Map()
     qrCodes.forEach((q: any) => {
@@ -294,6 +314,33 @@ export function AdminDashboardPage() {
         <Stat label={t('admin.dashboard.statOnLoan')} value={stats.onLoan} trend={t('admin.dashboard.statOnLoanTrend', { count: sortedLoans.length })} to="/admin/qr-codes" />
         <Stat label={t('admin.dashboard.statPending')} value={counts.pendingEquipment + counts.pendingOnboarding + counts.pendingMailbox} trend={counts.pendingEquipment > 0 ? t('admin.dashboard.statPendingTrend', { count: counts.pendingEquipment }) : t('admin.dashboard.statPendingUpToDate')} to="/admin/requests" accent={counts.pendingEquipment + counts.pendingOnboarding + counts.pendingMailbox > 0 ? 'amber' : undefined} />
         <Stat label={t('admin.dashboard.statOverdue')} value={counts.overdue} trend={counts.overdue > 0 ? t('admin.dashboard.statOverdueTrend') : t('admin.dashboard.statOverdueNone')} to="/admin/scan-logs" accent={counts.overdue > 0 ? 'rose' : 'emerald'} />
+      </motion.div>
+
+      {/* ── Requests trend (last 8 weeks) ── */}
+      <motion.div {...fadeUp(0.08)} className="mb-5">
+        <Card>
+          <CardHeader
+            title={t('admin.dashboard.requestsTrend')}
+            action={<span className="text-xs text-muted-foreground tabular-nums">{t('admin.dashboard.requestsTrendTotal', { count: trendTotal })}</span>}
+          />
+          <div className="px-5 pb-5 pt-1">
+            <div className="flex items-end gap-2 sm:gap-3 h-28">
+              {weeklyTrend.map((b, i) => (
+                <div key={i} className="group/bar flex-1 flex flex-col items-center justify-end gap-1.5 h-full">
+                  <span className="text-[10px] font-semibold tabular-nums text-foreground opacity-0 group-hover/bar:opacity-100 transition-opacity">{b.count}</span>
+                  <div className="w-full flex items-end justify-center flex-1">
+                    <div
+                      className="w-full max-w-[38px] rounded-t-md bg-primary group-hover/bar:bg-primary/80 transition-colors"
+                      style={{ height: `${Math.max((b.count / trendMax) * 100, 3)}%` }}
+                      title={`${b.label}: ${b.count}`}
+                    />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground tabular-nums whitespace-nowrap">{b.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
       </motion.div>
 
       {/* ── Main grid ── */}
