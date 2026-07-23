@@ -136,6 +136,15 @@ export const compGenEn = {
     "confirmRemove": "Remove this recipient?",
     "recipientRemoved": "Recipient removed"
   },
+  "dataTable": {
+    "search": "Search…",
+    "export": "Export",
+    "selected": "{{count}} selected",
+    "clear": "Clear",
+    "empty": "No results",
+    "showing": "{{from}}–{{to}} of {{total}}",
+    "page": "{{page}} / {{count}}"
+  },
   "pinGate": {
     "title": "Restricted area",
     "subtitle": "Enter the access PIN to continue",
@@ -352,6 +361,15 @@ export const compGenFr = {
     "confirmRemove": "Supprimer ce destinataire ?",
     "recipientRemoved": "Destinataire supprimé"
   },
+  "dataTable": {
+    "search": "Rechercher…",
+    "export": "Exporter",
+    "selected": "{{count}} sélectionné(s)",
+    "clear": "Effacer",
+    "empty": "Aucun résultat",
+    "showing": "{{from}}–{{to}} sur {{total}}",
+    "page": "{{page}} / {{count}}"
+  },
   "pinGate": {
     "title": "Zone restreinte",
     "subtitle": "Entrez le code PIN d'accès pour continuer",
@@ -567,6 +585,15 @@ export const compGenNl = {
     "recipientAdded": "Ontvanger toegevoegd",
     "confirmRemove": "Deze ontvanger verwijderen?",
     "recipientRemoved": "Ontvanger verwijderd"
+  },
+  "dataTable": {
+    "search": "Zoeken…",
+    "export": "Exporteren",
+    "selected": "{{count}} geselecteerd",
+    "clear": "Wissen",
+    "empty": "Geen resultaten",
+    "showing": "{{from}}–{{to}} van {{total}}",
+    "page": "{{page}} / {{count}}"
   },
   "pinGate": {
     "title": "Beperkte zone",

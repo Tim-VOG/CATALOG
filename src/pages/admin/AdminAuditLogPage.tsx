@@ -1,21 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { useAuditLogs } from '@/hooks/use-audit-logs'
 import type { AuditLogRow } from '@/lib/api/audit-logs'
-import { PageLoading } from '@/components/common/LoadingSpinner'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import {
-  Search, ShieldCheck, Plus, Pencil, Trash2, ArrowRight, Download,
-} from 'lucide-react'
+import { DataTable, type Column } from '@/components/common/DataTable'
+import { ShieldCheck, Plus, Pencil, Trash2, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const ENTITY_TYPES = ['loan_requests', 'it_requests', 'qr_codes', 'products', 'profiles', 'it_device_credentials']
-
 const ENTITY_FILTERS = ['all', ...ENTITY_TYPES]
 
 function entityLabel(t: (key: string) => string, type: string): string {
@@ -44,8 +40,7 @@ function actorName(t: (key: string) => string, log: AuditLogRow): string {
 }
 
 function changedKeys(log: AuditLogRow): string {
-  const keys = Object.keys(log.new_values || log.old_values || {})
-    .filter((k: any) => k !== 'updated_at' && k !== 'id')
+  const keys = Object.keys(log.new_values || log.old_values || {}).filter((k: any) => k !== 'updated_at' && k !== 'id')
   if (!keys.length) return ''
   return keys.slice(0, 5).join(', ') + (keys.length > 5 ? '…' : '')
 }
@@ -53,46 +48,36 @@ function changedKeys(log: AuditLogRow): string {
 export function AdminAuditLogPage() {
   const { t } = useTranslation()
   const [entityType, setEntityType] = useState('all')
-  const [search, setSearch] = useState('')
   const { data: logs = [], isLoading } = useAuditLogs({ entityType })
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return logs
-    const q = search.toLowerCase()
-    return logs.filter((l: any) =>
-      actorName(t, l).toLowerCase().includes(q) ||
-      l.action.toLowerCase().includes(q) ||
-      entityLabel(t, l.entity_type).toLowerCase().includes(q) ||
-      changedKeys(l).toLowerCase().includes(q),
-    )
-  }, [logs, search, t])
-
-  const handleExportCsv = () => {
-    const headers = [
-      t('admin.auditLog.csvHeaderTime'),
-      t('admin.auditLog.csvHeaderActor'),
-      t('admin.auditLog.csvHeaderAction'),
-      t('admin.auditLog.csvHeaderEntity'),
-      t('admin.auditLog.csvHeaderEntityId'),
-      t('admin.auditLog.csvHeaderChangedFields'),
-    ]
-    const lines = filtered.map((l: any) => [
-      new Date(l.created_at).toISOString(),
-      actorName(t, l),
-      l.action,
-      entityLabel(t, l.entity_type),
-      l.entity_id || '',
-      changedKeys(l),
-    ].map((v: any) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v)).join(','))
-    const csv = [headers.join(','), ...lines].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `vo-hub-audit-${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-  }
-
-  if (isLoading) return <PageLoading />
+  const columns: Column<AuditLogRow>[] = [
+    {
+      key: 'time', header: t('admin.auditLog.csvHeaderTime'), sortable: true, width: '150px',
+      value: (l) => new Date(l.created_at).getTime(),
+      render: (l) => (
+        <div>
+          <div className="text-xs">{formatDistanceToNow(new Date(l.created_at), { addSuffix: true, locale: fr })}</div>
+          <div className="text-[10px] text-muted-foreground/70">{format(new Date(l.created_at), 'd MMM HH:mm', { locale: fr })}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'actor', header: t('admin.auditLog.csvHeaderActor'), sortable: true,
+      value: (l) => actorName(t, l), render: (l) => <span className="font-medium">{actorName(t, l)}</span>,
+    },
+    {
+      key: 'action', header: t('admin.auditLog.csvHeaderAction'), sortable: true, value: (l) => l.action,
+      render: (l) => { const m = actionMeta(t, l.action); const I = m.icon; return <Badge variant="outline" className={cn('text-[10px] gap-1', m.classes)}><I className="h-2.5 w-2.5" /> {m.label}</Badge> },
+    },
+    {
+      key: 'entity', header: t('admin.auditLog.csvHeaderEntity'), sortable: true,
+      value: (l) => entityLabel(t, l.entity_type), render: (l) => <span className="text-muted-foreground">{entityLabel(t, l.entity_type)}</span>,
+    },
+    {
+      key: 'fields', header: t('admin.auditLog.csvHeaderChangedFields'),
+      value: (l) => changedKeys(l), render: (l) => <span className="text-[11px] font-mono text-muted-foreground/80">{changedKeys(l) || '—'}</span>,
+    },
+  ]
 
   return (
     <div className="space-y-5">
@@ -100,76 +85,29 @@ export function AdminAuditLogPage() {
         title={t('admin.auditLog.title')}
         section="SECURITY"
         description={t('admin.auditLog.description', { count: logs.length })}
-      >
-        <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-2">
-          <Download className="h-3.5 w-3.5" /> {t('admin.auditLog.exportCsv')}
-        </Button>
-      </AdminPageHeader>
+      />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[240px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t('admin.auditLog.searchPlaceholder')}
-            className="pl-9 h-9"
-            value={search}
-            onChange={(e: any) => setSearch(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {ENTITY_FILTERS.map((e: any) => (
-            <Button
-              key={e}
-              variant={entityType === e ? 'secondary' : 'ghost'}
-              size="sm"
-              className="text-xs h-8"
-              onClick={() => setEntityType(e)}
-            >
-              {e === 'all' ? t('admin.auditLog.allEntities') : entityLabel(t, e)}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="border border-border/50 rounded-xl overflow-hidden bg-card">
-        {filtered.length === 0 ? (
-          <div className="py-16 flex flex-col items-center justify-center text-muted-foreground">
-            <ShieldCheck className="h-8 w-8 mb-2 opacity-30" />
-            <p className="text-sm">{t('admin.auditLog.emptyTitle')}</p>
-            <p className="text-xs mt-1">{t('admin.auditLog.emptyDescription')}</p>
+      <DataTable
+        columns={columns}
+        data={logs}
+        getRowId={(l) => l.id}
+        loading={isLoading}
+        searchPlaceholder={t('admin.auditLog.searchPlaceholder')}
+        initialSort={{ key: 'time', dir: 'desc' }}
+        exportName="vo-hub-audit"
+        emptyIcon={<ShieldCheck className="h-8 w-8 opacity-30" />}
+        emptyTitle={t('admin.auditLog.emptyTitle')}
+        emptyDescription={t('admin.auditLog.emptyDescription')}
+        toolbar={
+          <div className="flex flex-wrap gap-1">
+            {ENTITY_FILTERS.map((e) => (
+              <Button key={e} variant={entityType === e ? 'secondary' : 'ghost'} size="sm" className="text-xs h-8" onClick={() => setEntityType(e)}>
+                {e === 'all' ? t('admin.auditLog.allEntities') : entityLabel(t, e)}
+              </Button>
+            ))}
           </div>
-        ) : (
-          <div className="divide-y divide-border/40">
-            {filtered.map((log: any) => {
-              const meta = actionMeta(t, log.action)
-              const Icon = meta.icon
-              const fields = changedKeys(log)
-              return (
-                <div key={log.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20">
-                  <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border', meta.classes)}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">
-                      <span className="font-medium">{actorName(t, log)}</span>
-                      <span className="text-muted-foreground"> · </span>
-                      <Badge variant="outline" className={cn('text-[10px] align-middle', meta.classes)}>{meta.label}</Badge>
-                      <span className="text-muted-foreground"> · {entityLabel(t, log.entity_type)}</span>
-                    </p>
-                    {fields && (
-                      <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5 font-mono">{fields}</p>
-                    )}
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: fr })}</p>
-                    <p className="text-[10px] text-muted-foreground/60">{format(new Date(log.created_at), 'd MMM HH:mm', { locale: fr })}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+        }
+      />
     </div>
   )
 }
